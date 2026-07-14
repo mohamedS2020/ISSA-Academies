@@ -94,7 +94,10 @@ export async function createTenant(
   const schemaSlug = input.slug.replace(/-/g, '_');
   const safeId = sanitizeSchemaName(schemaSlug);
   const schemaName = `tenant_${safeId}`;
-  const databaseUrl = process.env.DATABASE_URL!;
+  // Provisioning runs DDL + `migrate deploy`, which a connection pooler
+  // (Neon/PgBouncer) cannot handle — use the DIRECT (non-pooled) URL. Runtime
+  // queries still go through the pooled DATABASE_URL via the tenant client.
+  const databaseUrl = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL!;
 
   // Generate the admin password
   const adminPassword = generateRandomPassword();
@@ -317,7 +320,8 @@ export async function changeTenantStatus(
         )
       );
 
-    const databaseUrl = process.env.DATABASE_URL!;
+    // DROP SCHEMA is DDL — use the DIRECT (non-pooled) connection.
+    const databaseUrl = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL!;
     const schemaSlug = updated.slug.replace(/-/g, '_');
     await dropTenantSchema(schemaSlug, databaseUrl).catch((e) =>
       console.error(

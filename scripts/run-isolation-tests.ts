@@ -185,7 +185,7 @@ async function teardown(tenantIds: string[]) {
     try {
       const tenant = await platformPrisma.tenant.findUnique({ where: { id: tenantId } });
       if (!tenant) continue;
-      await dropTenantSchema(tenant.schemaName.replace(/^tenant_/, ''), process.env.DATABASE_URL!);
+      await dropTenantSchema(tenant.schemaName.replace(/^tenant_/, ''), process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL!);
       await platformPrisma.tenant.delete({ where: { id: tenantId } });
       console.log(`[isolation-teardown] Cleaned up tenant ${tenantId}`);
     } catch (err) {
