@@ -1,0 +1,62 @@
+# ──────────────────────────────────────────────────────────────
+# ISSA Swimming Academy — Docker Compose (Development)
+# ──────────────────────────────────────────────────────────────
+# Services:
+#   - postgres:  PostgreSQL 16 database
+#   - pgbouncer: Connection pooler in TRANSACTION mode
+#   - app:       Next.js application (optional, for containerized dev)
+#
+# ⚠️ PgBouncer MUST be in `transaction` mode, NOT `session` mode.
+#    Session mode keeps the same Postgres connection for the entire
+#    client session — SET LOCAL search_path will persist across
+#    requests, defeating tenant isolation.
+# ──────────────────────────────────────────────────────────────
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: issa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: issa_platform
+      POSTGRES_USER: issa_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-issa_dev_password_2024}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U issa_admin -d issa_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer:1.22.0
+    container_name: issa-pgbouncer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://issa_admin:${POSTGRES_PASSWORD:-issa_dev_password_2024}@postgres:5432/issa_platform
+      # ⚠️ CRITICAL: Must be 'transaction' mode for SET LOCAL to work correctly
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      RESERVE_POOL_SIZE: 5
+      RESERVE_POOL_TIMEOUT: 3
+      SERVER_RESET_QUERY: "DISCARD ALL"
+      AUTH_TYPE: plain
+    ports:
+      - "6432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

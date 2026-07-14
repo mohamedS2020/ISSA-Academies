@@ -1,0 +1,92 @@
+// ──────────────────────────────────────────────────────────────
+// ISSA Swimming Academy — Platform Database Schema
+// ──────────────────────────────────────────────────────────────
+// This schema manages platform-level data: tenants (academies),
+// their configurations, and super admin accounts.
+// Each tenant gets its own PostgreSQL schema (tenant_{id}) for
+// full data isolation — see tenant-schema.prisma for those tables.
+// ──────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/platform-client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ─── Tenant (Academy) ───────────────────────────────────────
+model Tenant {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @db.VarChar(255)
+  slug        String       @unique @db.VarChar(100)
+  status      TenantStatus @default(ACTIVE)
+  contactName String?      @map("contact_name") @db.VarChar(255)
+  contactPhone String?     @map("contact_phone") @db.VarChar(50)
+  contactEmail String?     @map("contact_email") @db.VarChar(255)
+  schemaName  String       @unique @map("schema_name") @db.VarChar(100)
+  maxBranches Int          @default(10) @map("max_branches")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  config TenantConfig?
+  phoneIndex UserPhoneIndex[]
+
+  @@map("tenants")
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+// ─── Tenant Configuration ───────────────────────────────────
+model TenantConfig {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @unique @map("tenant_id") @db.Uuid
+  currency  String   @default("EGP") @db.VarChar(10)
+  defaultTimezone String @default("Africa/Cairo") @map("default_timezone") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("tenant_configs")
+}
+
+// ─── Super Admin ────────────────────────────────────────────
+model SuperAdmin {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(255)
+  phoneNumber  String   @unique @map("phone_number") @db.VarChar(50)
+  passwordHash String   @map("password_hash") @db.Text
+  isActive     Boolean  @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("super_admins")
+}
+
+// ─── User Phone Index ───────────────────────────────────────
+// Maps phone numbers to tenant IDs for fast cross-tenant login lookup.
+// Populated when a tenant user is created, cleaned up on deletion.
+model UserPhoneIndex {
+  id          String   @id @default(uuid()) @db.Uuid
+  phoneNumber String   @map("phone_number") @db.VarChar(50)
+  tenantId    String   @map("tenant_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid  // tenant-schema user ID
+  branchId    String   @map("branch_id") @db.Uuid
+  role        String   @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([phoneNumber, tenantId])
+  @@index([phoneNumber])
+  @@map("user_phone_index")
+}

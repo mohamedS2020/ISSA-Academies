@@ -1,0 +1,771 @@
+// ──────────────────────────────────────────────────────────────
+// ISSA Swimming Academy — Tenant Database Schema
+// ──────────────────────────────────────────────────────────────
+// This schema defines all tables that live inside each tenant's
+// dedicated PostgreSQL schema (tenant_{id}).
+//
+// Key conventions:
+//   • All DateTime fields for sessions use @db.Timestamptz (UTC)
+//   • Branch.timezone is an IANA string (e.g. "Africa/Cairo")
+//   • Group.startTime is wall-clock (e.g. "08:00"), converted
+//     to UTC via timezone utility when generating sessions
+//   • SubscriptionPlan.periodDays is nullable — only used when
+//     periodType = FROM_SUBSCRIPTION_DATE
+//   • Archive tables mirror live tables + archivedAt field
+// ──────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/tenant-client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENUMS
+// ═══════════════════════════════════════════════════════════════
+
+enum UserRole {
+  ADMIN
+  MODERATOR
+  CAPTAIN
+  TRAINEE
+}
+
+enum PeriodType {
+  FROM_SUBSCRIPTION_DATE
+  FROM_MONTH_START
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  FROZEN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum PayrollType {
+  HOURS
+  SALARY_PERCENTAGE
+}
+
+enum PayrollFrequency {
+  WEEKLY
+  BI_WEEKLY
+  MONTHLY
+  CUSTOM
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentStatus {
+  PAID
+  PARTIAL
+  UNPAID
+}
+
+enum PaymentMethod {
+  INSTAPAY
+  CASH
+  EWALLET
+}
+
+enum ReferralType {
+  NEW
+  NETWORK
+  OLD
+  CONTINUOUS
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  ARCHIVE
+  LOGIN
+  PASSWORD_RESET
+  STATUS_CHANGE
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CORE TABLES
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Branch ─────────────────────────────────────────────────
+model Branch {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  code      String   @unique @db.VarChar(20)
+  address   String?  @db.Text
+  phone     String?  @db.VarChar(50)
+  timezone  String   @default("Africa/Cairo") @db.VarChar(100) // IANA timezone string
+  isActive  Boolean  @default(true) @map("is_active")
+  payrollFrequency  PayrollFrequency @default(MONTHLY) @map("payroll_frequency")
+  payrollCustomDays Int?             @map("payroll_custom_days") // only used when payrollFrequency = CUSTOM
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  users              User[]
+  traineeProfiles    TraineeProfile[]
+  captainProfiles    CaptainProfile[]
+  subscriptionPlans  SubscriptionPlan[]
+  groups             Group[]
+  sessions           Session[]
+  attendanceRecords  AttendanceRecord[]
+  receipts           Receipt[]
+  financialTransactions FinancialTransaction[]
+  expenses           Expense[]
+  manualIncomes      ManualIncome[]
+  captainPayrolls    CaptainPayroll[]
+  auditLogs          AuditLog[]
+
+  @@map("branches")
+}
+
+// ─── User ───────────────────────────────────────────────────
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  branchId     String   @map("branch_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  phoneNumber  String   @map("phone_number") @db.VarChar(50)
+  passwordHash String   @map("password_hash") @db.Text
+  role         UserRole
+  isActive     Boolean  @default(true) @map("is_active")
+  language     String   @default("en") @db.VarChar(5) // per-user language preference
+  lastLoginAt  DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch          Branch           @relation(fields: [branchId], references: [id])
+  privileges      UserPrivilege[]
+  traineeProfiles TraineeProfile[] // an account (guardian, or a self-managing adult) owns 1+ trainees
+  captainProfile  CaptainProfile?
+  evaluations     TraineeEvaluation[] @relation("EvaluatorEvaluations")
+
+  @@unique([branchId, phoneNumber])
+  @@index([phoneNumber])
+  @@map("users")
+}
+
+// ─── User Privileges (Moderator permissions) ────────────────
+model UserPrivilege {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  privilege String   @db.VarChar(100) // e.g. "can_manage_trainees"
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, privilege])
+  @@map("user_privileges")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRAINEE & CAPTAIN PROFILES
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Trainee Profile ────────────────────────────────────────
+model TraineeProfile {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid // the ACCOUNT/guardian User — one account owns many trainees (no longer 1:1)
+  branchId          String   @map("branch_id") @db.Uuid
+  name              String   @db.VarChar(255) // the athlete's own name (User.name is the account/guardian name)
+  systemCode        String   @unique @map("system_code") @db.VarChar(50) // e.g. ISSA-BR01-00042
+  dateOfBirth       DateTime @map("date_of_birth") @db.Date
+  whatsappNumber    String   @map("whatsapp_number") @db.VarChar(50)
+  parentIdCard      String   @map("parent_id_card") @db.VarChar(50)
+  medicalCondition  String   @map("medical_condition") @db.Text
+  referralType      ReferralType? @map("referral_type") // how the trainee was referred (New/Network/Old/Continuous)
+
+  // Skills Level
+  pastExperience    String?  @map("past_experience") @db.Text
+  otherAcademies    String?  @map("other_academies") @db.Text
+  levelId           String?  @map("level_id") @db.Uuid
+
+  // Optional Personal
+  maritalStatus         String?  @map("marital_status") @db.VarChar(50)
+  fatherJob             String?  @map("father_job") @db.VarChar(255)
+  fatherQualifications  String?  @map("father_qualifications") @db.VarChar(255)
+  motherJob             String?  @map("mother_job") @db.VarChar(255)
+  motherQualifications  String?  @map("mother_qualifications") @db.VarChar(255)
+  birthOrder            Int?     @map("birth_order")
+
+  // Psychological
+  personalityTraits String? @map("personality_traits") @db.Text
+
+  // Physical Measurements
+  height              Decimal? @db.Decimal(5, 2)
+  weight              Decimal? @db.Decimal(5, 2)
+  armLength           Decimal? @map("arm_length") @db.Decimal(5, 2)
+  footLength          Decimal? @map("foot_length") @db.Decimal(5, 2)
+  chestCircumference  Decimal? @map("chest_circumference") @db.Decimal(5, 2)
+  waistCircumference  Decimal? @map("waist_circumference") @db.Decimal(5, 2)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch          Branch                @relation(fields: [branchId], references: [id])
+  level           SubscriptionPlanLevel? @relation(fields: [levelId], references: [id])
+  subscriptions   TraineeSubscription[]
+  groupTrainees   GroupTrainee[]
+  attendanceRecords AttendanceRecord[]
+  evaluations     TraineeEvaluation[]
+  receipts        Receipt[]
+  captainRatings   CaptainRating[]
+  captainFeedbacks CaptainFeedback[]
+
+  @@index([systemCode])
+  @@index([branchId])
+  @@index([userId])
+  @@map("trainee_profiles")
+}
+
+// ─── Captain Profile ────────────────────────────────────────
+model CaptainProfile {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @unique @map("user_id") @db.Uuid
+  branchId       String      @map("branch_id") @db.Uuid
+  specialization String?     @db.VarChar(255)
+  attendingDays  DayOfWeek[] @map("attending_days")
+  payrollType    PayrollType @map("payroll_type")
+  hourlyRate     Decimal?    @map("hourly_rate") @db.Decimal(10, 2)  // for HOURS type
+  baseSalary     Decimal?    @map("base_salary") @db.Decimal(10, 2) // for SALARY_PERCENTAGE type
+  percentage     Decimal?    @db.Decimal(5, 2)                       // for SALARY_PERCENTAGE type
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch  Branch @relation(fields: [branchId], references: [id])
+  groups  Group[]
+  payrolls CaptainPayroll[]
+  ratings   CaptainRating[]
+  feedbacks CaptainFeedback[]
+
+  @@index([branchId])
+  @@map("captain_profiles")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUBSCRIPTION MANAGEMENT
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Subscription Plan ──────────────────────────────────────
+model SubscriptionPlan {
+  id               String     @id @default(uuid()) @db.Uuid
+  branchId         String     @map("branch_id") @db.Uuid
+  name             String     @db.VarChar(255)
+  minSessions      Int        @map("min_sessions")
+  periodType       PeriodType @map("period_type")
+  periodDays       Int?       @map("period_days") // nullable — only for FROM_SUBSCRIPTION_DATE
+  freezeSessions   Int        @map("freeze_sessions")    // allowed absences
+  freezeRetakeDays Int        @map("freeze_retake_days") // max days after expiry for retakes
+  amount           Decimal    @db.Decimal(10, 2)
+  isActive         Boolean    @default(true) @map("is_active")
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch  Branch                @relation(fields: [branchId], references: [id])
+  levels  SubscriptionPlanLevel[]
+  groups  Group[]
+  subscriptions TraineeSubscription[]
+
+  @@index([branchId])
+  @@map("subscription_plans")
+}
+
+// ─── Subscription Plan Level ────────────────────────────────
+model SubscriptionPlanLevel {
+  id        String   @id @default(uuid()) @db.Uuid
+  planId    String   @map("plan_id") @db.Uuid
+  name      String   @db.VarChar(100) // e.g. "Level 1", "Beginner"
+  sortOrder Int      @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  plan            SubscriptionPlan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  traineeProfiles TraineeProfile[]
+  subscriptions   TraineeSubscription[]
+
+  @@index([planId])
+  @@map("subscription_plan_levels")
+}
+
+// ─── Trainee Subscription ───────────────────────────────────
+// ⚠️ Active subscription is resolved via query:
+//    SELECT * FROM trainee_subscriptions WHERE trainee_id = X AND status = 'ACTIVE' LIMIT 1
+//    Never embed subscription_id on the trainee table.
+model TraineeSubscription {
+  id              String             @id @default(uuid()) @db.Uuid
+  traineeId       String             @map("trainee_id") @db.Uuid
+  planId          String             @map("plan_id") @db.Uuid
+  levelId         String             @map("level_id") @db.Uuid
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime           @map("start_date") @db.Date
+  endDate         DateTime           @map("end_date") @db.Date
+  totalSessions   Int                @map("total_sessions")
+  attendedSessions Int               @default(0) @map("attended_sessions")
+  freezeUsed      Int                @default(0) @map("freeze_used")
+  amountPaid      Decimal            @default(0) @map("amount_paid") @db.Decimal(10, 2)
+  amountDue       Decimal            @map("amount_due") @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus      @default(UNPAID) @map("payment_status")
+  // Moment the subscription actually ended (date reached OR all sessions used),
+  // anchoring the post-expiry grace window (plan.freezeRetakeDays). Null while active.
+  expiredAt       DateTime?          @map("expired_at") @db.Timestamptz
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  trainee  TraineeProfile      @relation(fields: [traineeId], references: [id])
+  plan     SubscriptionPlan    @relation(fields: [planId], references: [id])
+  level    SubscriptionPlanLevel @relation(fields: [levelId], references: [id])
+  receipts Receipt[]
+
+  @@index([traineeId, status])
+  @@index([status])
+  @@map("trainee_subscriptions")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GROUPS & SCHEDULING
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Group ──────────────────────────────────────────────────
+model Group {
+  id              String     @id @default(uuid()) @db.Uuid
+  branchId        String     @map("branch_id") @db.Uuid
+  captainId       String     @map("captain_id") @db.Uuid
+  planId          String     @map("plan_id") @db.Uuid
+  name            String     @db.VarChar(255)
+  minTrainees     Int        @map("min_trainees")
+  maxTrainees     Int        @map("max_trainees")
+  daysPerWeek     Int        @map("days_per_week")
+  scheduleDays    DayOfWeek[] @map("schedule_days")
+  startTime       String     @map("start_time") @db.VarChar(5) // wall-clock "HH:MM", interpreted against branch.timezone
+  sessionDuration Int        @map("session_duration") // minutes
+  isActive        Boolean    @default(true) @map("is_active")
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch    Branch         @relation(fields: [branchId], references: [id])
+  captain   CaptainProfile @relation(fields: [captainId], references: [id])
+  plan      SubscriptionPlan @relation(fields: [planId], references: [id])
+  trainees  GroupTrainee[]
+  sessions  Session[]
+
+  @@index([branchId])
+  @@index([captainId])
+  @@map("groups")
+}
+
+// ─── Group Trainee (join table) ─────────────────────────────
+model GroupTrainee {
+  id        String   @id @default(uuid()) @db.Uuid
+  groupId   String   @map("group_id") @db.Uuid
+  traineeId String   @map("trainee_id") @db.Uuid
+  joinedAt  DateTime @default(now()) @map("joined_at") @db.Timestamptz
+
+  group   Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  trainee TraineeProfile @relation(fields: [traineeId], references: [id])
+
+  @@unique([groupId, traineeId])
+  @@map("group_trainees")
+}
+
+// ─── Session ────────────────────────────────────────────────
+model Session {
+  id              String        @id @default(uuid()) @db.Uuid
+  branchId        String        @map("branch_id") @db.Uuid
+  groupId         String        @map("group_id") @db.Uuid
+  scheduledAt     DateTime      @map("scheduled_at") @db.Timestamptz // UTC
+  durationMinutes Int           @map("duration_minutes")
+  status          SessionStatus @default(SCHEDULED)
+  cancelledReason String?       @map("cancelled_reason") @db.Text
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch           Branch             @relation(fields: [branchId], references: [id])
+  group            Group              @relation(fields: [groupId], references: [id])
+  attendanceRecords AttendanceRecord[]
+  evaluations      TraineeEvaluation[]
+
+  @@index([branchId, scheduledAt])
+  @@index([groupId, scheduledAt])
+  @@map("sessions")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ATTENDANCE & EVALUATIONS
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Attendance Record ──────────────────────────────────────
+model AttendanceRecord {
+  id          String           @id @default(uuid()) @db.Uuid
+  branchId    String           @map("branch_id") @db.Uuid
+  sessionId   String           @map("session_id") @db.Uuid
+  traineeId   String           @map("trainee_id") @db.Uuid
+  status      AttendanceStatus
+  isRetake    Boolean          @default(false) @map("is_retake")
+  markedAt    DateTime         @default(now()) @map("marked_at") @db.Timestamptz
+  markedBy    String           @map("marked_by") @db.Uuid // user who marked attendance
+  notes       String?          @db.Text
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch  Branch         @relation(fields: [branchId], references: [id])
+  session Session        @relation(fields: [sessionId], references: [id])
+  trainee TraineeProfile @relation(fields: [traineeId], references: [id])
+
+  @@unique([sessionId, traineeId])
+  @@index([branchId])
+  @@index([traineeId])
+  @@map("attendance_records")
+}
+
+// ─── Trainee Evaluation ─────────────────────────────────────
+model TraineeEvaluation {
+  id          String   @id @default(uuid()) @db.Uuid
+  sessionId   String   @map("session_id") @db.Uuid
+  traineeId   String   @map("trainee_id") @db.Uuid
+  evaluatorId String   @map("evaluator_id") @db.Uuid // captain who wrote the evaluation
+  notes       String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  session   Session        @relation(fields: [sessionId], references: [id])
+  trainee   TraineeProfile @relation(fields: [traineeId], references: [id])
+  evaluator User           @relation("EvaluatorEvaluations", fields: [evaluatorId], references: [id])
+
+  @@index([traineeId])
+  @@index([sessionId])
+  @@map("trainee_evaluations")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RATINGS & FEEDBACK
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Captain Rating (a trainee rates their captain, editable) ─
+model CaptainRating {
+  id        String   @id @default(uuid()) @db.Uuid
+  branchId  String   @map("branch_id") @db.Uuid
+  captainId String   @map("captain_id") @db.Uuid
+  traineeId String   @map("trainee_id") @db.Uuid
+  stars     Int      // 1..5
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  captain CaptainProfile @relation(fields: [captainId], references: [id], onDelete: Cascade)
+  trainee TraineeProfile @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+
+  @@unique([captainId, traineeId]) // one rating per trainee→captain (upserted on edit)
+  @@index([captainId])
+  @@map("captain_ratings")
+}
+
+// ─── Captain Feedback (captain writes feedback on a trainee) ──
+model CaptainFeedback {
+  id        String   @id @default(uuid()) @db.Uuid
+  branchId  String   @map("branch_id") @db.Uuid
+  captainId String   @map("captain_id") @db.Uuid
+  traineeId String   @map("trainee_id") @db.Uuid
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  captain CaptainProfile @relation(fields: [captainId], references: [id], onDelete: Cascade)
+  trainee TraineeProfile @relation(fields: [traineeId], references: [id], onDelete: Cascade)
+
+  @@index([traineeId, createdAt])
+  @@index([captainId])
+  @@map("captain_feedbacks")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FINANCIAL
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Receipt ────────────────────────────────────────────────
+model Receipt {
+  id               String   @id @default(uuid()) @db.Uuid
+  branchId         String   @map("branch_id") @db.Uuid
+  traineeId        String   @map("trainee_id") @db.Uuid
+  subscriptionId   String   @map("subscription_id") @db.Uuid
+  receiptNumber    String   @unique @map("receipt_number") @db.VarChar(50)
+  seq              Int      // sequential per branch for audit compliance
+  amount           Decimal  @db.Decimal(10, 2)
+  paymentMethod    PaymentMethod? @map("payment_method") // how this payment was made (InstaPay/Cash/E-wallet)
+  description      String?  @db.Text
+  issuedAt         DateTime @default(now()) @map("issued_at") @db.Timestamptz
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  branch       Branch              @relation(fields: [branchId], references: [id])
+  trainee      TraineeProfile      @relation(fields: [traineeId], references: [id])
+  subscription TraineeSubscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([branchId, seq])
+  @@index([receiptNumber])
+  @@map("receipts")
+}
+
+// ─── Financial Transaction ──────────────────────────────────
+model FinancialTransaction {
+  id          String          @id @default(uuid()) @db.Uuid
+  branchId    String          @map("branch_id") @db.Uuid
+  type        TransactionType
+  amount      Decimal         @db.Decimal(10, 2)
+  description String?         @db.Text
+  referenceId String?         @map("reference_id") @db.Uuid // link to receipt or expense
+  date        DateTime        @db.Date
+  createdBy   String          @map("created_by") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId, date])
+  @@index([type])
+  @@map("financial_transactions")
+}
+
+// ─── Expense ────────────────────────────────────────────────
+model Expense {
+  id          String   @id @default(uuid()) @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  category    String   @db.VarChar(100)
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?  @db.Text
+  date        DateTime @db.Date
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId, date])
+  @@map("expenses")
+}
+
+/// Manual income NOT tied to a subscription (grants, rentals, one-off sales…).
+/// Mirrors the Expense pattern: each row also writes an INCOME FinancialTransaction
+/// so the P&L / dashboard income totals pick it up automatically.
+model ManualIncome {
+  id          String   @id @default(uuid()) @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  category    String   @db.VarChar(100)
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?  @db.Text
+  date        DateTime @db.Date
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId, date])
+  @@map("manual_incomes")
+}
+
+// ─── Captain Payroll ────────────────────────────────────────
+model CaptainPayroll {
+  id             String           @id @default(uuid()) @db.Uuid
+  branchId       String           @map("branch_id") @db.Uuid
+  captainId      String           @map("captain_id") @db.Uuid
+  periodStart    DateTime         @map("period_start") @db.Date
+  periodEnd      DateTime         @map("period_end") @db.Date
+  payrollType    PayrollType      @map("payroll_type")
+  hoursWorked    Decimal?         @map("hours_worked") @db.Decimal(6, 2)
+  hourlyRate     Decimal?         @map("hourly_rate") @db.Decimal(10, 2)
+  baseSalary     Decimal?         @map("base_salary") @db.Decimal(10, 2)
+  percentage     Decimal?         @db.Decimal(5, 2)
+  percentageBase Decimal?         @map("percentage_base") @db.Decimal(10, 2) // sum of subscription fees
+  totalAmount    Decimal          @map("total_amount") @db.Decimal(10, 2)
+  isPaid         Boolean          @default(false) @map("is_paid")
+  paidAt         DateTime?        @map("paid_at") @db.Timestamptz
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+
+  branch  Branch         @relation(fields: [branchId], references: [id])
+  captain CaptainProfile @relation(fields: [captainId], references: [id])
+
+  @@index([branchId, periodStart])
+  @@index([captainId])
+  @@map("captain_payrolls")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════════════════════════════════
+
+model AuditLog {
+  id         String      @id @default(uuid()) @db.Uuid
+  branchId   String      @map("branch_id") @db.Uuid
+  userId     String      @map("user_id") @db.Uuid
+  action     AuditAction
+  entityType String      @map("entity_type") @db.VarChar(100) // e.g. "trainee_subscription"
+  entityId   String      @map("entity_id") @db.Uuid
+  oldValues  Json?       @map("old_values")
+  newValues  Json?       @map("new_values")
+  ipAddress  String?     @map("ip_address") @db.VarChar(45)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ARCHIVE TABLES
+// Same shape as live counterparts + archivedAt field.
+// Records are moved here by the weekly archive job.
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Archived Attendance Records (retention: 1 year) ────────
+model ArchivedAttendanceRecord {
+  id          String           @id @db.Uuid
+  branchId    String           @map("branch_id") @db.Uuid
+  sessionId   String           @map("session_id") @db.Uuid
+  traineeId   String           @map("trainee_id") @db.Uuid
+  status      AttendanceStatus
+  isRetake    Boolean          @map("is_retake")
+  markedAt    DateTime         @map("marked_at") @db.Timestamptz
+  markedBy    String           @map("marked_by") @db.Uuid
+  notes       String?          @db.Text
+  createdAt   DateTime         @map("created_at") @db.Timestamptz
+  updatedAt   DateTime         @map("updated_at") @db.Timestamptz
+  archivedAt  DateTime         @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId])
+  @@index([traineeId])
+  @@index([sessionId, traineeId])
+  @@map("archived_attendance_records")
+}
+
+// ─── Archived Trainee Subscriptions (retention: 1 year) ─────
+model ArchivedTraineeSubscription {
+  id               String             @id @db.Uuid
+  traineeId        String             @map("trainee_id") @db.Uuid
+  planId           String             @map("plan_id") @db.Uuid
+  levelId          String             @map("level_id") @db.Uuid
+  status           SubscriptionStatus
+  startDate        DateTime           @map("start_date") @db.Date
+  endDate          DateTime           @map("end_date") @db.Date
+  totalSessions    Int                @map("total_sessions")
+  attendedSessions Int                @map("attended_sessions")
+  freezeUsed       Int                @map("freeze_used")
+  amountPaid       Decimal            @map("amount_paid") @db.Decimal(10, 2)
+  amountDue        Decimal            @map("amount_due") @db.Decimal(10, 2)
+  paymentStatus    PaymentStatus      @map("payment_status")
+  createdAt        DateTime           @map("created_at") @db.Timestamptz
+  updatedAt        DateTime           @map("updated_at") @db.Timestamptz
+  archivedAt       DateTime           @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([traineeId])
+  @@index([status])
+  @@map("archived_trainee_subscriptions")
+}
+
+// ─── Archived Financial Transactions (retention: 5 years) ───
+model ArchivedFinancialTransaction {
+  id          String          @id @db.Uuid
+  branchId    String          @map("branch_id") @db.Uuid
+  type        TransactionType
+  amount      Decimal         @db.Decimal(10, 2)
+  description String?         @db.Text
+  referenceId String?         @map("reference_id") @db.Uuid
+  date        DateTime        @db.Date
+  createdBy   String          @map("created_by") @db.Uuid
+  createdAt   DateTime        @map("created_at") @db.Timestamptz
+  archivedAt  DateTime        @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId, date])
+  @@map("archived_financial_transactions")
+}
+
+// ─── Archived Receipts (retention: 5 years) ─────────────────
+model ArchivedReceipt {
+  id               String   @id @db.Uuid
+  branchId         String   @map("branch_id") @db.Uuid
+  traineeId        String   @map("trainee_id") @db.Uuid
+  subscriptionId   String   @map("subscription_id") @db.Uuid
+  receiptNumber    String   @map("receipt_number") @db.VarChar(50)
+  seq              Int
+  amount           Decimal  @db.Decimal(10, 2)
+  description      String?  @db.Text
+  issuedAt         DateTime @map("issued_at") @db.Timestamptz
+  createdAt        DateTime @map("created_at") @db.Timestamptz
+  archivedAt       DateTime @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId])
+  @@index([receiptNumber])
+  @@map("archived_receipts")
+}
+
+// ─── Archived Expenses (retention: 5 years) ─────────────────
+model ArchivedExpense {
+  id          String   @id @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  category    String   @db.VarChar(100)
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?  @db.Text
+  date        DateTime @db.Date
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @map("updated_at") @db.Timestamptz
+  archivedAt  DateTime @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId, date])
+  @@map("archived_expenses")
+}
+
+// ─── Archived Captain Payroll (retention: 5 years) ──────────
+model ArchivedCaptainPayroll {
+  id             String      @id @db.Uuid
+  branchId       String      @map("branch_id") @db.Uuid
+  captainId      String      @map("captain_id") @db.Uuid
+  periodStart    DateTime    @map("period_start") @db.Date
+  periodEnd      DateTime    @map("period_end") @db.Date
+  payrollType    PayrollType @map("payroll_type")
+  hoursWorked    Decimal?    @map("hours_worked") @db.Decimal(6, 2)
+  hourlyRate     Decimal?    @map("hourly_rate") @db.Decimal(10, 2)
+  baseSalary     Decimal?    @map("base_salary") @db.Decimal(10, 2)
+  percentage     Decimal?    @db.Decimal(5, 2)
+  percentageBase Decimal?    @map("percentage_base") @db.Decimal(10, 2)
+  totalAmount    Decimal     @map("total_amount") @db.Decimal(10, 2)
+  isPaid         Boolean     @map("is_paid")
+  paidAt         DateTime?   @map("paid_at") @db.Timestamptz
+  createdAt      DateTime    @map("created_at") @db.Timestamptz
+  updatedAt      DateTime    @map("updated_at") @db.Timestamptz
+  archivedAt     DateTime    @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId, periodStart])
+  @@index([captainId])
+  @@map("archived_captain_payrolls")
+}

@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Type-check · Test · Isolation · Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: issa_platform
+          POSTGRES_USER: issa_admin
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U issa_admin -d issa_platform"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Both vars point to the same direct Postgres — no PgBouncer in CI.
+      # DIRECT_DATABASE_URL is now consumed by tenant-schema.prisma (directUrl).
+      DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
+      DIRECT_DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
+      # Dummy JWT secrets — only needed to satisfy config, not for real auth in tests
+      JWT_ACCESS_SECRET: ci-access-secret-not-for-production
+      JWT_REFRESH_SECRET: ci-refresh-secret-not-for-production
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      JWT_REMEMBER_ME_EXPIRY: 30d
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Generate Prisma clients ──────────────────────────────
+      - name: Generate Prisma clients
+        run: |
+          npx prisma generate --schema=prisma/schema.prisma
+          npx prisma generate --schema=prisma/tenant-schema.prisma
+
+      # ── Type-check ───────────────────────────────────────────
+      - name: TypeScript type-check
+        run: npx tsc --noEmit
+
+      # ── Platform schema migrations ───────────────────────────
+      # Creates the tenants, super_admins, tenant_configs, user_phone_index
+      # tables in the public schema — required before any test that touches
+      # the platform DB.
+      - name: Apply platform migrations
+        run: npx prisma migrate deploy --schema=prisma/schema.prisma
+
+      # ── Default test suite ───────────────────────────────────
+      - name: Run tests (default)
+        run: npm test
+
+      # ── Isolation tests ──────────────────────────────────────
+      # Provisions two real tenant schemas, seeds fixture data, runs
+      # cross-tenant and cross-branch isolation checks, then tears down.
+      # These are the safety-critical tests for the multi-tenant architecture.
+      - name: Run isolation tests
+        run: npm run test:isolation
+
+      # ── Production build ─────────────────────────────────────
+      # Fails if any page/route fails to compile, even if types pass.
+      - name: Next.js production build
+        run: npm run build
