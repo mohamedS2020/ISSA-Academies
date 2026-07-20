@@ -88,6 +88,7 @@ describe('Tenant Provisioning Flow', () => {
     const result = await createTenant({
       name: 'Integration Test Academy',
       slug: TEST_TENANT_SLUG,
+      themeKey: 'swimming',
       contactName: 'Test Contact',
       contactPhone: '+201999999999',
       contactEmail: 'test@integration.test',

@@ -26,6 +26,7 @@ import React, {
   useRef,
   type ReactNode,
 } from 'react';
+import { resolveSport, type SportKey } from '@/lib/theme/sports';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -37,6 +38,8 @@ export interface AuthUser {
   branchId?: string;
   branchName?: string;
   tenantName?: string;
+  /** The academy's sport branding theme (visual only). See src/lib/theme/sports.ts. */
+  themeKey?: SportKey;
   language?: string;
 }
 
@@ -317,6 +320,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [scheduleTokenRefresh]);
 
   // ─── Login ──────────────────────────────────────────────
+
+  // ─── Sport theme sync ───────────────────────────────────
+  // Keeps `data-sport` on <html> in sync on login/logout — a SEPARATE axis from
+  // light/dark (.dark, owned by ThemeProvider) that composes with it. The
+  // pre-hydration script in [locale]/layout.tsx sets it before first paint (no
+  // flash); this effect reacts to auth changes.
+  // Priority: logged-in academy > the subdomain's academy (data-host-sport,
+  // server-rendered) > swimming (base palette).
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const el = document.documentElement;
+    const hostSport = el.getAttribute('data-host-sport');
+    el.dataset.sport = resolveSport(state.user?.themeKey ?? hostSport);
+  }, [state.user?.themeKey]);
 
   const login = useCallback(
     async (

@@ -41,6 +41,7 @@ export interface TenantWithConfig {
   config: {
     currency: string;
     defaultTimezone: string;
+    themeKey: string;
   } | null;
 }
 
@@ -121,6 +122,7 @@ export async function createTenant(
           create: {
             currency: 'EGP',
             defaultTimezone: input.branchTimezone,
+            themeKey: input.themeKey,
           },
         },
       },

@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { SPORT_KEYS, DEFAULT_SPORT, type SportKey } from '@/lib/theme/sports';
 
 // ─── Create Tenant ──────────────────────────────────────────
 
@@ -15,6 +16,11 @@ export const createTenantSchema = z.object({
     .string()
     .min(2, 'Academy name must be at least 2 characters')
     .max(255, 'Academy name must be at most 255 characters'),
+  // Sport branding theme (visual identity only). Defaults to swimming so the
+  // academy looks like the original ISSA until a sport is picked.
+  themeKey: z
+    .enum(SPORT_KEYS as [SportKey, ...SportKey[]])
+    .default(DEFAULT_SPORT),
   slug: z
     .string()
     .min(2, 'Slug must be at least 2 characters')

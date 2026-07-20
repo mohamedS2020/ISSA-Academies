@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
+import { resolveSport, sportLabel } from '@/lib/theme/sports';
 import { UserRole } from '@/types';
 import { isRtlLocale } from '@/lib/i18n/config';
 import {
@@ -54,6 +55,9 @@ export default function Sidebar({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   if (!user) return null;
+
+  // Sport wordmark for the brand mark (visual identity; "ISSA" stays untranslated).
+  const sportName = sportLabel(resolveSport(user.themeKey), locale).toUpperCase();
 
   // Off-canvas transform for the mobile drawer (start-side aware for RTL).
   const hiddenTransform = isRtl ? 'translate-x-full' : '-translate-x-full';
@@ -160,16 +164,16 @@ export default function Sidebar({
       <div className="flex items-center justify-between px-5 py-6 border-b border-slate-200/60 dark:border-slate-800/60">
         {!isCollapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
               <span className="text-white text-xs font-black">ISSA</span>
             </div>
             <span className="text-sm font-extrabold tracking-wider bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
-              SWIMMING
+              {sportName}
             </span>
           </div>
         )}
         {isCollapsed && (
-          <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-md">
+          <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-md">
             <span className="text-white text-[10px] font-black">IS</span>
           </div>
         )}

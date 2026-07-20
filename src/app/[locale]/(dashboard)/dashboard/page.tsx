@@ -12,7 +12,8 @@
  * /portal at login time and by the (dashboard)/layout.tsx guard.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { UserRole } from '@/types';
@@ -35,16 +36,19 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
-import { useChartTheme } from '@/lib/theme/use-chart-theme';
+import dynamic from 'next/dynamic';
+
+// recharts is heavy — load it only when the chart renders (keeps it out of the
+// dashboard's initial bundle). ssr:false is fine: this page is client-only.
+const AreaTrendChart = dynamic(
+  () => import('@/components/charts/area-trend-chart'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[180px] w-full animate-pulse rounded-xl bg-slate-200/60 dark:bg-slate-800/40" />
+    ),
+  }
+);
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -83,7 +87,6 @@ interface CaptainDashboard {
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
-  const chart = useChartTheme();
   const tSchedule = useTranslations('schedule');
   const { user, authFetch } = useAuth();
   const { toast } = useToast();
@@ -91,30 +94,29 @@ export default function DashboardPage() {
   const locale = params.locale as string;
   const isRtl = locale === 'ar';
 
-  const [dashboardData, setDashboardData] = useState<
-    AdminDashboard | CaptainDashboard | null
-  >(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchDashboard = useCallback(async () => {
-    setIsLoading(true);
-    try {
+  // Cached via React Query — going back to the dashboard reuses fresh data
+  // (staleTime) instead of refetching and flashing a skeleton every time.
+  const {
+    data: dashboardData,
+    isPending,
+    isError,
+    error,
+  } = useQuery<AdminDashboard | CaptainDashboard>({
+    queryKey: ['dashboard'],
+    enabled: !!user && user.role !== UserRole.TRAINEE,
+    queryFn: async () => {
       const res = await authFetch('/api/dashboard');
       if (!res.ok) throw new Error('Failed to load dashboard');
       const json = await res.json();
-      setDashboardData(json.data);
-    } catch (err: any) {
-      toast.error(err.message || tCommon('somethingWentWrong'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [authFetch, toast, tCommon]);
+      return json.data;
+    },
+  });
 
   useEffect(() => {
-    if (user && user.role !== UserRole.TRAINEE) {
-      fetchDashboard();
+    if (isError) {
+      toast.error((error as Error)?.message || tCommon('somethingWentWrong'));
     }
-  }, [fetchDashboard, user]);
+  }, [isError, error, toast, tCommon]);
 
   if (!user) return null;
 
@@ -123,7 +125,7 @@ export default function DashboardPage() {
   const renderAdminDashboard = () => {
     const data = dashboardData as AdminDashboard | null;
 
-    if (isLoading || !data) return <SkeletonDashboard />;
+    if (isPending || !data) return <SkeletonDashboard />;
 
     const kpis = [
       {
@@ -204,36 +206,16 @@ export default function DashboardPage() {
             </div>
 
             {data.activityTrend.some((d) => d.checkIns > 0 || d.renewals > 0) ? (
-              <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={data.activityTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-                  <XAxis dataKey="date" stroke={chart.axis} fontSize={9} />
-                  <YAxis stroke={chart.axis} fontSize={9} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: chart.tooltipBg,
-                      border: `1px solid ${chart.tooltipBorder}`,
-                      borderRadius: 8,
-                      fontSize: 11,
-                      color: chart.tooltipText,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="checkIns"
-                    stroke="#22d3ee"
-                    fill="#22d3ee22"
-                    name={t('checkIns')}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="renewals"
-                    stroke="#34d399"
-                    fill="#34d39922"
-                    name={t('renewals')}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <AreaTrendChart
+                data={data.activityTrend}
+                height={180}
+                fontSize={9}
+                allowDecimals={false}
+                series={[
+                  { dataKey: 'checkIns', stroke: '#22d3ee', fill: '#22d3ee22', name: t('checkIns') },
+                  { dataKey: 'renewals', stroke: '#34d399', fill: '#34d39922', name: t('renewals') },
+                ]}
+              />
             ) : (
               <div className="flex-1 flex items-center justify-center h-40">
                 <p className="text-xs text-slate-500">{tCommon('noResults')}</p>
@@ -344,7 +326,7 @@ export default function DashboardPage() {
   const renderCaptainDashboard = () => {
     const data = dashboardData as CaptainDashboard | null;
 
-    if (isLoading || !data) return <SkeletonDashboard />;
+    if (isPending || !data) return <SkeletonDashboard />;
 
     const stats = [
       {

@@ -140,6 +140,7 @@ exports.Prisma.TenantConfigScalarFieldEnum = {
   tenantId: 'tenantId',
   currency: 'currency',
   defaultTimezone: 'defaultTimezone',
+  themeKey: 'themeKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

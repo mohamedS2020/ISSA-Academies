@@ -38,6 +38,7 @@ import {
 import { UnauthorizedError } from '@/lib/api/error-handler';
 import { UserRole } from '@/types';
 import type { JWTPayload } from '@/types';
+import { DEFAULT_SPORT } from '@/lib/theme/sports';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -52,6 +53,7 @@ interface LoginResponse {
     branchId?: string;
     branchName?: string;
     tenantName?: string;
+    themeKey?: string;
     language?: string;
   };
 }
@@ -126,7 +128,14 @@ export const POST = withErrorHandler(async (request: Request) => {
     where: { phoneNumber: input.phoneNumber },
     include: {
       tenant: {
-        select: { id: true, name: true, slug: true, status: true, schemaName: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          status: true,
+          schemaName: true,
+          config: { select: { themeKey: true } },
+        },
       },
     },
   });
@@ -138,6 +147,16 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Check tenant is active
   if (phoneIndex.tenant.status !== 'ACTIVE') {
     throw new UnauthorizedError('Your academy account has been suspended');
+  }
+
+  // If reached via an academy subdomain (x-academy-slug, set by proxy.ts), the
+  // account must belong to THAT academy — otherwise give a clear error instead
+  // of silently signing into another academy's themed UI. The subdomain is NOT
+  // an auth boundary on its own (the JWT is); on the bare domain there's no
+  // header and login stays global, exactly as before.
+  const academySlug = request.headers.get('x-academy-slug');
+  if (academySlug && phoneIndex.tenant.slug !== academySlug) {
+    throw new UnauthorizedError('This account belongs to a different academy');
   }
 
   // 3c. Verify password in tenant DB
@@ -211,6 +230,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       branchId: loginResult.branchId,
       branchName: loginResult.branchName,
       tenantName: phoneIndex.tenant.name,
+      themeKey: phoneIndex.tenant.config?.themeKey ?? DEFAULT_SPORT,
       language: loginResult.language,
     },
   };

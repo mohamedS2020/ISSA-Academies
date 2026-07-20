@@ -8,7 +8,8 @@
  * Access: Admin + Moderator with can_view_finances.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { UserRole } from '@/types';
@@ -23,18 +24,20 @@ import {
   Receipt,
   Banknote,
 } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useChartTheme } from '@/lib/theme/use-chart-theme';
+import dynamic from 'next/dynamic';
+
+// recharts loaded on-demand (kept out of the finance page's initial bundle).
+const AreaTrendChart = dynamic(
+  () => import('@/components/charts/area-trend-chart'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[280px] w-full animate-pulse rounded-xl bg-slate-200/60 dark:bg-slate-800/40" />
+    ),
+  }
+);
 
 interface DashboardSummary {
   totalIncome: number;
@@ -57,31 +60,33 @@ export default function FinanceDashboardPage() {
   const { toast } = useToast();
   const routeParams = useParams();
   const locale = routeParams.locale as string;
-  const chart = useChartTheme();
 
   const [dateFrom, setDateFrom] = useState(todayIso(-30));
   const [dateTo, setDateTo] = useState(todayIso());
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchSummary = useCallback(async () => {
-    setIsLoading(true);
-    try {
+  // Cached per date range — revisiting with the same range is instant.
+  const {
+    data: summary,
+    isPending,
+    isError,
+    error,
+  } = useQuery<DashboardSummary>({
+    queryKey: ['finance-summary', dateFrom, dateTo],
+    enabled: !!user,
+    queryFn: async () => {
       const qs = new URLSearchParams({ dateFrom, dateTo });
       const res = await authFetch(`/api/finance/income?${qs}`);
       if (!res.ok) throw new Error('Failed to load dashboard');
       const data = await res.json();
-      setSummary(data.data);
-    } catch (err: any) {
-      toast.error(err.message || tCommon('somethingWentWrong'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dateFrom, dateTo, authFetch, toast, tCommon]);
+      return data.data;
+    },
+  });
 
   useEffect(() => {
-    fetchSummary();
-  }, [fetchSummary]);
+    if (isError) {
+      toast.error((error as Error)?.message || tCommon('somethingWentWrong'));
+    }
+  }, [isError, error, toast, tCommon]);
 
   const canView =
     user?.role === UserRole.ADMIN ||
@@ -182,7 +187,7 @@ export default function FinanceDashboardPage() {
         </div>
       </div>
 
-      {isLoading || !summary ? (
+      {isPending || !summary ? (
         <SkeletonDashboard />
       ) : (
         <>
@@ -217,36 +222,15 @@ export default function FinanceDashboardPage() {
                 {tCommon('noResults')}
               </p>
             ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={summary.series}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-                  <XAxis dataKey="date" stroke={chart.axis} fontSize={10} />
-                  <YAxis stroke={chart.axis} fontSize={10} />
-                  <Tooltip
-                    contentStyle={{
-                      background: chart.tooltipBg,
-                      border: `1px solid ${chart.tooltipBorder}`,
-                      borderRadius: 8,
-                      fontSize: 11,
-                      color: chart.tooltipText,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="income"
-                    stroke="#22d3ee"
-                    fill="#22d3ee22"
-                    name={t('income')}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="expenses"
-                    stroke="#f87171"
-                    fill="#f8717122"
-                    name={t('expenses')}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <AreaTrendChart
+                data={summary.series}
+                height={280}
+                fontSize={10}
+                series={[
+                  { dataKey: 'income', stroke: '#22d3ee', fill: '#22d3ee22', name: t('income') },
+                  { dataKey: 'expenses', stroke: '#f87171', fill: '#f8717122', name: t('expenses') },
+                ]}
+              />
             )}
           </div>
         </>

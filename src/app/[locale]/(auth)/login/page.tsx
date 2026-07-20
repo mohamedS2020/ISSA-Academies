@@ -74,21 +74,21 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
       {/* ─── Animated Background Blobs ─── */}
-      <div className="absolute top-[-20%] start-[-10%] h-[600px] w-[600px] rounded-full bg-cyan-700/20 blur-[120px] animate-pulse duration-[8000ms] pointer-events-none" />
-      <div className="absolute bottom-[-10%] end-[-10%] h-[700px] w-[700px] rounded-full bg-blue-300/30 dark:bg-blue-800/20 blur-[130px] animate-pulse duration-[10000ms] pointer-events-none" />
-      <div className="absolute top-[30%] start-[40%] h-[300px] w-[300px] rounded-full bg-emerald-700/10 blur-[90px] pointer-events-none" />
+      <div className="absolute top-[-20%] start-[-10%] h-[600px] w-[600px] rounded-full bg-primary/20 blur-[120px] animate-pulse duration-[8000ms] pointer-events-none" />
+      <div className="absolute bottom-[-10%] end-[-10%] h-[700px] w-[700px] rounded-full bg-accent/25 dark:bg-accent/15 blur-[130px] animate-pulse duration-[10000ms] pointer-events-none" />
+      <div className="absolute top-[30%] start-[40%] h-[300px] w-[300px] rounded-full bg-primary/10 blur-[90px] pointer-events-none" />
 
       {/* Floating Animated Bubbles */}
       <div className="absolute inset-0 pointer-events-none opacity-40">
-        <div className="absolute bottom-10 start-[15%] h-12 w-12 rounded-full border border-cyan-500/20 bg-cyan-500/5 blur-[2px] animate-bounce duration-[6000ms]" />
-        <div className="absolute top-20 end-[20%] h-8 w-8 rounded-full border border-blue-400/20 bg-blue-400/5 blur-[1px] animate-bounce duration-[4500ms]" />
-        <div className="absolute bottom-[40%] end-[10%] h-16 w-16 rounded-full border border-teal-500/10 bg-teal-500/5 blur-[3px] animate-pulse duration-[7000ms]" />
+        <div className="absolute bottom-10 start-[15%] h-12 w-12 rounded-full border border-primary/20 bg-primary/5 blur-[2px] animate-bounce duration-[6000ms]" />
+        <div className="absolute top-20 end-[20%] h-8 w-8 rounded-full border border-accent/20 bg-accent/5 blur-[1px] animate-bounce duration-[4500ms]" />
+        <div className="absolute bottom-[40%] end-[10%] h-16 w-16 rounded-full border border-primary/10 bg-primary/5 blur-[3px] animate-pulse duration-[7000ms]" />
       </div>
 
       {/* ─── Header bar with Language Toggle ─── */}
       <div className="absolute top-6 start-0 end-0 px-6 flex justify-between items-center z-10 max-w-7xl mx-auto">
         <div className="flex items-center gap-2.5">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
             <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -110,7 +110,7 @@ export default function LoginPage() {
       </div>
 
       {/* ─── Login Card ─── */}
-      <div className="w-full max-w-md p-1.5 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl z-10 mx-4 transition-all duration-500 hover:border-slate-300/80 dark:hover:border-slate-700/80">
+      <div className="w-full max-w-md p-1.5 rounded-3xl bg-gradient-to-b from-primary/10 via-accent/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl z-10 mx-4 transition-all duration-500 hover:border-slate-300/80 dark:hover:border-slate-700/80">
         <div className="bg-white/90 dark:bg-slate-950/90 rounded-[22px] px-8 py-10">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
@@ -148,7 +148,7 @@ export default function LoginPage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+201000000000"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 ps-11 pe-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 ps-11 pe-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   disabled={isLoading}
                 />
               </div>
@@ -162,7 +162,7 @@ export default function LoginPage() {
                 </label>
                 <a
                   href="#"
-                  className="text-xs font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors"
+                  className="text-xs font-medium text-primary hover:opacity-80 transition-opacity"
                 >
                   {t('forgotPassword')}
                 </a>
@@ -179,7 +179,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 ps-11 pe-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 ps-11 pe-4 py-3 text-sm placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   disabled={isLoading}
                 />
               </div>
@@ -195,7 +195,7 @@ export default function LoginPage() {
                   className="sr-only peer"
                   disabled={isLoading}
                 />
-                <div className="h-5 w-5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 peer-checked:bg-cyan-500 peer-checked:border-cyan-500 flex items-center justify-center transition-all duration-200">
+                <div className="h-5 w-5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-all duration-200">
                   <svg className="h-3 w-3 text-slate-950 font-bold scale-0 peer-checked:scale-100 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
@@ -210,7 +210,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-3.5 px-4 text-sm transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-cyan-500/10 disabled:opacity-50 disabled:pointer-events-none group"
+              className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold py-3.5 px-4 text-sm transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-primary/20 disabled:opacity-50 disabled:pointer-events-none group"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

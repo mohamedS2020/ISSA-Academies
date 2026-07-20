@@ -404,6 +404,8 @@
     "tenantName": "Academy Name",
     "slug": "URL Slug",
     "slugHint": "Used in URLs. Auto-generated from name.",
+    "sportTheme": "Sport Theme",
+    "sportThemeHint": "Sets the visual identity for this academy's interface.",
     "contactName": "Contact Name",
     "contactPhone": "Contact Phone",
     "contactEmail": "Contact Email",

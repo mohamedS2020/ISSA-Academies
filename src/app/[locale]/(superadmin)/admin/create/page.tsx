@@ -12,11 +12,17 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/feedback/toast-provider';
 import { useAuth } from '@/lib/auth/auth-context';
 import { generateSlug } from '@/schemas/tenant.schema';
+import {
+  SPORT_KEYS,
+  DEFAULT_SPORT,
+  sportLabel,
+  type SportKey,
+} from '@/lib/theme/sports';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -24,6 +30,7 @@ interface WizardData {
   // Step 1
   name: string;
   slug: string;
+  themeKey: SportKey;
   contactName: string;
   contactPhone: string;
   contactEmail: string;
@@ -45,6 +52,7 @@ interface ProvisioningResult {
 const INITIAL_DATA: WizardData = {
   name: '',
   slug: '',
+  themeKey: DEFAULT_SPORT,
   contactName: '',
   contactPhone: '',
   contactEmail: '',
@@ -78,12 +86,21 @@ const COMMON_TIMEZONES = [
   'Pacific/Auckland',
 ];
 
+// Representative gradient swatch per sport for the picker preview only — the
+// live theme is driven by the data-sport blocks in globals.css.
+const SPORT_SWATCH: Record<SportKey, string> = {
+  swimming: 'from-cyan-500 to-blue-600',
+  football: 'from-green-500 to-emerald-700',
+  padel: 'from-purple-500 to-violet-700',
+};
+
 // ─── API Helper ─────────────────────────────────────────────
 
 // ─── Page Component ─────────────────────────────────────────
 
 export default function CreateTenantPage() {
   const t = useTranslations('superAdmin');
+  const locale = useLocale();
   const router = useRouter();
   const { toast } = useToast();
   const { authFetch } = useAuth();
@@ -300,6 +317,35 @@ export default function CreateTenantPage() {
               {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
             </div>
 
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('sportTheme')}
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {SPORT_KEYS.map((key) => (
+                  <button
+                    type="button"
+                    key={key}
+                    onClick={() => updateField('themeKey', key)}
+                    aria-pressed={data.themeKey === key}
+                    className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${
+                      data.themeKey === key
+                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20 dark:border-blue-400 dark:bg-blue-500/10'
+                        : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
+                    }`}
+                  >
+                    <span
+                      className={`h-8 w-8 rounded-full bg-gradient-to-tr shadow-inner ${SPORT_SWATCH[key]}`}
+                    />
+                    <span className="text-gray-800 dark:text-gray-200">
+                      {sportLabel(key, locale)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400">{t('sportThemeHint')}</p>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -480,6 +526,12 @@ export default function CreateTenantPage() {
                 <div className="flex justify-between">
                   <dt className="text-gray-500 dark:text-gray-400">{t('slug')}</dt>
                   <dd className="font-mono text-gray-900 dark:text-gray-100">{data.slug}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-gray-500 dark:text-gray-400">{t('sportTheme')}</dt>
+                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                    {sportLabel(data.themeKey, locale)}
+                  </dd>
                 </div>
                 {data.contactEmail && (
                   <div className="flex justify-between">

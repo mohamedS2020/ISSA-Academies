@@ -41,6 +41,7 @@ async function provisionTenant(
   const result = await createTenant({
     name: `Isolation Test Tenant ${label} ${suffix}`,
     slug,
+    themeKey: 'swimming',
     contactName: 'Isolation Test',
     contactPhone: `+2010000000${label === 'A' ? '1' : '2'}`,
     contactEmail: `tenant-${label.toLowerCase()}@isolation-test.local`,

@@ -8,8 +8,13 @@
 // ──────────────────────────────────────────────────────────────
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/platform-client"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/platform-client"
+  // "native" covers local dev (Windows/macOS); "debian-openssl-3.0.x" is the
+  // Railway/most-Linux production runtime. Without the Linux target, a client
+  // generated on Windows ships without the Linux query engine and fails at
+  // runtime with PrismaClientInitializationError. See tenant-schema.prisma too.
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -50,6 +55,10 @@ model TenantConfig {
   tenantId        String   @unique @map("tenant_id") @db.Uuid
   currency        String   @default("EGP") @db.VarChar(10)
   defaultTimezone String   @default("Africa/Cairo") @map("default_timezone") @db.VarChar(100)
+  // Sport branding theme for this academy (visual identity only — see
+  // src/lib/theme/sports.ts + the data-sport blocks in globals.css). Default
+  // "swimming" keeps existing academies looking exactly as before.
+  themeKey        String   @default("swimming") @map("theme_key") @db.VarChar(40)
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
 

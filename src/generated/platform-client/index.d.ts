@@ -2402,6 +2402,7 @@ export namespace Prisma {
     tenantId: string | null
     currency: string | null
     defaultTimezone: string | null
+    themeKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2411,6 +2412,7 @@ export namespace Prisma {
     tenantId: string | null
     currency: string | null
     defaultTimezone: string | null
+    themeKey: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2420,6 +2422,7 @@ export namespace Prisma {
     tenantId: number
     currency: number
     defaultTimezone: number
+    themeKey: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2431,6 +2434,7 @@ export namespace Prisma {
     tenantId?: true
     currency?: true
     defaultTimezone?: true
+    themeKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2440,6 +2444,7 @@ export namespace Prisma {
     tenantId?: true
     currency?: true
     defaultTimezone?: true
+    themeKey?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2449,6 +2454,7 @@ export namespace Prisma {
     tenantId?: true
     currency?: true
     defaultTimezone?: true
+    themeKey?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2531,6 +2537,7 @@ export namespace Prisma {
     tenantId: string
     currency: string
     defaultTimezone: string
+    themeKey: string
     createdAt: Date
     updatedAt: Date
     _count: TenantConfigCountAggregateOutputType | null
@@ -2557,6 +2564,7 @@ export namespace Prisma {
     tenantId?: boolean
     currency?: boolean
     defaultTimezone?: boolean
+    themeKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -2567,6 +2575,7 @@ export namespace Prisma {
     tenantId?: boolean
     currency?: boolean
     defaultTimezone?: boolean
+    themeKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -2577,6 +2586,7 @@ export namespace Prisma {
     tenantId?: boolean
     currency?: boolean
     defaultTimezone?: boolean
+    themeKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -2587,11 +2597,12 @@ export namespace Prisma {
     tenantId?: boolean
     currency?: boolean
     defaultTimezone?: boolean
+    themeKey?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TenantConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "currency" | "defaultTimezone" | "createdAt" | "updatedAt", ExtArgs["result"]["tenantConfig"]>
+  export type TenantConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "currency" | "defaultTimezone" | "themeKey" | "createdAt" | "updatedAt", ExtArgs["result"]["tenantConfig"]>
   export type TenantConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -2612,6 +2623,7 @@ export namespace Prisma {
       tenantId: string
       currency: string
       defaultTimezone: string
+      themeKey: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["tenantConfig"]>
@@ -3042,6 +3054,7 @@ export namespace Prisma {
     readonly tenantId: FieldRef<"TenantConfig", 'String'>
     readonly currency: FieldRef<"TenantConfig", 'String'>
     readonly defaultTimezone: FieldRef<"TenantConfig", 'String'>
+    readonly themeKey: FieldRef<"TenantConfig", 'String'>
     readonly createdAt: FieldRef<"TenantConfig", 'DateTime'>
     readonly updatedAt: FieldRef<"TenantConfig", 'DateTime'>
   }
@@ -5612,6 +5625,7 @@ export namespace Prisma {
     tenantId: 'tenantId',
     currency: 'currency',
     defaultTimezone: 'defaultTimezone',
+    themeKey: 'themeKey',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5853,6 +5867,7 @@ export namespace Prisma {
     tenantId?: UuidFilter<"TenantConfig"> | string
     currency?: StringFilter<"TenantConfig"> | string
     defaultTimezone?: StringFilter<"TenantConfig"> | string
+    themeKey?: StringFilter<"TenantConfig"> | string
     createdAt?: DateTimeFilter<"TenantConfig"> | Date | string
     updatedAt?: DateTimeFilter<"TenantConfig"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -5863,6 +5878,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     currency?: SortOrder
     defaultTimezone?: SortOrder
+    themeKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -5876,6 +5892,7 @@ export namespace Prisma {
     NOT?: TenantConfigWhereInput | TenantConfigWhereInput[]
     currency?: StringFilter<"TenantConfig"> | string
     defaultTimezone?: StringFilter<"TenantConfig"> | string
+    themeKey?: StringFilter<"TenantConfig"> | string
     createdAt?: DateTimeFilter<"TenantConfig"> | Date | string
     updatedAt?: DateTimeFilter<"TenantConfig"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -5886,6 +5903,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     currency?: SortOrder
     defaultTimezone?: SortOrder
+    themeKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TenantConfigCountOrderByAggregateInput
@@ -5901,6 +5919,7 @@ export namespace Prisma {
     tenantId?: UuidWithAggregatesFilter<"TenantConfig"> | string
     currency?: StringWithAggregatesFilter<"TenantConfig"> | string
     defaultTimezone?: StringWithAggregatesFilter<"TenantConfig"> | string
+    themeKey?: StringWithAggregatesFilter<"TenantConfig"> | string
     createdAt?: DateTimeWithAggregatesFilter<"TenantConfig"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TenantConfig"> | Date | string
   }
@@ -6148,6 +6167,7 @@ export namespace Prisma {
     id?: string
     currency?: string
     defaultTimezone?: string
+    themeKey?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutConfigInput
@@ -6158,6 +6178,7 @@ export namespace Prisma {
     tenantId: string
     currency?: string
     defaultTimezone?: string
+    themeKey?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6166,6 +6187,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutConfigNestedInput
@@ -6176,6 +6198,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6185,6 +6208,7 @@ export namespace Prisma {
     tenantId: string
     currency?: string
     defaultTimezone?: string
+    themeKey?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6193,6 +6217,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6202,6 +6227,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6594,6 +6620,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     currency?: SortOrder
     defaultTimezone?: SortOrder
+    themeKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6603,6 +6630,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     currency?: SortOrder
     defaultTimezone?: SortOrder
+    themeKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6612,6 +6640,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     currency?: SortOrder
     defaultTimezone?: SortOrder
+    themeKey?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7076,6 +7105,7 @@ export namespace Prisma {
     id?: string
     currency?: string
     defaultTimezone?: string
+    themeKey?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7084,6 +7114,7 @@ export namespace Prisma {
     id?: string
     currency?: string
     defaultTimezone?: string
+    themeKey?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7136,6 +7167,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7144,6 +7176,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     currency?: StringFieldUpdateOperationsInput | string
     defaultTimezone?: StringFieldUpdateOperationsInput | string
+    themeKey?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
