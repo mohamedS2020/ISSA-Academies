@@ -28,6 +28,53 @@ const nextConfig: NextConfig = {
   // cross-origin requests to dev-only assets and HMR, which can leave the
   // client bundle in a broken state. Extend this list for your network.
   allowedDevOrigins: ["10.250.42.215"],
+
+  // Security headers applied to every response.
+  async headers() {
+    const isProd = process.env.NODE_ENV === "production";
+
+    // CSP shipped as Report-Only first: it never blocks, so it can't break the
+    // app — it only surfaces violations so the policy can be tightened (e.g. a
+    // nonce-based script-src) before enforcing. Tokens are already in httpOnly
+    // cookies, so CSP here is defense-in-depth, not the primary XSS mitigation.
+    const csp = [
+      "default-src 'self'",
+      // Next.js injects inline hydration/streaming scripts + the theme-init
+      // script; 'unsafe-inline' keeps them working. Harden to a nonce/hash
+      // before switching from Report-Only to enforcing.
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "frame-ancestors 'self'",
+      "form-action 'self'",
+    ].join("; ");
+
+    const securityHeaders = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+      { key: "Content-Security-Policy-Report-Only", value: csp },
+    ];
+
+    // HSTS only over HTTPS (prod) — harmless on the Railway/custom domain, and
+    // omitted in dev so http://localhost keeps working.
+    if (isProd) {
+      securityHeaders.push({
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      });
+    }
+
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
 };
 
 export default withNextIntl(nextConfig);

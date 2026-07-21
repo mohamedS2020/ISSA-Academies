@@ -18,7 +18,8 @@ import { withAuth } from '@/lib/auth/middleware';
 import { requireRole } from '@/lib/auth/permissions';
 import { successResponse } from '@/lib/api/response';
 import { withTenantContext } from '@/lib/db/tenant-client';
-import { generateTokenPair } from '@/lib/auth/jwt';
+import { generateTokenPair, getAccessExpiry, ttlToSeconds } from '@/lib/auth/jwt';
+import { setAuthCookies } from '@/lib/auth/cookies';
 import { switchBranchSchema } from '@/schemas/auth.schema';
 import { UserRole } from '@/types';
 import type { JWTPayload } from '@/types';
@@ -49,10 +50,12 @@ export const POST = withErrorHandler(
     };
     const tokens = generateTokenPair(payload, rememberMe);
 
-    return successResponse({
-      ...tokens,
+    const res = successResponse({
       branchId: branch.id,
       branchName: branch.name,
+      accessExpiresIn: ttlToSeconds(getAccessExpiry()),
     });
+    setAuthCookies(res, tokens, rememberMe ?? false);
+    return res;
   })
 );

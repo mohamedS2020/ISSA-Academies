@@ -17,14 +17,28 @@ import {
   withErrorHandler,
   BadRequestError,
 } from '@/lib/api/error-handler';
-import { successResponse } from '@/lib/api/response';
+import { successResponse, tooManyRequestsResponse } from '@/lib/api/response';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { platformPrisma } from '@/lib/db/platform-client';
 import { writeAuditLog } from '@/services/audit.service';
+import {
+  changePasswordRateLimiter,
+  getRateLimitKey,
+} from '@/lib/auth/rate-limiter';
 import { UserRole } from '@/types';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
+    // Throttle current-password guessing (keyed by the authenticated user).
+    const rl = changePasswordRateLimiter.check(
+      getRateLimitKey(request, `change-pw:${ctx.userId}`)
+    );
+    if (!rl.allowed) {
+      return tooManyRequestsResponse(
+        `Too many attempts. Try again in ${rl.retryAfterSeconds} seconds.`
+      );
+    }
+
     const body = await request.json();
     const input = changePasswordSchema.parse(body);
 

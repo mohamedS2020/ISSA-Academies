@@ -18,6 +18,7 @@
  */
 
 import { verifyAccessToken, type TokenPayload } from './jwt';
+import { readTokenFromCookies, ACCESS_COOKIE } from './cookies';
 import {
   resolveTenantContext,
   buildRequestContext,
@@ -53,27 +54,27 @@ export type AuthenticatedHandler = (
 // ─── Token Extraction ───────────────────────────────────────
 
 /**
- * Extract the Bearer token from the Authorization header.
+ * Extract the access token — from the httpOnly cookie first, falling back to the
+ * `Authorization: Bearer` header (for API clients / tests). The cookie path is
+ * how the browser app authenticates now; the header path keeps non-browser
+ * callers working (non-breaking hybrid).
  */
-function extractBearerToken(request: Request): string {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader) {
-    throw new UnauthorizedError('Missing Authorization header');
-  }
+function extractToken(request: Request): string {
+  const cookieToken = readTokenFromCookies(request, ACCESS_COOKIE);
+  if (cookieToken) return cookieToken;
 
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader) {
+    const parts = authHeader.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer' && parts[1]) {
+      return parts[1];
+    }
     throw new UnauthorizedError(
       'Invalid Authorization header format. Expected: Bearer <token>'
     );
   }
 
-  const token = parts[1];
-  if (!token) {
-    throw new UnauthorizedError('Empty token');
-  }
-
-  return token;
+  throw new UnauthorizedError('Missing authentication');
 }
 
 // ─── Middleware ──────────────────────────────────────────────
@@ -99,7 +100,7 @@ export function withAuth(
 ) => Promise<Response> {
   return async (request, routeContext) => {
     // Step 1: Extract token
-    const token = extractBearerToken(request);
+    const token = extractToken(request);
 
     // Step 2: Verify JWT
     let decoded: TokenPayload;

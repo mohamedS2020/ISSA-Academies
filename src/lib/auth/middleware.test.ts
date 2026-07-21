@@ -78,6 +78,13 @@ function createMockRequest(token?: string): Request {
   });
 }
 
+/** A request that authenticates via the httpOnly access cookie (no Bearer header). */
+function createCookieRequest(token: string, cookieName = 'issa_access'): Request {
+  const headers = new Headers();
+  headers.set('Cookie', `${cookieName}=${token}; other=1`);
+  return new Request('http://localhost/api/test', { method: 'GET', headers });
+}
+
 const mockHandler = jest.fn<any>().mockImplementation(async () => {
   return new Response(JSON.stringify({ success: true }), { status: 200 });
 }) as unknown as jest.MockedFunction<
@@ -92,11 +99,42 @@ describe('withAuth middleware', () => {
   });
 
   describe('Token Extraction', () => {
-    it('rejects requests without Authorization header', async () => {
+    it('rejects requests with no cookie and no Authorization header', async () => {
       const wrapped = withAuth(mockHandler);
       const request = createMockRequest();
 
-      await expect(wrapped(request)).rejects.toThrow('Missing Authorization header');
+      await expect(wrapped(request)).rejects.toThrow('Missing authentication');
+    });
+
+    it('authenticates via the httpOnly access cookie (no Bearer header)', async () => {
+      const decoded = {
+        userId: 'user-1',
+        role: UserRole.ADMIN,
+        tenantId: 'tenant-1',
+        branchId: 'branch-1',
+        type: 'access',
+      };
+      mockVerifyAccessToken.mockReturnValue(decoded);
+      mockResolveTenantContext.mockReturnValue({
+        tenantId: 'tenant-1',
+        schemaName: 'tenant_tenant1',
+        branchId: 'branch-1',
+        userId: 'user-1',
+        role: UserRole.ADMIN,
+      });
+      mockBuildRequestContext.mockReturnValue({
+        userId: 'user-1',
+        role: UserRole.ADMIN,
+        tenantId: 'tenant-1',
+        branchId: 'branch-1',
+      });
+
+      const wrapped = withAuth(mockHandler);
+      const request = createCookieRequest('cookie-token');
+
+      await wrapped(request);
+      expect(mockVerifyAccessToken).toHaveBeenCalledWith('cookie-token');
+      expect(mockHandler).toHaveBeenCalled();
     });
 
     it('rejects requests with malformed Authorization header', async () => {

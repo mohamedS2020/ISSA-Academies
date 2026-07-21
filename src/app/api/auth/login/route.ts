@@ -22,8 +22,11 @@ import { loginSchema } from '@/schemas/auth.schema';
 import { hashPassword, comparePassword } from '@/lib/auth/password';
 import {
   generateTokenPair,
+  getAccessExpiry,
+  ttlToSeconds,
   type TokenPair,
 } from '@/lib/auth/jwt';
+import { setAuthCookies } from '@/lib/auth/cookies';
 import { platformPrisma } from '@/lib/db/platform-client';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import {
@@ -43,8 +46,10 @@ import { DEFAULT_SPORT } from '@/lib/theme/sports';
 // ─── Types ──────────────────────────────────────────────────
 
 interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
+  // Tokens are delivered as httpOnly cookies (see setAuthCookies), NOT in the
+  // body — so they never touch JS-readable storage. `accessExpiresIn` (seconds)
+  // is a non-secret hint the client uses to schedule silent refresh.
+  accessExpiresIn: number;
   user: {
     id: string;
     name: string;
@@ -112,7 +117,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const tokens = generateTokenPair(jwtPayload, input.rememberMe);
 
     const response: LoginResponse = {
-      ...tokens,
+      accessExpiresIn: ttlToSeconds(getAccessExpiry()),
       user: {
         id: superAdmin.id,
         name: superAdmin.name,
@@ -120,7 +125,9 @@ export const POST = withErrorHandler(async (request: Request) => {
       },
     };
 
-    return successResponse(response);
+    const res = successResponse(response);
+    setAuthCookies(res, tokens, input.rememberMe);
+    return res;
   }
 
   // 3b. Look up tenant user via phone index
@@ -221,7 +228,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   );
 
   const response: LoginResponse = {
-    ...tokens,
+    accessExpiresIn: ttlToSeconds(getAccessExpiry()),
     user: {
       id: loginResult.id,
       name: loginResult.name,
@@ -235,5 +242,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     },
   };
 
-  return successResponse(response);
+  const res = successResponse(response);
+  setAuthCookies(res, tokens, input.rememberMe);
+  return res;
 });

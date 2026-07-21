@@ -24,13 +24,8 @@ export default function SuperAdminLayout({
   const { logout } = useAuth();  
 
   const handleLogout = useCallback(() => {
-    // Clear tokens from storage
-      logout();   
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-    }
+    // logout() clears the httpOnly cookies (via /api/auth/logout) + local state.
+    logout();
     router.push('/en/login');
   }, [logout, router]);
 

@@ -3,21 +3,21 @@
 /**
  * ISSA — Auth Context Provider
  *
- * Client-side authentication state management.
+ * Client-side authentication state.
  *
- * Provides:
- *   - login(phone, password, rememberMe) → authenticates and stores tokens
- *   - logout() → clears tokens and redirects to login
- *   - user object (id, name, role, tenantId, branchId, etc.)
- *   - isAuthenticated, isLoading states
- *   - Automatic token refresh 5 minutes before expiry
+ * Tokens live in **httpOnly cookies** (set by the auth API routes), NOT in
+ * localStorage — so JavaScript can't read them and they can't be stolen by XSS
+ * or seen in DevTools → Storage. This provider therefore only keeps the
+ * non-sensitive `user` display object in storage (for instant UI on reload) and
+ * drives silent token refresh via a timer + a 401→refresh→retry in authFetch.
+ * See src/lib/auth/cookies.ts.
  *
- * Token storage:
- *   - rememberMe=true  → localStorage (persists across browser sessions)
- *   - rememberMe=false → sessionStorage (cleared when tab closes)
+ * Storage:
+ *   - rememberMe=true  → localStorage (user object persists across sessions)
+ *   - rememberMe=false → sessionStorage (cleared when the tab closes)
  */
 
-import React, {
+import {
   createContext,
   useContext,
   useState,
@@ -45,7 +45,6 @@ export interface AuthUser {
 
 interface AuthState {
   user: AuthUser | null;
-  accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -57,7 +56,6 @@ interface AuthContextValue extends AuthState {
     rememberMe?: boolean
   ) => Promise<AuthUser>;
   logout: () => void;
-  getAccessToken: () => string | null;
   authFetch: (input: string, init?: RequestInit) => Promise<Response>;
   setSelectedBranch: (branchId: string, branchName: string) => void;
   /** Admin only: re-issue tokens scoped to another branch and update auth state. */
@@ -66,92 +64,41 @@ interface AuthContextValue extends AuthState {
 
 // ─── Constants ──────────────────────────────────────────────
 
-const STORAGE_KEY_ACCESS = 'issa_access_token';
-const STORAGE_KEY_REFRESH = 'issa_refresh_token';
 const STORAGE_KEY_USER = 'issa_user';
 const STORAGE_KEY_REMEMBER = 'issa_remember';
 
-/** Refresh the access token 5 minutes before it expires */
+/** Refresh the access token this many ms before it expires. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
-// ─── Context ────────────────────────────────────────────────
+type RefreshResult = 'ok' | 'unauthorized' | 'error';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// ─── Storage Helpers ────────────────────────────────────────
+// ─── Storage helpers (user display object only — NEVER tokens) ──
 
 function getStorage(): Storage {
-  if (typeof window === 'undefined') {
-    // SSR — return a no-op storage
-    return {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-      clear: () => {},
-      key: () => null,
-      length: 0,
-    };
-  }
   const isRemembered = localStorage.getItem(STORAGE_KEY_REMEMBER) === 'true';
   return isRemembered ? localStorage : sessionStorage;
 }
 
-function storeTokens(
-  accessToken: string,
-  refreshToken: string,
-  user: AuthUser,
-  rememberMe: boolean
-): void {
-  const storage = rememberMe ? localStorage : sessionStorage;
-
-  // Store the remember flag in localStorage so we can find it on reload
+function storeUser(user: AuthUser, rememberMe: boolean): void {
   localStorage.setItem(STORAGE_KEY_REMEMBER, String(rememberMe));
-
-  storage.setItem(STORAGE_KEY_ACCESS, accessToken);
-  storage.setItem(STORAGE_KEY_REFRESH, refreshToken);
+  const storage = rememberMe ? localStorage : sessionStorage;
   storage.setItem(STORAGE_KEY_USER, JSON.stringify(user));
 }
 
-function clearTokens(): void {
-  // Clear from both storages to be safe
+function clearStoredUser(): void {
   for (const storage of [localStorage, sessionStorage]) {
-    storage.removeItem(STORAGE_KEY_ACCESS);
-    storage.removeItem(STORAGE_KEY_REFRESH);
     storage.removeItem(STORAGE_KEY_USER);
   }
   localStorage.removeItem(STORAGE_KEY_REMEMBER);
 }
 
-function loadStoredAuth(): {
-  accessToken: string | null;
-  refreshToken: string | null;
-  user: AuthUser | null;
-} {
-  const storage = getStorage();
-  const accessToken = storage.getItem(STORAGE_KEY_ACCESS);
-  const refreshToken = storage.getItem(STORAGE_KEY_REFRESH);
-  const userJson = storage.getItem(STORAGE_KEY_USER);
-
-  let user: AuthUser | null = null;
-  if (userJson) {
-    try {
-      user = JSON.parse(userJson);
-    } catch {
-      user = null;
-    }
-  }
-
-  return { accessToken, refreshToken, user };
-}
-
-// ─── JWT Decode (client-side, no verification) ──────────────
-
-function decodeJwtExpiry(token: string): number | null {
+function loadStoredUser(): AuthUser | null {
+  const raw = getStorage().getItem(STORAGE_KEY_USER);
+  if (!raw) return null;
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
-    return payload.exp ? payload.exp * 1000 : null; // Convert to ms
+    return JSON.parse(raw) as AuthUser;
   } catch {
     return null;
   }
@@ -162,172 +109,88 @@ function decodeJwtExpiry(token: string): number | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
-    accessToken: null,
     isAuthenticated: false,
     isLoading: true,
   });
 
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRefreshingRef = useRef(false);
-  const scheduleRef = useRef<(accessToken: string) => void>(() => {});
+  const doRefreshRef = useRef<() => Promise<RefreshResult>>(async () => 'error');
 
-  // ─── Token Refresh ──────────────────────────────────────
+  const forceLoggedOut = useCallback(() => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    clearStoredUser();
+    setState({ user: null, isAuthenticated: false, isLoading: false });
+  }, []);
 
-  const scheduleTokenRefresh = useCallback((accessToken: string) => {
-    // Clear any existing timer
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-    }
-
-    const expiresAt = decodeJwtExpiry(accessToken);
-    if (!expiresAt) return;
-
-    const now = Date.now();
-    const refreshAt = expiresAt - REFRESH_BUFFER_MS;
-    const delay = Math.max(refreshAt - now, 0);
-
-    refreshTimerRef.current = setTimeout(async () => {
-      if (isRefreshingRef.current) return;
-      isRefreshingRef.current = true;
-
-      try {
-        const storage = getStorage();
-        const refreshToken = storage.getItem(STORAGE_KEY_REFRESH);
-        if (!refreshToken) {
-          // No refresh token — force logout
-          clearTokens();
-          setState({
-            user: null,
-            accessToken: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-          return;
-        }
-
-        const res = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken }),
-        });
-
-        if (!res.ok) {
-          // Refresh failed — force logout
-          clearTokens();
-          setState({
-            user: null,
-            accessToken: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-          return;
-        }
-
-        const data = await res.json();
-        const newAccessToken = data.data.accessToken;
-
-        // Update storage
-        storage.setItem(STORAGE_KEY_ACCESS, newAccessToken);
-
-        setState((prev) => ({
-          ...prev,
-          accessToken: newAccessToken,
-        }));
-
-        // Schedule next refresh
-        scheduleRef.current(newAccessToken);
-      } catch {
-        // Network error — will retry on next page interaction
-      } finally {
-        isRefreshingRef.current = false;
-      }
+  const scheduleTokenRefresh = useCallback((expiresInSeconds: number) => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    const delay = Math.max(expiresInSeconds * 1000 - REFRESH_BUFFER_MS, 0);
+    refreshTimerRef.current = setTimeout(() => {
+      void doRefreshRef.current();
     }, delay);
   }, []);
 
-  // ─── Initialize from Storage ────────────────────────────
-
-  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/immutability */
-  useEffect(() => {
-    scheduleRef.current = scheduleTokenRefresh;
-    const { accessToken, user } = loadStoredAuth();
-
-    if (accessToken && user) {
-      // Check if token is expired
-      const expiresAt = decodeJwtExpiry(accessToken);
-      if (expiresAt && expiresAt > Date.now()) {
-        setState({
-          user,
-          accessToken,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        scheduleTokenRefresh(accessToken);
-      } else {
-        // Token expired — try to refresh
-        const storage = getStorage();
-        const refreshToken = storage.getItem(STORAGE_KEY_REFRESH);
-        if (refreshToken) {
-          // Attempt refresh
-          fetch('/api/auth/refresh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken }),
-          })
-            .then((res) => {
-              if (!res.ok) throw new Error('Refresh failed');
-              return res.json();
-            })
-            .then((data) => {
-              const newAccessToken = data.data.accessToken;
-              storage.setItem(STORAGE_KEY_ACCESS, newAccessToken);
-              setState({
-                user,
-                accessToken: newAccessToken,
-                isAuthenticated: true,
-                isLoading: false,
-              });
-              scheduleTokenRefresh(newAccessToken);
-            })
-            .catch(() => {
-              clearTokens();
-              setState({
-                user: null,
-                accessToken: null,
-                isAuthenticated: false,
-                isLoading: false,
-              });
-            });
-        } else {
-          clearTokens();
-          setState({
-            user: null,
-            accessToken: null,
-            isAuthenticated: false,
-            isLoading: false,
-          });
-        }
+  /**
+   * Ask the server for a fresh access cookie using the httpOnly refresh cookie.
+   *   'ok'           → refreshed + next refresh scheduled
+   *   'unauthorized' → session invalid/revoked → forced logout
+   *   'error'        → network hiccup → session left intact (retried later)
+   */
+  const doRefresh = useCallback(async (): Promise<RefreshResult> => {
+    if (isRefreshingRef.current) return 'ok';
+    isRefreshingRef.current = true;
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      if (res.status === 401) {
+        forceLoggedOut();
+        return 'unauthorized';
       }
-    } else {
-      setState((prev) => ({ ...prev, isLoading: false }));
+      if (!res.ok) return 'error';
+      const data = await res.json();
+      scheduleTokenRefresh(data?.data?.accessExpiresIn ?? 900);
+      return 'ok';
+    } catch {
+      return 'error';
+    } finally {
+      isRefreshingRef.current = false;
     }
+  }, [forceLoggedOut, scheduleTokenRefresh]);
 
-    // Cleanup timer on unmount
+  doRefreshRef.current = doRefresh;
+
+  // ─── Bootstrap: validate the session on mount ───────────────
+  // We can't read the httpOnly token, so we validate by refreshing (the refresh
+  // cookie is sent automatically). 'unauthorized' → logged out; otherwise keep
+  // the stored user (optimistic — a transient network error won't sign you out).
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const user = loadStoredUser();
+    if (!user) {
+      setState((prev) => ({ ...prev, isLoading: false }));
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const result = await doRefresh();
+      if (cancelled || result === 'unauthorized') return; // forceLoggedOut set state
+      setState({ user, isAuthenticated: true, isLoading: false });
+    })();
     return () => {
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-      }
+      cancelled = true;
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     };
-  }, [scheduleTokenRefresh]);
-
-  // ─── Login ──────────────────────────────────────────────
+  }, [doRefresh]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ─── Sport theme sync ───────────────────────────────────
   // Keeps `data-sport` on <html> in sync on login/logout — a SEPARATE axis from
   // light/dark (.dark, owned by ThemeProvider) that composes with it. The
-  // pre-hydration script in [locale]/layout.tsx sets it before first paint (no
-  // flash); this effect reacts to auth changes.
-  // Priority: logged-in academy > the subdomain's academy (data-host-sport,
-  // server-rendered) > swimming (base palette).
+  // pre-hydration script in [locale]/layout.tsx sets it before first paint.
+  // Priority: logged-in academy > subdomain academy (data-host-sport) > swimming.
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const el = document.documentElement;
@@ -335,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     el.dataset.sport = resolveSport(state.user?.themeKey ?? hostSport);
   }, [state.user?.themeKey]);
 
+  // ─── Login ──────────────────────────────────────────────
   const login = useCallback(
     async (
       phoneNumber: string,
@@ -344,106 +208,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ phoneNumber, password, rememberMe }),
       });
 
       const data = await res.json();
-
       if (!res.ok || !data.success) {
-        throw new Error(
-          data.error?.message ?? 'Login failed'
-        );
+        throw new Error(data.error?.message ?? 'Login failed');
       }
 
-      const { accessToken, refreshToken, user } = data.data;
+      const { user, accessExpiresIn } = data.data as {
+        user: AuthUser;
+        accessExpiresIn: number;
+      };
 
-      storeTokens(accessToken, refreshToken, user, rememberMe);
+      storeUser(user, rememberMe);
+      setState({ user, isAuthenticated: true, isLoading: false });
+      scheduleTokenRefresh(accessExpiresIn ?? 900);
 
-      setState({
-        user,
-        accessToken,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-
-      scheduleTokenRefresh(accessToken);
-
-      // Return the authenticated user so callers can redirect based on role
-      // without re-reading storage (which is racy right after login).
-      return user as AuthUser;
+      // Return the authenticated user so callers can redirect by role without
+      // re-reading storage (which is racy right after login).
+      return user;
     },
     [scheduleTokenRefresh]
   );
 
   // ─── Logout ─────────────────────────────────────────────
-
   const logout = useCallback(() => {
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-    }
-
-    clearTokens();
-
-    setState({
-      user: null,
-      accessToken: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    clearStoredUser();
+    setState({ user: null, isAuthenticated: false, isLoading: false });
+    // Clear the httpOnly cookies server-side (fire-and-forget).
+    void fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+    }).catch(() => {});
   }, []);
 
-  // ─── Get Token ──────────────────────────────────────────
-
-  const getAccessToken = useCallback((): string | null => {
-    return state.accessToken;
-  }, [state.accessToken]);
-
-  // ─── Authenticated Fetch ────────────────────────────────
-  // Wrapper around fetch that attaches the Bearer token. Reads the token from
-  // storage at call time (not from closure) so it always uses the freshest
-  // token, even right after login or a refresh.
+  // ─── Authenticated Fetch (cookie-based, 401→refresh→retry once) ──
   const authFetch = useCallback(
-    (input: string, init: RequestInit = {}): Promise<Response> => {
-      const token =
-        state.accessToken ?? getStorage().getItem(STORAGE_KEY_ACCESS);
+    async (input: string, init: RequestInit = {}): Promise<Response> => {
+      const opts: RequestInit = {
+        ...init,
+        credentials: init.credentials ?? 'same-origin',
+      };
+      const res = await fetch(input, opts);
+      if (res.status !== 401) return res;
 
-      const headers = new Headers(init.headers);
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
+      // Access token likely expired — refresh once, then retry.
+      const result = await doRefresh();
+      if (result === 'ok') {
+        return fetch(input, opts);
       }
-
-      return fetch(input, { ...init, headers });
+      return res; // 'unauthorized' (logged out) or 'error' → return the 401
     },
-    [state.accessToken]
+    [doRefresh]
   );
 
-  // ─── Set Selected Branch ────────────────────────────────
-  const setSelectedBranch = useCallback((branchId: string, branchName: string) => {
-    setState((prev) => {
-      if (!prev.user) return prev;
-      const updatedUser = { ...prev.user, branchId, branchName };
-      const storage = getStorage();
-      storage.setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
-      return { ...prev, user: updatedUser };
-    });
-  }, []);
+  // ─── Set Selected Branch (UI display only) ──────────────
+  const setSelectedBranch = useCallback(
+    (branchId: string, branchName: string) => {
+      setState((prev) => {
+        if (!prev.user) return prev;
+        const updatedUser = { ...prev.user, branchId, branchName };
+        getStorage().setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
+        return { ...prev, user: updatedUser };
+      });
+    },
+    []
+  );
 
   // ─── Switch Branch (admin) ──────────────────────────────
-  // Asks the server for a fresh token pair scoped to `branchId`, then swaps
-  // both tokens + the cached user so every subsequent request is branch-scoped.
+  // Asks the server for a fresh token pair (new cookies) scoped to `branchId`,
+  // then updates the cached user + refresh timer.
   const switchBranch = useCallback(
     async (branchId: string) => {
-      const token = state.accessToken ?? getStorage().getItem(STORAGE_KEY_ACCESS);
       const rememberMe =
         typeof window !== 'undefined' &&
         localStorage.getItem(STORAGE_KEY_REMEMBER) === 'true';
 
       const res = await fetch('/api/auth/switch-branch', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ branchId, rememberMe }),
       });
 
@@ -452,21 +299,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(data.error?.message ?? 'Failed to switch branch');
       }
 
-      const {
-        accessToken,
-        refreshToken,
-        branchId: newBranchId,
-        branchName,
-      } = data.data;
-
-      if (!state.user) throw new Error('Not authenticated');
-      const updatedUser = { ...state.user, branchId: newBranchId, branchName };
-
-      storeTokens(accessToken, refreshToken, updatedUser, rememberMe);
-      setState((prev) => ({ ...prev, accessToken, user: updatedUser }));
-      scheduleTokenRefresh(accessToken);
+      const { branchId: newBranchId, branchName, accessExpiresIn } = data.data;
+      setState((prev) => {
+        if (!prev.user) return prev;
+        const updatedUser = { ...prev.user, branchId: newBranchId, branchName };
+        getStorage().setItem(STORAGE_KEY_USER, JSON.stringify(updatedUser));
+        return { ...prev, user: updatedUser };
+      });
+      scheduleTokenRefresh(accessExpiresIn ?? 900);
     },
-    [state.accessToken, state.user, scheduleTokenRefresh]
+    [scheduleTokenRefresh]
   );
 
   // ─── Render ─────────────────────────────────────────────
@@ -475,7 +317,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ...state,
     login,
     logout,
-    getAccessToken,
     authFetch,
     setSelectedBranch,
     switchBranch,

@@ -175,7 +175,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "E:\\ISSA-Academies\\src\\generated\\platform-client",
+      "value": "E:\\ISSA\\src\\generated\\platform-client",
       "fromEnvVar": null
     },
     "config": {
@@ -193,7 +193,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "E:\\ISSA-Academies\\prisma\\schema.prisma",
+    "sourceFilePath": "E:\\ISSA\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -207,6 +207,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

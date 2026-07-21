@@ -37,16 +37,8 @@ interface Tenant {
 // ─── API Helpers ────────────────────────────────────────────
 
 function getAuthHeaders(): HeadersInit {
-  if (typeof window === 'undefined') {
-    return { 'Content-Type': 'application/json' };
-  }
-  const isRemembered = localStorage.getItem('issa_remember') === 'true';
-  const storage = isRemembered ? localStorage : sessionStorage;
-  const token = storage.getItem('issa_access_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+  // Auth is the httpOnly access cookie, sent automatically on same-origin fetches.
+  return { 'Content-Type': 'application/json' };
 }
 
 async function fetchTenants(params: {

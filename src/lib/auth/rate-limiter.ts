@@ -139,6 +139,19 @@ export const apiRateLimiter = createRateLimiter({
   maxAttempts: 100,
 });
 
+/** Token refresh limiter: 30 per minute per IP (abuse guard; refresh needs a
+ *  valid signed token, so this is defense-in-depth, not brute-force protection). */
+export const refreshRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxAttempts: 30,
+});
+
+/** Change-password limiter: 5 per 15 minutes (throttles current-password guessing). */
+export const changePasswordRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  maxAttempts: 5,
+});
+
 // ─── Helpers ────────────────────────────────────────────────
 
 /**
