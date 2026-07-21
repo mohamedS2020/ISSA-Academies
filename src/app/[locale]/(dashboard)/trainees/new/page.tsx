@@ -127,7 +127,7 @@ function Field({ label, required, children }: FieldProps) {
 }
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-all';
+  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
 
 const textareaClass = inputClass + ' resize-none h-24';
 
@@ -581,7 +581,7 @@ export default function NewTraineePage() {
           <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-4 text-start space-y-3">
             <div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{t('systemCode')}</p>
-              <p className="font-mono text-lg font-bold text-cyan-600 dark:text-cyan-400">{success.systemCode}</p>
+              <p className="font-mono text-lg font-bold text-primary dark:text-primary">{success.systemCode}</p>
             </div>
             <hr className="border-slate-300 dark:border-slate-700" />
             {success.password ? (
@@ -623,7 +623,7 @@ export default function NewTraineePage() {
             </button>
             <button
               onClick={() => router.push(`/${locale}/trainees`)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
             >
               Go to Trainees
             </button>
@@ -639,8 +639,8 @@ export default function NewTraineePage() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* ─── Page Title ─── */}
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30">
-          <UserCheck className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+          <UserCheck className="w-6 h-6 text-primary dark:text-primary" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('register')}</h1>
       </div>
@@ -680,7 +680,7 @@ export default function NewTraineePage() {
         <div className={`h-1 bg-gradient-to-r ${STEPS[step].color}`} />
         <div className="p-6 md:p-8">
           <h2 className="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
-            {(() => { const Icon = STEPS[step].icon; return <Icon className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />; })()}
+            {(() => { const Icon = STEPS[step].icon; return <Icon className="w-4 h-4 text-primary dark:text-primary" />; })()}
             {t(`step${step + 1}Title` as any)}
           </h2>
           {stepContent[step]()}
@@ -700,7 +700,7 @@ export default function NewTraineePage() {
         {step < STEPS.length - 1 ? (
           <button
             onClick={handleNext}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
           >
             {tCommon('next')}
             <ChevronRight className="w-4 h-4" />

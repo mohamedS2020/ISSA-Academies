@@ -65,7 +65,7 @@ export default function PortalSubscriptionPage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-        <CreditCard size={22} className="text-cyan-600 dark:text-cyan-400" />
+        <CreditCard size={22} className="text-primary dark:text-primary" />
         {t('subscription')}
       </h2>
 
@@ -77,17 +77,17 @@ export default function PortalSubscriptionPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl bg-gradient-to-r from-cyan-950/30 to-blue-950/20 border border-cyan-900/30 p-6 backdrop-blur-xl shadow-xl md:col-span-2">
+          <div className="rounded-2xl bg-gradient-to-r from-primary/30 to-accent/20 border border-primary/30 p-6 backdrop-blur-xl shadow-xl md:col-span-2">
             <p className="text-xs text-slate-600 dark:text-slate-400">{t('planName')}</p>
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">
               {data.subscription.planName}
             </h3>
-            <p className="text-sm text-cyan-600 dark:text-cyan-400 mt-1">{data.subscription.levelName}</p>
+            <p className="text-sm text-primary dark:text-primary mt-1">{data.subscription.levelName}</p>
           </div>
 
           <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <Calendar size={16} className="text-cyan-600 dark:text-cyan-400" />
+              <Calendar size={16} className="text-primary dark:text-primary" />
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t('sessionsRemaining')}
               </span>
@@ -101,7 +101,7 @@ export default function PortalSubscriptionPage() {
             </p>
             <div className="h-1.5 w-full bg-slate-50 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-900 mt-3">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
                 style={{
                   width: `${
                     (data.subscription.attendedSessions / data.subscription.totalSessions) * 100
@@ -125,7 +125,7 @@ export default function PortalSubscriptionPage() {
 
           <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <Snowflake size={16} className="text-cyan-600 dark:text-cyan-400" />
+              <Snowflake size={16} className="text-primary dark:text-primary" />
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t('freezeStatus')}
               </span>

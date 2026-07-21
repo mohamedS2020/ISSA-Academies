@@ -57,7 +57,7 @@ export default function PortalSchedulePage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-        <Calendar size={22} className="text-cyan-600 dark:text-cyan-400" />
+        <Calendar size={22} className="text-primary dark:text-primary" />
         {t('schedule')}
       </h2>
 
@@ -81,7 +81,7 @@ export default function PortalSchedulePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-xs font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-3 py-1.5 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs font-mono text-primary dark:text-primary bg-primary/10 px-3 py-1.5 rounded-full">
                     <Clock size={12} />
                     {s.scheduledAtLocal}
                   </span>

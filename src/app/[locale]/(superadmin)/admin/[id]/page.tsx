@@ -80,7 +80,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary dark:bg-primary/30 dark:text-primary">
           {icon}
         </div>
         <div>
@@ -226,7 +226,7 @@ export default function TenantDetailPage() {
         <p className="text-gray-500">Academy not found.</p>
         <button
           onClick={() => router.push('../admin')}
-          className="mt-4 text-sm text-blue-600 hover:underline"
+          className="mt-4 text-sm text-primary hover:underline"
         >
           {t('backToList')}
         </button>
@@ -252,7 +252,7 @@ export default function TenantDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-bold text-slate-900 dark:text-white shadow-md">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-lg font-bold text-slate-900 dark:text-white shadow-md">
             {tenant.name.slice(0, 2).toUpperCase()}
           </div>
           <div>
@@ -333,7 +333,7 @@ export default function TenantDetailPage() {
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -342,7 +342,7 @@ export default function TenantDetailPage() {
                     type="text"
                     value={editData.contactName}
                     onChange={(e) => setEditData((p) => ({ ...p, contactName: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -351,7 +351,7 @@ export default function TenantDetailPage() {
                     type="tel"
                     value={editData.contactPhone}
                     onChange={(e) => setEditData((p) => ({ ...p, contactPhone: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -360,7 +360,7 @@ export default function TenantDetailPage() {
                     type="email"
                     value={editData.contactEmail}
                     onChange={(e) => setEditData((p) => ({ ...p, contactEmail: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   />
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function TenantDetailPage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>

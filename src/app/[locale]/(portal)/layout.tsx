@@ -79,7 +79,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
   if (isLoading || !isAuthenticated || !user || user.role !== UserRole.TRAINEE) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="h-10 w-10 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin" />
+        <div className="h-10 w-10 rounded-full border-2 border-primary/30 border-t-cyan-400 animate-spin" />
       </div>
     );
   }
@@ -145,14 +145,14 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-cyan-300/20 dark:bg-cyan-900/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-blue-200/30 dark:bg-blue-950/15 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/30 dark:bg-primary/15 blur-[120px] pointer-events-none" />
 
       {/* ─── Top Nav Bar ─── */}
       <header className="sticky top-0 z-20 w-full bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/80 dark:border-slate-900/80 backdrop-blur-lg">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
               <span className="text-white text-xs font-black">ISSA</span>
             </div>
             <span className="hidden sm:inline text-xs font-extrabold tracking-wider text-slate-700 dark:text-slate-300">
@@ -170,7 +170,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   href={item.href}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30'
+                      ? 'bg-primary/15 text-primary dark:text-primary border border-primary/30'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent'
                   }`}
                 >
@@ -188,7 +188,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
               onClick={handleLanguageToggle}
               className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold rounded-xl bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
-              <Globe size={14} className="text-cyan-600 dark:text-cyan-400" />
+              <Globe size={14} className="text-primary dark:text-primary" />
               <span>{locale === 'en' ? 'AR' : 'EN'}</span>
             </button>
             <button
@@ -197,7 +197,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                 setPasswordSuccess(null);
                 setIsChangePasswordOpen(true);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold rounded-xl bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400"
+              className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold rounded-xl bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors text-slate-700 dark:text-slate-300 hover:text-primary dark:hover:text-primary"
               title={tAuth('changePassword')}
             >
               <KeyRound size={14} />
@@ -220,7 +220,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
     {/* ─── Change Password Modal ─── */}
     {isChangePasswordOpen && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-        <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
+        <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
           <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-wide">
@@ -262,7 +262,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   required
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   disabled={isSubmittingPassword || !!passwordSuccess}
                 />
               </div>
@@ -276,7 +276,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   disabled={isSubmittingPassword || !!passwordSuccess}
                 />
               </div>
@@ -290,7 +290,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   disabled={isSubmittingPassword || !!passwordSuccess}
                 />
               </div>
@@ -310,7 +310,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                   disabled={isSubmittingPassword || !!passwordSuccess}
                 >
                   {isSubmittingPassword && <Loader2 size={12} className="animate-spin" />}

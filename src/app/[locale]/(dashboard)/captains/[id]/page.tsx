@@ -74,7 +74,7 @@ const DAYS_OF_WEEK = [
 ] as const;
 
 const inputClass =
-  'w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all';
+  'w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all';
 
 // ─── Component ────────────────────────────────────────────────
 
@@ -196,7 +196,7 @@ export default function CaptainDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-600 dark:text-cyan-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary dark:text-primary" />
       </div>
     );
   }
@@ -223,8 +223,8 @@ export default function CaptainDetailPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30">
-            <Award className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+            <Award className="w-6 h-6 text-primary dark:text-primary" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -243,7 +243,7 @@ export default function CaptainDetailPage() {
               </span>
             </div>
             {captain.specialization && (
-              <p className="text-sm text-cyan-600 dark:text-cyan-400">{captain.specialization}</p>
+              <p className="text-sm text-primary dark:text-primary">{captain.specialization}</p>
             )}
           </div>
         </div>
@@ -261,7 +261,7 @@ export default function CaptainDetailPage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {tCommon('save')}
@@ -271,7 +271,7 @@ export default function CaptainDetailPage() {
               <>
                 <button
                   onClick={startEdit}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-700 dark:hover:text-cyan-300 transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:border-primary/60 hover:text-primary dark:hover:text-primary transition-all"
                 >
                   <Edit2 className="w-4 h-4" />{tCommon('edit')}
                 </button>
@@ -343,7 +343,7 @@ export default function CaptainDetailPage() {
                   onClick={() => toggleDay(key)}
                   className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition-all ${
                     editDays.includes(key)
-                      ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+                      ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
                       : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
@@ -354,7 +354,7 @@ export default function CaptainDetailPage() {
           ) : (
             <div className="flex flex-wrap gap-1.5">
               {captain.attendingDays.map((day) => (
-                <span key={day} className="px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-xs font-medium text-cyan-700 dark:text-cyan-300">
+                <span key={day} className="px-2.5 py-1 bg-primary/10 border border-primary/30 rounded-lg text-xs font-medium text-primary dark:text-primary">
                   {DAYS_OF_WEEK.find((d) => d.key === day)?.label ?? day}
                 </span>
               ))}
@@ -376,7 +376,7 @@ export default function CaptainDetailPage() {
                   onClick={() => setEditPayrollType(type)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                     editPayrollType === type
-                      ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+                      ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
                       : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
@@ -407,9 +407,9 @@ export default function CaptainDetailPage() {
         ) : (
           <div className="flex items-center gap-6 flex-wrap">
             <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-xl ${captain.payrollType === 'HOURS' ? 'bg-blue-500/20' : 'bg-purple-500/20'}`}>
+              <div className={`p-2 rounded-xl ${captain.payrollType === 'HOURS' ? 'bg-primary/20' : 'bg-purple-500/20'}`}>
                 {captain.payrollType === 'HOURS'
-                  ? <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  ? <Clock className="w-5 h-5 text-primary dark:text-primary" />
                   : <Percent className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
               </div>
               <div>
@@ -448,7 +448,7 @@ export default function CaptainDetailPage() {
       {/* ─── Assigned Groups ─── */}
       <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl p-6 backdrop-blur-xl">
         <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">
-          <Users className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <Users className="w-4 h-4 text-primary dark:text-primary" />
           {t('assignedGroups')}
           <span className="ms-auto text-xs font-normal text-slate-500">
             {captain.groups.length} {captain.groups.length === 1 ? 'group' : 'groups'}

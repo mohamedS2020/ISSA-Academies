@@ -87,13 +87,13 @@ export function FeedbackPanel({
             rows={3}
             maxLength={2000}
             placeholder={t('writePlaceholder')}
-            className="w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all resize-none"
+            className="w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all resize-none"
           />
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
               disabled={isSaving || !message.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-semibold disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-semibold disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -108,7 +108,7 @@ export function FeedbackPanel({
 
       {isLoading ? (
         <div className="flex justify-center py-6">
-          <Loader2 className="w-5 h-5 animate-spin text-cyan-600 dark:text-cyan-400" />
+          <Loader2 className="w-5 h-5 animate-spin text-primary dark:text-primary" />
         </div>
       ) : entries.length === 0 ? (
         <p className="text-xs text-slate-500 text-center py-6">{t('empty')}</p>

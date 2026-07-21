@@ -194,7 +194,7 @@ export default function ExpensesPage() {
         {canManage && (
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white transition-all duration-300 shadow-lg shadow-cyan-500/10"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 shadow-lg shadow-primary/10"
           >
             <Plus size={14} />
             <span>{t('addExpense')}</span>
@@ -228,7 +228,7 @@ export default function ExpensesPage() {
 
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
+          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
             <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{t('addExpense')}</h3>
@@ -258,7 +258,7 @@ export default function ExpensesPage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     placeholder="Maintenance, Supplies, Utilities..."
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 text-slate-900 dark:text-slate-100"
                   />
                 </div>
 
@@ -274,7 +274,7 @@ export default function ExpensesPage() {
                       required
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 text-slate-900 dark:text-slate-100"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -286,7 +286,7 @@ export default function ExpensesPage() {
                       required
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 text-slate-900 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -299,7 +299,7 @@ export default function ExpensesPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 text-slate-900 dark:text-slate-100"
                   />
                 </div>
 
@@ -314,7 +314,7 @@ export default function ExpensesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}

@@ -190,7 +190,7 @@ export default function ReportsCenterPage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-        <FileText size={22} className="text-cyan-600 dark:text-cyan-400" />
+        <FileText size={22} className="text-primary dark:text-primary" />
         {t('title')}
       </h2>
 
@@ -206,7 +206,7 @@ export default function ReportsCenterPage() {
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors ${
                 type === rt.value
-                  ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30'
+                  ? 'bg-primary/15 text-primary dark:text-primary border border-primary/30'
                   : 'border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
@@ -225,7 +225,7 @@ export default function ReportsCenterPage() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
               />
             </div>
           )}
@@ -238,7 +238,7 @@ export default function ReportsCenterPage() {
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
               />
             </div>
           )}
@@ -250,7 +250,7 @@ export default function ReportsCenterPage() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="ACTIVE">Active</option>
@@ -267,7 +267,7 @@ export default function ReportsCenterPage() {
               <select
                 value={captainId}
                 onChange={(e) => setCaptainId(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
               >
                 <option value="">All</option>
                 {captains.map((c) => (
@@ -283,7 +283,7 @@ export default function ReportsCenterPage() {
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white transition-all duration-300 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 disabled:opacity-50"
             >
               {isLoading && <Loader2 size={14} className="animate-spin" />}
               {t('generate')}

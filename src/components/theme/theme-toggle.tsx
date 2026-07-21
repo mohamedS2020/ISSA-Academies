@@ -29,10 +29,10 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Light mode' : 'Dark mode'}
       onClick={toggle}
-      className={`group relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border p-0.5 transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 ${
+      className={`group relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border p-0.5 transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
         isDark
           ? 'border-slate-700 bg-gradient-to-r from-slate-800 to-indigo-950'
-          : 'border-sky-300/70 bg-gradient-to-r from-sky-300 to-amber-200'
+          : 'border-primary/70 bg-gradient-to-r from-primary to-amber-200'
       } ${className}`}
     >
       {/* faint ambient icons on the track */}
@@ -54,7 +54,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
         className={`relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-full shadow-md ring-1 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           isDark
             ? 'translate-x-[26px] bg-slate-900 ring-slate-700'
-            : 'translate-x-0 bg-white ring-sky-200'
+            : 'translate-x-0 bg-white ring-primary'
         }`}
       >
         <Sun
@@ -65,7 +65,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
         />
         <Moon
           size={12}
-          className={`absolute text-cyan-300 transition-all duration-300 ${
+          className={`absolute text-primary transition-all duration-300 ${
             isDark ? 'scale-100 rotate-0 opacity-100' : 'scale-0 -rotate-90 opacity-0'
           }`}
         />

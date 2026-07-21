@@ -209,19 +209,19 @@ export default function Sidebar({
               onClick={onClose}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group relative ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-500/15 to-blue-500/5 text-cyan-600 dark:text-cyan-400 border border-cyan-500/10'
+                  ? 'bg-gradient-to-r from-primary/15 to-accent/5 text-primary dark:text-primary border border-primary/10'
                   : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent'
               }`}
             >
               {/* Active state indicator dot */}
               {isActive && (
-                <span className="absolute start-0 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-e-md bg-cyan-400" />
+                <span className="absolute start-0 top-1/2 -translate-y-1/2 w-1.5 h-6 rounded-e-md bg-primary" />
               )}
 
               <Icon
                 size={18}
                 className={`transition-colors duration-300 ${
-                  isActive ? 'text-cyan-600 dark:text-cyan-400' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                  isActive ? 'text-primary dark:text-primary' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
                 }`}
               />
 
@@ -243,7 +243,7 @@ export default function Sidebar({
       {/* ─── User Profile Footer ─── */}
       <div className="p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-slate-100/70 dark:bg-slate-900/50">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-cyan-600 dark:text-cyan-400">
+          <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-primary dark:text-primary">
             {user.name.slice(0, 2).toUpperCase()}
           </div>
           {!isCollapsed && (

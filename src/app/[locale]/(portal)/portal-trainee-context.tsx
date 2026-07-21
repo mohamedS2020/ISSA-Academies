@@ -67,7 +67,7 @@ export function TraineeSwitcher() {
 
   return (
     <div className="relative flex items-center gap-1.5 rounded-xl bg-slate-100/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 ps-2.5 pe-1.5 py-1.5">
-      <Users size={14} className="text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
+      <Users size={14} className="text-primary dark:text-primary flex-shrink-0" />
       <select
         value={selectedTraineeId ?? ''}
         onChange={(e) => setSelectedTraineeId(e.target.value)}

@@ -128,7 +128,7 @@ export default function TraineesPage() {
       key: 'systemCode',
       header: t('systemCode'),
       render: (row) => (
-        <span className="font-mono text-sm font-semibold text-cyan-600 dark:text-cyan-400">
+        <span className="font-mono text-sm font-semibold text-primary dark:text-primary">
           {row.systemCode}
         </span>
       ),
@@ -155,7 +155,7 @@ export default function TraineesPage() {
               <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">{active.plan.name}</p>
               <p className="text-xs text-slate-600 dark:text-slate-400">{active.level.name}</p>
               {row.groupTrainees?.[0] && (
-                <p className="text-[11px] text-cyan-600/80 dark:text-cyan-400/80">{row.groupTrainees[0].group.name}</p>
+                <p className="text-[11px] text-primary/80 dark:text-primary/80">{row.groupTrainees[0].group.name}</p>
               )}
             </div>
           </div>
@@ -186,7 +186,7 @@ export default function TraineesPage() {
       render: (row) => (
         <button
           onClick={() => router.push(`/${locale}/trainees/${row.id}`)}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-600/60 hover:border-cyan-500/60 hover:text-cyan-700 dark:hover:text-cyan-300 hover:bg-cyan-500/10 transition-all"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-600/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
         >
           View
         </button>
@@ -201,8 +201,8 @@ export default function TraineesPage() {
       {/* ─── Page Header ─── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30">
-            <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+            <Users className="w-6 h-6 text-primary dark:text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
@@ -215,7 +215,7 @@ export default function TraineesPage() {
           (user as any)?.privileges?.includes('can_manage_trainees')) && (
           <button
             onClick={() => router.push(`/${locale}/trainees/new`)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
           >
             <UserPlus className="w-4 h-4" />
             {t('register')}
@@ -231,7 +231,7 @@ export default function TraineesPage() {
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-all"
+          className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
         />
       </div>
 

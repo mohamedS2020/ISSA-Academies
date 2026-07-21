@@ -117,7 +117,7 @@ export default function PortalAttendancePage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-        <UserCheck size={22} className="text-cyan-600 dark:text-cyan-400" />
+        <UserCheck size={22} className="text-primary dark:text-primary" />
         {t('attendance')}
       </h2>
 

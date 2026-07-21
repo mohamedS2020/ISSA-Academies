@@ -12,7 +12,7 @@ export default function GlobalNotFound() {
         <div className="relative max-w-xl w-full text-center space-y-8 bg-slate-100 dark:bg-slate-800/45 backdrop-blur-md border border-slate-300/50 dark:border-slate-700/50 p-8 md:p-12 rounded-3xl shadow-2xl">
           {/* Wave/Info decoration */}
           <div className="absolute inset-x-0 -top-8 flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 animate-bounce">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30 animate-bounce">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8 text-white">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
               </svg>
@@ -20,10 +20,10 @@ export default function GlobalNotFound() {
           </div>
 
           <div className="space-y-3 pt-4">
-            <h1 className="text-7xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500 bg-clip-text text-transparent select-none">
+            <h1 className="text-7xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-primary via-teal-300 to-accent bg-clip-text text-transparent select-none">
               404
             </h1>
-            <p className="text-xs font-semibold tracking-wider text-cyan-600 dark:text-cyan-400 uppercase">
+            <p className="text-xs font-semibold tracking-wider text-primary dark:text-primary uppercase">
               Out of Bounds / خارج الحدود
             </p>
           </div>
@@ -48,7 +48,7 @@ export default function GlobalNotFound() {
           <div className="pt-2">
             <Link
               href="/"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium shadow-lg shadow-cyan-500/20 hover:shadow-cyan-400/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-medium shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
             >
               Back to Safety / العودة للرئيسية
             </Link>

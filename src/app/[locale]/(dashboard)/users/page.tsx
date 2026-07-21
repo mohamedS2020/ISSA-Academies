@@ -256,7 +256,7 @@ export default function UsersPage() {
       render: (row) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
           row.role === UserRole.ADMIN
-            ? 'bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30'
+            ? 'bg-primary/20 text-primary dark:text-primary border border-primary/30'
             : 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30'
         }`}>
           {row.role === UserRole.ADMIN ? (
@@ -277,7 +277,7 @@ export default function UsersPage() {
             {row.privileges.length} / {MODERATOR_PRIVILEGES.length}
           </span>
         ) : (
-          <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">Full access</span>
+          <span className="text-xs text-primary dark:text-primary font-medium">Full access</span>
         ),
     },
     {
@@ -300,7 +300,7 @@ export default function UsersPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => openEdit(row)}
-            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-colors"
             title={t('editUser')}
           >
             <Edit2 className="w-4 h-4" />
@@ -337,8 +337,8 @@ export default function UsersPage() {
       {/* ─── Page Header ─── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30">
-            <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+            <Users className="w-6 h-6 text-primary dark:text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
@@ -349,7 +349,7 @@ export default function UsersPage() {
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-200 hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />
           {t('createUser')}
@@ -365,13 +365,13 @@ export default function UsersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or phone..."
-            className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-all"
+            className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
           />
         </div>
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-cyan-500/60 transition-all"
+          className="px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-primary/60 transition-all"
         >
           <option value="">{tCommon('all')} roles</option>
           <option value="ADMIN">{t('admin')}</option>
@@ -417,7 +417,7 @@ export default function UsersPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all"
+                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
                   placeholder="Full name"
                 />
               </div>
@@ -431,7 +431,7 @@ export default function UsersPage() {
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all"
+                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
                   placeholder="+201234567890"
                 />
               </div>
@@ -447,7 +447,7 @@ export default function UsersPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 pe-10 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all"
+                      className="w-full px-3 pe-10 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
                       placeholder="Min 8 characters"
                     />
                     <button
@@ -475,7 +475,7 @@ export default function UsersPage() {
                         onClick={() => { setRole(r); if (r === UserRole.ADMIN) setPrivileges([]); }}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                           role === r
-                            ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+                            ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
                             : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                         }`}
                       >
@@ -535,7 +535,7 @@ export default function UsersPage() {
               <button
                 onClick={isCreateOpen ? handleCreate : handleUpdate}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {tCommon('save')}
@@ -557,7 +557,7 @@ export default function UsersPage() {
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Share this password with the user. It will <strong className="text-amber-600 dark:text-amber-400">not be shown again</strong>.
               </p>
-              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 font-mono text-lg text-cyan-700 dark:text-cyan-300 tracking-wider select-all">
+              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 font-mono text-lg text-primary dark:text-primary tracking-wider select-all">
                 {createdPassword}
               </div>
               <button
@@ -568,7 +568,7 @@ export default function UsersPage() {
               </button>
               <button
                 onClick={() => setCreatedPassword(null)}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold"
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
               >
                 I've saved it — Close
               </button>

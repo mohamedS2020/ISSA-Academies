@@ -181,8 +181,8 @@ export default function DashboardPage() {
                       {kpi.badge}
                     </span>
                   </div>
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shadow-md group-hover:border-slate-300 dark:group-hover:border-slate-700 transition-colors">
-                    <Icon size={18} className="text-cyan-600 dark:text-cyan-400" />
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-primary dark:text-primary shadow-md group-hover:border-slate-300 dark:group-hover:border-slate-700 transition-colors">
+                    <Icon size={18} className="text-primary dark:text-primary" />
                   </div>
                 </div>
               </div>
@@ -195,10 +195,10 @@ export default function DashboardPage() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                  <Activity className="text-cyan-600 dark:text-cyan-400" size={16} />
+                  <Activity className="text-primary dark:text-primary" size={16} />
                   <span>{t('activityTrend')}</span>
                 </h3>
-                <span className="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
                   7 {t('days')}
                 </span>
               </div>
@@ -226,12 +226,12 @@ export default function DashboardPage() {
           <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl flex flex-col">
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <Clock className="text-cyan-600 dark:text-cyan-400" size={16} />
+                <Clock className="text-primary dark:text-primary" size={16} />
                 <span>{t('todaySessions')}</span>
               </h3>
               <Link
                 href={`/${locale}/schedule`}
-                className="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors uppercase flex items-center gap-0.5"
+                className="text-[10px] font-bold text-primary dark:text-primary hover:text-primary dark:hover:text-primary transition-colors uppercase flex items-center gap-0.5"
               >
                 <span>{tCommon('all')}</span>
                 {isRtl ? <ChevronLeft size={10} /> : <ChevronRight size={10} />}
@@ -248,10 +248,10 @@ export default function DashboardPage() {
                     className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 hover:border-slate-200 dark:hover:border-slate-800 transition-colors flex flex-col gap-2 relative group"
                   >
                     <div className="flex justify-between items-start">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors truncate max-w-[160px]">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-primary transition-colors truncate max-w-[160px]">
                         {s.group.name}
                       </span>
-                      <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
                         {s.scheduledAtLocal}
                       </span>
                     </div>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-900">
                   {data.expiringSoon.map((item) => (
                     <tr key={item.id} className="text-slate-700 dark:text-slate-300 group">
-                      <td className="py-3.5 font-semibold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                      <td className="py-3.5 font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-primary transition-colors">
                         {item.traineeName}
                       </td>
                       <td className="py-3.5 text-slate-600 dark:text-slate-400">{item.planName}</td>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
                       <td className="py-3.5 text-end">
                         <Link
                           href={`/${locale}/subscriptions`}
-                          className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline uppercase"
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-primary hover:underline uppercase"
                         >
                           <span>{t('renew')}</span>
                           <ArrowUpRight size={12} />
@@ -351,10 +351,10 @@ export default function DashboardPage() {
 
     return (
       <div className="space-y-8 animate-fadeIn">
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-white/80 dark:from-slate-900/60 to-cyan-950/20 border border-slate-200 dark:border-slate-900 shadow-xl flex items-center justify-between">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-white/80 dark:from-slate-900/60 to-accent/20 border border-slate-200 dark:border-slate-900 shadow-xl flex items-center justify-between">
           <div className="space-y-1.5">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Sparkles size={18} className="text-cyan-600 dark:text-cyan-400 animate-spin duration-[4000ms]" />
+              <Sparkles size={18} className="text-primary dark:text-primary animate-spin duration-[4000ms]" />
               <span>{t('welcome', { name: user.name })}</span>
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 max-w-lg">{t('captainWelcomeDesc')}</p>
@@ -369,14 +369,14 @@ export default function DashboardPage() {
                 key={idx}
                 className="relative overflow-hidden rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-slate-200 dark:hover:border-slate-800"
               >
-                <div className="absolute top-0 bottom-0 start-0 w-1 bg-gradient-to-b from-cyan-500 to-blue-500" />
+                <div className="absolute top-0 bottom-0 start-0 w-1 bg-gradient-to-b from-primary to-accent" />
                 <div className="flex justify-between items-start">
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{s.title}</p>
                     <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{s.value}</h3>
                     <p className="text-[10px] text-slate-500 font-medium">{s.desc}</p>
                   </div>
-                  <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-primary dark:text-primary">
                     <Icon size={18} />
                   </div>
                 </div>
@@ -389,10 +389,10 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl flex flex-col">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <Calendar className="text-cyan-600 dark:text-cyan-400" size={16} />
+                <Calendar className="text-primary dark:text-primary" size={16} />
                 <span>{t('todaySessions')}</span>
               </h3>
-              <span className="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
                 {t('attendance')}
               </span>
             </div>
@@ -407,7 +407,7 @@ export default function DashboardPage() {
                     className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 hover:border-slate-200 dark:hover:border-slate-800 transition-colors flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 group"
                   >
                     <div className="space-y-1">
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-primary transition-colors">
                         {session.group.name}
                       </h4>
                       <div className="flex items-center gap-4 text-[10px] text-slate-500 font-medium font-mono">
@@ -425,7 +425,7 @@ export default function DashboardPage() {
                           <span>{tSchedule('completed')}</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-500/10 px-3 py-1.5 rounded-xl border border-sky-500/20">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary bg-primary/10 px-3 py-1.5 rounded-xl border border-primary/20">
                           <Clock size={14} />
                           <span>{tSchedule('scheduled')}</span>
                         </span>
@@ -440,17 +440,17 @@ export default function DashboardPage() {
           <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                <Activity className="text-cyan-600 dark:text-cyan-400" size={16} />
+                <Activity className="text-primary dark:text-primary" size={16} />
                 <span>{t('coachGuidelines')}</span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{t('coachGuidelinesDesc')}</p>
               <div className="space-y-2 text-xs">
                 <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                   <span>{t('coachGuideline1')}</span>
                 </div>
                 <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 flex-shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                   <span>{t('coachGuideline2')}</span>
                 </div>
               </div>

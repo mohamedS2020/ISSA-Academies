@@ -99,7 +99,7 @@ export default function ReceiptsPage() {
     {
       key: 'receiptNumber',
       header: t('receiptNumber'),
-      className: 'font-mono text-xs font-semibold text-cyan-600 dark:text-cyan-400',
+      className: 'font-mono text-xs font-semibold text-primary dark:text-primary',
     },
     {
       key: 'trainee',
@@ -138,7 +138,7 @@ export default function ReceiptsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-          <ReceiptIcon size={22} className="text-cyan-600 dark:text-cyan-400" />
+          <ReceiptIcon size={22} className="text-primary dark:text-primary" />
           {t('receipt')}
         </h2>
 
@@ -147,14 +147,14 @@ export default function ReceiptsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
           />
           <span className="text-slate-500 dark:text-slate-600 text-xs">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -171,7 +171,7 @@ export default function ReceiptsPage() {
             <button
               onClick={() => handleDownload(row)}
               disabled={downloadingId === row.id}
-              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-cyan-900/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors disabled:opacity-50"
+              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
               title={t('downloadReceipt')}
             >
               {downloadingId === row.id ? (

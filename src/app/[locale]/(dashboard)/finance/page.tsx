@@ -122,7 +122,7 @@ export default function FinanceDashboardPage() {
           label: t('netProfit'),
           value: summary.netProfit,
           icon: Wallet,
-          colorClass: summary.netProfit >= 0 ? 'text-cyan-600 dark:text-cyan-400' : 'text-amber-600 dark:text-amber-400',
+          colorClass: summary.netProfit >= 0 ? 'text-primary dark:text-primary' : 'text-amber-600 dark:text-amber-400',
         },
         {
           label: t('outstandingBalances'),
@@ -175,14 +175,14 @@ export default function FinanceDashboardPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
           />
           <span className="text-slate-500 dark:text-slate-600 text-xs">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
           />
         </div>
       </div>

@@ -59,20 +59,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
         {/* Animated Background Blobs */}
-        <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-cyan-700/10 blur-[100px] animate-pulse duration-[5000ms] pointer-events-none" />
-        <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-blue-200/20 dark:bg-blue-800/10 blur-[100px] animate-pulse duration-[6000ms] pointer-events-none" />
+        <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/10 blur-[100px] animate-pulse duration-[5000ms] pointer-events-none" />
+        <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[100px] animate-pulse duration-[6000ms] pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative h-16 w-16">
             {/* Elegant water ripples */}
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping" />
-            <div className="absolute inset-2 rounded-full border-2 border-cyan-500/40 animate-pulse" />
-            <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+            <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+            <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-pulse" />
+            <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
               <span className="text-white text-[10px] font-black tracking-wider">ISSA</span>
             </div>
           </div>
           <div className="h-1.5 w-32 rounded-full bg-white dark:bg-slate-900 overflow-hidden relative">
-            <div className="absolute top-0 bottom-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full animate-shimmer" style={{ width: '40%' }} />
+            <div className="absolute top-0 bottom-0 bg-gradient-to-r from-primary to-accent rounded-full animate-shimmer" style={{ width: '40%' }} />
           </div>
         </div>
       </div>
@@ -88,8 +88,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* ─── Elegant Background Atmosphere ─── */}
-      <div className="absolute top-[10%] start-[10%] h-[500px] w-[500px] rounded-full bg-cyan-300/20 dark:bg-cyan-900/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[10%] end-[10%] h-[600px] w-[600px] rounded-full bg-blue-200/30 dark:bg-blue-950/15 blur-[140px] pointer-events-none" />
+      <div className="absolute top-[10%] start-[10%] h-[500px] w-[500px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] end-[10%] h-[600px] w-[600px] rounded-full bg-primary/30 dark:bg-primary/15 blur-[140px] pointer-events-none" />
 
       {/* Collapsible Sidebar (mobile: off-canvas drawer) */}
       <Sidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />

@@ -50,7 +50,7 @@ interface Session {
 // ─── Status Badge ────────────────────────────────────────────
 
 const STATUS_STYLES = {
-  SCHEDULED: 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30',
+  SCHEDULED: 'bg-primary/20 text-primary dark:text-primary border border-primary/30',
   COMPLETED: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30',
   CANCELLED: 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30',
 };
@@ -239,7 +239,7 @@ function SessionModal({
         {/* View the group this session belongs to */}
         <Link
           href={`/${locale}/groups/${session.group.id}`}
-          className="flex items-center justify-center gap-1.5 w-full py-2 mb-4 rounded-lg border border-sky-500/30 bg-sky-500/10 text-sm text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition"
+          className="flex items-center justify-center gap-1.5 w-full py-2 mb-4 rounded-lg border border-primary/30 bg-primary/10 text-sm text-primary dark:text-primary hover:bg-primary/20 transition"
         >
           <Users className="w-4 h-4" />
           {t('viewGroup')}
@@ -289,7 +289,7 @@ function SessionModal({
                       type="date"
                       value={rescheduleDate}
                       onChange={(e) => setRescheduleDate(e.target.value)}
-                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div>
@@ -298,7 +298,7 @@ function SessionModal({
                       type="time"
                       value={rescheduleTime}
                       onChange={(e) => setRescheduleTime(e.target.value)}
-                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -312,7 +312,7 @@ function SessionModal({
                   <button
                     onClick={handleReschedule}
                     disabled={saving || !rescheduleDate || !rescheduleTime}
-                    className="flex-1 py-2 rounded-lg bg-sky-600 text-sm text-white font-semibold hover:bg-sky-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2 rounded-lg bg-primary text-sm text-white font-semibold hover:bg-primary transition disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     {t('confirmReschedule')}
@@ -398,7 +398,7 @@ export default function SchedulePage() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-sky-600 dark:text-sky-400" />
+            <Calendar className="w-6 h-6 text-primary dark:text-primary" />
             {t('title')}
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
@@ -415,7 +415,7 @@ export default function SchedulePage() {
           </button>
           <button
             onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }))}
-            className="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition"
+            className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary transition"
           >
             {t('today')}
           </button>
@@ -431,7 +431,7 @@ export default function SchedulePage() {
       {/* Calendar Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-8 h-8 text-sky-600 dark:text-sky-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-primary dark:text-primary animate-spin" />
         </div>
       ) : (
         <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-2">
@@ -446,7 +446,7 @@ export default function SchedulePage() {
                 <div
                   className={`text-center mb-2 py-2 rounded-lg ${
                     dayIsToday
-                      ? 'bg-sky-600 text-white'
+                      ? 'bg-primary text-white'
                       : 'bg-slate-900/5 dark:bg-white/5 text-slate-600 dark:text-slate-400'
                   }`}
                 >

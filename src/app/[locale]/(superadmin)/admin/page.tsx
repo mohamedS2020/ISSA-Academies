@@ -259,7 +259,7 @@ export default function TenantListPage() {
         </div>
         <button
           onClick={() => router.push('./admin/create')}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-md"
+          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:to-indigo-700 hover:shadow-md"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -303,7 +303,7 @@ export default function TenantListPage() {
           <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => router.push(`./admin/${row.id}`)}
-              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
+              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary dark:text-primary dark:hover:bg-primary/20"
             >
               {t('viewDetails')}
             </button>

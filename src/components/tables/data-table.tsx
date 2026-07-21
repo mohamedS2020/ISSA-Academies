@@ -138,7 +138,7 @@ export function DataTable<T extends Record<string, any>>({
                 value={searchValue ?? ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pe-4 ps-10 text-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+                className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pe-4 ps-10 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
               />
             </div>
           )}
@@ -163,7 +163,7 @@ export function DataTable<T extends Record<string, any>>({
                     <span className="inline-flex items-center gap-1">
                       {col.header}
                       {col.sortable && sortKey === col.key && (
-                        <span className="text-blue-500">
+                        <span className="text-primary">
                           {sortDir === 'asc' ? '↑' : '↓'}
                         </span>
                       )}
@@ -264,7 +264,7 @@ export function DataTable<T extends Record<string, any>>({
                     onClick={() => onPageChange?.(pageNum)}
                     className={`min-w-[36px] rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                       pageNum === pagination.page
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-primary text-white shadow-sm'
                         : 'border border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800'
                     }`}
                   >

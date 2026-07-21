@@ -289,7 +289,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 onClick={() => setIsBranchMenuOpen(!isBranchMenuOpen)}
                 className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-all duration-300 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
               >
-                <Building size={14} className="text-cyan-600 dark:text-cyan-400" />
+                <Building size={14} className="text-primary dark:text-primary" />
                 <span>{user.branchName || tBranches('title')}</span>
                 <ChevronDown size={12} className="text-slate-500" />
               </button>
@@ -310,15 +310,15 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                           disabled={!!switchingId}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 disabled:opacity-60 ${
                             isActiveBranch
-                              ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-semibold'
+                              ? 'bg-primary/10 text-primary dark:text-primary font-semibold'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-100'
                           }`}
                         >
                           <span>{b.name}</span>
                           {switchingId === b.id ? (
-                            <Loader2 size={12} className="animate-spin text-cyan-500" />
+                            <Loader2 size={12} className="animate-spin text-primary" />
                           ) : (
-                            isActiveBranch && <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                            isActiveBranch && <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                           )}
                         </button>
                       );
@@ -337,7 +337,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             onClick={handleLanguageToggle}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-all duration-300 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
           >
-            <Globe size={14} className="text-cyan-600 dark:text-cyan-400" />
+            <Globe size={14} className="text-primary dark:text-primary" />
             <span>{currentLocale === 'en' ? 'AR' : 'EN'}</span>
           </button>
 
@@ -357,7 +357,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               className="flex items-center gap-2.5 p-1 rounded-full md:rounded-xl md:px-3 md:py-1.5 bg-slate-100/70 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-all duration-300 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white group"
             >
-              <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-md">
+              <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center font-bold text-xs text-white shadow-md">
                 {user.name.slice(0, 2).toUpperCase()}
               </div>
               <span className="hidden md:inline text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:hover:text-white truncate max-w-[120px]">
@@ -372,8 +372,8 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                 <div className="px-3.5 py-3">
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{user.name}</p>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <Shield size={12} className="text-cyan-600 dark:text-cyan-400" />
-                    <span className="text-[10px] font-bold tracking-wider text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full uppercase">
+                    <Shield size={12} className="text-primary dark:text-primary" />
+                    <span className="text-[10px] font-bold tracking-wider text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase">
                       {user.role}
                     </span>
                   </div>
@@ -413,7 +413,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       {/* ─── Change Password Modal ─── */}
       {isChangePasswordOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
+          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
             <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
               
               {/* Header */}
@@ -460,7 +460,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     required
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     disabled={isSubmittingPassword || !!passwordSuccess}
                   />
                 </div>
@@ -474,7 +474,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     disabled={isSubmittingPassword || !!passwordSuccess}
                   />
                 </div>
@@ -488,7 +488,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     disabled={isSubmittingPassword || !!passwordSuccess}
                   />
                 </div>
@@ -508,7 +508,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmittingPassword || !!passwordSuccess}
                   >
                     {isSubmittingPassword && <Loader2 size={12} className="animate-spin" />}

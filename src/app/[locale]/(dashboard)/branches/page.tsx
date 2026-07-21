@@ -295,7 +295,7 @@ export default function BranchesPage() {
       className: 'font-semibold text-slate-900 dark:text-slate-100',
       render: (row) => (
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary dark:text-primary font-bold border border-primary/20">
             {row.name.slice(0, 1).toUpperCase()}
           </div>
           <div>
@@ -332,7 +332,7 @@ export default function BranchesPage() {
       header: tBranches('timezone'),
       render: (row) => (
         <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-mono text-xs">
-          <Clock size={13} className="text-cyan-500" />
+          <Clock size={13} className="text-primary" />
           <span>{row.timezone}</span>
         </div>
       ),
@@ -377,7 +377,7 @@ export default function BranchesPage() {
               onChange={(e) => setIncludeInactive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="h-4 w-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 peer-checked:bg-cyan-500 peer-checked:border-cyan-500 flex items-center p-0.5 transition-all duration-200">
+            <div className="h-4 w-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 peer-checked:bg-primary peer-checked:border-primary flex items-center p-0.5 transition-all duration-200">
               <div className="h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-400 peer-checked:translate-x-full peer-checked:bg-slate-50 dark:peer-checked:bg-slate-950 transition-all duration-200" />
             </div>
             <span className="ms-2 text-xs">
@@ -387,7 +387,7 @@ export default function BranchesPage() {
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-cyan-500/10"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-primary/10"
           >
             <Plus size={14} />
             <span>{tBranches('createBranch')}</span>
@@ -409,7 +409,7 @@ export default function BranchesPage() {
             <div className="flex justify-end gap-2.5">
               <button
                 onClick={() => openEditModal(row)}
-                className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
                 title={tCommon('edit')}
               >
                 <Edit2 size={13} />
@@ -434,12 +434,12 @@ export default function BranchesPage() {
       {/* ─── Create Branch Modal ─── */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
+          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
             <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
               
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <GitBranch className="text-cyan-600 dark:text-cyan-400" size={18} />
+                  <GitBranch className="text-primary dark:text-primary" size={18} />
                   <span>{tBranches('createBranch')}</span>
                 </h3>
                 <button
@@ -470,7 +470,7 @@ export default function BranchesPage() {
                       placeholder="New Cairo Branch"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     />
                   </div>
 
@@ -485,7 +485,7 @@ export default function BranchesPage() {
                       placeholder="NC1"
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100 uppercase"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 uppercase"
                     />
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function BranchesPage() {
                       placeholder="+20123456789"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     />
                   </div>
 
@@ -513,7 +513,7 @@ export default function BranchesPage() {
                     <select
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                     >
                       {COMMON_TIMEZONES.map((tz) => (
                         <option key={tz} value={tz} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -534,7 +534,7 @@ export default function BranchesPage() {
                     placeholder="123 Road, District 5"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   />
                 </div>
 
@@ -560,7 +560,7 @@ export default function BranchesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}
@@ -577,12 +577,12 @@ export default function BranchesPage() {
       {/* ─── Edit Branch Modal ─── */}
       {editingBranch && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
+          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
             <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
               
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <GitBranch className="text-cyan-600 dark:text-cyan-400" size={18} />
+                  <GitBranch className="text-primary dark:text-primary" size={18} />
                   <span>{tBranches('editBranch')}</span>
                 </h3>
                 <button
@@ -613,7 +613,7 @@ export default function BranchesPage() {
                       placeholder="New Cairo Branch"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     />
                   </div>
 
@@ -642,7 +642,7 @@ export default function BranchesPage() {
                       placeholder="+20123456789"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     />
                   </div>
 
@@ -654,7 +654,7 @@ export default function BranchesPage() {
                     <select
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                     >
                       {COMMON_TIMEZONES.map((tz) => (
                         <option key={tz} value={tz} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -675,7 +675,7 @@ export default function BranchesPage() {
                     placeholder="123 Road, District 5"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                   />
                 </div>
 
@@ -688,7 +688,7 @@ export default function BranchesPage() {
                     <select
                       value={payrollFrequency}
                       onChange={(e) => setPayrollFrequency(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                     >
                       {PAYROLL_FREQUENCIES.map((f) => (
                         <option key={f} value={f} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -709,7 +709,7 @@ export default function BranchesPage() {
                         required
                         value={payrollCustomDays}
                         onChange={(e) => setPayrollCustomDays(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-cyan-500 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
                       />
                     </div>
                   )}
@@ -737,7 +737,7 @@ export default function BranchesPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}

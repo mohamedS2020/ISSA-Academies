@@ -187,7 +187,7 @@ export default function SubscriptionsPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => router.push(`/${locale}/subscriptions/${row.id}`)}
-            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-600/60 hover:border-cyan-500/60 hover:text-cyan-700 dark:hover:text-cyan-300 hover:bg-cyan-500/10 transition-all flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-600/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all flex items-center gap-1"
           >
             Edit <ChevronRight className="w-3 h-3" />
           </button>

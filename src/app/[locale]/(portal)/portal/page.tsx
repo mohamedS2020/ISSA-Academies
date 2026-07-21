@@ -138,9 +138,9 @@ export default function PortalDashboardPage() {
   return (
     <div className="space-y-6">
       {/* ─── Welcome Hero ─── */}
-      <div className="rounded-2xl bg-gradient-to-r from-white/80 dark:from-slate-900/60 to-cyan-950/20 border border-slate-200 dark:border-slate-900 p-6 shadow-xl">
+      <div className="rounded-2xl bg-gradient-to-r from-white/80 dark:from-slate-900/60 to-accent/20 border border-slate-200 dark:border-slate-900 p-6 shadow-xl">
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <Sparkles size={20} className="text-cyan-600 dark:text-cyan-400" />
+          <Sparkles size={20} className="text-primary dark:text-primary" />
           {t('welcome', { name: data.trainee.name })}
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-mono">{data.trainee.systemCode}</p>
@@ -150,7 +150,7 @@ export default function PortalDashboardPage() {
         {/* ─── Upcoming Sessions ─── */}
         <div className="lg:col-span-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-5 flex items-center gap-2">
-            <Calendar size={16} className="text-cyan-600 dark:text-cyan-400" />
+            <Calendar size={16} className="text-primary dark:text-primary" />
             {t('upcomingSessions')}
           </h3>
 
@@ -169,7 +169,7 @@ export default function PortalDashboardPage() {
                       {s.group.captain.user.name}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full flex-shrink-0">
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <Clock size={11} />
                     {s.scheduledAtLocal}
                   </div>
@@ -183,7 +183,7 @@ export default function PortalDashboardPage() {
         <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <CreditCard size={16} className="text-cyan-600 dark:text-cyan-400" />
+              <CreditCard size={16} className="text-primary dark:text-primary" />
               {t('subscription')}
             </h3>
 
@@ -224,7 +224,7 @@ export default function PortalDashboardPage() {
                   href={link.href}
                   className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 hover:border-slate-200 dark:hover:border-slate-800 hover:bg-white/70 dark:hover:bg-slate-900/40 transition-colors flex flex-col items-center gap-1.5 text-center"
                 >
-                  <Icon size={16} className="text-cyan-600 dark:text-cyan-400" />
+                  <Icon size={16} className="text-primary dark:text-primary" />
                   <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{link.label}</span>
                 </Link>
               );
@@ -267,7 +267,7 @@ export default function PortalDashboardPage() {
         {/* Feedback from your captain */}
         <div className="lg:col-span-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <MessageSquare size={16} className="text-cyan-600 dark:text-cyan-400" />
+            <MessageSquare size={16} className="text-primary dark:text-primary" />
             {t('captainFeedback')}
           </h3>
 

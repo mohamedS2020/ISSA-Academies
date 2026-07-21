@@ -220,7 +220,7 @@ export default function EditGroupPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-600 dark:text-cyan-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary dark:text-primary" />
       </div>
     );
   }
@@ -229,7 +229,7 @@ export default function EditGroupPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-teal-500/20 to-cyan-600/20 border border-teal-500/30">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-teal-500/20 to-accent/20 border border-teal-500/30">
           <Users2 className="w-6 h-6 text-teal-600 dark:text-teal-400" />
         </div>
         <div>
@@ -240,7 +240,7 @@ export default function EditGroupPage() {
 
       {/* Form */}
       <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl backdrop-blur-xl">
-        <div className="h-1 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-t-2xl" />
+        <div className="h-1 bg-gradient-to-r from-teal-500 to-accent rounded-t-2xl" />
         <div className="p-6 md:p-8 space-y-5">
 
           {/* Name */}
@@ -392,7 +392,7 @@ export default function EditGroupPage() {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-teal-500/25 transition-all hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-teal-500/25 transition-all hover:-translate-y-0.5"
         >
           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
           {tCommon('save')}

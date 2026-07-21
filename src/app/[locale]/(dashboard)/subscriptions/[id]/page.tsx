@@ -215,7 +215,7 @@ export default function EditSubscriptionPlanPage() {
       {/* Usage banner */}
       <div className="flex flex-wrap gap-3">
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60">
-          <Users2 className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <Users2 className="w-4 h-4 text-primary dark:text-primary" />
           <span className="text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold text-slate-900 dark:text-white">{plan._count.groups}</span> {plan._count.groups === 1 ? 'group' : 'groups'}
           </span>

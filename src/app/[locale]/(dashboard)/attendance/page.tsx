@@ -387,7 +387,7 @@ export default function AttendancePage() {
                       ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
                       : sheet.session.status === 'CANCELLED'
                       ? 'bg-red-500/20 text-red-600 dark:text-red-400'
-                      : 'bg-sky-500/20 text-sky-700 dark:text-sky-300'
+                      : 'bg-primary/20 text-primary dark:text-primary'
                   }`}
                 >
                   {sheet.session.status}

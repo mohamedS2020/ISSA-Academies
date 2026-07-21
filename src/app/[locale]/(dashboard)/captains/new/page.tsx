@@ -39,7 +39,7 @@ const DAYS_OF_WEEK = [
 ] as const;
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/20 transition-all';
+  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
 
 interface FieldProps { label: string; required?: boolean; children: React.ReactNode; error?: string; }
 function Field({ label, required, children, error }: FieldProps) {
@@ -171,7 +171,7 @@ export default function NewCaptainPage() {
             </button>
             <button
               onClick={() => router.push(`/${locale}/captains`)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
             >
               Go to Captains
             </button>
@@ -193,8 +193,8 @@ export default function NewCaptainPage() {
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30">
-          <Award className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+          <Award className="w-6 h-6 text-primary dark:text-primary" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('register')}</h1>
       </div>
@@ -231,7 +231,7 @@ export default function NewCaptainPage() {
                 onClick={() => toggleDay(key)}
                 className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition-all ${
                   attendingDays.includes(key)
-                    ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+                    ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
                     : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
@@ -252,7 +252,7 @@ export default function NewCaptainPage() {
                 onClick={() => setPayrollType(type)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                   payrollType === type
-                    ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+                    ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
                     : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                 }`}
               >
@@ -317,7 +317,7 @@ export default function NewCaptainPage() {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-cyan-500/25 transition-all hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {t('register')}

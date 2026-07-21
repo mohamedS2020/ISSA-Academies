@@ -95,7 +95,7 @@ export default function PortalReceiptsPage() {
     {
       key: 'receiptNumber',
       header: tFinance('receiptNumber'),
-      className: 'font-mono text-xs font-semibold text-cyan-600 dark:text-cyan-400',
+      className: 'font-mono text-xs font-semibold text-primary dark:text-primary',
     },
     {
       key: 'plan',
@@ -123,7 +123,7 @@ export default function PortalReceiptsPage() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
-        <ReceiptIcon size={22} className="text-cyan-600 dark:text-cyan-400" />
+        <ReceiptIcon size={22} className="text-primary dark:text-primary" />
         {t('receipts')}
       </h2>
 
@@ -139,7 +139,7 @@ export default function PortalReceiptsPage() {
             <button
               onClick={() => handleDownload(row)}
               disabled={downloadingId === row.id}
-              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-cyan-900/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors disabled:opacity-50"
+              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
               title={tFinance('downloadReceipt')}
             >
               {downloadingId === row.id ? (

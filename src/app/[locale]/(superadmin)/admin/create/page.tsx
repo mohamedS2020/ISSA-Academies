@@ -249,7 +249,7 @@ export default function CreateTenantPage() {
                       step > s.num
                         ? 'bg-emerald-500 text-white'
                         : step === s.num
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
                           : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
                     }`}
                   >
@@ -292,7 +292,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.name
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
                 placeholder="e.g., Aqua Stars Academy"
               />
@@ -310,7 +310,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.slug
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
               />
               <p className="text-xs text-gray-400">{t('slugHint')}</p>
@@ -330,7 +330,7 @@ export default function CreateTenantPage() {
                     aria-pressed={data.themeKey === key}
                     className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${
                       data.themeKey === key
-                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20 dark:border-blue-400 dark:bg-blue-500/10'
+                        ? 'border-primary bg-primary ring-2 ring-primary/20 dark:border-primary dark:bg-primary/10'
                         : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
                     }`}
                   >
@@ -355,7 +355,7 @@ export default function CreateTenantPage() {
                   type="text"
                   value={data.contactName}
                   onChange={(e) => updateField('contactName', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
               <div className="space-y-1.5">
@@ -366,7 +366,7 @@ export default function CreateTenantPage() {
                   type="tel"
                   value={data.contactPhone}
                   onChange={(e) => updateField('contactPhone', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="+20..."
                 />
               </div>
@@ -380,7 +380,7 @@ export default function CreateTenantPage() {
                 type="email"
                 value={data.contactEmail}
                 onChange={(e) => updateField('contactEmail', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                 placeholder="admin@academy.com"
               />
             </div>
@@ -393,7 +393,7 @@ export default function CreateTenantPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {t('wizardStep2')}
             </h2>
-            <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+            <div className="rounded-lg bg-primary p-4 text-sm text-primary dark:bg-primary/20 dark:text-primary">
               A default admin account will be created. The password will be auto-generated and shown once after creation.
             </div>
 
@@ -408,7 +408,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.adminName
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
                 placeholder="e.g., Ahmed Hassan"
               />
@@ -426,7 +426,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.adminPhone
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
                 placeholder="+201111111111"
               />
@@ -454,7 +454,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.branchName
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
                 placeholder="e.g., Heliopolis Branch"
               />
@@ -472,7 +472,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm uppercase focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.branchCode
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
                 placeholder="HELIO"
               />
@@ -490,7 +490,7 @@ export default function CreateTenantPage() {
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
                   errors.branchTimezone
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-gray-600'
+                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
                 }`}
               >
                 {COMMON_TIMEZONES.map((tz) => (
@@ -659,7 +659,7 @@ export default function CreateTenantPage() {
                   setResult(null);
                   setStep(1);
                 }}
-                className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary"
               >
                 {t('createAnother')}
               </button>
@@ -680,7 +680,7 @@ export default function CreateTenantPage() {
             {step < totalSteps ? (
               <button
                 onClick={handleNext}
-                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary"
               >
                 Next →
               </button>
@@ -688,7 +688,7 @@ export default function CreateTenantPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
