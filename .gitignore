@@ -44,5 +44,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Generated Prisma clients — rebuilt by `prisma generate` on every install
+# (package.json postinstall) and again explicitly in CI, so they never need to be
+# in version control. Tracking them meant ~78 MB of platform-specific query-engine
+# binaries in the repo, re-added in full on every regeneration.
+/src/generated/
+
 # Local-only dev docs (plans, walkthroughs, PRD, ad-hoc scripts) — not for the production repo
 _local-docs/
