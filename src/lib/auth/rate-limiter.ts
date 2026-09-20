@@ -133,10 +133,22 @@ export const passwordResetRateLimiter = createRateLimiter({
   maxAttempts: 3,
 });
 
-/** General API rate limiter: 100 requests per minute */
+/**
+ * General API rate limiter: 100 requests per minute, keyed by user id.
+ *
+ * Applied in `withAuth`, so it covers every authenticated endpoint and stops one
+ * account saturating the database. Configurable because the right ceiling
+ * depends on how chatty the UI is — a dashboard that fans out several requests
+ * per page view eats into this faster than a portal user does. Raise it if
+ * legitimate users start seeing 429s; do not remove it.
+ *
+ * `/api/auth/refresh` deliberately does NOT go through `withAuth` (it has its
+ * own `refreshRateLimiter`), so hitting this limit can never stop a user
+ * renewing their session and locking them out.
+ */
 export const apiRateLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  maxAttempts: 100,
+  windowMs: parseInt(process.env.RATE_LIMIT_API_WINDOW_MS ?? '60000', 10),
+  maxAttempts: parseInt(process.env.RATE_LIMIT_API_MAX ?? '100', 10),
 });
 
 /** Token refresh limiter: 30 per minute per IP (abuse guard; refresh needs a
@@ -152,15 +164,69 @@ export const changePasswordRateLimiter = createRateLimiter({
   maxAttempts: 5,
 });
 
+// ─── Client IP resolution ───────────────────────────────────
+
+/**
+ * How many proxies sit in front of the app and append to `x-forwarded-for`.
+ *
+ * Railway puts exactly one edge proxy in front of a service, so 1 is the right
+ * default. Raise it only if you add another trusted layer (a CDN in front of
+ * Railway, say) — each additional hop appends one more value.
+ */
+const TRUSTED_PROXY_HOPS = Math.max(
+  1,
+  parseInt(process.env.TRUSTED_PROXY_HOPS ?? '1', 10) || 1
+);
+
+/**
+ * Resolve the client IP from proxy headers, ignoring anything the client could
+ * have chosen for itself.
+ *
+ * ⚠️ `x-forwarded-for` is APPEND-ONLY and ordered left-to-right as
+ * `client, proxy1, proxy2, ...`. A client can send whatever it likes, and the
+ * first trusted proxy simply appends the address it actually saw. So the
+ * LEFTMOST value is attacker-controlled and the RIGHTMOST values are the ones
+ * written by infrastructure we control.
+ *
+ * Reading the leftmost value (as this did previously) let an attacker rotate
+ * `x-forwarded-for` on every request to land in a fresh rate-limit bucket each
+ * time — unlimited login attempts with the limiter still reporting healthy.
+ *
+ * Counting from the right by the number of trusted hops is what makes the value
+ * unspoofable: a client-supplied entry gets pushed further left by every proxy
+ * it passes through, so it can never occupy the position we read.
+ */
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+
+  if (forwarded) {
+    const parts = forwarded
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    const candidate = parts[parts.length - TRUSTED_PROXY_HOPS];
+    if (candidate) return candidate;
+
+    // Fewer entries than configured hops means the request did not traverse the
+    // proxy chain we expect. Deliberately fall through rather than reading a
+    // left-hand value — a misconfiguration must not silently become a bypass.
+  }
+
+  const realIp = request.headers.get('x-real-ip')?.trim();
+  if (realIp) return realIp;
+
+  return 'unknown';
+}
+
 // ─── Helpers ────────────────────────────────────────────────
 
 /**
  * Build a rate limit key from the request.
- * Uses IP address + optional discriminator (e.g. phone number).
+ * Uses client IP + optional discriminator (e.g. phone number).
  */
 export function getRateLimitKey(request: Request, discriminator?: string): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded?.split(',')[0].trim() ?? request.headers.get('x-real-ip') ?? 'unknown';
+  const ip = getClientIp(request);
 
   if (discriminator) {
     return `${ip}:${discriminator}`;
