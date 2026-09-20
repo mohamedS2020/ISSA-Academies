@@ -58,6 +58,16 @@ jobs:
           npx prisma generate --schema=prisma/platform/schema.prisma
           npx prisma generate --schema=prisma/tenant/schema.prisma
 
+      # ── Generate Next.js route types ─────────────────────────
+      # tsconfig.json includes .next/types/**/*.ts, where Next writes the generated
+      # route types (LayoutProps, PageProps, ...). Those only exist after a build
+      # or an explicit typegen, so type-checking a fresh checkout without this step
+      # fails with "Cannot find name 'LayoutProps'" — which is precisely why every
+      # CI run on main had been red since these types were adopted. It passes
+      # locally only because .next is left over from a previous build.
+      - name: Generate Next.js route types
+        run: npx next typegen
+
       # ── Type-check ───────────────────────────────────────────
       - name: TypeScript type-check
         run: npx tsc --noEmit
