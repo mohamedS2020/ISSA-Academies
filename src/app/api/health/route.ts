@@ -8,8 +8,12 @@
  * Deliberately:
  *   - **Unauthenticated** — a healthcheck that needs a token can't be used by the
  *     platform that decides whether to route traffic to this instance.
- *   - **Cheap** — one `SELECT 1` on the platform connection. Railway polls this
- *     frequently, so it must not touch tenant schemas or open a transaction.
+ *   - **Cheap enough** — `SELECT 1` on the platform connection, never touching a
+ *     tenant schema. It does open a transaction, purely so `statement_timeout`
+ *     can be set with `SET LOCAL` (see below); that costs BEGIN + SET + SELECT +
+ *     COMMIT, measured at ~260ms against Neon versus ~70ms for a bare query.
+ *     At healthcheck frequency that is a fair price for not leaking a connection
+ *     on every probe during a stall.
  *   - **Quiet** — no version, build id, hostname, or error text in the body. This is
  *     a public endpoint; the only thing a caller learns is up or not up.
  *   - **Uncached** — see `dynamic`/`revalidate` below.
@@ -28,19 +32,58 @@ import { platformPrisma } from '@/lib/db/platform-client';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-/** Fail fast: a healthcheck that hangs is as bad as one that lies. */
+/**
+ * Server-side statement timeout. Fail fast: a healthcheck that hangs is as bad
+ * as one that lies.
+ *
+ * This MUST be enforced by Postgres, not by racing a timer in Node. A
+ * `Promise.race` against `setTimeout` only stops *us* waiting — the query stays
+ * in flight holding a connection out of the pool. During a database stall every
+ * probe would leak one, and because this shares `platformPrisma`'s pool with
+ * login and tenant resolution, the healthcheck would help exhaust the pool it
+ * exists to report on. `statement_timeout` makes Postgres abort the statement
+ * and hand the connection back.
+ *
+ * Integer literal, not input — it is interpolated into SQL below because
+ * `SET LOCAL` does not accept bind parameters.
+ */
 const DB_TIMEOUT_MS = 3000;
+
+/**
+ * How long to wait for a free connection before declaring the database
+ * unhealthy. A probe that queues behind a saturated pool is itself consuming
+ * the resource that is under stress, so it gives up quickly instead.
+ */
+const POOL_WAIT_MS = 1000;
 
 export async function GET(): Promise<Response> {
   const startedAt = Date.now();
 
   try {
-    await Promise.race([
-      platformPrisma.$queryRaw`SELECT 1`,
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('db timeout')), DB_TIMEOUT_MS)
-      ),
-    ]);
+    // Deliberately uses the same pool the application uses. A healthcheck on a
+    // private connection would report "ok" while the app's own pool was starved.
+    await platformPrisma.$transaction(
+      async (tx) => {
+        // SET LOCAL is scoped to this transaction and resets on commit, so the
+        // timeout cannot bleed onto whoever gets this pooled connection next —
+        // the same reason withTenantContext pins search_path this way.
+        await tx.$executeRawUnsafe(
+          `SET LOCAL statement_timeout = ${DB_TIMEOUT_MS}`
+        );
+        await tx.$queryRaw`SELECT 1`;
+      },
+      {
+        maxWait: POOL_WAIT_MS,
+        // Backstop only, for the case where the server-side timeout is not
+        // honoured at all (a pooler swallowing SET LOCAL, say). The margin is
+        // deliberately generous so `statement_timeout` is what normally fires:
+        // if Prisma's transaction timeout won the race it would issue a ROLLBACK
+        // that Postgres cannot process until the running statement finishes —
+        // re-creating the stuck-connection problem this code exists to avoid.
+        // Measured: cancellation lands ~3.4s for a 3s timeout over a ~70ms link.
+        timeout: DB_TIMEOUT_MS + 1500,
+      }
+    );
 
     return Response.json(
       { status: 'ok', db: 'up', latencyMs: Date.now() - startedAt },
