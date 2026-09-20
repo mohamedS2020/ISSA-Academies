@@ -163,7 +163,11 @@ fix — take a restore point:
 per-academy restore. If one academy needs recovery, restore to a branch/clone and copy
 the affected schema across rather than rolling back everyone.
 
-The schema itself can be rebuilt from migrations:
+### Rebuilding the schema on an EMPTY database
+
+These commands assume a database with no ISSA tables and no `_prisma_migrations`
+history — a fresh Neon project, a scratch database, or a local dev database. **Do not
+run them against a restored backup**; see the next section.
 
 ```bash
 npx prisma migrate deploy --schema=prisma/platform/schema.prisma
@@ -172,8 +176,53 @@ npx tsx prisma/seed.ts          # re-creates the super admin
 
 Academy schemas are then recreated by provisioning, or restored from the backup.
 
+### ⚠️ Restoring a backup taken before 2026-09-19
+
+Migrations were split into `prisma/platform/` and `prisma/tenant/` on 2026-09-19, and
+both sets were squashed into a single `0_init` baseline per folder. Schemas created
+before that date record the **old nine migration names** in their own
+`_prisma_migrations` table.
+
+So a restored pre-split backup contains tables that are structurally correct but whose
+migration history Prisma does not recognise. Running `migrate deploy` against it tries
+to apply `0_init`, hits tables that already exist, and fails:
+
+```
+ERROR: relation "tenants" already exists   (42P07)
+P3018  A migration failed to apply.
+```
+
+**The data is fine — only the bookkeeping is wrong.** Do not "fix" this by dropping
+anything. Mark the baseline as already applied instead:
+
+```bash
+# 1. Platform schema
+npx prisma migrate resolve --applied 0_init --schema=prisma/platform/schema.prisma
+
+# 2. Every tenant schema, one at a time. List them first:
+#      SELECT schema_name FROM public.tenants WHERE status = 'ACTIVE';
+#    then for each, with DATABASE_URL and DIRECT_DATABASE_URL both pointed at
+#    ?schema=<that schema>:
+npx prisma migrate resolve --applied 0_init --schema=prisma/tenant/schema.prisma
+```
+
+`scripts/migrate-all-tenants.ts` already iterates every active academy and sets both
+URLs per schema — the natural place to script step 2 if there are more than a handful.
+
+Afterwards, verify before trusting the restore:
+
+```bash
+npx prisma migrate status --schema=prisma/platform/schema.prisma   # expect "up to date"
+npm run migrate:tenants                                            # expect all "already up to date"
+```
+
+**Prevention:** treat 2026-09-19 as a floor for restores, and take a fresh backup now so
+a known-good point exists on the new side of that line. Once every backup in your
+retention window postdates the split, this whole section stops applying — delete it
+then.
+
 > ⚠️ Free-tier retention is minimal. Confirm the plan's retention window actually covers
-> your recovery needs before launch — see hardening plan §10.
+> your recovery needs before launch — see hardening plan §10 and §20.
 
 ---
 
