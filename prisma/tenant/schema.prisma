@@ -16,7 +16,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../src/generated/tenant-client"
+  output        = "../../src/generated/tenant-client"
   // "native" covers local dev (Windows/macOS); "debian-openssl-3.0.x" is the
   // Railway/most-Linux production runtime. This client is instantiated during
   // tenant provisioning (seeding the default branch + admin); without the Linux

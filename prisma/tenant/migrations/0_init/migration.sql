@@ -1,11 +1,13 @@
-/*
-  Warnings:
+-- ISSA — TENANT baseline (squashed).
+--
+-- The complete structure of one academy's PostgreSQL schema. Applied into
+-- tenant_<slug> at provisioning time (src/lib/db/migration-runner.ts) and by
+-- `npm run migrate:tenants` for existing academies.
+--
+-- Replaces the 9 migrations in the old shared prisma/migrations/ folder — see the
+-- platform baseline for why that arrangement was unsafe. This folder now contains
+-- ONLY tenant migrations, so nothing here can reach the platform tables.
 
-  - You are about to drop the `super_admins` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `tenant_configs` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `tenants` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'MODERATOR', 'CAPTAIN', 'TRAINEE');
 
@@ -34,25 +36,16 @@ CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE');
 CREATE TYPE "PaymentStatus" AS ENUM ('PAID', 'PARTIAL', 'UNPAID');
 
 -- CreateEnum
+CREATE TYPE "PaymentMethod" AS ENUM ('INSTAPAY', 'CASH', 'EWALLET');
+
+-- CreateEnum
+CREATE TYPE "ReferralType" AS ENUM ('NEW', 'NETWORK', 'OLD', 'CONTINUOUS');
+
+-- CreateEnum
 CREATE TYPE "DayOfWeek" AS ENUM ('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY');
 
 -- CreateEnum
 CREATE TYPE "AuditAction" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'ARCHIVE', 'LOGIN', 'PASSWORD_RESET', 'STATUS_CHANGE');
-
--- DropForeignKey
-ALTER TABLE "tenant_configs" DROP CONSTRAINT "tenant_configs_tenant_id_fkey";
-
--- DropTable
-DROP TABLE "super_admins";
-
--- DropTable
-DROP TABLE "tenant_configs";
-
--- DropTable
-DROP TABLE "tenants";
-
--- DropEnum
-DROP TYPE "TenantStatus";
 
 -- CreateTable
 CREATE TABLE "branches" (
@@ -63,6 +56,8 @@ CREATE TABLE "branches" (
     "phone" VARCHAR(50),
     "timezone" VARCHAR(100) NOT NULL DEFAULT 'Africa/Cairo',
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "payroll_frequency" "PayrollFrequency" NOT NULL DEFAULT 'MONTHLY',
+    "payroll_custom_days" INTEGER,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -101,11 +96,13 @@ CREATE TABLE "trainee_profiles" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "branch_id" UUID NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
     "system_code" VARCHAR(50) NOT NULL,
     "date_of_birth" DATE NOT NULL,
     "whatsapp_number" VARCHAR(50) NOT NULL,
     "parent_id_card" VARCHAR(50) NOT NULL,
     "medical_condition" TEXT NOT NULL,
+    "referral_type" "ReferralType",
     "past_experience" TEXT,
     "other_academies" TEXT,
     "level_id" UUID,
@@ -189,6 +186,7 @@ CREATE TABLE "trainee_subscriptions" (
     "amount_paid" DECIMAL(10,2) NOT NULL DEFAULT 0,
     "amount_due" DECIMAL(10,2) NOT NULL,
     "payment_status" "PaymentStatus" NOT NULL DEFAULT 'UNPAID',
+    "expired_at" TIMESTAMPTZ,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
@@ -271,6 +269,32 @@ CREATE TABLE "trainee_evaluations" (
 );
 
 -- CreateTable
+CREATE TABLE "captain_ratings" (
+    "id" UUID NOT NULL,
+    "branch_id" UUID NOT NULL,
+    "captain_id" UUID NOT NULL,
+    "trainee_id" UUID NOT NULL,
+    "stars" INTEGER NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "captain_ratings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "captain_feedbacks" (
+    "id" UUID NOT NULL,
+    "branch_id" UUID NOT NULL,
+    "captain_id" UUID NOT NULL,
+    "trainee_id" UUID NOT NULL,
+    "message" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "captain_feedbacks_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "receipts" (
     "id" UUID NOT NULL,
     "branch_id" UUID NOT NULL,
@@ -279,6 +303,7 @@ CREATE TABLE "receipts" (
     "receipt_number" VARCHAR(50) NOT NULL,
     "seq" INTEGER NOT NULL,
     "amount" DECIMAL(10,2) NOT NULL,
+    "payment_method" "PaymentMethod",
     "description" TEXT,
     "issued_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -314,6 +339,21 @@ CREATE TABLE "expenses" (
     "updated_at" TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT "expenses_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "manual_incomes" (
+    "id" UUID NOT NULL,
+    "branch_id" UUID NOT NULL,
+    "category" VARCHAR(100) NOT NULL,
+    "amount" DECIMAL(10,2) NOT NULL,
+    "description" TEXT,
+    "date" DATE NOT NULL,
+    "created_by" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "manual_incomes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -479,9 +519,6 @@ CREATE UNIQUE INDEX "users_branch_id_phone_number_key" ON "users"("branch_id", "
 CREATE UNIQUE INDEX "user_privileges_user_id_privilege_key" ON "user_privileges"("user_id", "privilege");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "trainee_profiles_user_id_key" ON "trainee_profiles"("user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "trainee_profiles_system_code_key" ON "trainee_profiles"("system_code");
 
 -- CreateIndex
@@ -489,6 +526,9 @@ CREATE INDEX "trainee_profiles_system_code_idx" ON "trainee_profiles"("system_co
 
 -- CreateIndex
 CREATE INDEX "trainee_profiles_branch_id_idx" ON "trainee_profiles"("branch_id");
+
+-- CreateIndex
+CREATE INDEX "trainee_profiles_user_id_idx" ON "trainee_profiles"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "captain_profiles_user_id_key" ON "captain_profiles"("user_id");
@@ -539,6 +579,18 @@ CREATE INDEX "trainee_evaluations_trainee_id_idx" ON "trainee_evaluations"("trai
 CREATE INDEX "trainee_evaluations_session_id_idx" ON "trainee_evaluations"("session_id");
 
 -- CreateIndex
+CREATE INDEX "captain_ratings_captain_id_idx" ON "captain_ratings"("captain_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "captain_ratings_captain_id_trainee_id_key" ON "captain_ratings"("captain_id", "trainee_id");
+
+-- CreateIndex
+CREATE INDEX "captain_feedbacks_trainee_id_created_at_idx" ON "captain_feedbacks"("trainee_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "captain_feedbacks_captain_id_idx" ON "captain_feedbacks"("captain_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "receipts_receipt_number_key" ON "receipts"("receipt_number");
 
 -- CreateIndex
@@ -555,6 +607,9 @@ CREATE INDEX "financial_transactions_type_idx" ON "financial_transactions"("type
 
 -- CreateIndex
 CREATE INDEX "expenses_branch_id_date_idx" ON "expenses"("branch_id", "date");
+
+-- CreateIndex
+CREATE INDEX "manual_incomes_branch_id_date_idx" ON "manual_incomes"("branch_id", "date");
 
 -- CreateIndex
 CREATE INDEX "captain_payrolls_branch_id_period_start_idx" ON "captain_payrolls"("branch_id", "period_start");
@@ -677,6 +732,18 @@ ALTER TABLE "trainee_evaluations" ADD CONSTRAINT "trainee_evaluations_trainee_id
 ALTER TABLE "trainee_evaluations" ADD CONSTRAINT "trainee_evaluations_evaluator_id_fkey" FOREIGN KEY ("evaluator_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "captain_ratings" ADD CONSTRAINT "captain_ratings_captain_id_fkey" FOREIGN KEY ("captain_id") REFERENCES "captain_profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "captain_ratings" ADD CONSTRAINT "captain_ratings_trainee_id_fkey" FOREIGN KEY ("trainee_id") REFERENCES "trainee_profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "captain_feedbacks" ADD CONSTRAINT "captain_feedbacks_captain_id_fkey" FOREIGN KEY ("captain_id") REFERENCES "captain_profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "captain_feedbacks" ADD CONSTRAINT "captain_feedbacks_trainee_id_fkey" FOREIGN KEY ("trainee_id") REFERENCES "trainee_profiles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "receipts" ADD CONSTRAINT "receipts_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -692,6 +759,9 @@ ALTER TABLE "financial_transactions" ADD CONSTRAINT "financial_transactions_bran
 ALTER TABLE "expenses" ADD CONSTRAINT "expenses_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "manual_incomes" ADD CONSTRAINT "manual_incomes_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "captain_payrolls" ADD CONSTRAINT "captain_payrolls_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -699,3 +769,4 @@ ALTER TABLE "captain_payrolls" ADD CONSTRAINT "captain_payrolls_captain_id_fkey"
 
 -- AddForeignKey
 ALTER TABLE "audit_logs" ADD CONSTRAINT "audit_logs_branch_id_fkey" FOREIGN KEY ("branch_id") REFERENCES "branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+

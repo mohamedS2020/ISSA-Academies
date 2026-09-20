@@ -4,16 +4,22 @@
 // This schema manages platform-level data: tenants (academies),
 // their configurations, and super admin accounts.
 // Each tenant gets its own PostgreSQL schema (tenant_{id}) for
-// full data isolation — see tenant-schema.prisma for those tables.
+// full data isolation — see prisma/tenant/schema.prisma for those tables.
+//
+// ⚠️ Migrations for this schema live in prisma/platform/migrations/ and the
+// tenant ones in prisma/tenant/migrations/. Keep them separate: `prisma migrate
+// deploy` applies every migration in the folder it is given, regardless of
+// --schema, so a shared folder replays platform migrations into every tenant
+// schema (and previously dropped the platform tables outright).
 // ──────────────────────────────────────────────────────────────
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../src/generated/platform-client"
+  output        = "../../src/generated/platform-client"
   // "native" covers local dev (Windows/macOS); "debian-openssl-3.0.x" is the
   // Railway/most-Linux production runtime. Without the Linux target, a client
   // generated on Windows ships without the Linux query engine and fails at
-  // runtime with PrismaClientInitializationError. See tenant-schema.prisma too.
+  // runtime with PrismaClientInitializationError. See prisma/tenant/schema.prisma too.
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 datasource db {
