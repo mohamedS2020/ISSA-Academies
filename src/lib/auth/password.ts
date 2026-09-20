@@ -10,9 +10,21 @@
  */
 
 import bcrypt from 'bcryptjs';
+import { randomInt } from 'node:crypto';
 
-/** Number of salt rounds for bcrypt hashing. Higher = slower but more secure. */
-const SALT_ROUNDS = 12;
+/**
+ * Number of salt rounds for bcrypt hashing. Higher = slower but more secure.
+ *
+ * 10, not 12: `bcryptjs` is pure JS with no native bindings, so each hash burns
+ * single-threaded CPU and blocks the event loop — at 12 rounds that is ~0.5–1s
+ * per login, capping throughput at roughly 1–3 logins/sec. 10 rounds is ~4×
+ * faster and still well above current guidance.
+ *
+ * Existing 12-round hashes keep verifying: bcrypt encodes its cost inside the
+ * hash string, and `bcrypt.compare` reads it from there rather than from this
+ * constant. Only newly-created hashes use the new cost.
+ */
+const SALT_ROUNDS = 10;
 
 /**
  * Hash a plaintext password using bcrypt.
@@ -39,11 +51,23 @@ export async function comparePassword(
   return bcrypt.compare(password, hash);
 }
 
+/** Pick one character uniformly at random from `set`, using the CSPRNG. */
+function pick(set: string): string {
+  return set[randomInt(set.length)];
+}
+
 /**
  * Generate a random password for admin-initiated resets.
  *
- * Uses crypto-safe randomness. Password includes uppercase, lowercase,
- * digits, and special characters to meet complexity requirements.
+ * Password includes uppercase, lowercase, digits, and special characters to
+ * meet complexity requirements.
+ *
+ * ⚠️ Every random draw here MUST come from `node:crypto` — this function mints
+ * real credentials (academy Admin passwords during tenant provisioning, and
+ * admin-initiated resets via POST /api/auth/password-reset). `Math.random()` is
+ * a seeded PRNG whose output is predictable from observed values, so it must
+ * never be used here. `randomInt(max)` is uniform over [0, max) and rejection-
+ * samples internally, so there is no modulo bias either.
  *
  * @param length - Password length (default 12)
  * @returns A random password string
@@ -57,21 +81,23 @@ export function generateRandomPassword(length = 12): string {
 
   // Ensure at least one of each type
   const required = [
-    uppercase[Math.floor(Math.random() * uppercase.length)],
-    lowercase[Math.floor(Math.random() * lowercase.length)],
-    digits[Math.floor(Math.random() * digits.length)],
-    special[Math.floor(Math.random() * special.length)],
+    pick(uppercase),
+    pick(lowercase),
+    pick(digits),
+    pick(special),
   ];
 
   // Fill remaining characters
   const remaining = Array.from({ length: length - required.length }, () =>
-    all[Math.floor(Math.random() * all.length)]
+    pick(all)
   );
 
-  // Shuffle all characters together
+  // Shuffle all characters together — Fisher-Yates, also CSPRNG-driven. A
+  // predictable shuffle would leak the "one of each class" positions even if
+  // the characters themselves were drawn securely.
   const chars = [...required, ...remaining];
   for (let i = chars.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];
   }
 

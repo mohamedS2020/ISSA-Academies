@@ -12,10 +12,10 @@
  */
 
 import { PrismaClient as PlatformClient } from '../src/generated/platform-client';
-import bcrypt from 'bcryptjs';
-
-// Matches src/lib/auth/password.ts so the app's login (bcrypt.compare) accepts it.
-const SALT_ROUNDS = 12;
+// Use the app's own hasher rather than calling bcrypt with a duplicated cost
+// constant — the two had already drifted apart once (the app moved to 10 rounds
+// while this file still said 12). Importing it means they cannot drift again.
+import { hashPassword } from '../src/lib/auth/password';
 
 const SUPER_ADMIN = {
   name: 'Mohamed Sharaf',
@@ -29,7 +29,7 @@ async function main() {
   try {
     console.log('🌊 ISSA Seed — Super Admin only\n');
 
-    const passwordHash = await bcrypt.hash(SUPER_ADMIN.password, SALT_ROUNDS);
+    const passwordHash = await hashPassword(SUPER_ADMIN.password);
 
     const superAdmin = await db.superAdmin.upsert({
       where: { phoneNumber: SUPER_ADMIN.phoneNumber },
