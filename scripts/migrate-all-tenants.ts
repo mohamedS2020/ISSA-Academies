@@ -1,14 +1,19 @@
 /**
  * ISSA — Migrate All Existing Tenant Schemas
  *
- * When a new migration is added (e.g. `npx prisma migrate dev --schema=prisma/tenant-schema.prisma`),
+ * When a new migration is added (e.g. `npx prisma migrate dev --schema=prisma/tenant/schema.prisma`),
  * only NEW tenants (provisioned after that migration) get it automatically.
  * Already-provisioned tenants are not touched — their schemas sit at the
  * previous migration version.
  *
  * This script runs `prisma migrate deploy` against every ACTIVE tenant
  * schema in the platform DB, bringing all of them up to the latest
- * migration in prisma/migrations/.
+ * migration in prisma/tenant/migrations/.
+ *
+ * ⚠️ Tenant migrations live in prisma/tenant/ and platform migrations in
+ * prisma/platform/ — never merge the two folders. `migrate deploy` applies
+ * every migration in whichever folder it is given, so a shared folder would
+ * replay platform migrations into every tenant schema.
  *
  * Run this ONCE after every new tenant-schema migration you create:
  *
@@ -25,7 +30,7 @@ import { platformPrisma } from '../src/lib/db/platform-client';
 
 const execAsync = promisify(exec);
 
-const tenantSchemaPath = path.resolve(process.cwd(), 'prisma', 'tenant-schema.prisma');
+const tenantSchemaPath = path.resolve(process.cwd(), 'prisma', 'tenant', 'schema.prisma');
 const prismaCliPath = path.resolve(
   process.cwd(),
   'node_modules',

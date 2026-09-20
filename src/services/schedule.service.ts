@@ -359,17 +359,37 @@ export async function rescheduleSession(
 // Called by the weekly cron job to extend sessions forward
 
 export async function generateRollingSessionsForAllGroups(tenantId: string): Promise<void> {
-  await withTenantContext(tenantId, async (tx) => {
-    const groups = await tx.group.findMany({
+  // Read the group ids in a short transaction and let it COMMIT before
+  // generating anything.
+  //
+  // generateSessionsForGroup opens its OWN withTenantContext per group, so
+  // calling it from inside this one (as this function used to) held two pooled
+  // connections at once and kept the outer transaction open for the entire run
+  // — past withTenantContext's 30s timeout on any academy with more than a
+  // handful of groups, failing the whole tenant with "Transaction already
+  // closed". The generation calls belong outside any transaction.
+  const groups = await withTenantContext(tenantId, (tx) =>
+    tx.group.findMany({
       where: { isActive: true },
       select: { id: true },
-    });
+    })
+  );
 
-    for (const group of groups) {
-      const fromDate = format(new Date(), 'yyyy-MM-dd');
-      const toDate = format(addDays(new Date(), 28), 'yyyy-MM-dd');
-      // generateSessionsForGroup opens its own withTenantContext — call outside tx
+  // Hoisted out of the loop so every group gets the same window even if the run
+  // crosses midnight.
+  const fromDate = format(new Date(), 'yyyy-MM-dd');
+  const toDate = format(addDays(new Date(), 28), 'yyyy-MM-dd');
+
+  for (const group of groups) {
+    // Per-group isolation: one group with unusable schedule data must not cost
+    // the rest of the academy its next four weeks of sessions.
+    try {
       await generateSessionsForGroup(tenantId, group.id, fromDate, toDate);
+    } catch (err) {
+      console.error(
+        `[session-generation] tenant=${tenantId} group=${group.id} failed:`,
+        err
+      );
     }
-  });
+  }
 }

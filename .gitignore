@@ -36,6 +36,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the template. Without this negation .env.example was excluded too, so
+# required configuration was undocumented for anyone cloning the repo. It holds
+# placeholders only — never real secrets.
+!.env.example
 
 # vercel
 .vercel
@@ -43,6 +47,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated Prisma clients — rebuilt by `prisma generate` on every install
+# (package.json postinstall) and again explicitly in CI, so they never need to be
+# in version control. Tracking them meant ~78 MB of platform-specific query-engine
+# binaries in the repo, re-added in full on every regeneration.
+/src/generated/
 
 # Local-only dev docs (plans, walkthroughs, PRD, ad-hoc scripts) — not for the production repo
 _local-docs/

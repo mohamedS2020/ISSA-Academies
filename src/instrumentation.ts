@@ -10,6 +10,11 @@
  *    session-generation cron jobs silently never run. This was a real gap:
  *    found during a production-readiness review, confirmed by grepping the
  *    codebase for any caller of startScheduler() and finding none.
+ *
+ * ⚠️ register() runs in EVERY replica, so startScheduler() is itself gated on
+ *    RUN_SCHEDULER === 'true' and returns immediately without it. Calling it
+ *    unconditionally here is intentional — the gate belongs with the jobs, not
+ *    with the bootstrap. Set RUN_SCHEDULER on one worker service only.
  */
 
 export async function register() {

@@ -100,12 +100,18 @@ export async function provisionTenantSchema(
       `CREATE SCHEMA IF NOT EXISTS "${schemaName}"`
     );
 
-    // Step 2: Run tenant migrations using Prisma CLI
-    // We use the tenant-schema.prisma with the schema set via search_path
+    // Step 2: Run tenant migrations using Prisma CLI.
+    //
+    // prisma/tenant/ holds ONLY tenant migrations — it is deliberately a
+    // separate folder from prisma/platform/, because `migrate deploy` applies
+    // every migration in a folder regardless of --schema. When both sets shared
+    // one folder, provisioning also replayed the platform migrations into each
+    // tenant schema (and the old init_tenant dropped the platform tables).
     const tenantSchemaPath = path.resolve(
       process.cwd(),
       'prisma',
-      'tenant-schema.prisma'
+      'tenant',
+      'schema.prisma'
     );
 
     // Build a connection URL that sets the search_path to the tenant schema

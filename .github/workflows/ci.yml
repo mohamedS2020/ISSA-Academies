@@ -28,7 +28,7 @@ jobs:
 
     env:
       # Both vars point to the same direct Postgres — no PgBouncer in CI.
-      # DIRECT_DATABASE_URL is now consumed by tenant-schema.prisma (directUrl).
+      # DIRECT_DATABASE_URL is consumed by prisma/tenant/schema.prisma (directUrl).
       DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
       DIRECT_DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
       # Dummy JWT secrets — only needed to satisfy config, not for real auth in tests
@@ -55,8 +55,18 @@ jobs:
       # ── Generate Prisma clients ──────────────────────────────
       - name: Generate Prisma clients
         run: |
-          npx prisma generate --schema=prisma/schema.prisma
-          npx prisma generate --schema=prisma/tenant-schema.prisma
+          npx prisma generate --schema=prisma/platform/schema.prisma
+          npx prisma generate --schema=prisma/tenant/schema.prisma
+
+      # ── Generate Next.js route types ─────────────────────────
+      # tsconfig.json includes .next/types/**/*.ts, where Next writes the generated
+      # route types (LayoutProps, PageProps, ...). Those only exist after a build
+      # or an explicit typegen, so type-checking a fresh checkout without this step
+      # fails with "Cannot find name 'LayoutProps'" — which is precisely why every
+      # CI run on main had been red since these types were adopted. It passes
+      # locally only because .next is left over from a previous build.
+      - name: Generate Next.js route types
+        run: npx next typegen
 
       # ── Type-check ───────────────────────────────────────────
       - name: TypeScript type-check
@@ -66,8 +76,14 @@ jobs:
       # Creates the tenants, super_admins, tenant_configs, user_phone_index
       # tables in the public schema — required before any test that touches
       # the platform DB.
+      #
+      # This step used to apply the shared prisma/migrations/ folder, which
+      # contained the tenant migrations too — so init_tenant dropped the three
+      # platform tables it had just created and every platform test ran against
+      # a database with no platform tables. Migrations are now split per schema,
+      # and this only ever applies prisma/platform/migrations/.
       - name: Apply platform migrations
-        run: npx prisma migrate deploy --schema=prisma/schema.prisma
+        run: npx prisma migrate deploy --schema=prisma/platform/schema.prisma
 
       # ── Default test suite ───────────────────────────────────
       - name: Run tests (default)
