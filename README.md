@@ -107,8 +107,12 @@ isolation actually holds. Keep it green.
 
 ## Operations
 
-See **[RUNBOOK.md](RUNBOOK.md)** for provisioning an academy, suspending one for
-non-payment, rolling migrations, the background-job worker, and restoring from backup.
+**[DEPLOYMENT.md](DEPLOYMENT.md)** — pre-flight checklist for standing the platform up:
+which variable goes on which service, and how to verify each step.
+
+**[RUNBOOK.md](RUNBOOK.md)** — running it day to day: provisioning an academy,
+suspending one for non-payment, rolling migrations, the background-job worker, and
+restoring from backup.
 
 `GET /api/health` returns 200 when the process is up and can reach the database, 503
 when it cannot. Point your platform healthcheck and uptime monitoring at it.

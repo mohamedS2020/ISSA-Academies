@@ -33,6 +33,8 @@ import {
   UnauthorizedError,
   ForbiddenError,
 } from '@/lib/api/error-handler';
+import { apiRateLimiter } from './rate-limiter';
+import { tooManyRequestsResponse } from '@/lib/api/response';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -85,11 +87,12 @@ function extractToken(request: Request): string {
  * Flow:
  *   1. Extract Bearer token from Authorization header
  *   2. Verify JWT signature and expiry
- *   3. Resolve tenant context (schema name, branch)
- *   4. Check role against allowed roles (if specified)
- *   5. Load moderator privileges from DB (if role is MODERATOR)
- *   6. Check required privileges (if specified)
- *   7. Call the handler with RequestContext
+ *   3. Per-user API rate limit (before any DB work)
+ *   4. Resolve tenant context (schema name, branch)
+ *   5. Check role against allowed roles (if specified)
+ *   6. Load moderator privileges from DB (if role is MODERATOR)
+ *   7. Check required privileges (if specified)
+ *   8. Call the handler with RequestContext
  */
 export function withAuth(
   handler: AuthenticatedHandler,
@@ -116,6 +119,24 @@ export function withAuth(
         }
       }
       throw new UnauthorizedError('Token verification failed');
+    }
+
+    // Step 2.5: Per-user API rate limit.
+    //
+    // Deliberately placed AFTER token verification (we need a userId to key on,
+    // and an unauthenticated caller can't consume another user's budget) but
+    // BEFORE tenant resolution and privilege loading — both of which hit the
+    // database. Throttling after the query would defeat the point.
+    //
+    // Keyed by user rather than IP so a whole academy behind one NAT does not
+    // share a bucket, and so one compromised or runaway account cannot saturate
+    // the database for everyone else.
+    const rateLimit = apiRateLimiter.check(`user:${decoded.userId}`);
+    if (!rateLimit.allowed) {
+      return tooManyRequestsResponse(
+        `Too many requests. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
+        rateLimit.retryAfterSeconds
+      );
     }
 
     // Step 3: Handle SUPER_ADMIN separately

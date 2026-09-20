@@ -77,7 +77,8 @@ export function errorResponse(
   code: string,
   message: string,
   status = 400,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
+  headers?: Record<string, string>
 ): Response {
   const body: ApiResponse = {
     success: false,
@@ -88,7 +89,7 @@ export function errorResponse(
     },
   };
 
-  return Response.json(body, { status });
+  return Response.json(body, { status, ...(headers && { headers }) });
 }
 
 // ─── Common Error Shortcuts ─────────────────────────────────
@@ -124,8 +125,24 @@ export function internalErrorResponse(message = 'Internal server error'): Respon
   return errorResponse('INTERNAL_ERROR', message, 500);
 }
 
-export function tooManyRequestsResponse(message = 'Too many requests'): Response {
-  return errorResponse('TOO_MANY_REQUESTS', message, 429);
+/**
+ * 429 response. Pass `retryAfterSeconds` to set the `Retry-After` header — the
+ * standard way to tell a client when to come back, so it can back off properly
+ * instead of guessing or hammering.
+ */
+export function tooManyRequestsResponse(
+  message = 'Too many requests',
+  retryAfterSeconds?: number
+): Response {
+  return errorResponse(
+    'TOO_MANY_REQUESTS',
+    message,
+    429,
+    undefined,
+    retryAfterSeconds && retryAfterSeconds > 0
+      ? { 'Retry-After': String(Math.ceil(retryAfterSeconds)) }
+      : undefined
+  );
 }
 
 // ─── Pagination Helpers ─────────────────────────────────────
