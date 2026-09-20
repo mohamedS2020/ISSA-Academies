@@ -36,6 +36,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the template. Without this negation .env.example was excluded too, so
+# required configuration was undocumented for anyone cloning the repo. It holds
+# placeholders only — never real secrets.
+!.env.example
 
 # vercel
 .vercel
