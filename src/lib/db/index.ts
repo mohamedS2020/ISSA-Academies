@@ -7,7 +7,6 @@
 
 export { platformPrisma } from './platform-client';
 export {
-  tenantPrisma,
   withTenantContext,
   withTenantRead,
   type TransactionClient,
