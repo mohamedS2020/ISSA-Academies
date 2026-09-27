@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+// From /config, not the package root — the root re-export is deprecated and
+// stops working in v11.
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
@@ -46,6 +49,10 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",
+      // 'self' is sufficient for Sentry because its browser SDK is tunnelled
+      // through /monitoring on this origin rather than posting to
+      // ingest.sentry.io directly — which also stops ad blockers swallowing
+      // client-side error reports. Keep it that way when this CSP is enforced.
       "connect-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
@@ -77,4 +84,36 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// ─── Sentry ──────────────────────────────────────────────────
+// Source maps are uploaded only when SENTRY_AUTH_TOKEN, SENTRY_ORG and
+// SENTRY_PROJECT are all present. Without them the build still succeeds and
+// errors are still reported — the stack traces just point at minified bundle
+// code, which is close to unreadable. Supply all three in Railway and CI to get
+// real file names and line numbers.
+//
+// SENTRY_AUTH_TOKEN is a genuine secret (unlike the DSN, which is a write-only
+// ingestion key and ships in the client bundle by design). Never commit it.
+const sentryUploadConfigured = Boolean(
+  process.env.SENTRY_AUTH_TOKEN &&
+    process.env.SENTRY_ORG &&
+    process.env.SENTRY_PROJECT
+);
+
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Don't let a missing token turn into build noise on every local build.
+  silent: !process.env.CI,
+  sourcemaps: { disable: !sentryUploadConfigured },
+
+  // Strip the uploaded source maps from the deployed bundle so the original
+  // source is not downloadable by anyone who opens devtools.
+  widenClientFileUpload: true,
+
+  // Routes Sentry's browser requests through the app's own domain, so ad
+  // blockers (which block ingest.sentry.io outright) do not silently swallow
+  // client-side error reports.
+  tunnelRoute: "/monitoring",
+});

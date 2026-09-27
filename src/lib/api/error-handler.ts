@@ -12,6 +12,7 @@
  */
 
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 import { TenantResolutionError } from '@/lib/db/tenant-resolver';
 import {
   errorResponse,
@@ -147,8 +148,15 @@ function handleError(error: unknown): Response {
     return handlePrismaError(error);
   }
 
-  // Unknown errors — log and return generic 500
+  // Unknown errors — log, report, and return generic 500.
+  //
+  // Only genuine 500s are sent to Sentry. Everything above this line is an
+  // EXPECTED outcome — a validation failure, a wrong password, a missing
+  // record — and reporting those would bury the real faults in noise and burn
+  // the monthly event quota on normal traffic. If the quota is exhausted Sentry
+  // starts dropping events, and the ones lost would be these.
   console.error('[ISSA] Unhandled error:', error);
+  Sentry.captureException(error);
   return internalErrorResponse();
 }
 
@@ -188,7 +196,10 @@ function handlePrismaError(error: PrismaError): Response {
         400
       );
     default:
+      // An unmapped Prisma code is a real fault: a connection failure, a
+      // timeout, schema drift. Worth reporting, unlike the handled cases above.
       console.error('[ISSA] Prisma error:', error.code, error.message);
+      Sentry.captureException(error, { tags: { prismaCode: error.code } });
       return internalErrorResponse();
   }
 }

@@ -33,6 +33,7 @@ import {
   UnauthorizedError,
   ForbiddenError,
 } from '@/lib/api/error-handler';
+import * as Sentry from '@sentry/nextjs';
 import { apiRateLimiter } from './rate-limiter';
 import { tooManyRequestsResponse } from '@/lib/api/response';
 
@@ -139,6 +140,16 @@ export function withAuth(
       );
     }
 
+    // Tag the request for Sentry as soon as identity is known, so the
+    // super-admin path below (which returns early) is covered too.
+    //
+    // Next.js gives each request its own isolation scope, so these attach to
+    // anything captured later in this request and cannot leak across concurrent
+    // requests. userId is an opaque UUID — safe to send, unlike the phone number
+    // that is this app's actual login identifier.
+    Sentry.setTag('userId', decoded.userId);
+    Sentry.setTag('role', decoded.role);
+
     // Step 3: Handle SUPER_ADMIN separately
     if (decoded.role === UserRole.SUPER_ADMIN) {
       if (!options.allowSuperAdmin) {
@@ -186,6 +197,11 @@ export function withAuth(
 
     // Step 7: Build full request context
     const ctx = buildRequestContext(decoded, privileges as string[]);
+
+    // tenantId answers the first question about any production error: which
+    // academy is affected. Only known once tenant context resolves, so it is set
+    // here rather than alongside userId above.
+    Sentry.setTag('tenantId', ctx.tenantId);
 
     // Step 8: Check required privileges (for moderators)
     if (options.privileges && options.privileges.length > 0) {
