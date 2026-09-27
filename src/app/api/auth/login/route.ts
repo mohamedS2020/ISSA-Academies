@@ -218,7 +218,6 @@ export const POST = withErrorHandler(async (request: Request) => {
     userId: loginResult.id,
     role: loginResult.role as UserRole,
     tenantId: phoneIndex.tenant.id,
-    tenantSlug: phoneIndex.tenant.slug,
     branchId: loginResult.branchId,
   };
 

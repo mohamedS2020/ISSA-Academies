@@ -138,8 +138,12 @@ export interface JWTPayload {
   userId: string;
   role: UserRole;
   tenantId?: string;   // absent for SUPER_ADMIN
-  tenantSlug?: string; // absent for SUPER_ADMIN
   branchId?: string;   // absent for SUPER_ADMIN and tenant-level ADMIN
+  // NOTE: no tenantSlug. It used to be declared here and set at login, but the
+  // token generators never copied it into the signed token, so it was silently
+  // dropped on every request — and tenant-resolver then derived a wrong schema
+  // name from the fallback. If a slug is ever genuinely needed in the token,
+  // add it to generateAccessToken and generateRefreshToken at the same time.
   iat?: number;
   exp?: number;
 }
