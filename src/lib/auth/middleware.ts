@@ -33,7 +33,9 @@ import {
   UnauthorizedError,
   ForbiddenError,
 } from '@/lib/api/error-handler';
+import * as Sentry from '@sentry/nextjs';
 import { apiRateLimiter } from './rate-limiter';
+import { getCachedPrivileges, setCachedPrivileges } from './privilege-cache';
 import { tooManyRequestsResponse } from '@/lib/api/response';
 
 // ─── Types ──────────────────────────────────────────────────
@@ -139,6 +141,16 @@ export function withAuth(
       );
     }
 
+    // Tag the request for Sentry as soon as identity is known, so the
+    // super-admin path below (which returns early) is covered too.
+    //
+    // Next.js gives each request its own isolation scope, so these attach to
+    // anything captured later in this request and cannot leak across concurrent
+    // requests. userId is an opaque UUID — safe to send, unlike the phone number
+    // that is this app's actual login identifier.
+    Sentry.setTag('userId', decoded.userId);
+    Sentry.setTag('role', decoded.role);
+
     // Step 3: Handle SUPER_ADMIN separately
     if (decoded.role === UserRole.SUPER_ADMIN) {
       if (!options.allowSuperAdmin) {
@@ -187,6 +199,11 @@ export function withAuth(
     // Step 7: Build full request context
     const ctx = buildRequestContext(decoded, privileges as string[]);
 
+    // tenantId answers the first question about any production error: which
+    // academy is affected. Only known once tenant context resolves, so it is set
+    // here rather than alongside userId above.
+    Sentry.setTag('tenantId', ctx.tenantId);
+
     // Step 8: Check required privileges (for moderators)
     if (options.privileges && options.privileges.length > 0) {
       if (decoded.role === UserRole.MODERATOR) {
@@ -209,20 +226,34 @@ export function withAuth(
 // ─── Privilege Loading ──────────────────────────────────────
 
 /**
- * Load moderator privileges from the tenant database.
- * Cached per request — called once during middleware.
+ * Load moderator privileges, from a short-lived cache where possible.
+ *
+ * Without the cache this opens its own `withTenantContext` transaction on every
+ * moderator request — roughly doubling the per-request database cost before the
+ * handler runs at all.
+ *
+ * Staleness is bounded by the cache TTL (30s by default) and cut to zero on the
+ * instance that changes privileges, because `setPrivileges` invalidates
+ * explicitly. See privilege-cache.ts for why this is not on the JWT and not in
+ * Redis.
  */
 async function loadModeratorPrivileges(
   tenantId: string,
   userId: string
 ): Promise<ModeratorPrivilege[]> {
-  return withTenantContext(tenantId, async (tx) => {
-    const privileges = await tx.userPrivilege.findMany({
+  const cached = getCachedPrivileges(tenantId, userId);
+  if (cached) return cached;
+
+  const privileges = await withTenantContext(tenantId, async (tx) => {
+    const rows = await tx.userPrivilege.findMany({
       where: { userId },
       select: { privilege: true },
     });
-    return privileges.map((p) => p.privilege as ModeratorPrivilege);
+    return rows.map((p) => p.privilege as ModeratorPrivilege);
   });
+
+  setCachedPrivileges(tenantId, userId, privileges);
+  return privileges;
 }
 
 // ─── Convenience Wrappers ───────────────────────────────────

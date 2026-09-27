@@ -17,6 +17,7 @@ import { writeAuditLog, buildAuditDiff } from './audit.service';
 import { BadRequestError, NotFoundError, ConflictError } from '@/lib/api/error-handler';
 import { AuditAction, UserRole } from '@/types';
 import { filterValidPrivileges } from '@/lib/auth/permissions';
+import { invalidatePrivileges } from '@/lib/auth/privilege-cache';
 import type {
   CreateUserInput,
   UpdateUserInput,
@@ -327,6 +328,12 @@ export async function setPrivileges(
       entityId: userId,
       newValues: { privileges: validPrivileges },
     });
+
+    // withAuth caches a moderator's privileges for a short window to avoid a
+    // database round trip per request. Drop the entry now so a REVOCATION takes
+    // effect immediately rather than after the TTL — on other replicas it is
+    // still bounded by that TTL, which is why the TTL is kept short.
+    invalidatePrivileges(tenantId, userId);
 
     return { userId, privileges: validPrivileges };
   });

@@ -17,12 +17,40 @@
  *    with the bootstrap. Set RUN_SCHEDULER on one worker service only.
  */
 
+import * as Sentry from '@sentry/nextjs';
+
 export async function register() {
+  // Sentry first, so a failure in anything below is itself reported. Each
+  // runtime needs its own init — the edge runtime cannot load the Node SDK.
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('../sentry.server.config');
+  }
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('../sentry.edge.config');
+  }
+
   // Only run in the Node.js runtime — this code uses Prisma and node-cron,
   // neither of which work in the Edge runtime. instrumentation.ts runs in
   // both by default, so this guard is required.
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { startScheduler } = await import('@/jobs/scheduler');
-    startScheduler();
+    try {
+      startScheduler();
+    } catch (err) {
+      // startScheduler throws when RUN_SCHEDULER is set but the worker cannot
+      // take the advisory lock. Report it, then rethrow so the service still
+      // fails closed — a worker that cannot lock must not run jobs. This is
+      // exactly the class of misconfiguration that otherwise stays invisible
+      // until duplicated writes show up days later.
+      Sentry.captureException(err);
+      throw err;
+    }
   }
 }
+
+/**
+ * Next.js calls this for errors thrown in server components, route handlers and
+ * data fetching that never reach our own `withErrorHandler` — the ones that
+ * would otherwise vanish into the platform logs.
+ */
+export const onRequestError = Sentry.captureRequestError;

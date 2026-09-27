@@ -1,16 +1,15 @@
 /**
  * ISSA — Tenant Resolver
  *
- * Extracts tenant_id and branch_id from the verified JWT claims
- * and provides the tenant schema name for database queries.
+ * Extracts tenant_id and branch_id from the verified JWT claims.
  *
- * This is the single source of truth for tenant context throughout
- * the request lifecycle. All services and API routes use this to
- * determine which tenant schema to query.
+ * This is the single source of truth for tenant IDENTITY throughout the request
+ * lifecycle. It does not resolve schema NAMES — that is `resolveTenantSchema`
+ * in tenant-client.ts, which looks them up in the platform database. See the
+ * note on TenantContext below for why that separation matters.
  */
 
 import type { JWTPayload, RequestContext, UserRole } from '@/types';
-import { getTenantSchemaName } from './migration-runner';
 
 /**
  * Error thrown when tenant context cannot be resolved.
@@ -27,10 +26,26 @@ export class TenantResolutionError extends Error {
 
 /**
  * Resolved tenant context for a request.
+ *
+ * ⚠️ There is deliberately no `schemaName` here, and nothing should add one.
+ *
+ * This used to carry `getTenantSchemaName(payload.tenantSlug ?? payload.tenantId)`,
+ * which was wrong in a way that happened not to bite. `tenantSlug` was never
+ * actually written into the signed token — the token generators copy only
+ * userId, role, tenantId and branchId — so it always fell through to `tenantId`
+ * and derived `tenant_<uuid-with-underscores>`, which does not match the schema
+ * created at provisioning: `tenant_<slug>`.
+ *
+ * Nothing broke only because `buildRequestContext` discarded the value and every
+ * real query resolves its schema through `resolveTenantSchema`, which looks the
+ * name up in the platform database. It was a loaded gun for whoever first
+ * reached for `ctx.schemaName` and got a schema that does not exist.
+ *
+ * `resolveTenantSchema` (src/lib/db/tenant-client.ts) is the single source of
+ * truth for schema names. Do not re-derive them from token claims.
  */
 export interface TenantContext {
   tenantId: string;
-  schemaName: string;
   branchId: string;
   userId: string;
   role: UserRole;
@@ -69,8 +84,6 @@ export function resolveTenantContext(payload: JWTPayload): TenantContext {
     throw new TenantResolutionError('Missing user context in token');
   }
 
-  const schemaName = getTenantSchemaName(payload.tenantSlug ?? payload.tenantId);
-
   // Branch is required for MODERATOR, CAPTAIN, TRAINEE
   const branchRequiredRoles: UserRole[] = [
     'MODERATOR' as UserRole,
@@ -86,7 +99,6 @@ export function resolveTenantContext(payload: JWTPayload): TenantContext {
 
   return {
     tenantId: payload.tenantId,
-    schemaName,
     branchId: payload.branchId ?? '',
     userId: payload.userId,
     role: payload.role,

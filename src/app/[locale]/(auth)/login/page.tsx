@@ -13,7 +13,11 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/lib/auth/auth-context';
+import {
+  useAuth,
+  AcademySelectionRequiredError,
+  type AcademyChoice,
+} from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { locales } from '@/lib/i18n/config';
 
@@ -30,14 +34,17 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // Set when the same phone and password exist at more than one academy; the
+  // user picks one and we retry with it. Empty means no choice is pending.
+  const [academyChoices, setAcademyChoices] = useState<AcademyChoice[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, academySlug?: string) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
     try {
-      const user = await login(phoneNumber, password, rememberMe);
+      const user = await login(phoneNumber, password, rememberMe, academySlug);
       // Determine redirection based on the role returned by login()
       // (super admins go to the admin panel, trainees go to their portal,
       // everyone else to the staff dashboard).
@@ -53,7 +60,14 @@ export default function LoginPage() {
       // auth state (router.replace alone does not refetch RSC payloads here).
       router.refresh();
     } catch (err: any) {
-      setError(err.message || t('invalidCredentials'));
+      if (err instanceof AcademySelectionRequiredError) {
+        // Not a failure — the credentials were correct, we just need to know
+        // which academy. Show the picker instead of an error.
+        setAcademyChoices(err.academies);
+      } else {
+        setError(err.message || t('invalidCredentials'));
+        setAcademyChoices([]);
+      }
       setIsLoading(false);
     }
   };
@@ -127,6 +141,25 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
               <span>{error}</span>
+            </div>
+          )}
+
+          {academyChoices.length > 0 && (
+            <div className="mb-6 p-4 rounded-xl bg-sky-950/40 border border-sky-800/50 text-sky-100 text-xs">
+              <p className="mb-3 leading-relaxed">{t('chooseAcademy')}</p>
+              <div className="space-y-2">
+                {academyChoices.map((academy) => (
+                  <button
+                    key={academy.slug}
+                    type="button"
+                    disabled={isLoading}
+                    onClick={(e) => handleSubmit(e, academy.slug)}
+                    className="w-full text-start px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition disabled:opacity-50 font-semibold"
+                  >
+                    {academy.name}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

@@ -67,9 +67,15 @@ export function proxy(request: NextRequest) {
 
   // Skip internal paths, API routes, and static files for LOCALE routing — but
   // still forward the academy header (the login API reads it to scope login).
+  //
+  // /monitoring is Sentry's tunnel route (next.config.ts → tunnelRoute). The
+  // browser SDK POSTs error reports there and expects that exact path; without
+  // this exclusion the locale redirect would rewrite it to /en/monitoring and
+  // every client-side error report would be silently lost.
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname.startsWith('/monitoring') ||
     pathname.includes('.') // static files (favicon.ico, etc.)
   ) {
     return forward();
