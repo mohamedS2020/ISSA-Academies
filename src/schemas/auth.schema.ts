@@ -20,6 +20,20 @@ export const loginSchema = z.object({
     .min(1, 'Password is required')
     .min(6, 'Password must be at least 6 characters'),
   rememberMe: z.boolean().optional().default(false),
+  /**
+   * Which academy to sign in to, when the same phone number exists at more than
+   * one and the request did not arrive on an academy subdomain.
+   *
+   * Only ever NARROWS the search — the password is still verified against that
+   * academy's own records — so a caller cannot use it to reach an academy they
+   * have no account at. Supplied by the client after an
+   * ACADEMY_SELECTION_REQUIRED response; the `x-academy-slug` header set by
+   * proxy.ts takes precedence when present.
+   */
+  academySlug: z
+    .string()
+    .regex(/^[a-z0-9-]{1,63}$/, 'Invalid academy')
+    .optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

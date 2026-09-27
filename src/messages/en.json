@@ -57,7 +57,8 @@
     "passwordReset": "Password Reset",
     "newPasswordGenerated": "New password generated",
     "error": "Something went wrong",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to."
   },
   "nav": {
     "dashboard": "Dashboard",

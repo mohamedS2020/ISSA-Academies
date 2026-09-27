@@ -37,6 +37,7 @@ import { withErrorHandler } from '@/lib/api/error-handler';
 import {
   successResponse,
   tooManyRequestsResponse,
+  errorResponse,
 } from '@/lib/api/response';
 import { UnauthorizedError } from '@/lib/api/error-handler';
 import { UserRole } from '@/types';
@@ -61,6 +62,138 @@ interface LoginResponse {
     themeKey?: string;
     language?: string;
   };
+}
+
+/**
+ * Cap on how many academies one phone number is checked against.
+ *
+ * Each candidate costs a bcrypt verification plus a tenant transaction, so this
+ * bounds the work an unauthenticated request can trigger. A person at more than
+ * a handful of academies is not a real scenario; an attacker farming expensive
+ * work is.
+ */
+const MAX_ACADEMY_CANDIDATES = 5;
+
+type PhoneCandidate = Awaited<ReturnType<typeof findPhoneCandidates>>[number];
+
+interface TenantLoginResult {
+  id: string;
+  name: string;
+  role: string;
+  branchId: string;
+  branchName: string;
+  language: string;
+}
+
+interface VerifiedLogin {
+  candidate: PhoneCandidate;
+  result: TenantLoginResult;
+}
+
+/**
+ * Every academy this phone number exists at, optionally narrowed to one slug.
+ * Ordered so repeated logins behave identically — the old `findFirst` had no
+ * ordering at all.
+ */
+async function findPhoneCandidates(phoneNumber: string, academySlug?: string) {
+  return platformPrisma.userPhoneIndex.findMany({
+    where: {
+      phoneNumber,
+      ...(academySlug ? { tenant: { slug: academySlug } } : {}),
+    },
+    include: {
+      tenant: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          status: true,
+          schemaName: true,
+          config: { select: { themeKey: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'asc' },
+    take: MAX_ACADEMY_CANDIDATES,
+  });
+}
+
+/**
+ * Check the password against one academy's records.
+ *
+ * Returns null for every failure — wrong password, inactive user, inactive
+ * branch — rather than throwing, because a failure here only rules out THIS
+ * academy. Throwing would abandon the remaining candidates and reintroduce the
+ * lockout this function exists to fix.
+ */
+async function verifyCandidate(
+  candidate: PhoneCandidate,
+  password: string
+): Promise<TenantLoginResult | null> {
+  return withTenantContext(candidate.tenant.id, async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { id: candidate.userId },
+      include: { branch: { select: { id: true, name: true, isActive: true } } },
+    });
+
+    if (!user || !user.isActive || !user.branch.isActive) return null;
+
+    const passwordValid = await comparePassword(password, user.passwordHash);
+    if (!passwordValid) return null;
+
+    return {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      branchId: user.branchId,
+      branchName: user.branch.name,
+      language: user.language,
+    };
+  });
+}
+
+/**
+ * Failure path only: does this phone + password work at some OTHER academy?
+ *
+ * Lets a user who opened the wrong subdomain get a message they can act on
+ * instead of a flat "invalid credentials", without telling anyone who cannot
+ * already prove the password.
+ */
+async function belongsToAnotherAcademy(input: {
+  phoneNumber: string;
+  password: string;
+}): Promise<boolean> {
+  const elsewhere = await findPhoneCandidates(input.phoneNumber);
+
+  for (const candidate of elsewhere) {
+    if (candidate.tenant.status !== 'ACTIVE') continue;
+    if (await verifyCandidate(candidate, input.password)) return true;
+  }
+  return false;
+}
+
+/** Record the successful sign-in, outside the verification pass. */
+async function touchLastLogin(tenantId: string, userId: string): Promise<void> {
+  await withTenantContext(tenantId, (tx) =>
+    tx.user.update({ where: { id: userId }, data: { lastLoginAt: new Date() } })
+  );
+}
+
+/**
+ * 409 telling the client to pick an academy and retry with `academySlug`.
+ *
+ * Only returned after the password has been verified at more than one academy,
+ * so the names disclosed are already known to the caller.
+ */
+function academySelectionResponse(
+  academies: { slug: string; name: string }[]
+): Response {
+  return errorResponse(
+    'ACADEMY_SELECTION_REQUIRED',
+    'This phone number is registered at more than one academy. Choose which one to sign in to.',
+    409,
+    { academies }
+  );
 }
 
 // ─── Route Handler ──────────────────────────────────────────
@@ -130,85 +263,74 @@ export const POST = withErrorHandler(async (request: Request) => {
     return res;
   }
 
-  // 3b. Look up tenant user via phone index
-  const phoneIndex = await platformPrisma.userPhoneIndex.findFirst({
-    where: { phoneNumber: input.phoneNumber },
-    include: {
-      tenant: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          status: true,
-          schemaName: true,
-          config: { select: { themeKey: true } },
-        },
-      },
-    },
-  });
+  // 3b. Resolve which academy (or academies) this phone belongs to.
+  //
+  // The phone index is unique on (phoneNumber, tenantId), so one number can
+  // legitimately exist at several academies — a parent with children at two, or
+  // a coach working for both. This used to be a `findFirst` with no ordering,
+  // which picked one arbitrarily: such a person could only ever reach whichever
+  // academy the database happened to return, and on the other academy's
+  // subdomain they were told their account "belongs to a different academy".
+  // A permanent, non-deterministic lockout.
+  //
+  // The subdomain, when present, is a TRUSTED narrowing (proxy.ts sets it and
+  // always overwrites any client value). On the root domain we disambiguate by
+  // password instead — see below.
+  const academySlug = request.headers.get('x-academy-slug') ?? input.academySlug;
 
-  if (!phoneIndex) {
+  const candidates = await findPhoneCandidates(input.phoneNumber, academySlug);
+
+  // Verify the password against every candidate before deciding anything.
+  //
+  // Doing it in this order matters: it means no response reveals whether a
+  // phone number is registered, or where, to a caller who cannot already prove
+  // the password. The old code checked tenant status before the password and
+  // leaked exactly that.
+  const verified: VerifiedLogin[] = [];
+  let suspendedAcademyMatched = false;
+
+  for (const candidate of candidates) {
+    const result = await verifyCandidate(candidate, input.password);
+    if (!result) continue;
+
+    if (candidate.tenant.status !== 'ACTIVE') {
+      suspendedAcademyMatched = true;
+      continue;
+    }
+    verified.push({ candidate, result });
+  }
+
+  if (verified.length === 0) {
+    // The password was right, but that academy is suspended. Safe to say so now
+    // — they proved the credential.
+    if (suspendedAcademyMatched) {
+      throw new UnauthorizedError('Your academy account has been suspended');
+    }
+
+    // On a subdomain, the account may simply live at a different academy.
+    // Checking costs an extra lookup only on the failure path, and still only
+    // tells someone who holds the password.
+    if (academySlug && (await belongsToAnotherAcademy(input))) {
+      throw new UnauthorizedError('This account belongs to a different academy');
+    }
+
     throw new UnauthorizedError('Invalid phone number or password');
   }
 
-  // Check tenant is active
-  if (phoneIndex.tenant.status !== 'ACTIVE') {
-    throw new UnauthorizedError('Your academy account has been suspended');
+  if (verified.length > 1) {
+    // Same phone AND same password at more than one academy. Rare, but silently
+    // choosing one is how the original bug behaved — ask instead. Only reachable
+    // once the password is proven, so naming the academies leaks nothing.
+    return academySelectionResponse(
+      verified.map((v) => ({
+        slug: v.candidate.tenant.slug,
+        name: v.candidate.tenant.name,
+      }))
+    );
   }
 
-  // If reached via an academy subdomain (x-academy-slug, set by proxy.ts), the
-  // account must belong to THAT academy — otherwise give a clear error instead
-  // of silently signing into another academy's themed UI. The subdomain is NOT
-  // an auth boundary on its own (the JWT is); on the bare domain there's no
-  // header and login stays global, exactly as before.
-  const academySlug = request.headers.get('x-academy-slug');
-  if (academySlug && phoneIndex.tenant.slug !== academySlug) {
-    throw new UnauthorizedError('This account belongs to a different academy');
-  }
-
-  // 3c. Verify password in tenant DB
-  const loginResult = await withTenantContext(
-    phoneIndex.tenant.id,
-    async (tx) => {
-      const user = await tx.user.findUnique({
-        where: { id: phoneIndex.userId },
-        include: {
-          branch: { select: { id: true, name: true, isActive: true } },
-        },
-      });
-
-      if (!user || !user.isActive) {
-        throw new UnauthorizedError('Invalid phone number or password');
-      }
-
-      if (!user.branch.isActive) {
-        throw new UnauthorizedError('Your branch is currently inactive');
-      }
-
-      const passwordValid = await comparePassword(
-        input.password,
-        user.passwordHash
-      );
-      if (!passwordValid) {
-        throw new UnauthorizedError('Invalid phone number or password');
-      }
-
-      // Update last login
-      await tx.user.update({
-        where: { id: user.id },
-        data: { lastLoginAt: new Date() },
-      });
-
-      return {
-        id: user.id,
-        name: user.name,
-        role: user.role,
-        branchId: user.branchId,
-        branchName: user.branch.name,
-        language: user.language,
-      };
-    }
-  );
+  const { candidate: phoneIndex, result: loginResult } = verified[0];
+  await touchLastLogin(phoneIndex.tenant.id, loginResult.id);
 
   // Reset rate limiter on success
   loginRateLimiter.reset(rateLimitKey);

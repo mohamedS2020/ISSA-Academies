@@ -49,11 +49,37 @@ interface AuthState {
   isLoading: boolean;
 }
 
+/** One academy the caller can choose between. */
+export interface AcademyChoice {
+  slug: string;
+  name: string;
+}
+
+/**
+ * Thrown by `login` when the same phone number and password exist at more than
+ * one academy and the request did not arrive on an academy subdomain.
+ *
+ * Carries the choices as data rather than folding them into a message, so the
+ * login form can render a picker and retry with `academySlug`. Only ever thrown
+ * after the server has verified the password, so the names it carries are not a
+ * disclosure.
+ */
+export class AcademySelectionRequiredError extends Error {
+  constructor(
+    public readonly academies: AcademyChoice[],
+    message: string
+  ) {
+    super(message);
+    this.name = 'AcademySelectionRequiredError';
+  }
+}
+
 interface AuthContextValue extends AuthState {
   login: (
     phoneNumber: string,
     password: string,
-    rememberMe?: boolean
+    rememberMe?: boolean,
+    academySlug?: string
   ) => Promise<AuthUser>;
   logout: () => void;
   authFetch: (input: string, init?: RequestInit) => Promise<Response>;
@@ -203,16 +229,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (
       phoneNumber: string,
       password: string,
-      rememberMe = false
+      rememberMe = false,
+      academySlug?: string
     ): Promise<AuthUser> => {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ phoneNumber, password, rememberMe }),
+        body: JSON.stringify({
+          phoneNumber,
+          password,
+          rememberMe,
+          ...(academySlug ? { academySlug } : {}),
+        }),
       });
 
       const data = await res.json();
+
+      // The same phone and password exist at more than one academy. Surface the
+      // choice as typed data rather than a message string, so the caller can
+      // render a picker and retry with `academySlug`.
+      if (res.status === 409 && data.error?.code === 'ACADEMY_SELECTION_REQUIRED') {
+        throw new AcademySelectionRequiredError(
+          data.error?.details?.academies ?? [],
+          data.error?.message ?? 'Choose an academy'
+        );
+      }
+
       if (!res.ok || !data.success) {
         throw new Error(data.error?.message ?? 'Login failed');
       }
