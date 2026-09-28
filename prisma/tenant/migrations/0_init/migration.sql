@@ -1,4 +1,4 @@
--- ISSA — TENANT baseline (squashed).
+-- TENANT baseline (squashed).
 --
 -- The complete structure of one academy's PostgreSQL schema. Applied into
 -- tenant_<slug> at provisioning time (src/lib/db/migration-runner.ts) and by

@@ -37,7 +37,7 @@ SET "receipt_seq" = GREATEST(
 
 -- 3. Continue trainee numbering from the highest existing code in each branch.
 -- The numeric part is the trailing digits, whatever prefix a code carries —
--- the old `ISSA-BR01-000042` and the new `BR01-000043` both parse.
+-- an old prefixed code (`XYZ-BR01-000042`) and the new `BR01-000043` both parse.
 UPDATE "branches" b
 SET "trainee_seq" = COALESCE((
   SELECT MAX(CAST(substring(t."system_code" FROM '([0-9]+)$') AS INTEGER))

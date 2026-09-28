@@ -138,8 +138,8 @@ describe('trainee codes', () => {
     const code = await branchCode(a);
     const { trainee } = await createTrainee(a.tenantId, a.branchId, traineeInput(), a.adminId);
 
+    // The whole code is pinned, so no prefix of any kind can creep back in.
     expect(trainee.systemCode).toMatch(new RegExp(`^${code}-\\d{6}$`));
-    expect(trainee.systemCode).not.toMatch(/ISSA/i);
   }, 60_000);
 
   test('renaming the branch to an earlier-sorting code does not break registration', async () => {
