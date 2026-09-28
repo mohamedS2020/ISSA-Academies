@@ -50,7 +50,8 @@ same value in `.env` — so `.env.local` is only for local overrides.
 Create the platform schema and a super admin to log in with. The seed reads the super
 admin's credentials from `SEED_SUPER_ADMIN_NAME`, `SEED_SUPER_ADMIN_PHONE` and
 `SEED_SUPER_ADMIN_PASSWORD` (12+ characters) and refuses to run without them — set
-them in `.env.local` for the run, then remove them:
+them in `.env.local` for the run, then remove them. Keep each value in double quotes
+and write any `$` as `\$` (see [.env.example](.env.example) for why):
 
 ```bash
 npx prisma migrate deploy --schema=prisma/platform/schema.prisma

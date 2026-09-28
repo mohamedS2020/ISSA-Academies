@@ -26,7 +26,7 @@
  */
 
 // Must stay the first import: it loads .env files before anything reads them.
-import './load-env';
+import { assertReadVerbatim } from './load-env';
 import { PrismaClient as PlatformClient } from '../src/generated/platform-client';
 // Use the app's own hasher rather than calling bcrypt with a duplicated cost
 // constant — the two had already drifted apart once (the app moved to 10 rounds
@@ -37,6 +37,9 @@ import { hashPassword } from '../src/lib/auth/password';
 const MIN_PASSWORD_LENGTH = 12;
 
 function requireEnv(name: string): string {
+  // First, so a value the .env format cut short is reported as exactly that —
+  // not as "too short", and never saved as the password.
+  assertReadVerbatim(name);
   const value = process.env[name]?.trim();
   if (!value) {
     throw new Error(
