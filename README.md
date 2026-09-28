@@ -37,11 +37,15 @@ configs, super admins, and a phone → tenant index for login.
 
 ```bash
 npm install
-cp .env.example .env.local   # then fill in the values
+cp .env.example .env   # then fill in the values
 ```
 
 Every variable is documented in [.env.example](.env.example). At minimum you need
 `DATABASE_URL`, `DIRECT_DATABASE_URL`, and the two JWT secrets.
+
+Use `.env`, not `.env.local`, for these: the Prisma CLI (migrations) reads only
+`.env`. The app and the seed read both, and a value in `.env.local` overrides the
+same value in `.env` — so `.env.local` is only for local overrides.
 
 Create the platform schema and a super admin to log in with. The seed reads the super
 admin's credentials from `SEED_SUPER_ADMIN_NAME`, `SEED_SUPER_ADMIN_PHONE` and

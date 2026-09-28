@@ -9,7 +9,8 @@
  *   SEED_SUPER_ADMIN_NAME="…" SEED_SUPER_ADMIN_PHONE="+20…" \
  *   SEED_SUPER_ADMIN_PASSWORD="…" npx tsx prisma/seed.ts
  *
- * (or set the three variables in .env.local first).
+ * (or put the three variables in .env.local for the run — the seed reads .env
+ * files the same way the app does; see load-env.ts).
  *
  * Idempotent: re-running upserts the Super Admin to exactly these values
  * (including resetting the password), so the seed always leaves a known state.
@@ -24,6 +25,8 @@
  * and changed. See hardening plan §34.
  */
 
+// Must stay the first import: it loads .env files before anything reads them.
+import './load-env';
 import { PrismaClient as PlatformClient } from '../src/generated/platform-client';
 // Use the app's own hasher rather than calling bcrypt with a duplicated cost
 // constant — the two had already drifted apart once (the app moved to 10 rounds
@@ -93,14 +96,15 @@ async function main() {
     console.log('\n─────────────────────────────────────────────');
     console.log('Seed complete. Log in as the Super Admin, then create academies from the UI.');
     console.log('─────────────────────────────────────────────\n');
-  } catch (error) {
-    console.error('Seed failed:', error);
-    throw error;
   } finally {
     await db.$disconnect();
   }
 }
 
-main().catch(() => {
+// Report every failure here, validation included. Validation runs before the
+// try block above, and this handler used to swallow the error — so a missing
+// variable exited with code 1 and no message at all.
+main().catch((error: unknown) => {
+  console.error('Seed failed:', error instanceof Error ? error.message : error);
   process.exitCode = 1;
 });
