@@ -1,5 +1,5 @@
 /**
- * ISSA — Timezone Utility
+ * Timezone Utility
  *
  * Provides timezone conversion functions used by:
  *   - schedule.service.ts: converts group wall-clock times to UTC TIMESTAMPTZ

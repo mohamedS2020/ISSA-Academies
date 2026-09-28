@@ -1,5 +1,5 @@
 /**
- * ISSA — Super Admin Tenants API
+ * Super Admin Tenants API
  *
  * GET  /api/superadmin/tenants — List all tenants (paginated, filterable)
  * POST /api/superadmin/tenants — Create a new tenant (full provisioning)

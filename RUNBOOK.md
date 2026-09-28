@@ -1,4 +1,4 @@
-# ISSA Academies — Operations Runbook
+# Operations Runbook
 
 Day-to-day operational procedures. For architecture see [README.md](README.md); for
 outstanding pre-launch work see
@@ -165,7 +165,7 @@ the affected schema across rather than rolling back everyone.
 
 ### Rebuilding the schema on an EMPTY database
 
-These commands assume a database with no ISSA tables and no `_prisma_migrations`
+These commands assume a database with no platform tables and no `_prisma_migrations`
 history — a fresh Neon project, a scratch database, or a local dev database. **Do not
 run them against a restored backup**; see the next section.
 
@@ -173,6 +173,10 @@ run them against a restored backup**; see the next section.
 npx prisma migrate deploy --schema=prisma/platform/schema.prisma
 npx tsx prisma/seed.ts          # re-creates the super admin
 ```
+
+The seed needs `SEED_SUPER_ADMIN_NAME`, `SEED_SUPER_ADMIN_PHONE` and
+`SEED_SUPER_ADMIN_PASSWORD` in the environment and refuses to run without them. Set
+them for the one run only; never commit them.
 
 Academy schemas are then recreated by provisioning, or restored from the backup.
 

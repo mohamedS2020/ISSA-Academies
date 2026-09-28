@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { APP_NAME } from '@/lib/config/brand';
 
 export default function GlobalNotFound() {
   return (
     <html lang="en" className="h-full">
       <head>
-        <title>404 - Page Not Found | ISSA</title>
+        <title>{`404 - Page Not Found | ${APP_NAME}`}</title>
       </head>
       <body className="h-full flex items-center justify-center bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans p-6">
         <div className="relative max-w-xl w-full text-center space-y-8 bg-slate-100 dark:bg-slate-800/45 backdrop-blur-md border border-slate-300/50 dark:border-slate-700/50 p-8 md:p-12 rounded-3xl shadow-2xl">

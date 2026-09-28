@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Groups List Page
+ * Groups List Page
  *
  * DataTable of groups in the current branch.
  * - Captain name, plan, trainee count/capacity, schedule days, start time

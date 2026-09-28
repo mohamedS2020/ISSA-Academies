@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Premium Sidebar Component
+ * Premium Sidebar Component
  *
  * Collapsible, role-aware sidebar navigation.
  * Displays appropriate navigation items based on the user's role and moderator privileges.
@@ -15,6 +15,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { resolveSport, sportLabel } from '@/lib/theme/sports';
 import { UserRole } from '@/types';
 import { isRtlLocale } from '@/lib/i18n/config';
+import { APP_MARK } from '@/lib/config/brand';
 import {
   LayoutDashboard,
   Users,
@@ -56,7 +57,7 @@ export default function Sidebar({
 
   if (!user) return null;
 
-  // Sport wordmark for the brand mark (visual identity; "ISSA" stays untranslated).
+  // Sport wordmark for the brand mark (visual identity; the platform mark comes from lib/config/brand).
   const sportName = sportLabel(resolveSport(user.themeKey), locale).toUpperCase();
 
   // Off-canvas transform for the mobile drawer (start-side aware for RTL).
@@ -165,7 +166,7 @@ export default function Sidebar({
         {!isCollapsed && (
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white text-xs font-black">ISSA</span>
+              <span className="text-white text-xs font-black">{APP_MARK}</span>
             </div>
             <span className="text-sm font-extrabold tracking-wider bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
               {sportName}
@@ -174,7 +175,7 @@ export default function Sidebar({
         )}
         {isCollapsed && (
           <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-md">
-            <span className="text-white text-[10px] font-black">IS</span>
+            <span className="text-white text-[10px] font-black">{APP_MARK}</span>
           </div>
         )}
         

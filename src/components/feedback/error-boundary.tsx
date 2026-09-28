@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — React Error Boundary
+ * React Error Boundary
  *
  * Catches unhandled React errors and displays a fallback UI
  * instead of crashing the entire page.
@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error('[ISSA] React Error Boundary caught:', error, errorInfo);
+    console.error('[error-boundary] React Error Boundary caught:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
 

@@ -1,5 +1,5 @@
 /**
- * ISSA — Sentry (Edge runtime)
+ * Sentry (Edge runtime)
  *
  * Loaded by src/instrumentation.ts when NEXT_RUNTIME === 'edge'. The only edge
  * code here is src/proxy.ts (subdomain resolution + locale routing), but that

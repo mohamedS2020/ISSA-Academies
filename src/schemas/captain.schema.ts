@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Registration & Management Zod Schemas
+ * Captain Registration & Management Zod Schemas
  *
  * Validates captain creation and updates including cross-field
  * validation for payroll type vs. rate fields.

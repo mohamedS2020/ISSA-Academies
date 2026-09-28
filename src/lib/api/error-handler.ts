@@ -1,5 +1,5 @@
 /**
- * ISSA — Global Error Handler
+ * Global Error Handler
  *
  * Catches errors in API routes and returns standardized responses.
  * Wraps route handler functions to provide consistent error handling.
@@ -155,7 +155,7 @@ function handleError(error: unknown): Response {
   // record — and reporting those would bury the real faults in noise and burn
   // the monthly event quota on normal traffic. If the quota is exhausted Sentry
   // starts dropping events, and the ones lost would be these.
-  console.error('[ISSA] Unhandled error:', error);
+  console.error('[error-handler] Unhandled error:', error);
   Sentry.captureException(error);
   return internalErrorResponse();
 }
@@ -198,7 +198,7 @@ function handlePrismaError(error: PrismaError): Response {
     default:
       // An unmapped Prisma code is a real fault: a connection failure, a
       // timeout, schema drift. Worth reporting, unlike the handled cases above.
-      console.error('[ISSA] Prisma error:', error.code, error.message);
+      console.error('[error-handler] Prisma error:', error.code, error.message);
       Sentry.captureException(error, { tags: { prismaCode: error.code } });
       return internalErrorResponse();
   }

@@ -1,5 +1,5 @@
 /**
- * ISSA — Archive Records Job
+ * Archive Records Job
  *
  * Weekly job: moves old records to archived_* tables per retention policy.
  *

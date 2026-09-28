@@ -1,5 +1,5 @@
 /**
- * ISSA — Proxy (formerly Middleware)
+ * Proxy (formerly Middleware)
  *
  * Next.js 16 renamed middleware.ts to proxy.ts.
  * This proxy handles:
@@ -26,7 +26,7 @@ import { locales, defaultLocale } from '@/lib/i18n/config';
 // The base domain the app is served from. Subdomains of it are academy slugs.
 // Defaults to "localhost" for dev (so aqua.localhost:3007 works with no DNS).
 // In production set NEXT_PUBLIC_ROOT_DOMAIN to your custom domain (e.g.
-// "issaacademies.com"); the Railway *.up.railway.app domain can't host
+// "example.com"); the Railway *.up.railway.app domain can't host
 // per-academy subdomains, so leaving this unset keeps the JWT fallback.
 const ROOT_DOMAIN = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost').toLowerCase();
 

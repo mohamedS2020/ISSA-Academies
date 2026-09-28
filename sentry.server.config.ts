@@ -1,5 +1,5 @@
 /**
- * ISSA — Sentry (Node.js server runtime)
+ * Sentry (Node.js server runtime)
  *
  * Loaded by src/instrumentation.ts when NEXT_RUNTIME === 'nodejs'.
  * Covers API route handlers, server components and background jobs.

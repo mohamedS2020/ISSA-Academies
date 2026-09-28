@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — React Query provider.
+ * React Query provider.
  *
  * Adds a client-side cache so pages stop refetching the same data on every
  * navigation (the app previously fetched on mount via useState+useEffect, so

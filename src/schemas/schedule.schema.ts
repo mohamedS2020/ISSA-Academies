@@ -1,5 +1,5 @@
 /**
- * ISSA — Schedule Validation Schemas
+ * Schedule Validation Schemas
  */
 
 import { z } from 'zod';

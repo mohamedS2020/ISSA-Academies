@@ -1,5 +1,5 @@
 /**
- * ISSA — Group Schemas
+ * Group Schemas
  *
  * Validates group creation and listing queries.
  * startTime is validated as HH:MM wall-clock string.

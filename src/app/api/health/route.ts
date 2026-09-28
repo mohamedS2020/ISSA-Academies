@@ -1,5 +1,5 @@
 /**
- * ISSA — Health Check
+ * Health Check
  *
  * GET /api/health
  *

@@ -1,5 +1,5 @@
 /**
- * ISSA — Auth cookie helpers.
+ * Auth cookie helpers.
  *
  * Access + refresh tokens are stored in httpOnly cookies (not localStorage), so
  * they are NOT readable by JavaScript — they can't be exfiltrated by XSS and
@@ -17,8 +17,11 @@
 
 import { getAccessExpiry, getRefreshExpiry, ttlToSeconds } from './jwt';
 
-export const ACCESS_COOKIE = 'issa_access';
-export const REFRESH_COOKIE = 'issa_refresh';
+// Neutral names, not a brand: renaming the platform must not log everyone out.
+// Host-only cookies (no Domain attribute), so these cannot collide with another
+// app's cookies of the same name.
+export const ACCESS_COOKIE = 'access_token';
+export const REFRESH_COOKIE = 'refresh_token';
 
 const REFRESH_PATH = '/api/auth';
 

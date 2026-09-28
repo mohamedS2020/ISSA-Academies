@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Manual Income Page
+ * Manual Income Page
  *
  * Add-income form + DataTable with pagination, for income NOT tied to a
  * subscription (grants, rentals, one-off sales). Each entry flows into the

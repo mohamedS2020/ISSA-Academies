@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Subscription Plan Builder Page
+ * Subscription Plan Builder Page
  *
  * Creates a new subscription plan with:
  * - Name, sessions, period type toggle, period days (conditional),

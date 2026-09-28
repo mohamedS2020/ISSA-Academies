@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Trainees List Page
+ * Trainees List Page
  *
  * - Searchable list of all trainees in the current branch.
  * - DataTable with system code, name, phone, status, active subscription.

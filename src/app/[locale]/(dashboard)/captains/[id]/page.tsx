@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Captain Detail Page
+ * Captain Detail Page
  *
  * Full captain profile view with groups list.
  * Toggle inline edit mode for profile fields.

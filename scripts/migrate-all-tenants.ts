@@ -1,5 +1,5 @@
 /**
- * ISSA — Migrate All Existing Tenant Schemas
+ * Migrate All Existing Tenant Schemas
  *
  * When a new migration is added (e.g. `npx prisma migrate dev --schema=prisma/tenant/schema.prisma`),
  * only NEW tenants (provisioned after that migration) get it automatically.

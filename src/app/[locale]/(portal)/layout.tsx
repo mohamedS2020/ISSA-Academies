@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Trainee Portal Layout
+ * Trainee Portal Layout
  *
  * Simplified, read-only portal shell — distinct from the staff (dashboard)
  * layout (no collapsible sidebar, no branch switcher, no staff-only links).
@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { PortalTraineeProvider, TraineeSwitcher } from './portal-trainee-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { APP_MARK } from '@/lib/config/brand';
 
 interface PortalLayoutProps {
   children: React.ReactNode;
@@ -153,7 +154,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 flex-shrink-0">
             <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white text-xs font-black">ISSA</span>
+              <span className="text-white text-xs font-black">{APP_MARK}</span>
             </div>
             <span className="hidden sm:inline text-xs font-extrabold tracking-wider text-slate-700 dark:text-slate-300">
               {t('title')}

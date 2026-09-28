@@ -10,15 +10,24 @@ import { ThemeProvider } from "@/lib/theme/theme-context";
 import { QueryProvider } from "@/lib/query/query-provider";
 import { getAcademyHostContext } from "@/lib/tenant/host-context";
 import { SPORTS } from "@/lib/theme/sports";
+import { APP_NAME } from "@/lib/config/brand";
+import { THEME_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/config/storage-keys";
 
 // Runs before first paint to apply, with no flash of the wrong look:
 //   1. the persisted (or system) light/dark theme  → `.dark` class
 //   2. the active sport theme                       → `data-sport` attribute
-// Sport priority: logged-in user's academy (from stored issa_user) > the
+// Sport priority: logged-in user's academy (from the stored user) > the
 // subdomain's academy (server-rendered `data-host-sport`) > "swimming" (base).
 // The themeKey value is sanitized to lowercase letters; anything unknown falls
 // back to the base palette. Kept inline + minified on purpose.
-const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('issa_theme');var d=t==='dark'||((t==='system'||!t)&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}try{var el=document.documentElement;var host=el.getAttribute('data-host-sport');var u=localStorage.getItem('issa_user')||sessionStorage.getItem('issa_user');var s=u?JSON.parse(u).themeKey:null;var active=(s&&/^[a-z]+$/.test(s))?s:(host||'swimming');el.setAttribute('data-sport',active);}catch(e){}})();`;
+//
+// The storage keys are interpolated from the shared constants rather than
+// written as literals. They used to be duplicated here by hand, so renaming a
+// key in the React contexts would have left this script silently reading
+// nothing. JSON.stringify emits a correctly quoted JS string literal.
+const THEME_KEY = JSON.stringify(THEME_STORAGE_KEY);
+const USER_KEY = JSON.stringify(USER_STORAGE_KEY);
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem(${THEME_KEY});var d=t==='dark'||((t==='system'||!t)&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}try{var el=document.documentElement;var host=el.getAttribute('data-host-sport');var u=localStorage.getItem(${USER_KEY})||sessionStorage.getItem(${USER_KEY});var s=u?JSON.parse(u).themeKey:null;var active=(s&&/^[a-z]+$/.test(s))?s:(host||'swimming');el.setAttribute('data-sport',active);}catch(e){}})();`;
 
 /**
  * Per-academy metadata when reached via a subdomain (title + favicon reflect
@@ -29,7 +38,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const academy = await getAcademyHostContext();
   if (!academy) return {};
   return {
-    title: `ISSA — ${academy.name}`,
+    // Academy first: browser tabs truncate from the right, so the specific part
+    // should survive a narrow tab and the platform name can be the one cut off.
+    title: `${academy.name} · ${APP_NAME}`,
     icons: { icon: SPORTS[academy.sport].favicon },
   };
 }

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Subscription Plan Detail / Edit Page
+ * Subscription Plan Detail / Edit Page
  *
  * Loads an existing plan, shows how many groups & subscriptions use it, and
  * lets an ADMIN edit the plan's scalar fields. Moderators get a read-only view.

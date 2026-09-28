@@ -1,4 +1,4 @@
-# ISSA Academies — Deployment Checklist
+# Deployment Checklist
 
 A pre-flight checklist for standing the platform up on Railway + Neon. Work top to
 bottom and **verify each step before moving on** — several failures here are silent,
@@ -31,7 +31,8 @@ the wrong service. Two services, different needs:
 | `RATE_LIMIT_*` | ✅ | — | Defaults are fine to start |
 | `TENANT_CLIENT_CACHE_MAX` | ✅ | ✅ | Default 25 |
 | `NODE_ENV` | ✅ `production` | ✅ `production` | JWT secret strength is only enforced in production |
-| `NEXT_PUBLIC_APP_NAME` / `_DEFAULT_LOCALE` / `_SUPPORTED_LOCALES` | ✅ | — | |
+| `NEXT_PUBLIC_APP_NAME` | ✅ | — | **The platform's name** — the only place it is set. Baked in at **build** time: changing it needs a redeploy, not a restart |
+| `NEXT_PUBLIC_DEFAULT_LOCALE` / `_SUPPORTED_LOCALES` | ✅ | — | |
 | `SENTRY_DSN` 🚧 | ✅ | ✅ | Step 5 |
 | `REDIS_URL` 🚧 | ✅ | ✅ | Step 5 |
 
@@ -88,7 +89,10 @@ works. Each later step then changes one thing, so a failure has one obvious caus
 - [ ] `GET /api/health` returns 200
 - [ ] Platform migrations applied:
       `npx prisma migrate deploy --schema=prisma/platform/schema.prisma`
-- [ ] Super admin seeded: `npx tsx prisma/seed.ts`
+- [ ] Super admin seeded: `npx tsx prisma/seed.ts`, with `SEED_SUPER_ADMIN_NAME`,
+      `SEED_SUPER_ADMIN_PHONE` and `SEED_SUPER_ADMIN_PASSWORD` set for that one run.
+      ⚠️ Use a **new** password — the one previously hardcoded in the seed is public
+      (it is in this public repository's git history). Remove the variables afterwards.
 - [ ] Log in as the super admin
 - [ ] **Create one academy** — this exercises `CREATE SCHEMA`, tenant migrations and
       seeding in a single request, and is historically the most Railway-fragile path

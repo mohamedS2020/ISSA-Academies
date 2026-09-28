@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Captains List Page
+ * Captains List Page
  *
  * - Searchable DataTable of captains in the current branch.
  * - Shows name, phone, payroll type badge, attending days, groups count.

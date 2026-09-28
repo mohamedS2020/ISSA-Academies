@@ -1,5 +1,5 @@
 /**
- * ISSA — Sentry scrubbing tests
+ * Sentry scrubbing tests
  *
  * This is security-critical, not cosmetic. The platform holds children's names,
  * dates of birth, medical conditions and guardian phone numbers, and phone
@@ -52,11 +52,11 @@ describe('scrubEvent — request containers', () => {
     const result = scrubEvent(
       event({
         request: {
-          cookies: { issa_access: 'a-real-token' },
+          cookies: { access_token: 'a-real-token' },
           data: { phoneNumber: '+201285727056', password: 'hunter2' },
           query_string: 'q=%2B201285727056',
           headers: { authorization: 'Bearer abc', 'user-agent': 'Chrome' },
-          url: 'https://issa.example/api/trainees/search?q=%2B201285727056',
+          url: 'https://app.example/api/trainees/search?q=%2B201285727056',
         },
       })
     );
@@ -80,11 +80,11 @@ describe('scrubEvent — request containers', () => {
   it('strips the query string from the URL, since it carries identifiers', () => {
     const result = scrubEvent(
       event({
-        request: { url: 'https://issa.example/api/trainees/search?q=%2B201285727056' },
+        request: { url: 'https://app.example/api/trainees/search?q=%2B201285727056' },
       })
     );
 
-    expect(result.request?.url).toBe('https://issa.example/api/trainees/search');
+    expect(result.request?.url).toBe('https://app.example/api/trainees/search');
   });
 
   it('removes the user object entirely', () => {

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Attendance (FR-TP-03)
+ * Portal Attendance (FR-TP-03)
  *
  * Read-only paginated attendance history.
  */

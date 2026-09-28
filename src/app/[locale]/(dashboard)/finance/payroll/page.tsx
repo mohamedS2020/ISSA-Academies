@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Payroll Management Page
+ * Payroll Management Page
  *
  * Select captain + period → calculate preview (auto-computed, editable) →
  * record → list of recorded payrolls with "Mark Paid" action.

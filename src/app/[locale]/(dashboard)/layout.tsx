@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Premium Dashboard Layout
+ * Premium Dashboard Layout
  *
  * Wraps all dashboard pages with:
  *   - Authentication protection and redirection to login
@@ -18,6 +18,7 @@ import { UserRole } from '@/types';
 import Sidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
 import { isRtlLocale } from '@/lib/i18n/config';
+import { APP_MARK } from '@/lib/config/brand';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -68,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
             <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-pulse" />
             <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
-              <span className="text-white text-[10px] font-black tracking-wider">ISSA</span>
+              <span className="text-white text-[10px] font-black tracking-wider">{APP_MARK}</span>
             </div>
           </div>
           <div className="h-1.5 w-32 rounded-full bg-white dark:bg-slate-900 overflow-hidden relative">

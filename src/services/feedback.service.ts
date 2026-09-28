@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Feedback Service
+ * Captain Feedback Service
  *
  * A captain writes feedback on one of THEIR trainees (a trainee in one of the
  * captain's active groups). Feedback is a history — an append-only list of

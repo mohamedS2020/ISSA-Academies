@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Auth Context Provider
+ * Auth Context Provider
  *
  * Client-side authentication state.
  *
@@ -27,6 +27,7 @@ import {
   type ReactNode,
 } from 'react';
 import { resolveSport, type SportKey } from '@/lib/theme/sports';
+import { USER_STORAGE_KEY, REMEMBER_STORAGE_KEY } from '@/lib/config/storage-keys';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -90,8 +91,11 @@ interface AuthContextValue extends AuthState {
 
 // ─── Constants ──────────────────────────────────────────────
 
-const STORAGE_KEY_USER = 'issa_user';
-const STORAGE_KEY_REMEMBER = 'issa_remember';
+// Shared with the inline theme-init script in [locale]/layout.tsx, which reads
+// the cached user's theme before React hydrates. One definition, so they
+// cannot drift apart.
+const STORAGE_KEY_USER = USER_STORAGE_KEY;
+const STORAGE_KEY_REMEMBER = REMEMBER_STORAGE_KEY;
 
 /** Refresh the access token this many ms before it expires. */
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;

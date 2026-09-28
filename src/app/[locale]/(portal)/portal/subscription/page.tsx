@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Subscription (FR-TP-04)
+ * Portal Subscription (FR-TP-04)
  *
  * Plan, level, sessions remaining, expiry date, freeze status.
  */

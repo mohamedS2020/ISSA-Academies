@@ -1,5 +1,5 @@
 /**
- * ISSA — Logout API Route
+ * Logout API Route
  *
  * POST /api/auth/logout
  *

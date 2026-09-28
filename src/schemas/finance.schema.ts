@@ -1,5 +1,5 @@
 /**
- * ISSA — Finance & Reports Validation Schemas
+ * Finance & Reports Validation Schemas
  *
  * Covers: expenses, partial payments, captain payroll, and report queries.
  */

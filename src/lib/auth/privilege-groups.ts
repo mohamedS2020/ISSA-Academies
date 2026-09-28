@@ -1,5 +1,5 @@
 /**
- * ISSA — Privilege Groups (Client-Safe)
+ * Privilege Groups (Client-Safe)
  *
  * This file contains ONLY the PRIVILEGE_GROUPS constant — no server-only imports.
  * It is safe to import in both Client Components and Server Components.

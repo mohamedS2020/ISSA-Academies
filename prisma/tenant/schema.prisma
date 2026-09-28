@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────────────────────
-// ISSA Swimming Academy — Tenant Database Schema
+// Tenant Database Schema
 // ──────────────────────────────────────────────────────────────
 // This schema defines all tables that live inside each tenant's
 // dedicated PostgreSQL schema (tenant_{id}).
@@ -210,7 +210,7 @@ model TraineeProfile {
   userId            String   @map("user_id") @db.Uuid // the ACCOUNT/guardian User — one account owns many trainees (no longer 1:1)
   branchId          String   @map("branch_id") @db.Uuid
   name              String   @db.VarChar(255) // the athlete's own name (User.name is the account/guardian name)
-  systemCode        String   @unique @map("system_code") @db.VarChar(50) // e.g. ISSA-BR01-00042
+  systemCode        String   @unique @map("system_code") @db.VarChar(50) // e.g. BR01-000042
   dateOfBirth       DateTime @map("date_of_birth") @db.Date
   whatsappNumber    String   @map("whatsapp_number") @db.VarChar(50)
   parentIdCard      String   @map("parent_id_card") @db.VarChar(50)

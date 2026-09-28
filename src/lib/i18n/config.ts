@@ -1,5 +1,5 @@
 /**
- * ISSA — i18n Configuration
+ * i18n Configuration
  *
  * Centralized internationalization configuration used by next-intl
  * and the proxy (formerly middleware) for locale routing.

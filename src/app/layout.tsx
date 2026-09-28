@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { APP_NAME } from "@/lib/config/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ISSA Swimming Academy",
+  title: APP_NAME,
+  // Sport-neutral: the platform serves swimming, football and other academies.
   description:
-    "Swimming Academy Management System — manage trainees, subscriptions, scheduling, attendance, and finances.",
+    "Academy management — trainees, subscriptions, scheduling, attendance, and finances.",
 };
 
 /**

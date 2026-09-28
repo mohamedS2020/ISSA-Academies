@@ -1,5 +1,5 @@
 /**
- * ISSA — Standardized API Response Envelope
+ * Standardized API Response Envelope
  *
  * All API endpoints return responses in this format:
  * {

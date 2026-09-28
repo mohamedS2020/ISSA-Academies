@@ -1,5 +1,5 @@
 /**
- * ISSA — Permission Definitions & Privilege Checking
+ * Permission Definitions & Privilege Checking
  *
  * ⚠️  SERVER-ONLY — this file imports from error-handler → tenant-resolver → migration-runner.
  *    Do NOT import this file in Client Components.

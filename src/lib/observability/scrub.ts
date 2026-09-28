@@ -1,5 +1,5 @@
 /**
- * ISSA — Sentry PII scrubbing
+ * Sentry PII scrubbing
  *
  * Runs as `beforeSend` on every Sentry client (server, edge, browser). Nothing
  * reaches Sentry without passing through here.

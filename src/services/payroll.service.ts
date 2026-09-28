@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Payroll Service
+ * Captain Payroll Service
  *
  * Two payroll modes (per CaptainProfile.payrollType):
  *   - HOURS: hoursWorked (auto-calculated from COMPLETED sessions in the

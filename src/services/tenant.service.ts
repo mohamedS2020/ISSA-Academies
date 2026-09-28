@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Service
+ * Tenant Service
  *
  * Core business logic for tenant (academy) management:
  *   - Provisioning (schema creation + migrations + default admin)
@@ -193,17 +193,17 @@ export async function createTenant(
     };
   } catch (err) {
     // ⚠️ Cleanup on failure — drop schema and delete platform record
-    console.error('[ISSA] Tenant provisioning failed, cleaning up...', err);
+    console.error('[tenant] Tenant provisioning failed, cleaning up...', err);
 
     await dropTenantSchema(schemaSlug, databaseUrl).catch((e) =>
-      console.error('[ISSA] Schema cleanup failed:', e)
+      console.error('[tenant] Schema cleanup failed:', e)
     );
 
     if (tenantId) {
       await platformPrisma.tenant
         .delete({ where: { id: tenantId } })
         .catch((e) =>
-          console.error('[ISSA] Tenant record cleanup failed:', e)
+          console.error('[tenant] Tenant record cleanup failed:', e)
         );
     }
 
@@ -317,7 +317,7 @@ export async function changeTenantStatus(
       .deleteMany({ where: { tenantId: id } })
       .catch((e) =>
         console.error(
-          `[ISSA] Phone-index cleanup failed for deleted tenant ${id}:`,
+          `[tenant] Phone-index cleanup failed for deleted tenant ${id}:`,
           e
         )
       );
@@ -327,7 +327,7 @@ export async function changeTenantStatus(
     const schemaSlug = updated.slug.replace(/-/g, '_');
     await dropTenantSchema(schemaSlug, databaseUrl).catch((e) =>
       console.error(
-        `[ISSA] Schema drop failed for deleted tenant ${id}:`,
+        `[tenant] Schema drop failed for deleted tenant ${id}:`,
         e
       )
     );
@@ -405,7 +405,7 @@ export async function getTenantUsageStats(
     }
 
     console.error(
-      `[ISSA] getTenantUsageStats failed for tenant ${tenantId}:`,
+      `[tenant] getTenantUsageStats failed for tenant ${tenantId}:`,
       err
     );
     throw err;

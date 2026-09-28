@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Super Admin Layout
+ * Super Admin Layout
  *
  * Minimal layout for platform-level administration.
  * No sidebar (super admins don't have tenant/branch context).
@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { APP_NAME, APP_MARK } from '@/lib/config/brand';
 
 export default function SuperAdminLayout({
   children,
@@ -37,11 +38,11 @@ export default function SuperAdminLayout({
           {/* Brand */}
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-indigo-600 text-sm font-bold text-white shadow-sm">
-              IS
+              {APP_MARK}
             </div>
             <div>
               <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                ISSA
+                {APP_NAME}
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {t('title')}

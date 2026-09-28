@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Receipts List Page
+ * Receipts List Page
  *
  * Searchable, filterable (date range) table of all receipts for the branch.
  * Access: Admin + Moderator (per /api/finance/receipts gating).

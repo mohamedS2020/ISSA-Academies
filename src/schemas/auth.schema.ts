@@ -1,5 +1,5 @@
 /**
- * ISSA — Authentication Validation Schemas
+ * Authentication Validation Schemas
  *
  * Shared Zod schemas used by both API routes (server-side validation)
  * and forms (client-side validation). This establishes the validation

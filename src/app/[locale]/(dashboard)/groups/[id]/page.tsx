@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Group Detail Page
+ * Group Detail Page
  *
  * Shows: captain card, plan info, trainee table (with active sub status),
  * upcoming sessions list, and remove-trainee action.

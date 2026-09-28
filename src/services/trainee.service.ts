@@ -47,7 +47,7 @@ import type {
  *     every registration in that branch collided from then on. The counter never
  *     looks at existing codes, so a rename cannot affect it.
  *
- *   - A hardcoded platform name. Codes were prefixed `ISSA-` in every academy.
+ *   - A hardcoded platform name. Codes were prefixed with the first academy's name, in every academy.
  *     A code identifies a trainee within their own academy, where the branch
  *     code is already unique, so no platform prefix is needed at all.
  */

@@ -1,5 +1,5 @@
 /**
- * ISSA — Moderator privilege cache
+ * Moderator privilege cache
  *
  * `withAuth` loads a MODERATOR's privileges from the tenant database on every
  * request, and `loadModeratorPrivileges` opens its own `withTenantContext`

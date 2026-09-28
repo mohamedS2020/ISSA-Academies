@@ -1,5 +1,5 @@
 /**
- * ISSA — Dashboard Service
+ * Dashboard Service
  *
  * Real-data aggregations for the staff dashboard (Admin/Moderator + Captain
  * views). Replaces the hardcoded mock arrays that previously lived directly

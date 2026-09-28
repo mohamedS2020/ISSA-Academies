@@ -1,5 +1,5 @@
 /**
- * ISSA — Audit Logging API Middleware
+ * Audit Logging API Middleware
  *
  * Provides a higher-order function that wraps route handlers
  * to automatically log audit entries for sensitive operations.

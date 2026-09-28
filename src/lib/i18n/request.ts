@@ -1,5 +1,5 @@
 /**
- * ISSA — next-intl Request Configuration
+ * next-intl Request Configuration
  *
  * This file configures next-intl to load the correct messages
  * for the current locale. It's imported by next-intl's provider.

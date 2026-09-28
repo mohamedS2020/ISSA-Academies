@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Financial Dashboard
+ * Financial Dashboard
  *
  * KPI cards (income, expenses, net profit, outstanding) + a recharts
  * income-vs-expenses area chart, filterable by date range.

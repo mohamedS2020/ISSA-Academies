@@ -1,5 +1,5 @@
 /**
- * ISSA Swimming Academy — Shared Type Definitions
+ * Shared Type Definitions
  *
  * Central type definitions used across the application.
  * These types mirror the Prisma schema enums and provide

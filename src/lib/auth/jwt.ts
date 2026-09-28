@@ -1,5 +1,5 @@
 /**
- * ISSA — JWT Token Utilities
+ * JWT Token Utilities
  *
  * Generates and verifies access and refresh tokens with tenant-aware claims.
  *
@@ -16,13 +16,39 @@ import type { UserRole, JWTPayload } from '@/types';
 
 // ─── Configuration ──────────────────────────────────────────
 
-// The public placeholder secrets shipped in .env.example. If production is ever
-// configured with one of these (or a too-short secret), anyone could forge
-// tokens — so we fail closed in production.
+/**
+ * Every placeholder secret that has EVER been published, rejected in production.
+ *
+ * If production is configured with one of these (or a too-short secret), anyone
+ * could forge tokens — so we fail closed.
+ *
+ * ⚠️ APPEND ONLY. NEVER REMOVE AN ENTRY.
+ *
+ * A placeholder does not stop being dangerous when the example file changes: it
+ * is in this PUBLIC repository's history forever, and it may still be sitting in
+ * someone's local .env, one copy-paste away from a real deployment. The older
+ * entries below were the placeholders in .env.example until 2026-09-28. They
+ * look like leftover branding and are exactly what a well-meaning cleanup would
+ * delete — which would silently re-open token forgery for any deployment still
+ * using them. That nearly happened during the de-branding pass. jwt.test.ts
+ * guards every entry.
+ */
 const WEAK_SECRETS = new Set([
+  // Current placeholders (.env.example since 2026-09-28).
+  'change-me-to-a-random-access-secret-of-32-plus-chars',
+  'change-me-to-a-random-refresh-secret-of-32-plus-chars',
+  // Previous placeholders — publicly known, must stay rejected permanently.
   'issa-access-secret-change-me-in-production',
   'issa-refresh-secret-change-me-in-production',
 ]);
+
+/**
+ * The `iss` claim on every token, checked on verify so tokens minted by anything
+ * else are rejected. Defined once — it was repeated as a literal in four places,
+ * and sign and verify disagreeing would reject every token. Neutral rather than
+ * a brand, so naming the platform does not invalidate every session.
+ */
+const JWT_ISSUER = 'platform';
 
 function assertStrongSecret(secret: string, name: string): void {
   if (process.env.NODE_ENV !== 'production') return;
@@ -123,7 +149,7 @@ export function generateAccessToken(
 
   return jwt.sign(tokenPayload, secret, {
     expiresIn,
-    issuer: 'issa',
+    issuer: JWT_ISSUER,
     subject: payload.userId,
   } as SignOptions);
 }
@@ -155,7 +181,7 @@ export function generateRefreshToken(
 
   return jwt.sign(tokenPayload, secret, {
     expiresIn,
-    issuer: 'issa',
+    issuer: JWT_ISSUER,
     subject: payload.userId,
   } as SignOptions);
 }
@@ -185,7 +211,7 @@ export function generateTokenPair(
 export function verifyAccessToken(token: string): TokenPayload {
   const secret = getAccessSecret();
   const decoded = jwt.verify(token, secret, {
-    issuer: 'issa',
+    issuer: JWT_ISSUER,
     algorithms: ['HS256'], // pin the algorithm — reject alg confusion / alg:none
   }) as JwtPayload & TokenPayload;
 
@@ -214,7 +240,7 @@ export function verifyAccessToken(token: string): TokenPayload {
 export function verifyRefreshToken(token: string): TokenPayload {
   const secret = getRefreshSecret();
   const decoded = jwt.verify(token, secret, {
-    issuer: 'issa',
+    issuer: JWT_ISSUER,
     algorithms: ['HS256'], // pin the algorithm — reject alg confusion / alg:none
   }) as JwtPayload & TokenPayload;
 

@@ -1,5 +1,5 @@
 /**
- * ISSA — Subscription Lifecycle Helpers
+ * Subscription Lifecycle Helpers
  *
  * A subscription is "ended" when EITHER trigger fires (whichever comes first):
  *   - the end date is reached, OR

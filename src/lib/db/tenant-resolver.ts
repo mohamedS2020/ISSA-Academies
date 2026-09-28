@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Resolver
+ * Tenant Resolver
  *
  * Extracts tenant_id and branch_id from the verified JWT claims.
  *

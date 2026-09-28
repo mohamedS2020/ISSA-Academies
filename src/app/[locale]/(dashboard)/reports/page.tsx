@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Reports Center
+ * Reports Center
  *
  * Report-type selector + filter panel + results table, with PDF/Excel
  * export. Access: Admin + Moderator with can_view_reports.

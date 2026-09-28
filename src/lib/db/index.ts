@@ -1,5 +1,5 @@
 /**
- * ISSA — Database Module Barrel Export
+ * Database Module Barrel Export
  *
  * Provides a single import point for all database utilities:
  *   import { platformPrisma, withTenantContext, resolveTenantContext } from '@/lib/db';

@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Rating & Feedback Zod Schemas
+ * Captain Rating & Feedback Zod Schemas
  */
 
 import { z } from 'zod';

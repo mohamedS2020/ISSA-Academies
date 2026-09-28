@@ -1,5 +1,5 @@
 /**
- * ISSA — Report Service
+ * Report Service
  *
  * Four report types: financial, attendance, subscription, captain performance.
  * Every aggregation that accepts a date range checks whether the range

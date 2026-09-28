@@ -1,5 +1,5 @@
 /**
- * ISSA — Sentry (browser)
+ * Sentry (browser)
  *
  * Next.js loads this automatically on the client. Catches crashes in the
  * dashboard and the parent portal — the failures a user sees but never reports.

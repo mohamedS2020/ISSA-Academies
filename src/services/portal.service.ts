@@ -1,5 +1,5 @@
 /**
- * ISSA — Portal Service
+ * Portal Service
  *
  * Composes existing service functions with a trainee-self-scoping layer.
  *

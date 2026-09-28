@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Provisioning Integration Test
+ * Tenant Provisioning Integration Test
  *
  * Tests the full tenant provisioning lifecycle:
  *   1. Create a tenant via the service

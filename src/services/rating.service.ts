@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Rating Service
+ * Captain Rating Service
  *
  * Trainees rate their captain (1..5 whole stars, editable anytime via upsert —
  * one row per (captain, trainee)). A captain's cumulative rating (average +

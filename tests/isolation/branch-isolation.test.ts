@@ -1,5 +1,5 @@
 /**
- * ISSA — Branch Isolation Tests
+ * Branch Isolation Tests
  *
  * Within the same tenant, verifies that branch A's data cannot be
  * accessed by branch B. All branch-scoped queries must include

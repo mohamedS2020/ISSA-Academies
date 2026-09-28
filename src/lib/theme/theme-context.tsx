@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * ISSA — Theme (light/dark) context.
+ * Theme (light/dark) context.
  *
  * - `theme`: the user's choice — 'light' | 'dark' | 'system'.
  * - `resolvedTheme`: what's actually applied — 'light' | 'dark'.
  * - Default is 'system' (follows the OS); the first manual toggle persists an
- *   explicit choice to localStorage ('issa_theme') which then always wins.
+ *   explicit choice to localStorage (THEME_STORAGE_KEY) which then always wins.
  * - Applies/removes the `.dark` class on <html> (which drives every `dark:`
  *   utility via the @custom-variant in globals.css). The pre-hydration inline
  *   script in [locale]/layout.tsx sets the class before first paint (no FOUC);
@@ -21,11 +21,12 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
+// Defined in a plain shared module because the inline theme-init script in
+// [locale]/layout.tsx must read the SAME key before React hydrates.
+import { THEME_STORAGE_KEY } from '@/lib/config/storage-keys';
 
 type Theme = 'light' | 'dark' | 'system';
 type Resolved = 'light' | 'dark';
-
-export const THEME_STORAGE_KEY = 'issa_theme';
 
 interface ThemeContextValue {
   theme: Theme;

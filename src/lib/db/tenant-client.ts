@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant-Aware Prisma Client
+ * Tenant-Aware Prisma Client
  *
  * Provides tenant isolation via PostgreSQL schema-level `SET LOCAL search_path`.
  *
