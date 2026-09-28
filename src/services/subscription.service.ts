@@ -15,6 +15,7 @@ import { addDays, endOfMonth, startOfMonth } from 'date-fns';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
 import { generateReceiptNumber } from './receipt.service';
+import { recordLedgerEntry } from './ledger';
 import {
   BadRequestError,
   ConflictError,
@@ -331,16 +332,14 @@ export async function enrollTrainee(
     });
 
     // ── 10. Financial transaction (INCOME) ────────────────────
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount: input.amountPaid,
-        description: `Subscription: ${plan.name}`,
-        referenceId: receipt.id,
-        date: startDate,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount: input.amountPaid,
+      date: startDate,
+      description: `Subscription: ${plan.name}`,
+      createdBy: executorId,
     });
 
     // ── 11. Audit ─────────────────────────────────────────────
@@ -460,16 +459,14 @@ export async function renewSubscription(
       },
     });
 
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount: input.amountPaid,
-        description: `Renewal: ${plan.name}`,
-        referenceId: receipt.id,
-        date: startDate,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount: input.amountPaid,
+      date: startDate,
+      description: `Renewal: ${plan.name}`,
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {
@@ -558,16 +555,14 @@ export async function recordPayment(
       },
     });
 
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount,
-        description: `Payment: ${subscription.plan.name}`,
-        referenceId: receipt.id,
-        date: new Date(),
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount,
+      date: new Date(),
+      description: `Payment: ${subscription.plan.name}`,
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {
