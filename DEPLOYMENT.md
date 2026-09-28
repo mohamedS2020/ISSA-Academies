@@ -9,7 +9,8 @@ This file does not restate configuration. The variables and what they mean live 
 If those disagree with this file, they are right and this is stale.
 
 > **Status:** partially complete. Steps marked 🚧 depend on hardening-plan work that is
-> not finished yet — see `Pre-Launch Hardening Plan.md`.
+> not finished yet — today that is only Redis (§6). Sentry is wired and ready to
+> configure (step 5). See `Pre-Launch Hardening Plan.md`.
 
 ---
 
@@ -26,15 +27,31 @@ the wrong service. Two services, different needs:
 | `JWT_REFRESH_SECRET` | ✅ | ✅ | Identical on both, different from the access secret |
 | `JWT_ACCESS_EXPIRY` / `JWT_REFRESH_EXPIRY` / `JWT_REMEMBER_ME_EXPIRY` | ✅ | ✅ | |
 | `RUN_SCHEDULER` | ❌ **unset** | ✅ `"true"` | **Exactly one service.** See step 4 |
-| `NEXT_PUBLIC_ROOT_DOMAIN` | ✅ | — | Subdomains are inert without it |
+| `NEXT_PUBLIC_ROOT_DOMAIN` | ✅ | — | Subdomains are inert without it. **Build-time** (see below) |
 | `TRUSTED_PROXY_HOPS` | ✅ | — | `1` for Railway. Security-relevant — read the note in `.env.example` |
 | `RATE_LIMIT_*` | ✅ | — | Defaults are fine to start |
 | `TENANT_CLIENT_CACHE_MAX` | ✅ | ✅ | Default 25 |
 | `NODE_ENV` | ✅ `production` | ✅ `production` | JWT secret strength is only enforced in production |
-| `NEXT_PUBLIC_APP_NAME` | ✅ | — | **The platform's name** — the only place it is set. Baked in at **build** time: changing it needs a redeploy, not a restart |
-| `NEXT_PUBLIC_DEFAULT_LOCALE` / `_SUPPORTED_LOCALES` | ✅ | — | |
-| `SENTRY_DSN` 🚧 | ✅ | ✅ | Step 5 |
+| `NEXT_PUBLIC_APP_NAME` | ✅ | — | **The platform's name** — the only place it is set. **Build-time** (see below) |
+| `SENTRY_DSN` | ✅ | ✅ | Server-side error reporting. Public by design, not a secret |
+| `NEXT_PUBLIC_SENTRY_DSN` | ✅ | — | Browser error reporting — same value as `SENTRY_DSN`. **Build-time** |
+| `SENTRY_ORG` / `SENTRY_PROJECT` | ✅ | optional | Source-map upload during the build, so stack traces are readable. On the worker only if you want readable traces for job errors |
+| `SENTRY_AUTH_TOKEN` | ✅ | optional | Same upload. ⚠️ **A real secret** — Railway variables only, never `NEXT_PUBLIC_`, never committed |
+| `SENTRY_TRACES_SAMPLE_RATE` / `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | optional | optional | Leave unset (0) on the free tier — `.env.example` explains why |
+| `PRIVILEGE_CACHE_TTL_MS` | optional | optional | Default `30000`. Worst-case delay before a revoked moderator privilege stops working on another replica |
 | `REDIS_URL` 🚧 | ✅ | ✅ | Step 5 |
+
+**`NEXT_PUBLIC_` variables are baked in when the app is built, not read when it
+runs:** `NEXT_PUBLIC_APP_NAME`, `NEXT_PUBLIC_ROOT_DOMAIN`, `NEXT_PUBLIC_SENTRY_DSN` and
+`NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE`. Set them **before** the build. After changing
+one, deploy a **new build**: Restart re-runs the old build, and Railway's docs do not
+promise that Redeploy rebuilds either — pushing a commit to `main` always does. Then
+check the change is live (for the name: the login page and the browser tab). The Sentry
+upload variables are read during the build too; Railway passes service variables to it.
+
+**CI needs none of these.** GitHub Actions builds only to check the code; that build is
+never deployed, so uploading its source maps would attach them to a release nothing
+runs.
 
 **`DIRECT_DATABASE_URL` is required on the web service, not only the worker.** Creating
 an academy runs `CREATE SCHEMA` and `prisma migrate deploy` inside the HTTP request
@@ -126,15 +143,28 @@ service should be registering.
 
 ---
 
-## 5. 🚧 Observability and shared state
+## 5. Observability and shared state
 
-Not yet wired — the code lands with hardening-plan §8 and §6.
+**Sentry — ready** (the code landed with hardening-plan §8):
 
-- [ ] Sentry project created, `SENTRY_DSN` on both services
-- [ ] Trigger a deliberate 500 and confirm it arrives **with** `tenantId` and **without**
-      phone numbers or tokens
-- [ ] Upstash Redis created, `REDIS_URL` on both services
+- [ ] Web service: all five Sentry variables from the matrix. Worker: `SENTRY_DSN`, plus
+      the three upload variables if you want readable traces for job errors
+- [ ] A **new build** deployed after setting them — `NEXT_PUBLIC_SENTRY_DSN` is build-time
+- [ ] Browser reporting works: on the live site, run
+      `setTimeout(() => { throw new Error('sentry check') })` in the browser console. It
+      should appear in Sentry → Issues within a minute; resolve it afterwards
+- [ ] Source maps uploaded: Sentry → Project Settings → Source Maps lists an upload from
+      the new build (the build log stays quiet about it on Railway)
+- [ ] The first real server error arrives tagged with `tenantId` and `role`, and with
+      **no** phone numbers or tokens in it
+
+**Uptime:**
+
 - [ ] External uptime monitor pointed at `/api/health`
+
+**🚧 Redis — waits on hardening-plan §6:**
+
+- [ ] Upstash Redis created, `REDIS_URL` on both services
 
 Do this **before** step 6. Adding replicas is when you most need to be able to see what
 is happening.
@@ -159,7 +189,11 @@ is happening.
 
 ## 7. Go-live
 
-- [ ] Custom domain attached, `NEXT_PUBLIC_ROOT_DOMAIN` set to it
+- [ ] Custom domain attached, `NEXT_PUBLIC_ROOT_DOMAIN` set to it — then a **new build**
+      (it is build-time)
+- [ ] Platform name chosen: `NEXT_PUBLIC_APP_NAME` set — also build-time — and the login
+      page shows it
+- [ ] Local test runs no longer point at the production database (hardening plan §31)
 - [ ] Wildcard DNS (`*.yourdomain.com`) so academy subdomains resolve
 - [ ] Log in via an academy subdomain and confirm it themes correctly
 - [ ] **Take a fresh backup** and note the timestamp — your first known-good restore
