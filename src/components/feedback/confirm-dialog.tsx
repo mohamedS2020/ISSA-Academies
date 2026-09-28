@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Confirmation Dialog
+ * Confirmation Dialog
  *
  * Reusable modal for destructive or important actions.
  * Supports a "type to confirm" mode for high-risk actions (e.g., delete).

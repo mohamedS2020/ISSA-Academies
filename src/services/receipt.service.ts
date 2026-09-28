@@ -1,14 +1,18 @@
 /**
- * ISSA — Receipt Service
+ * Receipt Service
  *
  * Handles sequential receipt number generation and receipt CRUD.
  *
- * ⚠️  generateReceiptNumber MUST be called with the caller's tx object.
- *     The MAX(seq) query and the INSERT must be in the same transaction
- *     to prevent duplicate numbers under concurrent enrollment.
- *
  * Receipt number format: REC-{BRANCHCODE}-{6-digit padded seq}
  * e.g. REC-BR01-000001
+ *
+ * ⚠️ generateReceiptNumber MUST be called with the caller's tx object, so the
+ *    counter increment commits or rolls back with the receipt it numbers.
+ *
+ * This file used to claim that running the MAX(seq) read and the INSERT "in the
+ * same transaction" prevented duplicate numbers. It did not: a transaction does
+ * not lock rows it only reads, so concurrent enrollments read the same maximum
+ * and 4 of 6 simultaneous ones failed on the duplicate. See generateReceiptNumber.
  */
 
 import { withTenantContext } from '@/lib/db/tenant-client';
@@ -29,24 +33,35 @@ export interface ReceiptListQuery {
 // ─── Generate Receipt Number ──────────────────────────────────
 
 /**
- * Generate the next sequential receipt number for a branch.
+ * Take the next receipt number for a branch.
  *
- * ⚠️  Must be called INSIDE the same withTenantContext tx as the receipt INSERT.
- *     Running outside the tx creates a race condition.
+ * Increments `branches.receipt_seq` atomically. The UPDATE takes a row lock on
+ * the branch, so concurrent enrollments serialize here and each gets a distinct
+ * number; the lock is released at commit. Because the increment is part of the
+ * caller's transaction, a rolled-back enrollment rolls the number back too — the
+ * sequence stays gap-free.
+ *
+ * Call it as LATE as possible in the transaction: everything after it runs while
+ * holding the branch lock, and holding it longer serializes more of the work.
+ *
+ * The counter only ever increases. Never derive the next number from existing
+ * receipts — the archive job moves old receipts out of this table, so MAX(seq)
+ * would drop and numbers would be reused.
  */
 export async function generateReceiptNumber(
   branchId: string,
   branchCode: string,
   tx: TxClient
 ): Promise<{ receiptNumber: string; seq: number }> {
-  // Find the highest existing seq for this branch — within the transaction
-  const last = await tx.receipt.findFirst({
-    where: { branchId },
-    orderBy: { seq: 'desc' },
-    select: { seq: true },
-  });
+  const [row] = await tx.$queryRaw<{ receipt_seq: number }[]>`
+    UPDATE "branches"
+    SET "receipt_seq" = "receipt_seq" + 1
+    WHERE "id" = ${branchId}::uuid
+    RETURNING "receipt_seq"
+  `;
+  if (!row) throw new NotFoundError('Branch not found');
 
-  const seq = (last?.seq ?? 0) + 1;
+  const seq = row.receipt_seq;
   const receiptNumber = `REC-${branchCode.toUpperCase()}-${String(seq).padStart(6, '0')}`;
   return { receiptNumber, seq };
 }

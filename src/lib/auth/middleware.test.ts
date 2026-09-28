@@ -1,5 +1,5 @@
 /**
- * ISSA — Auth Middleware Unit Tests
+ * Auth Middleware Unit Tests
  *
  * Tests for:
  *   - Token extraction from Authorization header
@@ -63,6 +63,7 @@ jest.mock('@/lib/api/error-handler', () => {
 
 // Import after mocks
 import { withAuth } from './middleware';
+import { ACCESS_COOKIE } from './cookies';
 import { UserRole } from '@/types';
 
 // ─── Helpers ────────────────────────────────────────────────
@@ -79,7 +80,9 @@ function createMockRequest(token?: string): Request {
 }
 
 /** A request that authenticates via the httpOnly access cookie (no Bearer header). */
-function createCookieRequest(token: string, cookieName = 'issa_access'): Request {
+// The real constant, not a literal copy — a hardcoded name here would keep
+// passing against a stale cookie name after a rename.
+function createCookieRequest(token: string, cookieName = ACCESS_COOKIE): Request {
   const headers = new Headers();
   headers.set('Cookie', `${cookieName}=${token}; other=1`);
   return new Request('http://localhost/api/test', { method: 'GET', headers });

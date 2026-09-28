@@ -1,5 +1,5 @@
 /**
- * ISSA — API Module Barrel Export
+ * API Module Barrel Export
  *
  * Single import point for all API utilities:
  *   import { withErrorHandler, successResponse, parseOffsetPagination } from '@/lib/api';

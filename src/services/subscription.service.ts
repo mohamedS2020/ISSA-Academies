@@ -1,20 +1,40 @@
 /**
- * ISSA — Subscription Service
+ * Subscription Service
  *
  * Handles subscription plan CRUD, trainee enrollment, and renewal.
  *
  * Critical invariants:
  *   1. periodDays must be non-null before addDays() when periodType = FROM_SUBSCRIPTION_DATE
- *   2. One-active-subscription check INSIDE the transaction (not before it)
+ *   2. At most ONE active subscription per trainee — enforced by the partial
+ *      unique index `trainee_subscriptions_one_active_per_trainee`, not by the
+ *      application check. See the note below.
  *   3. Enrollment = subscription + group assignment + receipt in ONE atomic tx
- *   4. Receipt number generation (MAX+1) inside the same tx as INSERT
+ *   4. Receipt numbers come from an atomic per-branch counter (receipt.service)
  *   5. Every plan query includes branchId for strict branch isolation
+ *
+ * ⚠️ A TRANSACTION DOES NOT MAKE A READ-THEN-WRITE SAFE.
+ *
+ * This file previously claimed the one-active check was safe because it ran
+ * "INSIDE the transaction", and that MAX+1 receipt numbering was safe for the
+ * same reason. Neither was true. At Postgres's default isolation (READ
+ * COMMITTED) a transaction does not lock rows it only reads, so two concurrent
+ * enrollments both read "no active subscription" and both created one — a
+ * double charge, reproduced in 6 of 10 staggered attempts.
+ *
+ * The application checks below are still worth keeping: they give the common,
+ * sequential case a clear message without touching the index. But correctness
+ * comes from the database constraint, which holds however requests interleave.
  */
 
 import { addDays, endOfMonth, startOfMonth } from 'date-fns';
-import { withTenantContext } from '@/lib/db/tenant-client';
+import {
+  withTenantContext,
+  type Prisma,
+  type TransactionClient,
+} from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
 import { generateReceiptNumber } from './receipt.service';
+import { recordLedgerEntry } from './ledger';
 import {
   BadRequestError,
   ConflictError,
@@ -29,6 +49,58 @@ import type {
   RenewInput,
 } from '@/schemas/subscription.schema';
 import type { RecordPaymentInput } from '@/schemas/finance.schema';
+
+// ─── One active subscription per trainee ──────────────────────
+
+/**
+ * Shown when the database's one-active guard rejects an insert. Worded for the
+ * situation that actually produces it: another request created or renewed a
+ * subscription for this trainee a moment ago, after this one had already
+ * passed its own check.
+ */
+const CONCURRENT_ACTIVE_SUBSCRIPTION =
+  'This trainee already has an active subscription — another request may have ' +
+  'just created it. Refresh to see the current subscription.';
+
+/**
+ * True when an error is the `trainee_subscriptions_one_active_per_trainee`
+ * partial index rejecting a second ACTIVE subscription.
+ *
+ * Duck-typed on the Prisma error code rather than `instanceof`, because the
+ * tenant and platform clients each ship their own error classes. The partial
+ * index is the only unique rule on this table involving `trainee_id`, so P2002
+ * naming that column (or the index) identifies it unambiguously.
+ */
+function isDuplicateActiveSubscription(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const { code, meta } = err as { code?: unknown; meta?: { target?: unknown } };
+  if (code !== 'P2002') return false;
+  const target = JSON.stringify(meta?.target ?? '');
+  return target.includes('trainee_id') || target.includes('one_active_per_trainee');
+}
+
+/**
+ * Insert an ACTIVE subscription, translating the database's one-active guard
+ * into the business error callers already handle.
+ *
+ * This function does not enforce anything — the partial unique index does. It
+ * only makes sure the losing side of a race gets a clear 409 rather than a raw
+ * database error. Shared by enrollment and renewal so the two cannot drift
+ * apart on how they handle it.
+ */
+async function insertActiveSubscription(
+  tx: TransactionClient,
+  data: Omit<Prisma.TraineeSubscriptionUncheckedCreateInput, 'status'>
+) {
+  try {
+    return await tx.traineeSubscription.create({ data: { ...data, status: 'ACTIVE' } });
+  } catch (err) {
+    if (isDuplicateActiveSubscription(err)) {
+      throw new ConflictError(CONCURRENT_ACTIVE_SUBSCRIPTION);
+    }
+    throw err;
+  }
+}
 
 // ─── Plan CRUD ────────────────────────────────────────────────
 
@@ -237,7 +309,11 @@ export async function enrollTrainee(
   input: EnrollInput
 ) {
   return withTenantContext(tenantId, async (tx) => {
-    // ── 1. One-active-subscription check (inside tx) ──────────
+    // ── 1. One-active-subscription check ──────────────────────
+    // Gives the common sequential case a clear message. It is NOT what prevents
+    // duplicates — a concurrent request can pass this check at the same moment.
+    // The partial unique index is the guarantee; insertActiveSubscription below
+    // translates its rejection into the same kind of 409.
     const activeSubscription = await tx.traineeSubscription.findFirst({
       where: { traineeId: input.traineeId, status: 'ACTIVE' },
       select: { id: true },
@@ -288,19 +364,16 @@ export async function enrollTrainee(
     }
 
     // ── 6. Create subscription ────────────────────────────────
-    const subscription = await tx.traineeSubscription.create({
-      data: {
-        traineeId: input.traineeId,
-        planId: plan.id,
-        levelId: level.id,
-        status: 'ACTIVE',
-        startDate,
-        endDate,
-        totalSessions: plan.minSessions,
-        amountPaid: input.amountPaid,
-        amountDue: Number(plan.amount) - input.amountPaid,
-        paymentStatus: input.paymentStatus,
-      },
+    const subscription = await insertActiveSubscription(tx, {
+      traineeId: input.traineeId,
+      planId: plan.id,
+      levelId: level.id,
+      startDate,
+      endDate,
+      totalSessions: plan.minSessions,
+      amountPaid: input.amountPaid,
+      amountDue: Number(plan.amount) - input.amountPaid,
+      paymentStatus: input.paymentStatus,
     });
 
     // ── 7. Assign to group ────────────────────────────────────
@@ -331,16 +404,14 @@ export async function enrollTrainee(
     });
 
     // ── 10. Financial transaction (INCOME) ────────────────────
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount: input.amountPaid,
-        description: `Subscription: ${plan.name}`,
-        referenceId: receipt.id,
-        date: startDate,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount: input.amountPaid,
+      date: startDate,
+      description: `Subscription: ${plan.name}`,
+      createdBy: executorId,
     });
 
     // ── 11. Audit ─────────────────────────────────────────────
@@ -417,19 +488,19 @@ export async function renewSubscription(
       throw new ConflictError(`Group is at maximum capacity`);
     }
 
-    const subscription = await tx.traineeSubscription.create({
-      data: {
-        traineeId: input.traineeId,
-        planId: plan.id,
-        levelId: level.id,
-        status: 'ACTIVE',
-        startDate,
-        endDate,
-        totalSessions: plan.minSessions,
-        amountPaid: input.amountPaid,
-        amountDue: Number(plan.amount) - input.amountPaid,
-        paymentStatus: input.paymentStatus,
-      },
+    // Concurrent renewals both expire the old subscription and both reach this
+    // insert; the partial unique index lets exactly one through, and the other
+    // gets a clear 409 rather than creating a second ACTIVE subscription.
+    const subscription = await insertActiveSubscription(tx, {
+      traineeId: input.traineeId,
+      planId: plan.id,
+      levelId: level.id,
+      startDate,
+      endDate,
+      totalSessions: plan.minSessions,
+      amountPaid: input.amountPaid,
+      amountDue: Number(plan.amount) - input.amountPaid,
+      paymentStatus: input.paymentStatus,
     });
 
     // Re-assign to group (may already be in group — upsert-style)
@@ -460,16 +531,14 @@ export async function renewSubscription(
       },
     });
 
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount: input.amountPaid,
-        description: `Renewal: ${plan.name}`,
-        referenceId: receipt.id,
-        date: startDate,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount: input.amountPaid,
+      date: startDate,
+      description: `Renewal: ${plan.name}`,
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {
@@ -558,16 +627,14 @@ export async function recordPayment(
       },
     });
 
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount,
-        description: `Payment: ${subscription.plan.name}`,
-        referenceId: receipt.id,
-        date: new Date(),
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: receipt.id,
+      amount,
+      date: new Date(),
+      description: `Payment: ${subscription.plan.name}`,
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {

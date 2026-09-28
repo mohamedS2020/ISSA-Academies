@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Reusable Data Table Component
+ * Reusable Data Table Component
  *
  * A generic, sortable, searchable data table with pagination.
  * Supports column definitions, row actions, loading states,

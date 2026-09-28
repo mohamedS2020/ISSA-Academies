@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────
-# ISSA Swimming Academy — Docker Compose (Development)
+# Docker Compose (Development)
 # ──────────────────────────────────────────────────────────────
 # Services:
 #   - postgres:  PostgreSQL 16 database
@@ -15,31 +15,31 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: issa-postgres
+    container_name: platform-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: issa_platform
-      POSTGRES_USER: issa_admin
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-issa_dev_password_2024}
+      POSTGRES_DB: platform
+      POSTGRES_USER: platform_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_change_me}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U issa_admin -d issa_platform"]
+      test: ["CMD-SHELL", "pg_isready -U platform_admin -d platform"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   pgbouncer:
     image: edoburu/pgbouncer:1.22.0
-    container_name: issa-pgbouncer
+    container_name: platform-pgbouncer
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://issa_admin:${POSTGRES_PASSWORD:-issa_dev_password_2024}@postgres:5432/issa_platform
+      DATABASE_URL: postgres://platform_admin:${POSTGRES_PASSWORD:-dev_password_change_me}@postgres:5432/platform
       # ⚠️ CRITICAL: Must be 'transaction' mode for SET LOCAL to work correctly
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 200

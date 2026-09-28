@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Group Creation Page
+ * Group Creation Page
  *
  * Form fields: name, captain, plan, min/max trainees,
  * schedule days (chip selector), start time, session duration.

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Premium Branch Management Page
+ * Premium Branch Management Page
  *
  * Provides full CRUD capabilities for Academy Branches:
  *   - Search and list branches using a custom-styled DataTable.

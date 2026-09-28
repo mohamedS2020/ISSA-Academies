@@ -1,5 +1,5 @@
 /**
- * ISSA — User Management Zod Schemas
+ * User Management Zod Schemas
  *
  * Used by both the API routes (server-side validation) and
  * the User Management page forms (client-side validation).

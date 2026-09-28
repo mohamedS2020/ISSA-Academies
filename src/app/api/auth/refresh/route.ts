@@ -1,5 +1,5 @@
 /**
- * ISSA — Token Refresh API Route
+ * Token Refresh API Route
  *
  * POST /api/auth/refresh
  *
@@ -11,7 +11,7 @@
  * re-read so demotions take effect; the token's branchId is preserved so an
  * admin's active branch switch survives refresh.
  *
- * Response: { accessExpiresIn }  (+ Set-Cookie: issa_access)
+ * Response: { accessExpiresIn }  (+ Set-Cookie: access_token)
  */
 
 import { refreshTokenSchema } from '@/schemas/auth.schema';

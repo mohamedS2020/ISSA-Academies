@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Tenant Detail Page (Super Admin)
+ * Tenant Detail Page (Super Admin)
  *
  * Shows tenant info, usage stats, and status management actions.
  * Editable fields: name, contact info.

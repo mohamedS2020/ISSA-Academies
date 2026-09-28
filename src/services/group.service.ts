@@ -1,5 +1,5 @@
 /**
- * ISSA — Group Service
+ * Group Service
  *
  * Handles group CRUD, capacity validation, and trainee listing.
  * Every query includes branchId for strict branch isolation.

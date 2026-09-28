@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Status API
+ * Tenant Status API
  *
  * PATCH /api/superadmin/tenants/[id]/status — Change tenant status
  *

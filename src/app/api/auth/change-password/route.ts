@@ -1,5 +1,5 @@
 /**
- * ISSA — Change Password API Route
+ * Change Password API Route
  *
  * POST /api/auth/change-password
  *

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Toast Notification Provider
+ * Toast Notification Provider
  *
  * Lightweight toast notification system built without external dependencies.
  * Provides success, error, warning, and info toasts with auto-dismiss.

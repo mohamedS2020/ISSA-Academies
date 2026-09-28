@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Tenant List Page (Super Admin)
+ * Tenant List Page (Super Admin)
  *
  * Displays all tenants in a data table with:
  *   - Status filter tabs (All / Active / Suspended)

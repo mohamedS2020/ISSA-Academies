@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Subscription Plans List Page
+ * Subscription Plans List Page
  *
  * Shows all plans for the current branch.
  * - Plan name, period type, sessions, price, levels count, status

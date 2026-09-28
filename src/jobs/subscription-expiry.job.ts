@@ -1,5 +1,5 @@
 /**
- * ISSA — Subscription Expiry Job
+ * Subscription Expiry Job
  *
  * Daily job: flips ACTIVE subscriptions to EXPIRED when EITHER trigger fires:
  *   - the end date has passed (valid THROUGH endDate, so `end_date < CURRENT_DATE`), OR

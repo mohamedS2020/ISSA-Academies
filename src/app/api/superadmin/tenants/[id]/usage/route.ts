@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Usage Stats API
+ * Tenant Usage Stats API
  *
  * GET /api/superadmin/tenants/[id]/usage — Get tenant usage statistics
  *

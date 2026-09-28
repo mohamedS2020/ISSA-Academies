@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Trainee Registration Page (4-Step Wizard)
+ * Trainee Registration Page (4-Step Wizard)
  *
  * Step 1: Required personal info (name, DOB, phone, whatsapp, parent ID, medical)
  * Step 2: Skills & subscription level (plan/level dropdowns)

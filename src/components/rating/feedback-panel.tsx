@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Captain Feedback panel (reusable)
+ * Captain Feedback panel (reusable)
  *
  * Lists a trainee's captain-feedback history (newest first). When `canWrite`
  * is set (the trainee's own captain), it also shows a composer to add a new

@@ -1,5 +1,5 @@
 /**
- * ISSA — Academy host context (subdomain → tenant).
+ * Academy host context (subdomain → tenant).
  *
  * Server-only (uses next/headers + platformPrisma). Do not import from Client
  * Components.

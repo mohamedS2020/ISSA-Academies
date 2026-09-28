@@ -1,5 +1,5 @@
 /**
- * ISSA — Rate Limiter
+ * Rate Limiter
  *
  * In-memory sliding window rate limiter for login and sensitive endpoints.
  * Uses a simple Map-based store — suitable for single-instance deployments.

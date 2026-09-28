@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Create Tenant Wizard (Super Admin)
+ * Create Tenant Wizard (Super Admin)
  *
  * Multi-step form for provisioning a new academy:
  *   Step 1: Academy info (name, slug, contact)

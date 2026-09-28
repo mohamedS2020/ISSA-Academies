@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Payroll Service
+ * Captain Payroll Service
  *
  * Two payroll modes (per CaptainProfile.payrollType):
  *   - HOURS: hoursWorked (auto-calculated from COMPLETED sessions in the
@@ -14,6 +14,7 @@
 
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
+import { recordLedgerEntry } from './ledger';
 import {
   NotFoundError,
   ConflictError,
@@ -250,16 +251,14 @@ export async function markPayrollPaid(
     // manual expenses. The isPaid guard above keeps this from double-posting.
     const periodStart = existing.periodStart.toISOString().slice(0, 10);
     const periodEnd = existing.periodEnd.toISOString().slice(0, 10);
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'EXPENSE',
-        amount: existing.totalAmount,
-        description: `Payroll: ${existing.captain.user.name} (${periodStart} – ${periodEnd})`,
-        referenceId: id,
-        date: paidAt,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'EXPENSE',
+      referenceId: id,
+      amount: existing.totalAmount,
+      date: paidAt,
+      description: `Payroll: ${existing.captain.user.name} (${periodStart} – ${periodEnd})`,
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {

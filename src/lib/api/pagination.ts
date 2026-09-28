@@ -1,5 +1,5 @@
 /**
- * ISSA — Pagination Utilities
+ * Pagination Utilities
  *
  * Provides cursor-based and offset pagination helpers for list endpoints.
  * All list endpoints MUST support pagination per project conventions.

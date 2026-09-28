@@ -1,5 +1,5 @@
 /**
- * ISSA — Login API Route
+ * Login API Route
  *
  * POST /api/auth/login
  *

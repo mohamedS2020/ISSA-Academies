@@ -1,5 +1,5 @@
 /**
- * ISSA — Schedule Service
+ * Schedule Service
  *
  * Handles session auto-generation, listing, cancellation, and rescheduling.
  *

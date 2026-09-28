@@ -1,5 +1,5 @@
 /**
- * ISSA — Password Reset API Route
+ * Password Reset API Route
  *
  * POST /api/auth/password-reset
  *

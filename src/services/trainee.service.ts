@@ -1,10 +1,10 @@
 /**
- * ISSA — Trainee Management Service
+ * Trainee Management Service
  *
  * Handles registration, listing, search, edit, and deactivation of trainees.
  *
  * Key behaviors:
- *   - System code format: ISSA-{BRANCHCODE}-{PADDED_SEQ} generated atomically in tx
+ *   - System code format: {BRANCHCODE}-{PADDED_SEQ}, from an atomic per-branch counter
  *   - On registration: auto-create User (role=TRAINEE) + TraineeProfile in one tx
  *   - Portal password returned ONCE — never stored in plain text
  *   - Every query includes { branchId } for strict branch isolation
@@ -28,37 +28,43 @@ import type {
 // ─── System Code Generation ───────────────────────────────────
 
 /**
- * Generate the next sequential trainee system code for a branch.
- * Format: ISSA-{BRANCHCODE}-{6-digit padded sequence}
+ * Take the next trainee system code for a branch.
+ * Format: {BRANCHCODE}-{6-digit padded sequence}, e.g. BR01-000042.
  *
- * ⚠️ MUST be called INSIDE the same transaction as the INSERT.
- *    Running outside the tx creates a race condition where two concurrent
- *    registrations get the same sequence number.
+ * Increments `branches.trainee_seq` atomically; the UPDATE's row lock
+ * serializes concurrent registrations. Must be called with the caller's tx so a
+ * rolled-back registration rolls its number back too.
+ *
+ * This replaced three defects at once (hardening plan §25):
+ *
+ *   - A race. It read the branch's highest code and added one; concurrent
+ *     registrations read the same code and all but one failed on the unique
+ *     constraint. A transaction does not lock rows it only reads.
+ *
+ *   - A permanent lockout on branch rename. "Highest" was found by STRING sort
+ *     and then parsed. Rename BR01 to one that sorts earlier, such as AAA, and
+ *     the old `…-BR01-000042` still sorted last — so it kept producing 43, and
+ *     every registration in that branch collided from then on. The counter never
+ *     looks at existing codes, so a rename cannot affect it.
+ *
+ *   - A hardcoded platform name. Codes were prefixed with the first academy's name, in every academy.
+ *     A code identifies a trainee within their own academy, where the branch
+ *     code is already unique, so no platform prefix is needed at all.
  */
 async function generateSystemCode(
   tx: Parameters<Parameters<typeof withTenantContext>[1]>[0],
   branchId: string,
   branchCode: string
 ): Promise<string> {
-  // Find the highest existing sequence for this branch
-  const last = await tx.traineeProfile.findFirst({
-    where: { branchId },
-    orderBy: { systemCode: 'desc' },
-    select: { systemCode: true },
-  });
+  const [row] = await tx.$queryRaw<{ trainee_seq: number }[]>`
+    UPDATE "branches"
+    SET "trainee_seq" = "trainee_seq" + 1
+    WHERE "id" = ${branchId}::uuid
+    RETURNING "trainee_seq"
+  `;
+  if (!row) throw new BadRequestError('Branch not found');
 
-  let nextSeq = 1;
-  if (last?.systemCode) {
-    // Extract the numeric part: ISSA-BR01-000042 → 42
-    const parts = last.systemCode.split('-');
-    const seq = parseInt(parts[parts.length - 1], 10);
-    if (!isNaN(seq)) {
-      nextSeq = seq + 1;
-    }
-  }
-
-  const paddedSeq = String(nextSeq).padStart(6, '0');
-  return `ISSA-${branchCode.toUpperCase()}-${paddedSeq}`;
+  return `${branchCode.toUpperCase()}-${String(row.trainee_seq).padStart(6, '0')}`;
 }
 
 // ─── Create Trainee ───────────────────────────────────────────

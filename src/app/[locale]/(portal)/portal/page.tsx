@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Dashboard (FR-TP-02, FR-TP-04)
+ * Portal Dashboard (FR-TP-02, FR-TP-04)
  *
  * Welcome message, upcoming sessions, subscription status summary,
  * quick links. Fully live data — no mock values.

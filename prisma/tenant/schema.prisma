@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────────────────────
-// ISSA Swimming Academy — Tenant Database Schema
+// Tenant Database Schema
 // ──────────────────────────────────────────────────────────────
 // This schema defines all tables that live inside each tenant's
 // dedicated PostgreSQL schema (tenant_{id}).
@@ -136,6 +136,12 @@ model Branch {
   isActive  Boolean  @default(true) @map("is_active")
   payrollFrequency  PayrollFrequency @default(MONTHLY) @map("payroll_frequency")
   payrollCustomDays Int?             @map("payroll_custom_days") // only used when payrollFrequency = CUSTOM
+  // Per-branch sequence counters, incremented atomically with
+  // `UPDATE branches SET x = x + 1 ... RETURNING x`. The UPDATE's row lock
+  // serializes concurrent requests; reading MAX()+1 did not (hardening plan §25).
+  // Only ever increase — never derive the next value from existing rows.
+  receiptSeq        Int              @default(0) @map("receipt_seq")
+  traineeSeq        Int              @default(0) @map("trainee_seq")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -204,7 +210,7 @@ model TraineeProfile {
   userId            String   @map("user_id") @db.Uuid // the ACCOUNT/guardian User — one account owns many trainees (no longer 1:1)
   branchId          String   @map("branch_id") @db.Uuid
   name              String   @db.VarChar(255) // the athlete's own name (User.name is the account/guardian name)
-  systemCode        String   @unique @map("system_code") @db.VarChar(50) // e.g. ISSA-BR01-00042
+  systemCode        String   @unique @map("system_code") @db.VarChar(50) // e.g. BR01-000042
   dateOfBirth       DateTime @map("date_of_birth") @db.Date
   whatsappNumber    String   @map("whatsapp_number") @db.VarChar(50)
   parentIdCard      String   @map("parent_id_card") @db.VarChar(50)
@@ -524,7 +530,7 @@ model Receipt {
   traineeId        String   @map("trainee_id") @db.Uuid
   subscriptionId   String   @map("subscription_id") @db.Uuid
   receiptNumber    String   @unique @map("receipt_number") @db.VarChar(50)
-  seq              Int      // sequential per branch for audit compliance
+  seq              Int      // sequential per branch — from branches.receipt_seq, unique per branch
   amount           Decimal  @db.Decimal(10, 2)
   paymentMethod    PaymentMethod? @map("payment_method") // how this payment was made (InstaPay/Cash/E-wallet)
   description      String?  @db.Text
@@ -535,7 +541,9 @@ model Receipt {
   trainee      TraineeProfile      @relation(fields: [traineeId], references: [id])
   subscription TraineeSubscription @relation(fields: [subscriptionId], references: [id])
 
-  @@index([branchId, seq])
+  // Unique, not merely indexed: the sequence itself is now guaranteed per branch,
+  // not just the formatted receipt number derived from it.
+  @@unique([branchId, seq])
   @@index([receiptNumber])
   @@map("receipts")
 }

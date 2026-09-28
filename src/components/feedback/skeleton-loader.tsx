@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Reusable Skeleton Loading States
+ * Reusable Skeleton Loading States
  *
  * Provides skeleton placeholders for data loading states.
  * Uses CSS animations — no external dependencies.

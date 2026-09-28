@@ -1,5 +1,5 @@
 /**
- * ISSA — Super Admin Single Tenant API
+ * Super Admin Single Tenant API
  *
  * GET   /api/superadmin/tenants/[id] — Get tenant details
  * PATCH /api/superadmin/tenants/[id] — Update tenant info

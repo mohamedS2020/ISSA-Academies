@@ -1,5 +1,5 @@
 /**
- * ISSA — Jest config for isolation tests
+ * Jest config for isolation tests
  *
  * tests/isolation/* is excluded from the default jest.config.js so a
  * normal `npm test` run stays fast. This config is used exclusively by

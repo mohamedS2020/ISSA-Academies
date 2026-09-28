@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Dynamic Dashboard Page
+ * Dynamic Dashboard Page
  *
  * Role-specific KPI dashboards powered by real data from /api/dashboard:
  *   - Admin / Moderator: KPI cards, activity trend chart, today's sessions,
@@ -283,7 +283,7 @@ export default function DashboardPage() {
               <table className="w-full text-start text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
-                    <th className="pb-3 text-start">{t('swimmer')}</th>
+                    <th className="pb-3 text-start">{t('trainee')}</th>
                     <th className="pb-3 text-start">{t('plan')}</th>
                     <th className="pb-3 text-start">{t('expiry')}</th>
                     <th className="pb-3 text-start">{t('phone')}</th>
@@ -483,10 +483,8 @@ export default function DashboardPage() {
         return (
           <div className="text-center py-20">
             <AlertCircle size={40} className="text-red-500 mx-auto mb-4 animate-bounce" />
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Invalid Account Role</h3>
-            <p className="text-xs text-slate-500 mt-2">
-              Please contact ISSA administrator to configure your portal role access.
-            </p>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t('invalidRoleTitle')}</h3>
+            <p className="text-xs text-slate-500 mt-2">{t('invalidRoleContact')}</p>
           </div>
         );
     }

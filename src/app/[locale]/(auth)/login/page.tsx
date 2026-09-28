@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Premium Login Page
+ * Premium Login Page
  *
  * Designed with a stunning water-inspired brand aesthetic:
  *   - Dark ocean gradients and glowing animated blurred background circles.
@@ -20,6 +20,7 @@ import {
 } from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { locales } from '@/lib/i18n/config';
+import { APP_NAME } from '@/lib/config/brand';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
@@ -108,7 +109,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <span className="text-lg font-bold tracking-wide bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-            {tCommon('appName')}
+            {APP_NAME}
           </span>
         </div>
 

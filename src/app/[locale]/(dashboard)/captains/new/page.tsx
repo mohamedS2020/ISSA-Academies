@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Captain Registration Page
+ * Captain Registration Page
  *
  * Single-page form:
  * - Name, phone, specialization

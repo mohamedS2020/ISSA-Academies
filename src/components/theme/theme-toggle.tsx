@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Light/Dark theme toggle.
+ * Light/Dark theme toggle.
  *
  * A pill switch with a sliding thumb that crossfades a sun (light) and moon
  * (dark). Uses `useTheme().toggle()`. A `mounted` guard prevents an SSR/client

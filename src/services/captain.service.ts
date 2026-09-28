@@ -1,5 +1,5 @@
 /**
- * ISSA — Captain Management Service
+ * Captain Management Service
  *
  * Handles registration, listing, edit, and deactivation of captains.
  *

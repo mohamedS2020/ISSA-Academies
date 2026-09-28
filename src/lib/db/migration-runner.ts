@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Schema Migration Runner
+ * Tenant Schema Migration Runner
  *
  * Handles programmatic creation of tenant PostgreSQL schemas and
  * running migrations against them during tenant provisioning.
@@ -147,9 +147,9 @@ export async function provisionTenantSchema(
       );
     } catch (execErr: unknown) {
       const err = execErr as Error & { stdout?: string; stderr?: string };
-      console.error('[ISSA] Migration command failed.');
-      console.error('[ISSA] stdout:', err.stdout);
-      console.error('[ISSA] stderr:', err.stderr);
+      console.error('[migration-runner] Migration command failed.');
+      console.error('[migration-runner] stdout:', err.stdout);
+      console.error('[migration-runner] stderr:', err.stderr);
       throw execErr;
     }
   } finally {

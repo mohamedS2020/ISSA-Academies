@@ -1,5 +1,5 @@
 /**
- * ISSA — Attendance Service
+ * Attendance Service
  *
  * Handles attendance marking, freeze/retake logic, and captain evaluations.
  *

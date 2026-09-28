@@ -1,5 +1,5 @@
 /**
- * ISSA — Sport theme catalog.
+ * Sport theme catalog.
  *
  * The single source of truth for which sports the platform supports and their
  * NON-COLOR branding metadata (display labels + logo/favicon asset paths).
@@ -9,7 +9,7 @@
  * CSS (no runtime style injection) and composes with the light/dark `.dark`
  * class automatically.
  *
- * `swimming` is the default and maps to the original ISSA palette (the base
+ * `swimming` is the default and maps to the original palette (the base
  * `:root` / `.dark` blocks), so academies with no explicit theme look exactly
  * as before.
  *
@@ -21,7 +21,7 @@ export interface SportTheme {
   key: string;
   /** English display label (e.g. the super-admin wizard dropdown). */
   label: string;
-  /** Arabic display label. "ISSA" itself always stays Latin. */
+  /** Arabic display label. */
   labelAr: string;
   /** Logo/mark asset path under /public. */
   logo: string;

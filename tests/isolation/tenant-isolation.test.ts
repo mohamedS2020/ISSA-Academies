@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Isolation Tests
+ * Tenant Isolation Tests
  *
  * ⚠️ These tests ACTIVELY attempt to access another tenant's data.
  *    A test that only checks "tenant A can read tenant A's records"

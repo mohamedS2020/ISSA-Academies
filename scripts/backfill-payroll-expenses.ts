@@ -1,5 +1,5 @@
 /**
- * ISSA — Backfill Payroll Expenses
+ * Backfill Payroll Expenses
  *
  * Paid captain payrolls only started mirroring into the financial ledger (as
  * an EXPENSE FinancialTransaction) once `markPayrollPaid` was updated to post

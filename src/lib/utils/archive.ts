@@ -1,5 +1,5 @@
 /**
- * ISSA — Archive Retention Constants
+ * Archive Retention Constants
  *
  * Single source of truth for the two retention cutoffs used across
  * finance.service.ts, report.service.ts, and archive-records.job.ts.

@@ -1,6 +1,5 @@
 {
   "common": {
-    "appName": "ISSA Swimming Academy",
     "loading": "Loading...",
     "save": "Save",
     "cancel": "Cancel",
@@ -99,7 +98,7 @@
     "checkInsAndRenewals": "Check-ins & renewals over the last 7 days",
     "checkIns": "Check-ins",
     "renewals": "Renewals",
-    "swimmer": "Swimmer",
+    "trainee": "Trainee",
     "plan": "Plan",
     "expiry": "Expiry",
     "phone": "Phone",
@@ -111,10 +110,12 @@
     "totalTraineesAcrossGroups": "Total trainees across all groups",
     "scheduledForToday": "Sessions scheduled for today",
     "coachGuidelines": "Coach Guidelines",
-    "coachGuidelinesDesc": "Ensure all swimmers wear proper ISSA swim gear. Mark attendance within the first 15 minutes.",
+    "coachGuidelinesDesc": "Ensure all trainees wear the proper equipment. Mark attendance within the first 15 minutes.",
     "coachGuideline1": "Log absences as excused/unexcused for makeup slots.",
     "coachGuideline2": "Update skills milestone checkmarks at month end.",
-    "viewWeeklySchedule": "View Weekly Schedule Calendar"
+    "viewWeeklySchedule": "View Weekly Schedule Calendar",
+    "invalidRoleTitle": "Invalid Account Role",
+    "invalidRoleContact": "Please contact your academy administrator to configure your portal access."
   },
   "branches": {
     "title": "Branch Management",

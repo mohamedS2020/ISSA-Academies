@@ -1,5 +1,5 @@
 /**
- * ISSA — Report Export Service
+ * Report Export Service
  *
  * One shared PDF layout (react-pdf) and one shared Excel builder (exceljs),
  * reused across all four report types. Callers (the /api/reports route)

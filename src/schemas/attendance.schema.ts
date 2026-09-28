@@ -1,5 +1,5 @@
 /**
- * ISSA — Attendance Validation Schemas
+ * Attendance Validation Schemas
  */
 
 import { z } from 'zod';

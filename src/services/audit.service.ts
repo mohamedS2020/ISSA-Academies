@@ -1,5 +1,5 @@
 /**
- * ISSA — Audit Logging Service
+ * Audit Logging Service
  *
  * Logs all write operations on sensitive entities:
  *   - Financial records (receipts, transactions, expenses, payroll)

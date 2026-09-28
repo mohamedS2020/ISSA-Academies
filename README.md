@@ -1,4 +1,4 @@
-# ISSA Academies
+# Academy Platform
 
 Multi-tenant SaaS for sports academies. Each academy manages its branches, coaches,
 trainees, groups, schedules, attendance, subscriptions, receipts and payroll; parents
@@ -37,18 +37,28 @@ configs, super admins, and a phone → tenant index for login.
 
 ```bash
 npm install
-cp .env.example .env.local   # then fill in the values
+cp .env.example .env   # then fill in the values
 ```
 
 Every variable is documented in [.env.example](.env.example). At minimum you need
 `DATABASE_URL`, `DIRECT_DATABASE_URL`, and the two JWT secrets.
 
-Create the platform schema and a super admin to log in with:
+Use `.env`, not `.env.local`, for these: the Prisma CLI (migrations) reads only
+`.env`. The app and the seed read both, and a value in `.env.local` overrides the
+same value in `.env` — so `.env.local` is only for local overrides.
+
+Create the platform schema and a super admin to log in with. The seed reads the super
+admin's credentials from `SEED_SUPER_ADMIN_NAME`, `SEED_SUPER_ADMIN_PHONE` and
+`SEED_SUPER_ADMIN_PASSWORD` (12+ characters) and refuses to run without them — set
+them in `.env.local` for the run, then remove them. Keep each value in double quotes
+and write any `$` as `\$` (see [.env.example](.env.example) for why):
 
 ```bash
 npx prisma migrate deploy --schema=prisma/platform/schema.prisma
 npx tsx prisma/seed.ts
 ```
+
+Never commit these values. This repository is public.
 
 Then start the dev server and sign in as the super admin to create your first academy:
 

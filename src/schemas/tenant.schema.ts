@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Validation Schemas
+ * Tenant Validation Schemas
  *
  * Shared Zod schemas for Super Admin tenant management.
  * Used by API routes (server-side) and the Create Tenant wizard (client-side).
@@ -17,7 +17,7 @@ export const createTenantSchema = z.object({
     .min(2, 'Academy name must be at least 2 characters')
     .max(255, 'Academy name must be at most 255 characters'),
   // Sport branding theme (visual identity only). Defaults to swimming so the
-  // academy looks like the original ISSA until a sport is picked.
+  // academy keeps the original palette until a sport is picked.
   themeKey: z
     .enum(SPORT_KEYS as [SportKey, ...SportKey[]])
     .default(DEFAULT_SPORT),

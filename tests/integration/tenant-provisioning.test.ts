@@ -1,5 +1,5 @@
 /**
- * ISSA — Tenant Provisioning Integration Test
+ * Tenant Provisioning Integration Test
  *
  * Tests the full tenant provisioning lifecycle:
  *   1. Create a tenant via the service
@@ -23,49 +23,43 @@ import {
 } from '@/services/tenant.service';
 import { isValidStatusTransition } from '@/schemas/tenant.schema';
 import { platformPrisma } from '@/lib/db/platform-client';
-import { dropTenantSchema } from '@/lib/db/migration-runner';
 import { comparePassword } from '@/lib/auth/password';
+import { destroyTestAcademy } from '../helpers/test-academy';
 import { withTenantContext } from '@/lib/db/tenant-client';
 
 // ─── Test Configuration ─────────────────────────────────────
 
-const TEST_TENANT_SLUG = 'integration-test-' + Date.now();
+// The `test-` prefix is load-bearing: destroyTestAcademy only drops schemas
+// named `tenant_test_*`, so this slug is what lets teardown run at all.
+const TEST_TENANT_SLUG = 'test-provisioning-' + Date.now();
 let testTenantId: string | null = null;
 let testAdminPassword: string | null = null;
 
 // ─── Cleanup ────────────────────────────────────────────────
 
 afterAll(async () => {
-  // Clean up: drop test tenant schema and records
-  if (testTenantId) {
-    try {
-      await dropTenantSchema(
-        TEST_TENANT_SLUG.replace(/-/g, '_'),
-        process.env.DATABASE_URL!
-      );
-    } catch {
-      // Schema might already be dropped
+  // This used to wrap every step in `catch {}` and drop the schema through the
+  // POOLED DATABASE_URL. Failures vanished, and two provisioned academies leaked
+  // into the live database that way. destroyTestAcademy uses the direct
+  // connection, refuses anything that is not a test schema, and fails loudly.
+  try {
+    if (testTenantId) {
+      // The DELETED-status test below drops the schema mid-run; teardown uses
+      // DROP SCHEMA IF EXISTS and deleteMany, so an already-removed academy is fine.
+      await destroyTestAcademy({
+        tenantId: testTenantId,
+        schemaName: `tenant_${TEST_TENANT_SLUG.replace(/-/g, '_')}`,
+        // Only tenantId and schemaName are used for teardown.
+        branchId: '',
+        adminId: '',
+        planId: '',
+        levelId: '',
+        captainId: '',
+      });
     }
-
-    try {
-      // Delete phone index entries
-      await platformPrisma.userPhoneIndex.deleteMany({
-        where: { tenantId: testTenantId },
-      });
-      // Delete tenant config
-      await platformPrisma.tenantConfig.deleteMany({
-        where: { tenantId: testTenantId },
-      });
-      // Delete tenant record
-      await platformPrisma.tenant.delete({
-        where: { id: testTenantId },
-      });
-    } catch {
-      // Records might already be cleaned up
-    }
+  } finally {
+    await platformPrisma.$disconnect();
   }
-
-  await platformPrisma.$disconnect();
 });
 
 // ─── Tests ──────────────────────────────────────────────────

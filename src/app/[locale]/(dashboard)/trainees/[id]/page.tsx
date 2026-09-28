@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Trainee Detail Page
+ * Trainee Detail Page
  *
  * Full trainee profile view with organized sections.
  * Edit mode toggles inline editing for each section.

@@ -1,5 +1,5 @@
 /**
- * ISSA — Password Hashing Utilities
+ * Password Hashing Utilities
  *
  * Wraps bcryptjs for consistent password hashing across the application.
  *

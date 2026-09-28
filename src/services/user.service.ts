@@ -1,5 +1,5 @@
 /**
- * ISSA — User Management Service
+ * User Management Service
  *
  * Handles CRUD for Admin and Moderator accounts within a tenant branch.
  * Only Admin and Moderator roles are managed here — Captains and Trainees

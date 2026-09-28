@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Star Rating primitives
+ * Star Rating primitives
  *
  *  · RatingBadge  — compact read-only "★ 4.5 (3)" badge shown beside a captain's
  *                   name (dashboard header, captains list/detail).

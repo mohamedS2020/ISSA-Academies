@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Group Edit Page
+ * Group Edit Page
  *
  * Pre-filled form mirroring the create form, calling PATCH /api/groups/[id].
  * Editing the schedule (days / start time / duration) regenerates upcoming

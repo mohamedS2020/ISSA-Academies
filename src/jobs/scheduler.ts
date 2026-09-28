@@ -1,5 +1,5 @@
 /**
- * ISSA — Job Scheduler
+ * Job Scheduler
  *
  * Registers and starts all background jobs.
  * Uses node-cron for scheduling.
@@ -54,7 +54,7 @@ let started = false;
 // by buildLockUrl. If the process dies mid-job the connection drops and Postgres
 // releases the lock for us — no stuck lease to clear by hand.
 
-/** Arbitrary constant namespace, so ISSA's locks can't collide with anything else. */
+/** Arbitrary constant namespace, so this app's locks can't collide with anything else. */
 const LOCK_NAMESPACE = 19730;
 
 const LOCK_KEYS = {

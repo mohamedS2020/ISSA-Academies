@@ -15,13 +15,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: issa_platform
-          POSTGRES_USER: issa_admin
+          POSTGRES_DB: platform
+          POSTGRES_USER: platform_admin
           POSTGRES_PASSWORD: ci_password
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U issa_admin -d issa_platform"
+          --health-cmd "pg_isready -U platform_admin -d platform"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -29,8 +29,8 @@ jobs:
     env:
       # Both vars point to the same direct Postgres — no PgBouncer in CI.
       # DIRECT_DATABASE_URL is consumed by prisma/tenant/schema.prisma (directUrl).
-      DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
-      DIRECT_DATABASE_URL: postgresql://issa_admin:ci_password@localhost:5432/issa_platform
+      DATABASE_URL: postgresql://platform_admin:ci_password@localhost:5432/platform
+      DIRECT_DATABASE_URL: postgresql://platform_admin:ci_password@localhost:5432/platform
       # Dummy JWT secrets — only needed to satisfy config, not for real auth in tests
       JWT_ACCESS_SECRET: ci-access-secret-not-for-production
       JWT_REFRESH_SECRET: ci-refresh-secret-not-for-production

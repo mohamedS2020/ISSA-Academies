@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Trainee Context
+ * Portal Trainee Context
  *
  * A portal account (guardian, or a self-managing adult) can own several
  * trainees. This context loads the account's trainees and tracks which one is

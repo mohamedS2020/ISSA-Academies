@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Shared area-trend chart (recharts).
+ * Shared area-trend chart (recharts).
  *
  * Extracted so recharts (a large dependency) can be loaded with `next/dynamic`
  * ({ ssr: false }) — it stays OUT of each page's initial JS bundle and only

@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────────────────────
-// ISSA Swimming Academy — Platform Database Schema
+// Platform Database Schema
 // ──────────────────────────────────────────────────────────────
 // This schema manages platform-level data: tenants (academies),
 // their configurations, and super admin accounts.

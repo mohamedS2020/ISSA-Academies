@@ -1,5 +1,5 @@
 /**
- * ISSA — Subscription Plan & Enrollment Schemas
+ * Subscription Plan & Enrollment Schemas
  *
  * ⚠️  periodDays is required when periodType === FROM_SUBSCRIPTION_DATE,
  *     and must be null/absent when FROM_MONTH_START.

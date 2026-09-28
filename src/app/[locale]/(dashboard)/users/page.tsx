@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — User Management Page
+ * User Management Page
  *
  * CRUD for Admin and Moderator accounts within the current branch.
  * - Displays a searchable, filterable DataTable of users.

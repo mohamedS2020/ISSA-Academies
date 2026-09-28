@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Schedule (FR-TP-02)
+ * Portal Schedule (FR-TP-02)
  *
  * Read-only chronological list of the trainee's upcoming sessions.
  * Simple list, not a calendar grid — a trainee has one fixed weekly

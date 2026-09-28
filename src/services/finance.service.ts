@@ -1,8 +1,13 @@
 /**
- * ISSA — Finance Service
+ * Finance Service
  *
- * Handles expense CRUD (mirrored into FinancialTransaction for P&L),
- * income/expense aggregation, and the Financial Dashboard summary.
+ * Handles expense and manual-income CRUD, income/expense aggregation, and the
+ * Financial Dashboard summary.
+ *
+ * Every expense and manual income is mirrored into the ledger
+ * (financial_transactions), which is what the P&L sums. Those mirrors are
+ * written ONLY through ./ledger — never with `tx.financialTransaction` directly —
+ * so create, edit and delete all keep the books in step with their source.
  *
  * ⚠️ Financial records archive after 5 years (not 1 year — that's
  *    attendance/subscriptions). See src/lib/utils/archive.ts.
@@ -13,6 +18,7 @@
 
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
+import { recordLedgerEntry, updateLedgerEntry, removeLedgerEntry } from './ledger';
 import { NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction } from '@/types';
 import {
@@ -40,6 +46,11 @@ export interface FinanceTotals {
   series: FinanceSeriesPoint[];
 }
 
+// Ledger descriptions are derived from the category. Defined once so create and
+// update cannot produce different wording for the same entry.
+const expenseLedgerDescription = (category: string) => `Expense: ${category}`;
+const incomeLedgerDescription = (category: string) => `Income: ${category}`;
+
 // ─── Create Expense ─────────────────────────────────────────
 
 export async function createExpense(
@@ -60,18 +71,14 @@ export async function createExpense(
       },
     });
 
-    // Mirror into FinancialTransaction so P&L/income-expense aggregation
-    // has one consistent source — same pattern as enrollment's INCOME mirror.
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'EXPENSE',
-        amount: input.amount,
-        description: `Expense: ${input.category}`,
-        referenceId: expense.id,
-        date: expense.date,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'EXPENSE',
+      referenceId: expense.id,
+      amount: input.amount,
+      date: expense.date,
+      description: expenseLedgerDescription(input.category),
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {
@@ -148,6 +155,21 @@ export async function updateExpense(
       },
     });
 
+    // The P&L sums the ledger, not the expenses table. This sync was missing:
+    // an edited expense used to keep its old amount AND its old month in every
+    // financial report while the expenses page showed the new values
+    // (hardening plan §24). updateManualIncome always had it; this never did.
+    await updateLedgerEntry(
+      tx,
+      { branchId, type: 'EXPENSE', referenceId: id },
+      {
+        amount: input.amount,
+        date: input.date !== undefined ? updated.date : undefined,
+        description:
+          input.category !== undefined ? expenseLedgerDescription(input.category) : undefined,
+      }
+    );
+
     const diff = buildAuditDiff(
       existing as unknown as Record<string, unknown>,
       updated as unknown as Record<string, unknown>
@@ -180,10 +202,7 @@ export async function deleteExpense(
     const existing = await tx.expense.findFirst({ where: { id, branchId } });
     if (!existing) throw new NotFoundError('Expense not found');
 
-    // Remove the mirrored FinancialTransaction so P&L stays consistent.
-    await tx.financialTransaction.deleteMany({
-      where: { branchId, type: 'EXPENSE', referenceId: id },
-    });
+    await removeLedgerEntry(tx, { branchId, type: 'EXPENSE', referenceId: id });
 
     await tx.expense.delete({ where: { id } });
 
@@ -222,16 +241,14 @@ export async function createManualIncome(
       },
     });
 
-    await tx.financialTransaction.create({
-      data: {
-        branchId,
-        type: 'INCOME',
-        amount: input.amount,
-        description: `Income: ${input.category}`,
-        referenceId: income.id,
-        date: income.date,
-        createdBy: executorId,
-      },
+    await recordLedgerEntry(tx, {
+      branchId,
+      type: 'INCOME',
+      referenceId: income.id,
+      amount: input.amount,
+      date: income.date,
+      description: incomeLedgerDescription(input.category),
+      createdBy: executorId,
     });
 
     await writeAuditLog(tx, {
@@ -299,15 +316,16 @@ export async function updateManualIncome(
       },
     });
 
-    // Keep the mirrored INCOME transaction in sync so P&L never drifts.
-    await tx.financialTransaction.updateMany({
-      where: { branchId, type: 'INCOME', referenceId: id },
-      data: {
-        ...(input.amount !== undefined && { amount: input.amount }),
-        ...(input.date !== undefined && { date: new Date(input.date) }),
-        ...(input.category !== undefined && { description: `Income: ${input.category}` }),
-      },
-    });
+    await updateLedgerEntry(
+      tx,
+      { branchId, type: 'INCOME', referenceId: id },
+      {
+        amount: input.amount,
+        date: input.date !== undefined ? updated.date : undefined,
+        description:
+          input.category !== undefined ? incomeLedgerDescription(input.category) : undefined,
+      }
+    );
 
     const diff = buildAuditDiff(
       existing as unknown as Record<string, unknown>,
@@ -339,9 +357,7 @@ export async function deleteManualIncome(
     const existing = await tx.manualIncome.findFirst({ where: { id, branchId } });
     if (!existing) throw new NotFoundError('Income not found');
 
-    await tx.financialTransaction.deleteMany({
-      where: { branchId, type: 'INCOME', referenceId: id },
-    });
+    await removeLedgerEntry(tx, { branchId, type: 'INCOME', referenceId: id });
 
     await tx.manualIncome.delete({ where: { id } });
 

@@ -1,5 +1,5 @@
 /**
- * ISSA — Auth Middleware
+ * Auth Middleware
  *
  * Higher-order function that wraps API route handlers with authentication
  * and authorization. Extracts the Bearer token, verifies it, resolves

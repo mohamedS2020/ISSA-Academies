@@ -1,5 +1,5 @@
 /**
- * ISSA — Moderator privilege cache tests
+ * Moderator privilege cache tests
  *
  * The risky direction here is one-way: serving privileges a moderator no longer
  * has. A stale GRANT is a permissions bug. So the invalidation and expiry paths

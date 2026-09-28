@@ -1,5 +1,5 @@
 /**
- * ISSA — Isolation Test Orchestrator
+ * Isolation Test Orchestrator
  *
  * tests/isolation/*.test.ts read tenant/branch IDs from env vars
  * (TEST_TENANT_A_ID, TEST_BRANCH_B_ID, etc.) and fall back to placeholder

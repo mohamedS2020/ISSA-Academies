@@ -1,5 +1,5 @@
 /**
- * ISSA — Trainee Registration & Management Zod Schemas
+ * Trainee Registration & Management Zod Schemas
  *
  * Covers the 4-step registration form and edit/search operations.
  * Shared between the API routes (server-side) and the multi-step form (client-side).

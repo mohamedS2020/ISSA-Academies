@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Portal Receipts (FR-TP-05)
+ * Portal Receipts (FR-TP-05)
  *
  * Receipts list + working PDF download button.
  */

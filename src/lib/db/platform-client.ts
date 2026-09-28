@@ -1,5 +1,5 @@
 /**
- * ISSA — Platform Database Client (Singleton)
+ * Platform Database Client (Singleton)
  *
  * Provides a single Prisma client instance for the platform database
  * (tenants, super admins, tenant configs). This client always targets

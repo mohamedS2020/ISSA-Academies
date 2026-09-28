@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Premium Header Component
+ * Premium Header Component
  *
  * Designed with a premium glassmorphic dark ocean theme matching the sidebar & login page.
  * Includes:

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * ISSA — Expenses Page
+ * Expenses Page
  *
  * Add-expense form + DataTable with category/date filters and pagination.
  * Access: Admin + Moderator with can_view_finances (read), can_manage_expenses (write).

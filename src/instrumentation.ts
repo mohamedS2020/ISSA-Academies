@@ -1,5 +1,5 @@
 /**
- * ISSA — App Instrumentation
+ * App Instrumentation
  *
  * Next.js calls `register()` once when a new server instance starts, before
  * it accepts requests. This is the only correct place to bootstrap
