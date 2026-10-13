@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* The marketing site has its own stylesheet (src/styles/marketing.css). Keep
+   its class names (container, grid, hidden, …) from generating utilities in
+   the app's CSS. */
+@source not "../components/marketing";
+@source not "./marketing";
+@source not "../styles";
+
 /* Drive every `dark:` utility from a `.dark` class on <html> (set by the theme
    provider), instead of Tailwind v4's default OS `prefers-color-scheme`. This is
    what makes the manual light/dark toggle work app-wide. */

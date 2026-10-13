@@ -39,6 +39,8 @@ the wrong service. Two services, different needs:
 | `SENTRY_AUTH_TOKEN` | ✅ | optional | Same upload. ⚠️ **A real secret** — Railway variables only, never `NEXT_PUBLIC_`, never committed |
 | `SENTRY_TRACES_SAMPLE_RATE` / `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | optional | optional | Leave unset (0) on the free tier — `.env.example` explains why |
 | `PRIVILEGE_CACHE_TTL_MS` | optional | optional | Default `30000`. Worst-case delay before a revoked moderator privilege stops working on another replica |
+| `RESEND_API_KEY` | ✅ | — | Emails a new landing-page lead to the address in Super Admin → Settings. ⚠️ **A real secret.** Without it leads are still saved, just not emailed |
+| `EMAIL_FROM` | ✅ | — | Sender for those emails, on a domain verified in Resend, e.g. `Yallacademy <notifications@yallacademy.com>` |
 | `REDIS_URL` 🚧 | ✅ | ✅ | Step 5 |
 
 **`NEXT_PUBLIC_` variables are baked in when the app is built, not read when it
@@ -161,6 +163,15 @@ service should be registering.
 **Uptime:**
 
 - [ ] External uptime monitor pointed at `/api/health`
+
+**Lead emails (Resend):**
+
+- [ ] In Resend, add the domain and create the DNS records it lists (SPF and DKIM)
+      at your DNS provider; wait until Resend shows it as verified
+- [ ] `RESEND_API_KEY` and `EMAIL_FROM` on the web service
+- [ ] Super Admin → Settings: set the email address that should receive new leads
+- [ ] Submit a demo request on the landing page: it appears in Super Admin → Leads
+      and the email arrives. Then delete the test lead
 
 **🚧 Redis — waits on hardening-plan §6:**
 

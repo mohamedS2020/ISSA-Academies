@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { APP_NAME } from '@/lib/config/brand';
+import './globals.css';
 
 export default function GlobalNotFound() {
   return (

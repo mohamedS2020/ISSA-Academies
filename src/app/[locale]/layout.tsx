@@ -12,6 +12,7 @@ import { getAcademyHostContext } from "@/lib/tenant/host-context";
 import { SPORTS } from "@/lib/theme/sports";
 import { APP_NAME } from "@/lib/config/brand";
 import { THEME_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/config/storage-keys";
+import "../globals.css";
 
 // Runs before first paint to apply, with no flash of the wrong look:
 //   1. the persisted (or system) light/dark theme  → `.dark` class
@@ -35,9 +36,13 @@ const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem(${THEME_KE
  * bare domain.
  */
 export async function generateMetadata(): Promise<Metadata> {
+  // App pages (login, dashboards, portals) stay out of search results; only the
+  // marketing site is meant to be found.
+  const robots = { index: false, follow: false };
   const academy = await getAcademyHostContext();
-  if (!academy) return {};
+  if (!academy) return { robots };
   return {
+    robots,
     // Academy first: browser tabs truncate from the right, so the specific part
     // should survive a narrow tab and the platform name can be the one cut off.
     title: `${academy.name} · ${APP_NAME}`,

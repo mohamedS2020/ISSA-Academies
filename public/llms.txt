@@ -1,0 +1,21 @@
+# Yallacademy (يلّا أكاديمي)
+
+> Yallacademy is a cloud platform that sports academies use to run their whole operation: branches, coaches, trainees, training groups, schedules, attendance, subscriptions, receipts, coach payroll, and income and expenses for every branch. Owners, moderators, coaches and parents each get their own access. It works in Arabic and English and supports any sport.
+
+## Key facts
+- Category: sports academy management software (SaaS, runs in the web browser)
+- For: sports academy owners and managers; their coaches ("captains"); parents of trainees
+- Sports: any sport taught in groups or sessions (football, swimming, tennis, gymnastics, martial arts, basketball and more)
+- Languages: Arabic and English, with full right-to-left support
+- Multi-branch: one account manages every branch, each with its own groups, coaches and schedules
+- Four roles: owner (the academy's admin), moderator (staff assigned to a branch, with permissions chosen by the owner), captain (coach) and parent
+- Finance: income, expenses and net for every branch, including subscriptions and coach payroll
+- Parent portal: a child's schedule, attendance and payment receipts
+- Branding: every academy gets its own web address on Yallacademy (your-academy.yallacademy.com)
+- Data: each academy's data is stored separately from other academies at the database level; access follows each user's role
+- Market: launching in Egypt and the Arab world first
+- Contact: WhatsApp [YOUR-NUMBER] · [hello@yallacademy.com]
+
+## Pages
+- [Home (English)](https://yallacademy.com/): product overview, pricing, FAQ
+- [Home (Arabic)](https://yallacademy.com/ar): product overview, pricing, FAQ
