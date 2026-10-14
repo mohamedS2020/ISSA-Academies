@@ -9,11 +9,14 @@
  */
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { APP_NAME, APP_MARK } from '@/lib/config/brand';
+import { fetchLeads, leadKeys } from '@/components/superadmin/leads-api';
 
 export default function SuperAdminLayout({
   children,
@@ -22,13 +25,36 @@ export default function SuperAdminLayout({
 }) {
   const t = useTranslations('superAdmin');
   const router = useRouter();
-  const { logout } = useAuth();  
+  const pathname = usePathname();
+  const { locale } = useParams<{ locale: string }>();
+  const { logout } = useAuth();
+
+  // How many leads are still NEW, for the badge. Refreshed whenever a lead
+  // changes (the Leads page invalidates every leads query).
+  const newLeads = useQuery({
+    queryKey: [...leadKeys.all, 'new-count'],
+    queryFn: () => fetchLeads({ status: 'NEW', page: 1, pageSize: 1 }),
+    staleTime: 60_000,
+  });
+  const newCount = newLeads.data?.counts.NEW ?? 0;
+
+  const base = `/${locale}/admin`;
+  const section = pathname.startsWith(`${base}/leads`)
+    ? 'leads'
+    : pathname.startsWith(`${base}/settings`)
+      ? 'settings'
+      : 'academies';
+  const navItems = [
+    { key: 'academies', href: base, label: t('nav.academies'), badge: 0 },
+    { key: 'leads', href: `${base}/leads`, label: t('nav.leads'), badge: newCount },
+    { key: 'settings', href: `${base}/settings`, label: t('nav.settings'), badge: 0 },
+  ] as const;
 
   const handleLogout = useCallback(() => {
     // logout() clears the httpOnly cookies (via /api/auth/logout) + local state.
     logout();
-    router.push('/en/login');
-  }, [logout, router]);
+    router.push(`/${locale}/login`);
+  }, [logout, router, locale]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -67,6 +93,33 @@ export default function SuperAdminLayout({
             </button>
           </div>
         </div>
+        <nav aria-label={t('title')} className="mx-auto flex max-w-7xl gap-1 px-4 sm:px-6 lg:px-8">
+          {navItems.map((item) => {
+            const active = section === item.key;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                  active
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.label}
+                {item.badge > 0 && (
+                  <span
+                    className="rounded-full bg-primary px-1.5 py-0.5 text-xs font-semibold text-primary-foreground"
+                    aria-label={t('leads.newBadge', { count: item.badge })}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </header>
 
       {/* Content */}

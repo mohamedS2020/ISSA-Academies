@@ -59,7 +59,8 @@ export async function listLeads(query: {
   const [items, total, byStatus] = await Promise.all([
     platformPrisma.marketingLead.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      // id breaks ties, so leads created in the same instant keep a stable order.
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       skip: (query.page - 1) * query.pageSize,
       take: query.pageSize,
     }),
