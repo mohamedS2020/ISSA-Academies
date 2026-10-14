@@ -3,21 +3,9 @@
  */
 
 import { z } from 'zod';
+import { LEAD_BRANCHES, LEAD_SPORTS } from './lead-options';
 
-/** Stored values for "Number of branches". The labels live in the message files. */
-export const LEAD_BRANCHES = ['1', '2-5', '6+'] as const;
-
-/** Stored values for "Main sport", in the order the form lists them. */
-export const LEAD_SPORTS = [
-  'football',
-  'swimming',
-  'tennis',
-  'gymnastics',
-  'karate',
-  'basketball',
-  'volleyball',
-  'padel',
-] as const;
+export { LEAD_BRANCHES, LEAD_SPORTS };
 
 /** The sales pipeline, in order. Mirrors the LeadStatus enum in the platform schema. */
 export const LEAD_STATUSES = ['NEW', 'CONTACTED', 'DEMO_BOOKED', 'WON', 'LOST'] as const;

@@ -29,7 +29,7 @@ import { PricingSection } from '@/components/marketing/pricing-section';
 import { FaqSection } from '@/components/marketing/faq-section';
 import { CtaSection } from '@/components/marketing/cta-section';
 import { SiteFooter, WhatsAppFloat } from '@/components/marketing/site-footer';
-import { RevealObserver } from '@/components/marketing/reveal-observer';
+import { LandingMotion } from '@/components/marketing/motion/landing-motion';
 import { LOGOS } from '@/components/marketing/logos';
 
 const OPEN_GRAPH_LOCALE: Record<Locale, string> = { en: 'en_US', ar: 'ar_EG' };
@@ -127,7 +127,7 @@ export default async function LandingPage({ params }: PageProps<'/marketing/[loc
 
       <SiteFooter t={t} locale={locale} otherLocale={otherLocale} otherLanguageLabel={t('nav.otherLanguage')} />
       <WhatsAppFloat label={t('a11y.whatsappFloat')} />
-      <RevealObserver />
+      <LandingMotion />
     </>
   );
 }

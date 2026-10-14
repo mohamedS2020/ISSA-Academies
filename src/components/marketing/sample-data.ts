@@ -8,12 +8,15 @@
  * bento chart's latest point.
  */
 
-export const HERO_AVATARS: { label: string; background?: string }[] = [
+/** Avatar colour: Deep Sea when not given. */
+export type AvatarTone = 'lagoon' | 'midnight';
+
+export const HERO_AVATARS: { label: string; tone?: AvatarTone }[] = [
   { label: 'K' },
-  { label: 'L', background: 'var(--lagoon)' },
-  { label: 'H', background: 'var(--midnight)' },
+  { label: 'L', tone: 'lagoon' },
+  { label: 'H', tone: 'midnight' },
   { label: 'S' },
-  { label: '+14', background: 'var(--lagoon)' },
+  { label: '+14', tone: 'lagoon' },
 ];
 
 export const HERO_COLLECTIONS = { paid: '412', dueThisWeek: '27', balanceDue: '9' };
@@ -30,10 +33,12 @@ export const OWNER_TOTAL = { income: '514,300', expenses: '245,000', net: '269,3
 export const MODERATOR_PERMISSIONS_ON = [true, true, true, false, false];
 
 /** Avatar colour and "notes written" state for the captain's five players. */
-export const CAPTAIN_ROLL = [
-  { background: 'var(--deepsea)', done: true },
-  { background: 'var(--lagoon)', done: true },
-  { background: 'var(--midnight)', done: true },
-  { background: 'var(--deepsea)', done: false },
-  { background: 'var(--lagoon)', done: true },
+export const CAPTAIN_ROLL: { tone?: AvatarTone; done: boolean }[] = [
+  { done: true },
+  { tone: 'lagoon', done: true },
+  { tone: 'midnight', done: true },
+  { done: false },
+  { tone: 'lagoon', done: true },
 ];
+
+export const avatarClass = (tone?: AvatarTone) => (tone ? `avatar avatar-${tone}` : 'avatar');

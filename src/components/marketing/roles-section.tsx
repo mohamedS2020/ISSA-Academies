@@ -1,7 +1,7 @@
 import type { LandingTranslator } from '@/lib/i18n/landing';
 import { IconChart, IconCheck, IconFamily, IconLock, IconShield, IconWhistle } from './icons';
 import { RoleSwitcher } from './role-switcher';
-import { CAPTAIN_ROLL, MODERATOR_PERMISSIONS_ON, OWNER_ROWS, OWNER_TOTAL } from './sample-data';
+import { CAPTAIN_ROLL, MODERATOR_PERMISSIONS_ON, OWNER_ROWS, OWNER_TOTAL, avatarClass } from './sample-data';
 
 function Ticks({ items }: { items: string[] }) {
   return (
@@ -51,7 +51,9 @@ function OwnerPanel({ t }: { t: LandingTranslator }) {
             {kpis.map((kpi) => (
               <div key={kpi.label} className="kpi">
                 <p className="ui-sub">{kpi.label}</p>
-                <p className="ui-big">{kpi.value}</p>
+                <p className="ui-big">
+                  <span data-count>{kpi.value}</span>
+                </p>
               </div>
             ))}
           </div>
@@ -70,18 +72,30 @@ function OwnerPanel({ t }: { t: LandingTranslator }) {
                 {OWNER_ROWS.map((row, index) => (
                   <tr key={periods[index]}>
                     <th scope="row">{periods[index]}</th>
-                    <td>{row.income}</td>
-                    <td>{row.expenses}</td>
-                    <td className="net">{row.net}</td>
+                    <td>
+                      <span data-count>{row.income}</span>
+                    </td>
+                    <td>
+                      <span data-count>{row.expenses}</span>
+                    </td>
+                    <td className="net">
+                      <span data-count>{row.net}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
                   <th scope="row">{t('roles.owner.total')}</th>
-                  <td>{OWNER_TOTAL.income}</td>
-                  <td>{OWNER_TOTAL.expenses}</td>
-                  <td>{OWNER_TOTAL.net}</td>
+                  <td>
+                    <span data-count>{OWNER_TOTAL.income}</span>
+                  </td>
+                  <td>
+                    <span data-count>{OWNER_TOTAL.expenses}</span>
+                  </td>
+                  <td>
+                    <span data-count>{OWNER_TOTAL.net}</span>
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -160,7 +174,7 @@ function CaptainPanel({ t }: { t: LandingTranslator }) {
           <ul className="roll">
             {players.map((player, index) => (
               <li key={player.name}>
-                <span className="avatar" style={{ background: CAPTAIN_ROLL[index].background }}>
+                <span className={avatarClass(CAPTAIN_ROLL[index].tone)}>
                   {player.initial}
                 </span>
                 {player.name}

@@ -1,24 +1,35 @@
+import type { CSSProperties } from 'react';
 import type { LandingTranslator } from '@/lib/i18n/landing';
 import { whatsappUrl } from '@/lib/config/marketing';
 import { IconArrow, IconCalendarCheck, IconCheck, IconWhatsApp } from './icons';
-import { HERO_AVATARS, HERO_COLLECTIONS } from './sample-data';
+import { HERO_AVATARS, HERO_COLLECTIONS, avatarClass } from './sample-data';
+import { heroTiming } from './motion/hero-timing';
+import { wordCount } from './motion/split-words';
+import { Words } from './motion/words';
 
 export function HeroSection({ t }: { t: LandingTranslator }) {
   const sports = t.raw('hero.sports') as string[];
   const sampleData = t('a11y.sampleData');
+  const titleLine1 = t('hero.titleLine1');
+  const titleLine2 = t('hero.titleLine2');
+  const timing = heroTiming(wordCount(titleLine1), wordCount(titleLine2));
 
   return (
-    <section className="hero" aria-labelledby="hero-h">
+    <section className="hero" aria-labelledby="hero-h" style={timing.style as CSSProperties}>
       <div className="hero-blade" aria-hidden="true" />
       <div className="container hero-grid">
         <div className="hero-copy">
-          <span className="eyebrow reveal">{t('hero.eyebrow')}</span>
-          <h1 id="hero-h" className="h1 reveal reveal-delay-1">
-            <span className="h1-line">{t('hero.titleLine1')}</span>
-            <span className="h1-line accent">{t('hero.titleLine2')}</span>
+          <span className="eyebrow">{t('hero.eyebrow')}</span>
+          <h1 id="hero-h" className="h1">
+            <span className="h1-line">
+              <Words text={titleLine1} />
+            </span>
+            <span className="h1-line accent">
+              <Words text={titleLine2} start={timing.line2Start} />
+            </span>
           </h1>
-          <p className="lead reveal reveal-delay-2">{t('hero.lead')}</p>
-          <div className="hero-actions reveal reveal-delay-3">
+          <p className="lead">{t('hero.lead')}</p>
+          <div className="hero-actions">
             <a className="btn btn-primary btn-lg" href="#demo">
               {t('hero.bookDemo')} <IconArrow />
             </a>
@@ -26,11 +37,11 @@ export function HeroSection({ t }: { t: LandingTranslator }) {
               <IconWhatsApp /> {t('hero.whatsapp')}
             </a>
           </div>
-          <div className="sports-wrap reveal">
+          <div className="sports-wrap">
             <p className="sports-label">{t('hero.sportsLabel')}</p>
             <ul className="sports">
-              {sports.map((sport) => (
-                <li key={sport}>
+              {sports.map((sport, index) => (
+                <li key={sport} style={{ '--i': index } as CSSProperties}>
                   <span>{sport}</span>
                 </li>
               ))}
@@ -38,7 +49,7 @@ export function HeroSection({ t }: { t: LandingTranslator }) {
           </div>
         </div>
 
-        <div className="hero-visual reveal reveal-delay-2" role="img" aria-label={sampleData}>
+        <div className="hero-visual" role="img" aria-label={sampleData}>
           <div className="ui ui-att">
             <div className="ui-row">
               <div>
@@ -50,7 +61,8 @@ export function HeroSection({ t }: { t: LandingTranslator }) {
               </span>
             </div>
             <p className="ui-big" style={{ marginTop: '1.1rem' }}>
-              {t('hero.attendance.count')} <span className="ui-sub">{t('hero.attendance.present')}</span>
+              <span data-count>{t('hero.attendance.count')}</span>{' '}
+              <span className="ui-sub">{t('hero.attendance.present')}</span>
             </p>
             <div className="bar" style={{ marginTop: '.75rem' }}>
               <span style={{ width: '90%' }} />
@@ -58,11 +70,7 @@ export function HeroSection({ t }: { t: LandingTranslator }) {
             <div className="ui-row" style={{ marginTop: '1rem' }}>
               <div className="avatars">
                 {HERO_AVATARS.map((avatar) => (
-                  <span
-                    key={avatar.label}
-                    className="avatar"
-                    style={avatar.background ? { background: avatar.background } : undefined}
-                  >
+                  <span key={avatar.label} className={avatarClass(avatar.tone)}>
                     {avatar.label}
                   </span>
                 ))}
@@ -75,7 +83,7 @@ export function HeroSection({ t }: { t: LandingTranslator }) {
               {t('hero.collections.label')}
             </p>
             <p className="ui-big" style={{ marginTop: '.4rem' }}>
-              {t('hero.collections.amount')}
+              <span data-count>{t('hero.collections.amount')}</span>
             </p>
             <p className="ui-sub" style={{ color: 'var(--ya-on-deepsea-muted)', marginTop: '.2rem' }}>
               {t('hero.collections.paidShare')}

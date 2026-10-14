@@ -2,6 +2,7 @@ import type { Locale } from '@/lib/i18n/config';
 import type { LandingTranslator } from '@/lib/i18n/landing';
 import { MARKETING } from '@/lib/config/marketing';
 import { IconArrow, IconCheck } from './icons';
+import { Words } from './motion/words';
 
 type PlanKey = keyof typeof MARKETING.prices;
 
@@ -18,7 +19,7 @@ function Plan({
 }) {
   const features = t.raw(`pricing.plans.${plan}.features`) as string[];
   return (
-    <article className={`plan reveal ${featured ? 'reveal-delay-2 plan-featured' : 'reveal-delay-1'}`}>
+    <article className={featured ? 'plan plan-featured' : 'plan'}>
       <div>
         <h4 className="h3">{t(`pricing.plans.${plan}.name`)}</h4>
         <p className={featured ? undefined : 'muted'} style={{ marginTop: '.35rem' }}>
@@ -56,11 +57,15 @@ export function PricingSection({ t, locale }: { t: LandingTranslator; locale: Lo
           </h2>
           <p className="lead">{t('pricing.lead')}</p>
         </div>
-        <ul className="facts reveal">
+        <ul className="facts">
           {facts.map((fact) => (
             <li key={fact.value}>
-              <strong>{fact.value}</strong>
-              <span>{fact.label}</span>
+              <strong>
+                <Words text={fact.value} />
+              </strong>
+              <span>
+                <Words text={fact.label} />
+              </span>
             </li>
           ))}
         </ul>

@@ -4,6 +4,7 @@ import { getLandingMessages, type LandingTranslator } from '@/lib/i18n/landing';
 import { whatsappUrl } from '@/lib/config/marketing';
 import { DemoForm, type DemoFormLabels } from './demo-form';
 import { IconWhatsApp } from './icons';
+import { Words } from './motion/words';
 
 export function CtaSection({ t, locale }: { t: LandingTranslator; locale: Locale }) {
   // Whole groups of strings (options, error messages) come straight from the
@@ -35,13 +36,13 @@ export function CtaSection({ t, locale }: { t: LandingTranslator; locale: Locale
   return (
     <section id="demo" className="section cta-section" aria-labelledby="cta-h">
       <div className="container">
-        <div className="cta-band reveal">
+        <div className="cta-band">
           <div className="cta-copy">
             <span className="eyebrow" style={{ color: 'var(--lagoon-300)' }}>
               {t('cta.eyebrow')}
             </span>
             <h2 id="cta-h" className="h2" style={{ marginTop: '.75rem' }}>
-              {t('cta.title')}
+              <Words text={t('cta.title')} />
             </h2>
             <p className="lead">{t('cta.lead')}</p>
             <p className="cta-or">{t('cta.or')}</p>

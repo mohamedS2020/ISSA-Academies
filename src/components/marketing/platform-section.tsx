@@ -2,11 +2,11 @@ import type { ReactNode } from 'react';
 import type { LandingTranslator } from '@/lib/i18n/landing';
 import { IconBuilding, IconCalendarCheck, IconReceipt, IconWallet } from './icons';
 
-const FEATURES: { icon: ReactNode; delay: string }[] = [
-  { icon: <IconBuilding />, delay: 'reveal-delay-1' },
-  { icon: <IconCalendarCheck />, delay: 'reveal-delay-2' },
-  { icon: <IconReceipt />, delay: 'reveal-delay-3' },
-  { icon: <IconWallet />, delay: 'reveal-delay-3' },
+const FEATURE_ICONS: ReactNode[] = [
+  <IconBuilding key="branches" />,
+  <IconCalendarCheck key="attendance" />,
+  <IconReceipt key="subscriptions" />,
+  <IconWallet key="finance" />,
 ];
 
 export function PlatformSection({ t }: { t: LandingTranslator }) {
@@ -15,7 +15,7 @@ export function PlatformSection({ t }: { t: LandingTranslator }) {
   return (
     <section id="platform" className="platform" aria-labelledby="platform-h">
       <div className="container">
-        <div className="platform-card reveal">
+        <div className="platform-card">
           <div className="platform-head">
             <div>
               <span className="eyebrow">{t('platform.eyebrow')}</span>
@@ -27,8 +27,8 @@ export function PlatformSection({ t }: { t: LandingTranslator }) {
           </div>
           <ul className="features4">
             {features.map((feature, index) => (
-              <li key={feature.title} className={`reveal ${FEATURES[index].delay}`}>
-                <span className="icon-tile">{FEATURES[index].icon}</span>
+              <li key={feature.title}>
+                <span className="icon-tile">{FEATURE_ICONS[index]}</span>
                 <h3>{feature.title}</h3>
                 <p className="muted">{feature.text}</p>
               </li>

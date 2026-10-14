@@ -9,7 +9,8 @@
 import { useActionState } from 'react';
 import { submitDemoRequest } from '@/app/marketing/[locale]/actions';
 import { INITIAL_DEMO_REQUEST_STATE, type DemoRequestField } from '@/lib/marketing/demo-request-state';
-import { LEAD_BRANCHES, LEAD_SPORTS } from '@/schemas/lead.schema';
+// From the Zod-free module: this form runs in the browser.
+import { LEAD_BRANCHES, LEAD_SPORTS } from '@/schemas/lead-options';
 import { IconArrow, IconCheck } from './icons';
 
 export interface DemoFormLabels {

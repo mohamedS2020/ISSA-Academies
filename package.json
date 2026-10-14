@@ -27,6 +27,7 @@
     "exceljs": "^4.4.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.18.0",
+    "motion": "13.5.1",
     "next": "16.2.7",
     "next-intl": "^4.13.0",
     "node-cron": "^4.5.0",

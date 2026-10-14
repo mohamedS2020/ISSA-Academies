@@ -8,8 +8,14 @@
      different tints, the brand palette wins.
    - The font is Readex Pro from next/font (self-hosted), not a Google Fonts
      <link>.
-   - The hidden starting state of `.reveal` applies only when JavaScript is
-     running (`html.js`), so the page is fully readable without it.
+   - The scroll animation is new (see "Motion" at the end). Nothing is hidden
+     without JavaScript, so the page is fully readable without it.
+   - A few rules animate with transform/opacity instead of layout properties
+     (the toggle switches) or were tightened so word-by-word reveals don't
+     inherit them (`.facts li > span`); they look exactly as before.
+   - Two colours changed to meet the 4.5:1 text contrast minimum: the sports
+     names lost their 80% opacity, and Lagoon avatars carry Midnight letters
+     (white text never sits on Lagoon).
    Everything else (layout, spacing, radii, shadows, breakpoints) is unchanged.
    ========================================================= */
 
@@ -212,6 +218,9 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
   display: inline-grid; place-items: center; font-size: .7rem; font-weight: 600;
   color: var(--white); background: var(--deepsea); border: 2px solid var(--white);
 }
+/* Lagoon avatars carry Midnight letters: white text never sits on Lagoon (brand contrast rule) */
+.avatar-lagoon { background: var(--lagoon); color: var(--midnight); }
+.avatar-midnight { background: var(--midnight); }
 .avatars { display: flex; }
 .avatars .avatar + .avatar { margin-inline-start: -8px; }
 .bar { height: 8px; border-radius: 8px; background: var(--lagoon-50); overflow: hidden; }
@@ -228,7 +237,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 
 /* ---------- Sports strip ---------- */
 .sports { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-6); }
-.sports span { font-weight: 600; font-size: 1.125rem; color: var(--deepsea); opacity: .8; letter-spacing: -0.01em; }
+/* Full Deep Sea (the design's 80% opacity measured 4.2:1 on Mist, under the 4.5:1 minimum) */
+.sports span { font-weight: 600; font-size: 1.125rem; color: var(--deepsea); letter-spacing: -0.01em; }
 .sports-label { font-size: var(--fs-xs); color: var(--slate); }
 
 /* ---------- Steps ---------- */
@@ -325,7 +335,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 /* ---------- Founding facts ---------- */
 .facts { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--s-6) clamp(2rem, 1rem + 5vw, 5rem); margin-top: var(--s-7); text-align: center; }
 .facts strong { display: block; font-size: clamp(2.25rem, 1.5rem + 2.5vw, 3.25rem); font-weight: 500; line-height: 1.1; color: var(--midnight); letter-spacing: -0.02em; }
-.facts span { color: var(--slate); font-size: var(--fs-sm); }
+.facts li > span { color: var(--slate); font-size: var(--fs-sm); }
 .plans-label { display: block; margin-top: var(--s-8); margin-bottom: var(--s-4); }
 
 .faq-section { background: var(--white); padding-top: 0; }
@@ -342,19 +352,9 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 .wa-float:hover { transform: scale(1.06); }
 .wa-float svg { width: 28px; height: 28px; }
 
-/* ---------- Reveal on scroll ----------
-   The hidden starting state only applies once JavaScript has run (html.js),
-   so without JavaScript every element is simply visible. */
-.js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
-.js .reveal.is-visible { opacity: 1; transform: none; }
-.reveal-delay-1 { transition-delay: .08s; }
-.reveal-delay-2 { transition-delay: .16s; }
-.reveal-delay-3 { transition-delay: .24s; }
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-  .js .reveal { opacity: 1; transform: none; }
 }
 
 /* ---------- Demo form (inside the CTA band) ---------- */
@@ -552,6 +552,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
   width: fit-content; margin-inline: auto; max-width: 100%; overflow-x: auto; scrollbar-width: none;
 }
 .tab {
+  position: relative;
   display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: 0 1.2rem;
   border: 0; border-radius: var(--r-pill); background: transparent; color: var(--slate); font-weight: 500; white-space: nowrap;
   transition: background .2s var(--ease), color .2s var(--ease);
@@ -561,9 +562,15 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 .tab:not([aria-selected="true"]):hover { color: var(--midnight); }
 
 .panel { display: grid; grid-template-columns: .8fr 1.2fr; gap: var(--s-7); align-items: center; padding: var(--s-6) var(--s-4) var(--s-4); min-height: 400px; }
-.panel[hidden] { display: none; }
-@media (prefers-reduced-motion: no-preference) { .panel:not([hidden]) { animation: panel-in .35s var(--ease); } }
-@keyframes panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* All four panels share one grid cell: switching (including auto-play) never
+   changes the page height, and the panels can crossfade. */
+.panels { display: grid; }
+.panels > .panel { grid-area: 1 / 1; }
+.panel[data-state="inactive"] { visibility: hidden; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel { transition: opacity .45s var(--ease), visibility 0s; }
+  .panel[data-state="inactive"] { transition: opacity .3s var(--ease), visibility 0s linear .3s; }
+}
 .panel-copy .h3 { margin-top: var(--s-3); }
 .ticks { margin-top: var(--s-5); display: grid; gap: .75rem; }
 .ticks li { display: flex; gap: .6rem; align-items: flex-start; color: var(--slate); }
@@ -594,9 +601,16 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 .perms { margin-top: 1rem; display: grid; }
 .perms li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem 0; border-top: 1px solid var(--line); font-size: .85rem; }
 .switch { position: relative; width: 40px; height: 24px; border-radius: 12px; background: var(--line); flex: none; }
-.switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: inset-inline-start .2s; }
-.switch.on { background: var(--lagoon); }
-.switch.on::after { inset-inline-start: 19px; }
+/* "On" is a Lagoon layer that fades in and a knob that slides 16px, so a
+   switch can animate on with opacity and transform only. */
+.switch::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--lagoon); opacity: 0; transition: opacity .25s var(--ease); }
+.switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .25s var(--ease); }
+.switch.on::before { opacity: 1; }
+.switch.on::after { transform: translateX(calc(16px * var(--ya-dir))); }
+/* While the moderator panel acts, an allowed switch starts off (see motion/acting.ts) */
+.switch.on[data-off]::before { opacity: 0; }
+.switch.on[data-off]::after { transform: none; }
+.switch[data-instant]::before, .switch[data-instant]::after { transition: none; }
 .mod-set { display: flex; align-items: center; gap: .4rem; margin-top: .8rem; font-size: .75rem; color: var(--slate); }
 .mod-set svg { width: 14px; height: 14px; }
 .roll { margin-top: .8rem; display: grid; }
@@ -608,6 +622,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
 
 @media (max-width: 900px) {
   .panel { grid-template-columns: 1fr; gap: var(--s-5); padding-inline: 0; min-height: 0; }
+  /* Stacked, a shorter panel keeps its content at the top of the shared cell */
+  .panels > .panel { align-content: start; }
 }
 @media (max-width: 520px) {
   .tab { padding: 0 .8rem; gap: .35rem; font-size: var(--fs-sm); }
@@ -617,3 +633,126 @@ h1, h2, h3 { font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; }
   .fin-table { font-size: .72rem; }
 }
 [dir="rtl"] .spark { transform: scaleX(-1); }
+
+/* =========================================================
+   Motion
+   The hero's opening runs here, in CSS, from first paint: it can't wait for
+   JavaScript without delaying the page. Everything further down is driven by
+   Motion (src/components/marketing/motion/).
+   - Hidden starting states exist only with JavaScript on (html.js) and
+     motion allowed; with either missing, this is the finished design.
+   - Transform and opacity only, plus SVG strokes for line drawing.
+   - Sideways motion follows the reading direction through --ya-dir.
+   - Decorations that need the animation (scroll lines) show only while it
+     runs (html.ya-motion).
+   ========================================================= */
+
+:root { --ya-dir: 1; --ya-start-edge: left; }
+[dir="rtl"] { --ya-dir: -1; --ya-start-edge: right; }
+
+/* Fills grow from the start of the line: the left in English, the right in Arabic */
+.bar > span { transform-origin: var(--ya-start-edge) center; }
+
+/* Word-by-word reveals: each word must be a box for transforms to apply */
+@media (prefers-reduced-motion: no-preference) {
+  .js .w { display: inline-block; }
+}
+
+/* ---------- Hero opening: the copy (all widths) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero .eyebrow { animation: ya-fade .6s var(--ease) both; }
+  .js .hero .h1 .w { animation: ya-word .7s var(--ease) both; animation-delay: calc(var(--hero-words) + var(--i) * var(--hero-step)); }
+  /* The lead is the page's largest text (its LCP element), so it is never fully
+     hidden: it shows faintly from first paint, then rises in and settles
+     after the headline. */
+  .js .hero .lead {
+    animation:
+      ya-lead calc(var(--hero-lead) + .7s) linear both,
+      ya-nudge .7s var(--ease) var(--hero-lead) both;
+  }
+  .js .hero-actions { animation: ya-rise .7s var(--ease) var(--hero-actions) both; }
+}
+
+/* ---------- Hero opening: cards and sports (two columns, where they're on screen) ---------- */
+@media (prefers-reduced-motion: no-preference) and (min-width: 961px) {
+  .js .hero-visual .ui-att { --tilt: -3deg; animation: ya-hero-card .8s var(--ease) var(--hero-card1) both, float 8s ease-in-out -2s infinite; }
+  .js .hero-visual .ui-pay { --tilt: 3deg; animation: ya-hero-card .8s var(--ease) var(--hero-card2) both, float 7s ease-in-out infinite; }
+  .js .hero-visual .ui-toast { animation: ya-hero-pop .6s cubic-bezier(.34, 1.4, .64, 1) var(--hero-toast) both, float 7s ease-in-out -3.5s infinite; }
+  .js .hero-visual .bar > span { animation: ya-fill 1s var(--ease) var(--hero-bar) both; }
+  .js .hero-visual .sample-note { animation: ya-fade .6s var(--ease) var(--hero-card2) both; }
+  .js .hero .sports li { animation: ya-roll .5s var(--ease) both; animation-delay: calc(var(--hero-sports) + var(--i) * 90ms); }
+  /* The "one platform" card starts lower and rises over the hero's edge with the scroll */
+  .js .platform-card { transform: translateY(60px); }
+}
+
+@keyframes ya-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ya-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes ya-word { from { opacity: 0; transform: translateY(.4em); } to { opacity: 1; transform: none; } }
+@keyframes ya-lead { 0% { opacity: 0; } 1% { opacity: .06; } 45% { opacity: .2; } 100% { opacity: 1; } }
+@keyframes ya-nudge { from { transform: translateY(16px); } to { transform: none; } }
+@keyframes ya-hero-card { from { opacity: 0; transform: translateY(28px) rotate(calc(var(--tilt) * var(--ya-dir))); } to { opacity: 1; transform: none; } }
+@keyframes ya-hero-pop { from { opacity: 0; transform: translateY(10px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes ya-fill { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes ya-roll { from { opacity: .2; transform: scale(.94); } to { opacity: 1; transform: none; } }
+
+/* ---------- Nav: hides on scroll down; a progress line under it ---------- */
+.nav-progress { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .nav { transition: border-color .2s, box-shadow .2s, transform .35s var(--ease); }
+  .nav.is-hidden:not(:focus-within) { transform: translateY(-100%); }
+  /* Sits just under the nav, and stays at the top of the screen while the nav is hidden */
+  .ya-motion .nav-progress {
+    display: block; position: fixed; top: 0; inset-inline: 0; z-index: 51; height: 2px; pointer-events: none;
+    transform: translateY(var(--nav-h, 73px)); transition: transform .35s var(--ease), opacity .2s;
+  }
+  .ya-motion .nav.is-hidden:not(:focus-within) + .nav-progress { transform: none; }
+  .ya-motion .nav.is-open + .nav-progress { opacity: 0; }
+  .nav-progress > span { display: block; height: 100%; background: var(--lagoon); transform: scaleX(0); transform-origin: var(--ya-start-edge) center; }
+}
+
+/* ---------- Role switcher: auto-play progress under the active tab ---------- */
+.tab-progress {
+  position: absolute; inset-inline: .9rem; bottom: 6px; height: 2px; border-radius: 2px;
+  background: var(--lagoon-300); opacity: 0; pointer-events: none;
+  transform: scaleX(0); transform-origin: var(--ya-start-edge) center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* The animation's end opens the next tab (role-switcher.tsx) */
+  .tabs[data-autoplay] .tab[aria-selected="true"] .tab-progress { opacity: 1; animation: ya-tab-progress 5s linear both; }
+  .tabs[data-autoplay="paused"] .tab-progress { animation-play-state: paused; }
+}
+@keyframes ya-tab-progress { from { transform: scaleX(0); } to { transform: none; } }
+
+/* ---------- How it works: the line connecting the steps ---------- */
+.steps-track { position: relative; }
+.steps-rail { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-width: 821px) {
+  /* From the first step's dot to the last one's; a dot sits above each step number */
+  .ya-motion .steps-rail {
+    display: block; position: absolute; top: -1.5rem; height: 2px; border-radius: 2px;
+    inset-inline-start: calc(2rem + 4px); inset-inline-end: calc((100% - 2rem) / 3 - 2rem - 4px);
+    background: rgba(255,255,255,.1);
+  }
+  .ya-motion .steps-rail-fill { display: block; height: 100%; border-radius: inherit; background: var(--lagoon); transform: scaleX(0); transform-origin: var(--ya-start-edge) center; }
+  .ya-motion .step::before { content: ""; position: absolute; top: calc(-1.5rem - 3px); inset-inline-start: 2rem; width: 8px; height: 8px; border-radius: 50%; background: var(--lagoon-300); }
+}
+
+/* ---------- Pricing: one soft shine across the featured plan ---------- */
+.plan-featured::after {
+  content: ""; position: absolute; inset-block: -10%; inset-inline-start: 0; width: 45%; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .plan-featured[data-shine]::after { animation: ya-shine 1.3s var(--ease) both; }
+}
+@keyframes ya-shine {
+  from { opacity: 1; transform: translateX(calc(-120% * var(--ya-dir))) skewX(calc(-16deg * var(--ya-dir))); }
+  to { opacity: 1; transform: translateX(calc(260% * var(--ya-dir))) skewX(calc(-16deg * var(--ya-dir))); }
+}
+
+/* ---------- Bento: the caret while the subdomain types itself ---------- */
+.url-pill b { position: relative; }
+.ya-caret { position: absolute; inset-block: .15em; left: 0; width: 2px; border-radius: 1px; background: var(--lagoon); }
+
+/* ---------- FAQ: the chevron turns as soon as an answer starts closing ---------- */
+.faq details[data-state="closing"] summary::after { transform: rotate(45deg); margin-top: -6px; }

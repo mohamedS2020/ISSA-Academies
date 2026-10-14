@@ -19,8 +19,10 @@ export function WhySection({ t }: { t: LandingTranslator }) {
           </h2>
         </div>
         <div className="bento">
-          <article className="tile tile-portals reveal">
-            <p className="tile-num">{t('why.roles.number')}</p>
+          <article className="tile tile-portals">
+            <p className="tile-num">
+              <span data-count>{t('why.roles.number')}</span>
+            </p>
             <p className="tile-lead">{t('why.roles.lead')}</p>
             <div className="portal-chips" aria-hidden="true">
               {chips.map((chip, index) => (
@@ -30,7 +32,7 @@ export function WhySection({ t }: { t: LandingTranslator }) {
               ))}
             </div>
           </article>
-          <article className="tile tile-brand reveal reveal-delay-1">
+          <article className="tile tile-brand">
             <h3>{t('why.brand.title')}</h3>
             <p className="url-pill" dir="ltr">
               <IconLock />
@@ -41,7 +43,7 @@ export function WhySection({ t }: { t: LandingTranslator }) {
             </p>
             <p className="muted">{t('why.brand.text')}</p>
           </article>
-          <article className="tile tile-money reveal">
+          <article className="tile tile-money">
             <div className="tile-money-copy">
               <h3>{t('why.money.title')}</h3>
               <p className="muted">{t('why.money.text')}</p>
@@ -63,8 +65,13 @@ export function WhySection({ t }: { t: LandingTranslator }) {
                     <stop offset="1" style={{ stopColor: 'var(--lagoon)', stopOpacity: 0 }} />
                   </linearGradient>
                 </defs>
-                <path d="M0 92 L60 74 L120 70 L180 52 L240 44 L300 20 L300 110 L0 110Z" fill="url(#sg)" />
                 <path
+                  className="spark-area"
+                  d="M0 92 L60 74 L120 70 L180 52 L240 44 L300 20 L300 110 L0 110Z"
+                  fill="url(#sg)"
+                />
+                <path
+                  className="spark-line"
                   d="M0 92 L60 74 L120 70 L180 52 L240 44 L300 20"
                   fill="none"
                   style={{ stroke: 'var(--lagoon)' }}
@@ -80,14 +87,14 @@ export function WhySection({ t }: { t: LandingTranslator }) {
               </div>
             </figure>
           </article>
-          <article className="tile tile-data reveal reveal-delay-1">
+          <article className="tile tile-data">
             <span className="icon-tile">
               <IconShield />
             </span>
             <h3>{t('why.data.title')}</h3>
             <p className="muted">{t('why.data.text')}</p>
           </article>
-          <article className="tile tile-lang reveal reveal-delay-2">
+          <article className="tile tile-lang">
             <p className="lang-demo" aria-hidden="true">
               <span lang="ar">ع</span>
               <span>A</span>
