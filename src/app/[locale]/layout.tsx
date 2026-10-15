@@ -112,7 +112,8 @@ export default async function LocaleLayout({
       className={`${readexPro.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      {/* Colours come from globals.css (body: --background / --foreground). */}
+      <body className="min-h-full flex flex-col">
         {/* Pre-hydration theme/sport init. Plain inline script (not next/script)
             so it's in the SSR HTML and runs before first paint with no flash,
             and so React doesn't warn about a <script> child. */}

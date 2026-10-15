@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Loading State
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
         {/* Animated Background Blobs */}
         <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/10 blur-[100px] animate-pulse duration-[5000ms] pointer-events-none" />
         <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[100px] animate-pulse duration-[6000ms] pointer-events-none" />
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <BrandSymbol className="h-7 w-auto" />
             </div>
           </div>
-          <div className="h-1.5 w-32 rounded-full bg-white dark:bg-slate-900 overflow-hidden relative">
+          <div className="h-1.5 w-32 rounded-full bg-card overflow-hidden relative">
             <div className="absolute top-0 bottom-0 bg-gradient-to-r from-primary to-accent rounded-full animate-shimmer" style={{ width: '40%' }} />
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div 
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex overflow-hidden font-sans relative"
+      className="min-h-screen bg-background text-foreground flex overflow-hidden font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* ─── Elegant Background Atmosphere ─── */}

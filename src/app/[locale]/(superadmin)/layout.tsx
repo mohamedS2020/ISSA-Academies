@@ -57,16 +57,16 @@ export default function SuperAdminLayout({
   }, [logout, router, locale]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand: the logo file, at the 40px the full mark needs */}
           <div className="flex items-center gap-3">
             <h1 className="flex">
               <BrandLogo locale={locale} className="h-10 w-auto" />
             </h1>
-            <p className="border-s border-border ps-3 text-xs text-gray-500 dark:text-gray-400">
+            <p className="border-s border-border ps-3 text-xs text-muted-foreground">
               {t('title')}
             </p>
           </div>
@@ -74,12 +74,12 @@ export default function SuperAdminLayout({
           {/* Actions */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <span className="hidden rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 sm:inline-flex">
+            <span className="hidden rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary sm:inline-flex">
               Super Admin
             </span>
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              className="inline-flex items-center gap-2 rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
