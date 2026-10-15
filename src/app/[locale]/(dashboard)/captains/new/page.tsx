@@ -39,17 +39,17 @@ const DAYS_OF_WEEK = [
 ] as const;
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
+  'w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
 
 interface FieldProps { label: string; required?: boolean; children: React.ReactNode; error?: string; }
 function Field({ label, required, children, error }: FieldProps) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-        {label} {required && <span className="text-red-600 dark:text-red-400">*</span>}
+      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+        {label} {required && <span className="text-danger">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 }
@@ -133,27 +133,27 @@ export default function NewCaptainPage() {
 
   if (success) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <div className="bg-white dark:bg-slate-900 border border-emerald-500/40 rounded-2xl w-full max-w-md p-8 shadow-2xl text-center space-y-5">
-          <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-            <UserCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/80 backdrop-blur-sm">
+        <div className="bg-card border border-success/40 rounded-2xl w-full max-w-md p-8 shadow-2xl text-center space-y-5">
+          <div className="w-16 h-16 mx-auto rounded-full bg-success-soft border border-success/40 flex items-center justify-center">
+            <UserCheck className="w-8 h-8 text-success" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Captain Registered!</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Share the portal password below. It will not be shown again.</p>
+            <h2 className="text-xl font-bold text-foreground mb-1">Captain Registered!</h2>
+            <p className="text-sm text-muted-foreground">Share the portal password below. It will not be shown again.</p>
           </div>
-          <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-4 space-y-2">
+          <div className="bg-muted border border-input rounded-xl px-4 py-4 space-y-2">
             <div className="flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-              <p className="text-xs text-slate-600 dark:text-slate-400">Portal Password</p>
+              <KeyRound className="w-4 h-4 text-warning shrink-0" />
+              <p className="text-xs text-muted-foreground">Portal Password</p>
             </div>
-            <p className="font-mono text-xl font-bold text-amber-600 dark:text-amber-400 tracking-wider select-all">
+            <p className="font-mono text-xl font-bold text-warning tracking-wider select-all">
               {success}
             </p>
           </div>
           <button
             onClick={() => { navigator.clipboard.writeText(success); toast.success('Copied!'); }}
-            className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+            className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
           >
             Copy to Clipboard
           </button>
@@ -165,13 +165,13 @@ export default function NewCaptainPage() {
                 setAttendingDays([]); setPayrollType('HOURS');
                 setHourlyRate(''); setBaseSalary(''); setPercentage('');
               }}
-              className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
             >
               Register Another
             </button>
             <button
               onClick={() => router.push(`/${locale}/captains`)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
+              className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
             >
               Go to Captains
             </button>
@@ -189,21 +189,21 @@ export default function NewCaptainPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push(`/${locale}/captains`)}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
           <Award className="w-6 h-6 text-primary dark:text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('register')}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('register')}</h1>
       </div>
 
       {/* ─── Form Card ─── */}
-      <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl p-6 md:p-8 backdrop-blur-xl space-y-6">
+      <div className="bg-card/80 border border-input/60 rounded-2xl p-6 md:p-8 backdrop-blur-xl space-y-6">
         {/* Basic Info */}
         <div>
-          <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Personal Information</h2>
+          <h2 className="text-sm font-bold text-foreground/80 mb-4">Personal Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field label={tCommon('active') === 'Active' ? 'Full Name' : 'Name'} required error={errors.name}>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="Captain's full name" />
@@ -221,8 +221,8 @@ export default function NewCaptainPage() {
 
         {/* Attending Days */}
         <div>
-          <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">{t('attendingDays')}</h2>
-          {errors.attendingDays && <p className="text-xs text-red-600 dark:text-red-400 mb-2">{errors.attendingDays}</p>}
+          <h2 className="text-sm font-bold text-foreground/80 mb-4">{t('attendingDays')}</h2>
+          {errors.attendingDays && <p className="text-xs text-danger mb-2">{errors.attendingDays}</p>}
           <div className="flex flex-wrap gap-2">
             {DAYS_OF_WEEK.map(({ key, label }) => (
               <button
@@ -231,8 +231,8 @@ export default function NewCaptainPage() {
                 onClick={() => toggleDay(key)}
                 className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition-all ${
                   attendingDays.includes(key)
-                    ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
-                    : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                    ? 'bg-primary/10 border-primary/60 text-primary dark:text-primary'
+                    : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50 hover:text-foreground'
                 }`}
               >
                 {label}
@@ -243,7 +243,7 @@ export default function NewCaptainPage() {
 
         {/* Payroll System */}
         <div>
-          <h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">{t('payrollType')}</h2>
+          <h2 className="text-sm font-bold text-foreground/80 mb-4">{t('payrollType')}</h2>
           <div className="flex gap-3 mb-4">
             {(['HOURS', 'SALARY_PERCENTAGE'] as const).map((type) => (
               <button
@@ -252,8 +252,8 @@ export default function NewCaptainPage() {
                 onClick={() => setPayrollType(type)}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                   payrollType === type
-                    ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
-                    : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
+                    ? 'bg-primary/10 border-primary/60 text-primary dark:text-primary'
+                    : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                 }`}
               >
                 {type === 'HOURS' ? <Clock className="w-4 h-4" /> : <Percent className="w-4 h-4" />}
@@ -310,14 +310,14 @@ export default function NewCaptainPage() {
       <div className="flex justify-end gap-3">
         <button
           onClick={() => router.push(`/${locale}/captains`)}
-          className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="px-4 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
         >
           {tCommon('cancel')}
         </button>
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {t('register')}

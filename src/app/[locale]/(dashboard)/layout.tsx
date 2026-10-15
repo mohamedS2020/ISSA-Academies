@@ -18,7 +18,7 @@ import { UserRole } from '@/types';
 import Sidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
 import { isRtlLocale } from '@/lib/i18n/config';
-import { APP_MARK } from '@/lib/config/brand';
+import { BrandSymbol } from '@/components/layout/brand-logo';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -58,21 +58,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Loading State
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
         {/* Animated Background Blobs */}
-        <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/10 blur-[100px] animate-pulse duration-[5000ms] pointer-events-none" />
-        <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[100px] animate-pulse duration-[6000ms] pointer-events-none" />
+        <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[100px] animate-pulse duration-[5000ms] pointer-events-none" />
+        <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[100px] animate-pulse duration-[6000ms] pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center gap-4">
           <div className="relative h-16 w-16">
             {/* Elegant water ripples */}
             <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
             <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-pulse" />
-            <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
-              <span className="text-white text-[10px] font-black tracking-wider">{APP_MARK}</span>
+            <div className="absolute inset-4 flex items-center justify-center">
+              <BrandSymbol className="h-7 w-auto" />
             </div>
           </div>
-          <div className="h-1.5 w-32 rounded-full bg-white dark:bg-slate-900 overflow-hidden relative">
+          <div className="h-1.5 w-32 rounded-full bg-card overflow-hidden relative">
             <div className="absolute top-0 bottom-0 bg-gradient-to-r from-primary to-accent rounded-full animate-shimmer" style={{ width: '40%' }} />
           </div>
         </div>
@@ -85,12 +85,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div 
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex overflow-hidden font-sans relative"
+      className="min-h-screen bg-background text-foreground flex overflow-hidden font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* ─── Elegant Background Atmosphere ─── */}
-      <div className="absolute top-[10%] start-[10%] h-[500px] w-[500px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[10%] end-[10%] h-[600px] w-[600px] rounded-full bg-primary/30 dark:bg-primary/15 blur-[140px] pointer-events-none" />
+      <div className="absolute top-[10%] start-[10%] h-[500px] w-[500px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] end-[10%] h-[600px] w-[600px] rounded-full bg-primary/6 blur-[140px] pointer-events-none" />
 
       {/* Collapsible Sidebar (mobile: off-canvas drawer) */}
       <Sidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />

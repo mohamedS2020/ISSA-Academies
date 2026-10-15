@@ -15,7 +15,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { resolveSport, sportLabel } from '@/lib/theme/sports';
 import { UserRole } from '@/types';
 import { isRtlLocale } from '@/lib/i18n/config';
-import { APP_MARK } from '@/lib/config/brand';
+import { BrandSymbol } from '@/components/layout/brand-logo';
 import {
   LayoutDashboard,
   Users,
@@ -150,39 +150,37 @@ export default function Sidebar({
       {/* Mobile overlay — tap to dismiss the drawer */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-midnight/60 backdrop-blur-sm md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 start-0 z-50 w-64 md:relative md:inset-auto md:z-30 flex flex-col bg-white dark:bg-slate-900 border-e border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 h-screen transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed inset-y-0 start-0 z-50 w-64 md:relative md:inset-auto md:z-30 flex flex-col bg-card border-e border-border text-foreground/80 h-screen transition-transform duration-300 md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : hiddenTransform
         } ${isCollapsed ? 'md:w-20' : 'md:w-64'}`}
       >
       {/* ─── Sidebar Header Logo ─── */}
-      <div className="flex items-center justify-between px-5 py-6 border-b border-slate-200/60 dark:border-slate-800/60">
+      <div className="flex items-center justify-between px-5 py-6 border-b border-border/60">
         {!isCollapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white text-xs font-black">{APP_MARK}</span>
-            </div>
-            <span className="text-sm font-extrabold tracking-wider bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+            <BrandSymbol className="h-8 w-auto" />
+            <span className="text-sm font-extrabold tracking-wider text-foreground">
               {sportName}
             </span>
           </div>
         )}
         {isCollapsed && (
-          <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-md">
-            <span className="text-white text-[10px] font-black">{APP_MARK}</span>
+          <div className="mx-auto flex h-8 items-center">
+            <BrandSymbol className="h-8 w-auto" />
           </div>
         )}
         
         {/* Collapse Button (large screens only) */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:flex h-6 w-6 rounded-full border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors absolute -end-3 top-7 z-50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          className="hidden md:flex h-6 w-6 rounded-full border border-input bg-background items-center justify-center hover:bg-muted transition-colors absolute -end-3 top-7 z-50 text-muted-foreground hover:text-foreground"
         >
           {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
@@ -190,7 +188,7 @@ export default function Sidebar({
         {/* Close Button (mobile drawer only) */}
         <button
           onClick={onClose}
-          className="md:hidden h-8 w-8 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          className="md:hidden h-8 w-8 rounded-lg border border-input bg-background flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           aria-label="Close menu"
         >
           <X size={16} />
@@ -211,7 +209,7 @@ export default function Sidebar({
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 group relative ${
                 isActive
                   ? 'bg-gradient-to-r from-primary/15 to-accent/5 text-primary dark:text-primary border border-primary/10'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent'
+                  : 'hover:bg-muted hover:text-foreground border border-transparent'
               }`}
             >
               {/* Active state indicator dot */}
@@ -222,7 +220,7 @@ export default function Sidebar({
               <Icon
                 size={18}
                 className={`transition-colors duration-300 ${
-                  isActive ? 'text-primary dark:text-primary' : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                  isActive ? 'text-primary dark:text-primary' : 'text-muted-foreground group-hover:text-foreground'
                 }`}
               />
 
@@ -232,7 +230,7 @@ export default function Sidebar({
 
               {/* Tooltip for collapsed mode */}
               {isCollapsed && (
-                <div className="absolute start-full ms-3 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-xl border border-slate-200 dark:border-slate-800">
+                <div className="absolute start-full ms-3 px-2.5 py-1.5 rounded-lg bg-background text-foreground text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-xl border border-border">
                   {item.name}
                 </div>
               )}
@@ -242,17 +240,17 @@ export default function Sidebar({
       </nav>
 
       {/* ─── User Profile Footer ─── */}
-      <div className="p-4 border-t border-slate-200/60 dark:border-slate-800/60 bg-slate-100/70 dark:bg-slate-900/50">
+      <div className="p-4 border-t border-border/60 bg-muted/70">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-primary dark:text-primary">
+          <div className="h-9 w-9 rounded-full bg-muted border border-input flex items-center justify-center font-bold text-xs text-primary dark:text-primary">
             {user.name.slice(0, 2).toUpperCase()}
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+              <p className="text-sm font-semibold text-foreground truncate">
                 {user.name}
               </p>
-              <p className="text-xs text-slate-500 truncate capitalize">
+              <p className="text-xs text-muted-foreground truncate capitalize">
                 {user.role.toLowerCase()}
               </p>
             </div>

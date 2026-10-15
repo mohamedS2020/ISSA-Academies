@@ -20,6 +20,7 @@ import {
   renderToBuffer,
 } from '@react-pdf/renderer';
 import ExcelJS from 'exceljs';
+import { BRAND_COLORS } from '@/lib/config/brand-colors';
 
 // ─── Shared Types ───────────────────────────────────────────
 
@@ -53,27 +54,34 @@ export interface ExportMeta {
 
 // ─── PDF Export ─────────────────────────────────────────────
 
+// PDFs can't read CSS, so their colours come from the brand's literal values:
+// Midnight text, Slate secondary text, Line rules, Mist fills.
+const INK = BRAND_COLORS.midnight;
+const MUTED = BRAND_COLORS.slate;
+const RULE = BRAND_COLORS.line;
+const FILL = BRAND_COLORS.mist;
+
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 10, fontFamily: 'Helvetica' },
+  page: { padding: 32, fontSize: 10, fontFamily: 'Helvetica', color: INK },
   title: { fontSize: 18, marginBottom: 4, fontWeight: 700 },
-  subtitle: { fontSize: 10, color: '#555555', marginBottom: 16 },
+  subtitle: { fontSize: 10, color: MUTED, marginBottom: 16 },
   summaryRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 16 },
   summaryItem: {
-    border: '1pt solid #dddddd',
+    border: `1pt solid ${RULE}`,
     borderRadius: 4,
     padding: 8,
     minWidth: 110,
     marginRight: 10,
     marginBottom: 10,
   },
-  summaryLabel: { fontSize: 8, color: '#777777' },
+  summaryLabel: { fontSize: 8, color: MUTED },
   summaryValue: { fontSize: 13, fontWeight: 700, marginTop: 2 },
   tableHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: '#f1f5f9',
-    borderBottom: '1pt solid #cbd5e1',
+    backgroundColor: FILL,
+    borderBottom: `1pt solid ${RULE}`,
   },
-  tableRow: { flexDirection: 'row', borderBottom: '0.5pt solid #e2e8f0' },
+  tableRow: { flexDirection: 'row', borderBottom: `0.5pt solid ${RULE}` },
   tableCell: { flex: 1, padding: 4, fontSize: 9 },
   tableHeaderCell: { flex: 1, padding: 4, fontSize: 9, fontWeight: 700 },
   sectionTitle: { fontSize: 12, fontWeight: 700, marginTop: 10, marginBottom: 4 },
@@ -180,31 +188,31 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 };
 
 const receiptStyles = StyleSheet.create({
-  page: { padding: 40, fontSize: 11, fontFamily: 'Helvetica' },
+  page: { padding: 40, fontSize: 11, fontFamily: 'Helvetica', color: INK },
   branchName: { fontSize: 16, fontWeight: 700 },
-  branchCode: { fontSize: 9, color: '#777777', marginTop: 2, marginBottom: 24 },
+  branchCode: { fontSize: 9, color: MUTED, marginTop: 2, marginBottom: 24 },
   title: { fontSize: 20, fontWeight: 700, marginBottom: 4 },
-  receiptNumber: { fontSize: 11, color: '#555555', marginBottom: 24, fontFamily: 'Courier' },
+  receiptNumber: { fontSize: 11, color: MUTED, marginBottom: 24, fontFamily: 'Courier' },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderBottom: '0.5pt solid #e2e8f0',
+    borderBottom: `0.5pt solid ${RULE}`,
     paddingVertical: 8,
   },
-  rowLabel: { color: '#777777' },
+  rowLabel: { color: MUTED },
   rowValue: { fontWeight: 700 },
   amountBox: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: FILL,
     borderRadius: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  amountLabel: { fontSize: 11, color: '#555555' },
+  amountLabel: { fontSize: 11, color: MUTED },
   amountValue: { fontSize: 22, fontWeight: 700 },
-  description: { marginTop: 16, fontSize: 9, color: '#777777' },
+  description: { marginTop: 16, fontSize: 9, color: MUTED },
 });
 
 function ReceiptDocument({ receipt }: { receipt: ReceiptPdfData }) {

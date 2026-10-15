@@ -1,60 +1,78 @@
-'use client';
-
 import Link from 'next/link';
 import { APP_NAME } from '@/lib/config/brand';
+import { BRAND_COLORS as C, brandRgba } from '@/lib/config/brand-colors';
+
+/**
+ * The 404 for URLs no route matches (the app's own pages use
+ * [locale]/not-found.tsx).
+ *
+ * Deliberately a server component with its styles inline: as the root
+ * layout's not-found boundary, anything it imported (a stylesheet, client
+ * code) would be loaded on every page of the site, the landing page included.
+ * So the brand colours go in as values (src/lib/config/brand-colors.ts).
+ */
+
+const STYLES = `
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    background: ${C.mist}; color: ${C.midnight};
+    font-family: "Readex Pro", "Segoe UI", Tahoma, system-ui, sans-serif; line-height: 1.6;
+  }
+  .card {
+    width: 100%; max-width: 560px; text-align: center; background: ${C.white};
+    border: 1px solid ${C.line}; border-radius: 24px; padding: 40px 32px;
+    box-shadow: 0 12px 32px -12px ${brandRgba('midnight', 0.18)};
+  }
+  .code { margin: 0; font-size: 72px; font-weight: 700; line-height: 1; color: ${C['deep-sea']}; }
+  .eyebrow { margin: 12px 0 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: ${C['deep-sea']}; }
+  .copy { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 28px 0; padding: 24px 0; border-block: 1px solid ${C.line}; text-align: start; }
+  .copy h2 { margin: 0 0 6px; font-size: 17px; }
+  .copy p { margin: 0; font-size: 14px; color: ${C.slate}; }
+  .home {
+    display: inline-flex; align-items: center; min-height: 48px; padding: 0 28px; border-radius: 10px;
+    background: ${C['deep-sea']}; color: ${C.white}; font-weight: 500; text-decoration: none;
+  }
+  .home:hover { background: ${C['deepsea-800']}; }
+  .home:focus-visible { outline: 3px solid ${C.lagoon}; outline-offset: 3px; }
+  @media (max-width: 560px) { .copy { grid-template-columns: 1fr; } }
+  @media (prefers-color-scheme: dark) {
+    body { background: ${C.midnight}; color: ${C.white}; }
+    .card { background: ${C['midnight-2']}; border-color: ${brandRgba('white', 0.1)}; }
+    .code, .eyebrow { color: ${C['lagoon-300']}; }
+    .copy { border-color: ${brandRgba('white', 0.1)}; }
+    .copy p { color: ${C['on-dark-muted']}; }
+  }
+`;
 
 export default function GlobalNotFound() {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <head>
         <title>{`404 - Page Not Found | ${APP_NAME}`}</title>
+        <style>{STYLES}</style>
       </head>
-      <body className="h-full flex items-center justify-center bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans p-6">
-        <div className="relative max-w-xl w-full text-center space-y-8 bg-slate-100 dark:bg-slate-800/45 backdrop-blur-md border border-slate-300/50 dark:border-slate-700/50 p-8 md:p-12 rounded-3xl shadow-2xl">
-          {/* Wave/Info decoration */}
-          <div className="absolute inset-x-0 -top-8 flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30 animate-bounce">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8 text-white">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-              </svg>
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-4">
-            <h1 className="text-7xl md:text-8xl font-black tracking-tight bg-gradient-to-r from-primary via-teal-300 to-accent bg-clip-text text-transparent select-none">
-              404
-            </h1>
-            <p className="text-xs font-semibold tracking-wider text-primary dark:text-primary uppercase">
-              Out of Bounds / خارج الحدود
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left border-y border-slate-300/60 dark:border-slate-700/60 py-6">
-            {/* English Version */}
-            <div className="space-y-2 border-e border-slate-300/30 dark:border-slate-700/30 pe-4 last:border-0 last:pe-0">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Page Not Found</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+      <body>
+        <main className="card">
+          <h1 className="code">404</h1>
+          <p className="eyebrow">Out of Bounds / خارج الحدود</p>
+          <div className="copy">
+            <div>
+              <h2>Page Not Found</h2>
+              <p>
+                The page you are looking for might have been removed, had its name changed, or is temporarily
+                unavailable.
               </p>
             </div>
-            {/* Arabic Version */}
-            <div className="space-y-2 text-right dir-rtl" dir="rtl">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">الصفحة غير موجودة</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                قد تكون الصفحة التي تبحث عنها قد تمت إزالتها أو تم تغيير اسمها أو أنها غير متاحة مؤقتاً.
-              </p>
+            <div dir="rtl" lang="ar">
+              <h2>الصفحة غير موجودة</h2>
+              <p>قد تكون الصفحة التي تبحث عنها قد تمت إزالتها أو تم تغيير اسمها أو أنها غير متاحة مؤقتاً.</p>
             </div>
           </div>
-
-          <div className="pt-2">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-medium shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              Back to Safety / العودة للرئيسية
-            </Link>
-          </div>
-        </div>
+          <Link className="home" href="/">
+            Back to Safety / العودة للرئيسية
+          </Link>
+        </main>
       </body>
     </html>
   );

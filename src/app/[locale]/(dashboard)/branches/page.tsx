@@ -277,9 +277,9 @@ export default function BranchesPage() {
   if (user?.role !== UserRole.ADMIN) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <AlertTriangle size={48} className="text-amber-500 mb-4 animate-bounce" />
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Access Denied</h2>
-        <p className="text-sm text-slate-500 mt-2">
+        <AlertTriangle size={48} className="text-warning mb-4 animate-bounce" />
+        <h2 className="text-xl font-bold text-foreground">Access Denied</h2>
+        <p className="text-sm text-muted-foreground mt-2">
           Only administrators can access the Branch Management settings.
         </p>
       </div>
@@ -292,15 +292,15 @@ export default function BranchesPage() {
       key: 'name',
       header: tBranches('branchName'),
       sortable: true,
-      className: 'font-semibold text-slate-900 dark:text-slate-100',
+      className: 'font-semibold text-foreground',
       render: (row) => (
         <div className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary dark:text-primary font-bold border border-primary/20">
             {row.name.slice(0, 1).toUpperCase()}
           </div>
           <div>
-            <div className="font-semibold text-slate-900 dark:text-slate-100">{row.name}</div>
-            <div className="text-[10px] text-slate-500 font-bold tracking-wide font-mono uppercase mt-0.5">
+            <div className="font-semibold text-foreground">{row.name}</div>
+            <div className="text-[10px] text-muted-foreground font-bold tracking-wide font-mono uppercase mt-0.5">
               Code: {row.code}
             </div>
           </div>
@@ -311,8 +311,8 @@ export default function BranchesPage() {
       key: 'phone',
       header: tBranches('phone'),
       render: (row) => (
-        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-          <Phone size={13} className="text-slate-500" />
+        <div className="flex items-center gap-1.5 text-foreground/80">
+          <Phone size={13} className="text-muted-foreground" />
           <span>{row.phone || '—'}</span>
         </div>
       ),
@@ -321,8 +321,8 @@ export default function BranchesPage() {
       key: 'address',
       header: tBranches('address'),
       render: (row) => (
-        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 max-w-xs truncate">
-          <MapPin size={13} className="text-slate-500 flex-shrink-0" />
+        <div className="flex items-center gap-1.5 text-foreground/80 max-w-xs truncate">
+          <MapPin size={13} className="text-muted-foreground flex-shrink-0" />
           <span className="truncate">{row.address || '—'}</span>
         </div>
       ),
@@ -331,7 +331,7 @@ export default function BranchesPage() {
       key: 'timezone',
       header: tBranches('timezone'),
       render: (row) => (
-        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-mono text-xs">
+        <div className="flex items-center gap-1.5 text-foreground/80 font-mono text-xs">
           <Clock size={13} className="text-primary" />
           <span>{row.timezone}</span>
         </div>
@@ -344,11 +344,11 @@ export default function BranchesPage() {
         <span
           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
             row.isActive
-              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-              : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
+              ? 'bg-success-soft text-success border border-success/20'
+              : 'bg-danger-soft text-danger border border-danger/20'
           }`}
         >
-          <span className={`h-1.5 w-1.5 rounded-full ${row.isActive ? 'bg-emerald-400' : 'bg-red-400'}`} />
+          <span className={`h-1.5 w-1.5 rounded-full ${row.isActive ? 'bg-success' : 'bg-destructive'}`} />
           {row.isActive ? tCommon('active') : tCommon('inactive')}
         </span>
       ),
@@ -360,25 +360,25 @@ export default function BranchesPage() {
       {/* ─── Top Control Bar ─── */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-extrabold tracking-wide text-foreground">
             {tBranches('title')}
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Create, view, edit and suspend swimming academy branches.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Include Inactive Switch */}
-          <label className="flex items-center cursor-pointer select-none text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+          <label className="flex items-center cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
             <input
               type="checkbox"
               checked={includeInactive}
               onChange={(e) => setIncludeInactive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="h-4 w-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 peer-checked:bg-primary peer-checked:border-primary flex items-center p-0.5 transition-all duration-200">
-              <div className="h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-400 peer-checked:translate-x-full peer-checked:bg-slate-50 dark:peer-checked:bg-slate-950 transition-all duration-200" />
+            <div className="h-4 w-8 rounded-full bg-card border border-border peer-checked:bg-primary peer-checked:border-primary flex items-center p-0.5 transition-all duration-200">
+              <div className="h-2.5 w-2.5 rounded-full bg-muted peer-checked:translate-x-full peer-checked:bg-background transition-all duration-200" />
             </div>
             <span className="ms-2 text-xs">
               Show Inactive
@@ -387,7 +387,7 @@ export default function BranchesPage() {
 
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-primary/10"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-primary/10"
           >
             <Plus size={14} />
             <span>{tBranches('createBranch')}</span>
@@ -396,7 +396,7 @@ export default function BranchesPage() {
       </div>
 
       {/* ─── DataTable Wrapper ─── */}
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={filteredBranches}
@@ -409,7 +409,7 @@ export default function BranchesPage() {
             <div className="flex justify-end gap-2.5">
               <button
                 onClick={() => openEditModal(row)}
-                className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+                className="h-7 w-7 rounded-lg border border-border hover:border-primary/50 bg-background flex items-center justify-center text-muted-foreground hover:text-primary dark:hover:text-primary transition-colors"
                 title={tCommon('edit')}
               >
                 <Edit2 size={13} />
@@ -417,10 +417,10 @@ export default function BranchesPage() {
               
               <button
                 onClick={() => handleToggleStatus(row)}
-                className={`h-7 w-7 rounded-lg border bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors ${
+                className={`h-7 w-7 rounded-lg border bg-background flex items-center justify-center transition-colors ${
                   row.isActive
-                    ? 'border-slate-200 dark:border-slate-800 hover:border-red-900/50 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-emerald-900/50 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                    ? 'border-border hover:border-danger/50 text-muted-foreground hover:text-danger'
+                    : 'border-border hover:border-success/50 text-muted-foreground hover:text-success'
                 }`}
                 title={row.isActive ? tBranches('deactivateBranch') : tCommon('yes')}
               >
@@ -433,26 +433,26 @@ export default function BranchesPage() {
 
       {/* ─── Create Branch Modal ─── */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
-            <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
+          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-background border border-border/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
+            <div className="bg-card/95 rounded-[22px] p-6">
               
               <div className="flex justify-between items-center mb-5">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <GitBranch className="text-primary dark:text-primary" size={18} />
                   <span>{tBranches('createBranch')}</span>
                 </h3>
                 <button
                   onClick={resetForm}
-                  className="h-7 w-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
               </div>
 
               {formError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-800/40 text-red-200 text-xs flex items-start gap-2.5">
-                  <AlertTriangle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="mb-4 p-3 rounded-xl bg-danger-soft border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+                  <AlertTriangle size={14} className="text-danger flex-shrink-0 mt-0.5" />
                   <span>{formError}</span>
                 </div>
               )}
@@ -461,8 +461,8 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {tBranches('branchName')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {tBranches('branchName')} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -470,14 +470,14 @@ export default function BranchesPage() {
                       placeholder="New Cairo Branch"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                     />
                   </div>
 
                   {/* Code */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {tBranches('branchCode')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {tBranches('branchCode')} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -485,7 +485,7 @@ export default function BranchesPage() {
                       placeholder="NC1"
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 uppercase"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground uppercase"
                     />
                   </div>
                 </div>
@@ -493,7 +493,7 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('phone')}
                     </label>
                     <input
@@ -501,22 +501,22 @@ export default function BranchesPage() {
                       placeholder="+20123456789"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                     />
                   </div>
 
                   {/* Timezone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {tBranches('timezone')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {tBranches('timezone')} <span className="text-danger">*</span>
                     </label>
                     <select
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                     >
                       {COMMON_TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+                        <option key={tz} value={tz} className="bg-background text-foreground">
                           {tz}
                         </option>
                       ))}
@@ -526,7 +526,7 @@ export default function BranchesPage() {
 
                 {/* Address */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {tBranches('address')}
                   </label>
                   <input
@@ -534,16 +534,16 @@ export default function BranchesPage() {
                     placeholder="123 Road, District 5"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                   />
                 </div>
 
                 {/* Warning Card */}
-                <div className="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-900/40 text-amber-200 text-xs flex gap-3">
-                  <AlertTriangle size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-2xl bg-warning-soft border border-warning/40 text-warning text-xs flex gap-3">
+                  <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold block mb-1">Timezone Notice</span>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-[11px]">
+                    <p className="text-muted-foreground leading-relaxed text-[11px]">
                       {tBranches('timezoneWarning')}
                     </p>
                   </div>
@@ -553,14 +553,14 @@ export default function BranchesPage() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all duration-200"
                     disabled={isSubmitting}
                   >
                     {tCommon('cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}
@@ -576,26 +576,26 @@ export default function BranchesPage() {
 
       {/* ─── Edit Branch Modal ─── */}
       {editingBranch && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
-            <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
+          <div className="w-full max-w-lg p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-primary/5 to-background border border-border/80 shadow-2xl backdrop-blur-xl animate-scaleUp">
+            <div className="bg-card/95 rounded-[22px] p-6">
               
               <div className="flex justify-between items-center mb-5">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <GitBranch className="text-primary dark:text-primary" size={18} />
                   <span>{tBranches('editBranch')}</span>
                 </h3>
                 <button
                   onClick={resetForm}
-                  className="h-7 w-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
               </div>
 
               {formError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-800/40 text-red-200 text-xs flex items-start gap-2.5">
-                  <AlertTriangle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="mb-4 p-3 rounded-xl bg-danger-soft border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+                  <AlertTriangle size={14} className="text-danger flex-shrink-0 mt-0.5" />
                   <span>{formError}</span>
                 </div>
               )}
@@ -604,8 +604,8 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {tBranches('branchName')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {tBranches('branchName')} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -613,20 +613,20 @@ export default function BranchesPage() {
                       placeholder="New Cairo Branch"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                     />
                   </div>
 
                   {/* Code (Read-only on edit) */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('branchCode')}
                     </label>
                     <input
                       type="text"
                       readOnly
                       value={code}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-900 bg-slate-50 dark:bg-slate-950 px-4 py-2.5 text-xs text-slate-500 font-mono focus:outline-none cursor-not-allowed"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-xs text-muted-foreground font-mono focus:outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -634,7 +634,7 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('phone')}
                     </label>
                     <input
@@ -642,22 +642,22 @@ export default function BranchesPage() {
                       placeholder="+20123456789"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                     />
                   </div>
 
                   {/* Timezone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {tBranches('timezone')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {tBranches('timezone')} <span className="text-danger">*</span>
                     </label>
                     <select
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
                     >
                       {COMMON_TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+                        <option key={tz} value={tz} className="bg-background text-foreground">
                           {tz}
                         </option>
                       ))}
@@ -667,7 +667,7 @@ export default function BranchesPage() {
 
                 {/* Address */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {tBranches('address')}
                   </label>
                   <input
@@ -675,23 +675,23 @@ export default function BranchesPage() {
                     placeholder="123 Road, District 5"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                   />
                 </div>
 
                 {/* Payroll Frequency (FR-FN-08) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('payrollFrequency')}
                     </label>
                     <select
                       value={payrollFrequency}
                       onChange={(e) => setPayrollFrequency(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                     >
                       {PAYROLL_FREQUENCIES.map((f) => (
-                        <option key={f} value={f} className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+                        <option key={f} value={f} className="bg-background text-foreground">
                           {tBranches(`payrollFrequencyOptions.${f}`)}
                         </option>
                       ))}
@@ -699,8 +699,8 @@ export default function BranchesPage() {
                   </div>
                   {payrollFrequency === 'CUSTOM' && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                        {tBranches('payrollCustomDays')} <span className="text-red-500">*</span>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {tBranches('payrollCustomDays')} <span className="text-danger">*</span>
                       </label>
                       <input
                         type="number"
@@ -709,18 +709,18 @@ export default function BranchesPage() {
                         required
                         value={payrollCustomDays}
                         onChange={(e) => setPayrollCustomDays(e.target.value)}
-                        className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-slate-900 dark:text-slate-100"
+                        className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                       />
                     </div>
                   )}
                 </div>
 
                 {/* Warning Card */}
-                <div className="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-900/40 text-amber-200 text-xs flex gap-3">
-                  <AlertTriangle size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-2xl bg-warning-soft border border-warning/40 text-warning text-xs flex gap-3">
+                  <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold block mb-1">Timezone Notice</span>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-[11px]">
+                    <p className="text-muted-foreground leading-relaxed text-[11px]">
                       {tBranches('timezoneWarning')}
                     </p>
                   </div>
@@ -730,14 +730,14 @@ export default function BranchesPage() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all duration-200"
                     disabled={isSubmitting}
                   >
                     {tCommon('cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}

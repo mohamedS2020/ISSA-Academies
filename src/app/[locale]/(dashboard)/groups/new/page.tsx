@@ -37,7 +37,7 @@ const DAY_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/20 transition-all';
+  'w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-ring/20 transition-all';
 
 // ─── Component ────────────────────────────────────────────────
 
@@ -184,34 +184,34 @@ export default function NewGroupPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-teal-500/20 to-accent/20 border border-teal-500/30">
-          <Users2 className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+          <Users2 className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('createGroup')}</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Configure group schedule and capacity</p>
+          <h1 className="text-2xl font-bold text-foreground">{t('createGroup')}</h1>
+          <p className="text-sm text-muted-foreground">Configure group schedule and capacity</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl backdrop-blur-xl">
-        <div className="h-1 bg-gradient-to-r from-teal-500 to-accent rounded-t-2xl" />
+      <div className="bg-card/80 border border-input/60 rounded-2xl backdrop-blur-xl">
+        <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-t-2xl" />
         <div className="p-6 md:p-8 space-y-5">
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {t('groupName')} <span className="text-red-600 dark:text-red-400">*</span>
+            <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              {t('groupName')} <span className="text-danger">*</span>
             </label>
             <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Beginner Group A" />
-            {errors.name && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
           {/* Captain + Plan */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('captain')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('captain')} <span className="text-danger">*</span>
               </label>
               <select value={captainId} onChange={(e) => setCaptainId(e.target.value)} className={inputClass}>
                 <option value="">Select captain</option>
@@ -220,18 +220,18 @@ export default function NewGroupPage() {
                 ))}
               </select>
               {selectedCaptain && (
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-muted-foreground mt-1">
                   Attends:{' '}
                   {captainDays.length
                     ? captainDays.map((d) => DAY_LABEL[d] ?? d).join(', ')
                     : '—'}
                 </p>
               )}
-              {errors.captainId && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.captainId}</p>}
+              {errors.captainId && <p className="text-xs text-danger mt-1">{errors.captainId}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('plan')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('plan')} <span className="text-danger">*</span>
               </label>
               <select value={planId} onChange={(e) => setPlanId(e.target.value)} className={inputClass}>
                 <option value="">Select plan</option>
@@ -239,32 +239,32 @@ export default function NewGroupPage() {
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
-              {errors.planId && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.planId}</p>}
+              {errors.planId && <p className="text-xs text-danger mt-1">{errors.planId}</p>}
             </div>
           </div>
 
           {/* Min / Max trainees */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('minTrainees')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('minTrainees')} <span className="text-danger">*</span>
               </label>
               <input type="number" min={1} step={1} value={minTrainees} onChange={(e) => setMinTrainees(e.target.value)} className={inputClass} placeholder="3" />
-              {errors.minTrainees && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.minTrainees}</p>}
+              {errors.minTrainees && <p className="text-xs text-danger mt-1">{errors.minTrainees}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('maxTrainees')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('maxTrainees')} <span className="text-danger">*</span>
               </label>
               <input type="number" min={1} step={1} value={maxTrainees} onChange={(e) => setMaxTrainees(e.target.value)} className={inputClass} placeholder="10" />
-              {errors.maxTrainees && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.maxTrainees}</p>}
+              {errors.maxTrainees && <p className="text-xs text-danger mt-1">{errors.maxTrainees}</p>}
             </div>
           </div>
 
           {/* Schedule days */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              {t('scheduleDays')} <span className="text-red-600 dark:text-red-400">*</span>
+            <label className="block text-xs font-semibold text-foreground/80 mb-2">
+              {t('scheduleDays')} <span className="text-danger">*</span>
             </label>
             <div className="flex flex-wrap gap-2">
               {ALL_DAYS.map(({ key, label }) => {
@@ -278,10 +278,10 @@ export default function NewGroupPage() {
                     onClick={() => toggleDay(key)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                       conflict
-                        ? 'bg-amber-500/20 border-amber-500/60 text-amber-700 dark:text-amber-300'
+                        ? 'bg-warning-soft border-warning/60 text-warning'
                         : selected
-                          ? 'bg-teal-500/20 border-teal-500/60 text-teal-700 dark:text-teal-300'
-                          : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
+                          ? 'bg-primary/10 border-primary/60 text-primary'
+                          : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                     }`}
                   >
                     {label}
@@ -289,10 +289,10 @@ export default function NewGroupPage() {
                 );
               })}
             </div>
-            {errors.scheduleDays && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.scheduleDays}</p>}
+            {errors.scheduleDays && <p className="text-xs text-danger mt-1">{errors.scheduleDays}</p>}
             {conflictingDays.length > 0 && (
-              <div className="flex items-start gap-2.5 mt-2 p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-amber-200 text-xs">
-                <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2.5 mt-2 p-3 rounded-xl bg-warning-soft border border-warning/40 text-warning text-xs">
+                <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
                 <span>
                   {selectedCaptain?.user.name} doesn&apos;t attend on{' '}
                   <span className="font-semibold">
@@ -308,18 +308,18 @@ export default function NewGroupPage() {
           {/* Start time + Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('startTime')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('startTime')} <span className="text-danger">*</span>
               </label>
               <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
-              {errors.startTime && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.startTime}</p>}
+              {errors.startTime && <p className="text-xs text-danger mt-1">{errors.startTime}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('sessionDuration')} (min) <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('sessionDuration')} (min) <span className="text-danger">*</span>
               </label>
               <input type="number" min={15} max={480} step={1} value={sessionDuration} onChange={(e) => setSessionDuration(e.target.value)} className={inputClass} placeholder="60" />
-              {errors.sessionDuration && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.sessionDuration}</p>}
+              {errors.sessionDuration && <p className="text-xs text-danger mt-1">{errors.sessionDuration}</p>}
             </div>
           </div>
         </div>
@@ -327,13 +327,13 @@ export default function NewGroupPage() {
 
       {/* Footer */}
       <div className="flex justify-between gap-3">
-        <button onClick={() => router.back()} className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+        <button onClick={() => router.back()} className="px-5 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-all">
           {tCommon('cancel')}
         </button>
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-teal-500/25 transition-all hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
         >
           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
           {t('createGroup')}

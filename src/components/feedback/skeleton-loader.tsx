@@ -24,7 +24,7 @@ interface SkeletonProps {
 export function Skeleton({ className = '', children }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-gray-200 dark:bg-gray-700 ${className}`}
+      className={`animate-pulse rounded-md bg-muted ${className}`}
       role="status"
       aria-label="Loading..."
     >
@@ -38,7 +38,7 @@ export function Skeleton({ className = '', children }: SkeletonProps) {
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-700">
+    <div className="rounded-xl border border-border p-6">
       <div className="flex items-center gap-4">
         <Skeleton className="h-12 w-12 rounded-full" />
         <div className="flex-1 space-y-2">
@@ -64,9 +64,9 @@ interface SkeletonTableProps {
 
 export function SkeletonTable({ rows = 5, cols = 4 }: SkeletonTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+    <div className="overflow-hidden rounded-xl border border-border">
       {/* Header */}
-      <div className="flex gap-4 border-b border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-800/50">
+      <div className="flex gap-4 border-b border-border bg-background px-6 py-3">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={`header-${i}`} className="h-4 flex-1" />
         ))}
@@ -75,7 +75,7 @@ export function SkeletonTable({ rows = 5, cols = 4 }: SkeletonTableProps) {
       {Array.from({ length: rows }).map((_, rowIdx) => (
         <div
           key={`row-${rowIdx}`}
-          className="flex gap-4 border-b border-gray-100 px-6 py-4 last:border-0 dark:border-gray-800"
+          className="flex gap-4 border-b border-border px-6 py-4 last:border-0"
         >
           {Array.from({ length: cols }).map((_, colIdx) => (
             <Skeleton
@@ -93,7 +93,7 @@ export function SkeletonTable({ rows = 5, cols = 4 }: SkeletonTableProps) {
 
 export function SkeletonKPICard() {
   return (
-    <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-700">
+    <div className="rounded-xl border border-border p-6">
       <Skeleton className="mb-2 h-3 w-24" />
       <Skeleton className="mb-1 h-8 w-32" />
       <Skeleton className="h-3 w-20" />

@@ -66,20 +66,20 @@ export function TraineeSwitcher() {
   if (trainees.length <= 1) return null;
 
   return (
-    <div className="relative flex items-center gap-1.5 rounded-xl bg-slate-100/70 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 ps-2.5 pe-1.5 py-1.5">
+    <div className="relative flex items-center gap-1.5 rounded-xl bg-muted/70 border border-border ps-2.5 pe-1.5 py-1.5">
       <Users size={14} className="text-primary dark:text-primary flex-shrink-0" />
       <select
         value={selectedTraineeId ?? ''}
         onChange={(e) => setSelectedTraineeId(e.target.value)}
-        className="appearance-none bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none pe-4 cursor-pointer"
+        className="appearance-none bg-transparent text-xs font-semibold text-foreground focus:outline-none pe-4 cursor-pointer"
       >
         {trainees.map((t) => (
-          <option key={t.id} value={t.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+          <option key={t.id} value={t.id} className="bg-card text-foreground">
             {t.name}
           </option>
         ))}
       </select>
-      <ChevronDown size={12} className="text-slate-500 absolute end-2 pointer-events-none" />
+      <ChevronDown size={12} className="text-muted-foreground absolute end-2 pointer-events-none" />
     </div>
   );
 }

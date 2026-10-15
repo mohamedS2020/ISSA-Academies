@@ -124,8 +124,8 @@ export default function ReportsCenterPage() {
 
   if (user && !canView) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <XCircle className="w-8 h-8 me-3 text-danger" />
         <span>Access denied.</span>
       </div>
     );
@@ -189,13 +189,13 @@ export default function ReportsCenterPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
         <FileText size={22} className="text-primary dark:text-primary" />
         {t('title')}
       </h2>
 
       {/* ─── Filter Panel ─── */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-900 bg-white/70 dark:bg-slate-900/40 p-5 backdrop-blur-xl space-y-4">
+      <div className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl space-y-4">
         <div className="flex flex-wrap gap-2">
           {reportTypes.map((rt) => (
             <button
@@ -206,8 +206,8 @@ export default function ReportsCenterPage() {
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors ${
                 type === rt.value
-                  ? 'bg-primary/15 text-primary dark:text-primary border border-primary/30'
-                  : 'border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  ? 'bg-primary/10 text-primary dark:text-primary border border-primary/30'
+                  : 'border border-border text-muted-foreground hover:text-foreground'
               }`}
             >
               {rt.label}
@@ -218,39 +218,39 @@ export default function ReportsCenterPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {type !== 'expiringSoon' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t('from')}
               </label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+                className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               />
             </div>
           )}
           {type !== 'subscription' && type !== 'expiringSoon' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t('to')}
               </label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+                className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               />
             </div>
           )}
           {type === 'subscription' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+                className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="ACTIVE">Active</option>
@@ -261,13 +261,13 @@ export default function ReportsCenterPage() {
           )}
           {(type === 'attendance' || type === 'captainPerformance') && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Captain
               </label>
               <select
                 value={captainId}
                 onChange={(e) => setCaptainId(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+                className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
                 <option value="">All</option>
                 {captains.map((c) => (
@@ -283,7 +283,7 @@ export default function ReportsCenterPage() {
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 disabled:opacity-50"
             >
               {isLoading && <Loader2 size={14} className="animate-spin" />}
               {t('generate')}
@@ -300,12 +300,12 @@ export default function ReportsCenterPage() {
               {Object.entries(result.summary).map(([key, value]) => (
                 <div
                   key={key}
-                  className="rounded-2xl border border-slate-200 dark:border-slate-900 bg-white/70 dark:bg-slate-900/40 p-4 backdrop-blur-xl"
+                  className="rounded-2xl border border-border bg-card/70 p-4 backdrop-blur-xl"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
                     {key}
                   </span>
-                  <span className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
+                  <span className="text-xl font-extrabold text-foreground">
                     {typeof value === 'number' ? value.toFixed(2) : String(value)}
                   </span>
                 </div>
@@ -314,12 +314,12 @@ export default function ReportsCenterPage() {
           )}
 
           {type === 'financial' && result.byPlan && result.byPlan.length > 0 && (
-            <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 rounded-2xl p-4 backdrop-blur-xl">
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">{t('incomeByPlan')}</h3>
+            <div className="bg-card/70 border border-border rounded-2xl p-4 backdrop-blur-xl">
+              <h3 className="text-sm font-bold text-foreground mb-3">{t('incomeByPlan')}</h3>
               <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs">
+                  <tr className="border-b border-border text-muted-foreground text-xs">
                     <th className="text-start py-2">Plan</th>
                     <th className="text-end py-2">Trainees Paid</th>
                     <th className="text-end py-2">{tTrainees('referralNew')}</th>
@@ -331,24 +331,24 @@ export default function ReportsCenterPage() {
                 </thead>
                 <tbody>
                   {result.byPlan.map((p: any, i: number) => (
-                    <tr key={i} className="border-b border-slate-200/40 dark:border-slate-800/40">
-                      <td className="py-2 text-slate-800 dark:text-slate-200">{p.planName}</td>
-                      <td className="py-2 text-end text-slate-700 dark:text-slate-300">{p.traineeCount}</td>
-                      <td className="py-2 text-end text-slate-600 dark:text-slate-400">{p.referrals?.new ?? 0}</td>
-                      <td className="py-2 text-end text-slate-600 dark:text-slate-400">{p.referrals?.network ?? 0}</td>
-                      <td className="py-2 text-end text-slate-600 dark:text-slate-400">{p.referrals?.continuous ?? 0}</td>
-                      <td className="py-2 text-end text-slate-600 dark:text-slate-400">{p.referrals?.old ?? 0}</td>
-                      <td className="py-2 text-end text-emerald-700 dark:text-emerald-300">{Number(p.income).toFixed(2)}</td>
+                    <tr key={i} className="border-b border-border/40">
+                      <td className="py-2 text-foreground">{p.planName}</td>
+                      <td className="py-2 text-end text-foreground/80">{p.traineeCount}</td>
+                      <td className="py-2 text-end text-muted-foreground">{p.referrals?.new ?? 0}</td>
+                      <td className="py-2 text-end text-muted-foreground">{p.referrals?.network ?? 0}</td>
+                      <td className="py-2 text-end text-muted-foreground">{p.referrals?.continuous ?? 0}</td>
+                      <td className="py-2 text-end text-muted-foreground">{p.referrals?.old ?? 0}</td>
+                      <td className="py-2 text-end text-success">{Number(p.income).toFixed(2)}</td>
                     </tr>
                   ))}
-                  <tr className="font-bold text-slate-900 dark:text-slate-100 border-t border-slate-300 dark:border-slate-700">
+                  <tr className="font-bold text-foreground border-t border-input">
                     <td className="py-2">GRAND TOTAL</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + p.traineeCount, 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.new ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.network ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.continuous ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.old ?? 0), 0)}</td>
-                    <td className="py-2 text-end text-emerald-600 dark:text-emerald-400">{result.byPlan.reduce((s: number, p: any) => s + Number(p.income), 0).toFixed(2)}</td>
+                    <td className="py-2 text-end text-success">{result.byPlan.reduce((s: number, p: any) => s + Number(p.income), 0).toFixed(2)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -356,12 +356,12 @@ export default function ReportsCenterPage() {
             </div>
           )}
 
-          <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl space-y-4">
+          <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl space-y-4">
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => handleExport('pdf')}
                 disabled={isExporting}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors disabled:opacity-50"
               >
                 <Download size={14} />
                 {t('exportPdf')}
@@ -369,7 +369,7 @@ export default function ReportsCenterPage() {
               <button
                 onClick={() => handleExport('excel')}
                 disabled={isExporting}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors disabled:opacity-50"
               >
                 <FileSpreadsheet size={14} />
                 {t('exportExcel')}

@@ -34,7 +34,9 @@
     "somethingWentWrong": "Something went wrong",
     "pageNotFoundTitle": "Page Not Found",
     "pageNotFoundDesc": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
   },
   "auth": {
     "login": "Login",
@@ -57,7 +59,8 @@
     "newPasswordGenerated": "New password generated",
     "error": "Something went wrong",
     "passwordMismatch": "Passwords do not match",
-    "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to."
+    "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to.",
+    "poweredBy": "Powered by {name}"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -474,7 +477,86 @@
     "dangerZone": "Danger Zone",
     "updateSuccess": "Academy updated successfully",
     "statusChangeSuccess": "Academy status updated",
-    "logout": "Logout"
+    "logout": "Logout",
+    "nav": {
+      "academies": "Academies",
+      "leads": "Leads",
+      "settings": "Settings"
+    },
+    "leads": {
+      "title": "Leads",
+      "subtitle": "Demo requests from the website. Newest first.",
+      "searchPlaceholder": "Search by name, academy or phone…",
+      "allStatuses": "All",
+      "status": {
+        "NEW": "New",
+        "CONTACTED": "Contacted",
+        "DEMO_BOOKED": "Demo booked",
+        "WON": "Won",
+        "LOST": "Lost"
+      },
+      "statusLabel": "Status of {name}",
+      "columns": {
+        "received": "Received",
+        "name": "Name",
+        "academy": "Academy",
+        "phone": "Phone",
+        "branches": "Branches",
+        "sport": "Sport",
+        "language": "Page",
+        "status": "Status"
+      },
+      "branches": {
+        "one": "1 branch",
+        "twoToFive": "2–5 branches",
+        "sixPlus": "6 or more"
+      },
+      "sports": {
+        "football": "Football",
+        "swimming": "Swimming",
+        "tennis": "Tennis",
+        "gymnastics": "Gymnastics",
+        "karate": "Karate",
+        "basketball": "Basketball",
+        "volleyball": "Volleyball",
+        "padel": "Padel"
+      },
+      "language": {
+        "en": "English",
+        "ar": "Arabic"
+      },
+      "whatsapp": "WhatsApp",
+      "notes": "Notes",
+      "addNotes": "Add notes",
+      "notesTitle": "Notes on {name}",
+      "notesPlaceholder": "Call outcome, demo date, anything worth remembering…",
+      "saveNotes": "Save notes",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteTitle": "Delete this lead?",
+      "deleteMessage": "{name} ({academy}) will be removed permanently.",
+      "deleted": "Lead deleted",
+      "updated": "Lead updated",
+      "updateError": "Couldn't save the change. Try again.",
+      "empty": "No leads yet",
+      "emptyFiltered": "No leads match this filter",
+      "emptyDesc": "Demo requests from the landing page will appear here.",
+      "loadError": "Couldn't load leads. Refresh to try again.",
+      "newBadge": "{count} new"
+    },
+    "settings": {
+      "title": "Settings",
+      "leadEmailTitle": "New lead notifications",
+      "leadEmailDesc": "Every demo request from the website is emailed to this address. Leave it empty to stop the emails; leads are still saved and listed under Leads.",
+      "leadEmailLabel": "Notification email",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Settings saved",
+      "saveError": "Couldn't save the settings. Try again.",
+      "invalidEmail": "Enter a valid email address, or leave it empty.",
+      "emailNotConfigured": "Email sending isn't set up on the server yet (RESEND_API_KEY and EMAIL_FROM), so nothing is sent until it is. Leads are still saved.",
+      "loadError": "Couldn't load the settings. Refresh to try again."
+    }
   },
   "days": {
     "monday": "Monday",

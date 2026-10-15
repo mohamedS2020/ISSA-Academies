@@ -114,8 +114,8 @@ export default function TraineesPage() {
 
   if (user && !canView) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <XCircle className="w-8 h-8 me-3 text-danger" />
         <span>Access denied. You don&apos;t have permission to view trainees.</span>
       </div>
     );
@@ -138,8 +138,8 @@ export default function TraineesPage() {
       header: t('name'),
       render: (row) => (
         <div>
-          <p className="font-semibold text-slate-900 dark:text-white">{row.name}</p>
-          <p className="text-xs text-slate-600 dark:text-slate-400">{row.user.phoneNumber}</p>
+          <p className="font-semibold text-foreground">{row.name}</p>
+          <p className="text-xs text-muted-foreground">{row.user.phoneNumber}</p>
         </div>
       ),
     },
@@ -150,17 +150,17 @@ export default function TraineesPage() {
         const active = row.subscriptions?.[0];
         return active ? (
           <div className="flex items-center gap-1.5">
-            <CreditCard className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <CreditCard className="w-3.5 h-3.5 text-success shrink-0" />
             <div>
-              <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">{active.plan.name}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">{active.level.name}</p>
+              <p className="text-xs text-success font-medium">{active.plan.name}</p>
+              <p className="text-xs text-muted-foreground">{active.level.name}</p>
               {row.groupTrainees?.[0] && (
                 <p className="text-[11px] text-primary/80 dark:text-primary/80">{row.groupTrainees[0].group.name}</p>
               )}
             </div>
           </div>
         ) : (
-          <span className="text-xs text-slate-500">No active subscription</span>
+          <span className="text-xs text-muted-foreground">No active subscription</span>
         );
       },
     },
@@ -170,8 +170,8 @@ export default function TraineesPage() {
       render: (row) => (
         <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold w-fit ${
           row.user.isActive
-            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-            : 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-300/30 dark:border-slate-600/30'
+            ? 'bg-success-soft text-success border border-success/30'
+            : 'bg-muted/70 text-muted-foreground border border-input/30'
         }`}>
           {row.user.isActive
             ? <CheckCircle className="w-3 h-3" />
@@ -186,7 +186,7 @@ export default function TraineesPage() {
       render: (row) => (
         <button
           onClick={() => router.push(`/${locale}/trainees/${row.id}`)}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 border border-slate-300/60 dark:border-slate-600/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
         >
           View
         </button>
@@ -205,8 +205,8 @@ export default function TraineesPage() {
             <Users className="w-6 h-6 text-primary dark:text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">
               {pagination.total} {pagination.total === 1 ? 'trainee' : 'trainees'} in this branch
             </p>
           </div>
@@ -215,7 +215,7 @@ export default function TraineesPage() {
           (user as any)?.privileges?.includes('can_manage_trainees')) && (
           <button
             onClick={() => router.push(`/${locale}/trainees/new`)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
           >
             <UserPlus className="w-4 h-4" />
             {t('register')}
@@ -225,13 +225,13 @@ export default function TraineesPage() {
 
       {/* ─── Search Bar ─── */}
       <div className="relative max-w-md">
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
+          className="w-full ps-9 pe-4 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
         />
       </div>
 

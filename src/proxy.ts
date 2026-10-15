@@ -9,7 +9,13 @@
  *      resolve the slug → tenant. On the bare/root domain (or the Railway
  *      *.up.railway.app domain before a custom domain is configured), no slug is
  *      set and the app falls back to JWT-based tenant resolution (unchanged).
- *   2. Locale routing — redirects /path to /en/path or /ar/path.
+ *   2. The marketing site — on the platform host (the root domain, or any host
+ *      that is not a subdomain of it, e.g. localhost or the Railway URL), `/`
+ *      serves the English landing page and `/ar` the Arabic one. They are
+ *      rewrites to src/app/marketing/[locale]: the address bar keeps `/` and
+ *      `/ar`. `/en` redirects to `/`. www redirects to the bare domain. Academy
+ *      subdomains never see the marketing site.
+ *   3. Locale routing — redirects /path to /en/path or /ar/path.
  *
  * SECURITY: the subdomain is a UX/theming/routing convenience ONLY. Tenant data
  * authorization is always enforced by the JWT (tenantId/branchId claims +
@@ -22,6 +28,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { locales, defaultLocale } from '@/lib/i18n/config';
+import { MARKETING_DEFAULT_LOCALE } from '@/lib/config/marketing';
 
 // The base domain the app is served from. Subdomains of it are academy slugs.
 // Defaults to "localhost" for dev (so aqua.localhost:3007 works with no DNS).
@@ -52,9 +59,39 @@ function getAcademySlug(host: string | null): string | null {
   return label;
 }
 
+/**
+ * The host the marketing site lives on: the root domain and www, plus any host
+ * that is not a subdomain of ROOT_DOMAIN at all (localhost in development, the
+ * Railway URL before the custom domain exists). Academy subdomains and the
+ * reserved labels (api., admin., …) are not.
+ */
+function isPlatformHost(hostname: string): boolean {
+  if (!hostname) return false;
+  if (hostname === ROOT_DOMAIN || hostname === `www.${ROOT_DOMAIN}`) return true;
+  return !hostname.endsWith(`.${ROOT_DOMAIN}`);
+}
+
+/** Landing page routes: the default language at `/`, the others at `/<locale>`. */
+function marketingTarget(pathname: string): { rewrite: string } | { redirect: string } | null {
+  if (pathname === '/') return { rewrite: `/marketing/${MARKETING_DEFAULT_LOCALE}` };
+  if (pathname === `/${MARKETING_DEFAULT_LOCALE}`) return { redirect: '/' };
+  const locale = locales.find((candidate) => pathname === `/${candidate}`);
+  if (locale) return { rewrite: `/marketing/${locale}` };
+  return null;
+}
+
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const academySlug = getAcademySlug(request.headers.get('host'));
+  const { pathname, search } = request.nextUrl;
+  const host = request.headers.get('host');
+  const hostname = host?.split(':')[0].toLowerCase() ?? '';
+
+  // One canonical host: www.<domain> → <domain>, keeping the path and query.
+  // Skipped in development, where ROOT_DOMAIN is plain "localhost".
+  if (ROOT_DOMAIN !== 'localhost' && hostname === `www.${ROOT_DOMAIN}`) {
+    return NextResponse.redirect(new URL(`${pathname}${search}`, `https://${ROOT_DOMAIN}`), 308);
+  }
+
+  const academySlug = getAcademySlug(host);
 
   // Forward the request, attaching the resolved academy slug as a TRUSTED header
   // (always set or cleared here — never passed through from the client).
@@ -79,6 +116,20 @@ export function proxy(request: NextRequest) {
     pathname.includes('.') // static files (favicon.ico, etc.)
   ) {
     return forward();
+  }
+
+  // The marketing site, on the platform host only. Everything else on that
+  // host (/en/login, /ar/admin, …) continues to the app below, unchanged.
+  if (!academySlug && isPlatformHost(hostname)) {
+    const target = marketingTarget(pathname);
+    if (target && 'redirect' in target) {
+      return NextResponse.redirect(new URL(`${target.redirect}${search}`, request.url), 308);
+    }
+    if (target) {
+      const headers = new Headers(request.headers);
+      headers.delete('x-academy-slug'); // never trust a client-supplied one
+      return NextResponse.rewrite(new URL(target.rewrite, request.url), { request: { headers } });
+    }
   }
 
   // Check if the pathname already has a locale prefix

@@ -54,9 +54,9 @@ function getAuthHeaders(): HeadersInit {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    ACTIVE: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    SUSPENDED: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    DELETED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    ACTIVE: 'bg-success-soft text-success',
+    SUSPENDED: 'bg-warning-soft text-warning',
+    DELETED: 'bg-danger-soft text-danger',
   };
   const labels: Record<string, string> = { ACTIVE: 'Active', SUSPENDED: 'Suspended', DELETED: 'Deleted' };
   return (
@@ -70,14 +70,14 @@ function StatusBadge({ status }: { status: string }) {
 
 function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary dark:bg-primary/30 dark:text-primary">
           {icon}
         </div>
         <div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
     </div>
@@ -215,7 +215,7 @@ export default function TenantDetailPage() {
   if (!tenant) {
     return (
       <div className="py-20 text-center">
-        <p className="text-gray-500">Academy not found.</p>
+        <p className="text-muted-foreground">Academy not found.</p>
         <button
           onClick={() => router.push('../admin')}
           className="mt-4 text-sm text-primary hover:underline"
@@ -233,7 +233,7 @@ export default function TenantDetailPage() {
       {/* Back link */}
       <button
         onClick={() => router.push('../admin')}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground/80"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -244,23 +244,23 @@ export default function TenantDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-600 text-lg font-bold text-slate-900 dark:text-white shadow-md">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-md">
             {tenant.name.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl font-bold text-foreground">
               {tenant.name}
             </h1>
             <div className="mt-1 flex items-center gap-3">
               <StatusBadge status={tenant.status} />
-              <span className="font-mono text-sm text-gray-400">{tenant.slug}</span>
+              <span className="font-mono text-sm text-muted-foreground">{tenant.slug}</span>
             </div>
           </div>
         </div>
         {!isEditing && tenant.status !== 'DELETED' && (
           <button
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+            className="inline-flex items-center gap-2 rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -273,7 +273,7 @@ export default function TenantDetailPage() {
       {/* Usage Stats */}
       {usage && (
         <div>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             {t('usageStats')}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -307,9 +307,9 @@ export default function TenantDetailPage() {
       )}
 
       {/* Tenant Details Card */}
-      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-        <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div className="rounded-2xl border border-border bg-card">
+        <div className="border-b border-border px-6 py-4">
+          <h2 className="text-lg font-semibold text-foreground">
             {t('tenantDetails')}
           </h2>
         </div>
@@ -320,39 +320,39 @@ export default function TenantDetailPage() {
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('tenantName')}</label>
+                  <label className="block text-sm font-medium text-foreground/80">{t('tenantName')}</label>
                   <input
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('contactName')}</label>
+                  <label className="block text-sm font-medium text-foreground/80">{t('contactName')}</label>
                   <input
                     type="text"
                     value={editData.contactName}
                     onChange={(e) => setEditData((p) => ({ ...p, contactName: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('contactPhone')}</label>
+                  <label className="block text-sm font-medium text-foreground/80">{t('contactPhone')}</label>
                   <input
                     type="tel"
                     value={editData.contactPhone}
                     onChange={(e) => setEditData((p) => ({ ...p, contactPhone: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('contactEmail')}</label>
+                  <label className="block text-sm font-medium text-foreground/80">{t('contactEmail')}</label>
                   <input
                     type="email"
                     value={editData.contactEmail}
                     onChange={(e) => setEditData((p) => ({ ...p, contactEmail: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function TenantDetailPage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary disabled:opacity-50"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -374,7 +374,7 @@ export default function TenantDetailPage() {
                       contactEmail: tenant.contactEmail ?? '',
                     });
                   }}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
                 >
                   Cancel
                 </button>
@@ -384,32 +384,32 @@ export default function TenantDetailPage() {
             /* View Mode */
             <dl className="grid gap-6 sm:grid-cols-2">
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('tenantName')}</dt>
-                <dd className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">{tenant.name}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('tenantName')}</dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">{tenant.name}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('slug')}</dt>
-                <dd className="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">{tenant.slug}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('slug')}</dt>
+                <dd className="mt-1 font-mono text-sm text-foreground">{tenant.slug}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('contactName')}</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.contactName || '—'}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('contactName')}</dt>
+                <dd className="mt-1 text-sm text-foreground">{tenant.contactName || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('contactPhone')}</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.contactPhone || '—'}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('contactPhone')}</dt>
+                <dd className="mt-1 text-sm text-foreground">{tenant.contactPhone || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('contactEmail')}</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.contactEmail || '—'}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('contactEmail')}</dt>
+                <dd className="mt-1 text-sm text-foreground">{tenant.contactEmail || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('maxBranches')}</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.maxBranches}</dd>
+                <dt className="text-xs font-medium text-muted-foreground">{t('maxBranches')}</dt>
+                <dd className="mt-1 text-sm text-foreground">{tenant.maxBranches}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('createdAt')}</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <dt className="text-xs font-medium text-muted-foreground">{t('createdAt')}</dt>
+                <dd className="mt-1 text-sm text-foreground">
                   {new Date(tenant.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric',
                   })}
@@ -418,12 +418,12 @@ export default function TenantDetailPage() {
               {tenant.config && (
                 <>
                   <div>
-                    <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('currency')}</dt>
-                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.config.currency}</dd>
+                    <dt className="text-xs font-medium text-muted-foreground">{t('currency')}</dt>
+                    <dd className="mt-1 text-sm text-foreground">{tenant.config.currency}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('defaultTimezone')}</dt>
-                    <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{tenant.config.defaultTimezone}</dd>
+                    <dt className="text-xs font-medium text-muted-foreground">{t('defaultTimezone')}</dt>
+                    <dd className="mt-1 text-sm text-foreground">{tenant.config.defaultTimezone}</dd>
                   </div>
                 </>
               )}
@@ -434,9 +434,9 @@ export default function TenantDetailPage() {
 
       {/* Danger Zone */}
       {tenant.status !== 'DELETED' && (
-        <div className="rounded-2xl border-2 border-red-200 bg-white dark:border-red-900/50 dark:bg-gray-800">
-          <div className="border-b border-red-200 px-6 py-4 dark:border-red-900/50">
-            <h2 className="text-lg font-semibold text-red-700 dark:text-red-400">
+        <div className="rounded-2xl border-2 border-danger/30 bg-card">
+          <div className="border-b border-danger/30 px-6 py-4">
+            <h2 className="text-lg font-semibold text-danger">
               {t('dangerZone')}
             </h2>
           </div>
@@ -444,12 +444,12 @@ export default function TenantDetailPage() {
             {tenant.status === 'ACTIVE' && (
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('suspendTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('suspendMessage')}</p>
+                  <p className="text-sm font-medium text-foreground">{t('suspendTitle')}</p>
+                  <p className="text-xs text-muted-foreground">{t('suspendMessage')}</p>
                 </div>
                 <button
                   onClick={() => setConfirmDialog({ isOpen: true, action: 'suspend' })}
-                  className="whitespace-nowrap rounded-lg border border-amber-300 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 dark:border-amber-600 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                  className="whitespace-nowrap rounded-lg border border-warning/30 px-4 py-2 text-sm font-medium text-warning transition-colors hover:bg-warning-soft"
                 >
                   {t('suspend')}
                 </button>
@@ -458,25 +458,25 @@ export default function TenantDetailPage() {
             {tenant.status === 'SUSPENDED' && (
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('reactivateTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('reactivateMessage')}</p>
+                  <p className="text-sm font-medium text-foreground">{t('reactivateTitle')}</p>
+                  <p className="text-xs text-muted-foreground">{t('reactivateMessage')}</p>
                 </div>
                 <button
                   onClick={() => setConfirmDialog({ isOpen: true, action: 'reactivate' })}
-                  className="whitespace-nowrap rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-600 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  className="whitespace-nowrap rounded-lg border border-success/30 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success-soft"
                 >
                   {t('reactivate')}
                 </button>
               </div>
             )}
-            <div className="flex items-center gap-4 border-t border-red-100 pt-4 sm:border-t-0 sm:pt-0">
+            <div className="flex items-center gap-4 border-t border-danger/30 pt-4 sm:border-t-0 sm:pt-0">
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('deleteTitle')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('deleteMessage')}</p>
+                <p className="text-sm font-medium text-foreground">{t('deleteTitle')}</p>
+                <p className="text-xs text-muted-foreground">{t('deleteMessage')}</p>
               </div>
               <button
                 onClick={() => setConfirmDialog({ isOpen: true, action: 'delete' })}
-                className="whitespace-nowrap rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 dark:border-red-600 dark:text-red-400 dark:hover:bg-red-900/20"
+                className="whitespace-nowrap rounded-lg border border-danger/30 px-4 py-2 text-sm font-medium text-danger transition-colors hover:bg-danger-soft"
               >
                 {t('deleteTenant')}
               </button>

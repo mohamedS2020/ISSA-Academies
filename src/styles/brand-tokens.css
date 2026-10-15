@@ -1,0 +1,81 @@
+/**
+ * Yallacademy brand tokens: the ONE place brand colour values live.
+ *
+ * Source of truth: design/Yallacademy-Brand/Colors/yallacademy-colors.css.
+ * Where the website design used slightly different tints, the brand palette
+ * wins, so the site and the app can never drift apart.
+ *
+ * Used by:
+ *   - the marketing site (src/styles/marketing.css), directly;
+ *   - the app, through Tailwind's theme (@theme in src/app/globals.css), which
+ *     names them as utilities (bg-midnight, text-deepsea, border-line …) and
+ *     maps the app's light and dark colours onto them.
+ *
+ * Change a colour here, never in a component.
+ */
+
+:root {
+  /* ─── Core ─── */
+  --ya-midnight: #001219; /* The Y and the A crossbar, wordmark, dark backgrounds, headings */
+  --ya-lagoon: #0A9396; /* The blade: highlights, links, active states. Not for text on white. */
+  --ya-deep-sea: #005F73; /* The A legs: buttons, the "a" in the wordmark */
+
+  /* ─── Support ─── */
+  --ya-white: #FFFFFF;
+  --ya-mist: #EEF4F4; /* light page backgrounds, cards */
+  --ya-line: #D6E2E3; /* borders, dividers */
+  --ya-slate: #4F6268; /* secondary text, captions */
+
+  /* ─── Lagoon scale ─── */
+  --ya-lagoon-50: #EBF6F7;
+  --ya-lagoon-100: #D8EEEE;
+  --ya-lagoon-200: #B1DCDD;
+  --ya-lagoon-300: #84C9CA;
+  --ya-lagoon-400: #47AEB0;
+  --ya-lagoon-500: #0A9396;
+  --ya-lagoon-600: #08797D;
+  --ya-lagoon-700: #065F64;
+  --ya-lagoon-800: #04464B;
+  --ya-lagoon-900: #022C32;
+
+  /* ─── Deep Sea scale ─── */
+  --ya-deepsea-50: #EBF2F4;
+  --ya-deepsea-100: #D6E5E9;
+  --ya-deepsea-200: #ADCCD2;
+  --ya-deepsea-300: #80AFB9;
+  --ya-deepsea-400: #408796;
+  --ya-deepsea-500: #005F73;
+  --ya-deepsea-600: #005061;
+  --ya-deepsea-700: #00404F;
+  --ya-deepsea-800: #00313D;
+  --ya-deepsea-900: #00212B;
+
+  /* ─── Supporting UI colours ───
+     Not part of the brand palette; these come from the website design for
+     states and surfaces the palette does not cover. Every text colour here
+     reaches 4.5:1 on the background it is paired with. */
+  --ya-midnight-2: #04222C; /* raised surface on Midnight */
+  --ya-midnight-3: #0A2F3A; /* hover surface on Midnight */
+  --ya-success: #0F7656; /* the design's #12805C, darkened: 4.3:1 → 4.9:1 on --ya-success-bg */
+  --ya-success-bg: #E3F4EC;
+  --ya-warning: #A15C07;
+  --ya-warning-bg: #FBF0DF;
+  --ya-danger: #B42318; /* errors and destructive actions: 6.6:1 on white */
+  --ya-danger-bg: #FDECEA;
+  --ya-on-dark-muted: #A9BFC4; /* secondary text on Midnight */
+  --ya-on-deepsea-muted: #CFE3E5; /* secondary text on Deep Sea */
+  --ya-on-dark-danger: #F97066; /* danger text and buttons on Midnight (dark mode) */
+  --ya-status-ok: #5BD3A6; /* status dots on Deep Sea; success text in dark mode */
+  --ya-status-warn: #F2C14E; /* warning text in dark mode */
+  /* ─── Data colours (charts) ───
+     Series colours in a fixed order. Checked with a colour-blind palette
+     validator (separation under protanopia and deuteranopia, contrast) on
+     white cards and on Midnight-2 cards. Deep Sea reads grey at line width
+     and two teals are too close, so series 2 is the one non-brand hue. */
+  --ya-chart-1: #0A9396; /* series 1: Lagoon, both themes */
+  --ya-chart-2: #EB6834; /* series 2: orange on light */
+  --ya-chart-2-dark: #D95926; /* series 2: orange on dark */
+
+  --ya-whatsapp: #128C4A; /* WhatsApp's own green: their brand, not ours */
+  --ya-whatsapp-light: #5BD38F; /* WhatsApp icon on dark backgrounds */
+}

@@ -77,9 +77,9 @@ async function changeTenantStatus(id: string, status: string) {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    ACTIVE: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    SUSPENDED: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    DELETED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    ACTIVE: 'bg-success-soft text-success',
+    SUSPENDED: 'bg-warning-soft text-warning',
+    DELETED: 'bg-danger-soft text-danger',
   };
 
   const labels: Record<string, string> = {
@@ -190,8 +190,8 @@ export default function TenantListPage() {
       sortable: true,
       render: (row) => (
         <div>
-          <p className="font-medium text-gray-900 dark:text-gray-100">{row.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{row.slug}</p>
+          <p className="font-medium text-foreground">{row.name}</p>
+          <p className="text-xs text-muted-foreground">{row.slug}</p>
         </div>
       ),
     },
@@ -204,7 +204,7 @@ export default function TenantListPage() {
       key: 'contactName',
       header: t('contactName'),
       render: (row) => (
-        <span className="text-gray-600 dark:text-gray-400">
+        <span className="text-muted-foreground">
           {row.contactName || '—'}
         </span>
       ),
@@ -213,7 +213,7 @@ export default function TenantListPage() {
       key: 'contactEmail',
       header: t('contactEmail'),
       render: (row) => (
-        <span className="text-gray-600 dark:text-gray-400">
+        <span className="text-muted-foreground">
           {row.contactEmail || '—'}
         </span>
       ),
@@ -223,7 +223,7 @@ export default function TenantListPage() {
       header: t('createdAt'),
       sortable: true,
       render: (row) => (
-        <span className="text-gray-500 dark:text-gray-400">
+        <span className="text-muted-foreground">
           {new Date(row.createdAt).toLocaleDateString()}
         </span>
       ),
@@ -242,16 +242,16 @@ export default function TenantListPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-2xl font-bold text-foreground">
             {t('tenants')}
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-muted-foreground">
             {t('title')}
           </p>
         </div>
         <button
           onClick={() => router.push('./admin/create')}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:to-indigo-700 hover:shadow-md"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -261,7 +261,7 @@ export default function TenantListPage() {
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+      <div className="flex gap-1 rounded-lg bg-muted p-1">
         {statusTabs.map((tab) => (
           <button
             key={tab.key}
@@ -271,8 +271,8 @@ export default function TenantListPage() {
             }}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all sm:flex-none ${
               statusFilter === tab.key
-                ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {tab.label}
@@ -295,7 +295,7 @@ export default function TenantListPage() {
           <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => router.push(`./admin/${row.id}`)}
-              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary dark:text-primary dark:hover:bg-primary/20"
+              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
             >
               {t('viewDetails')}
             </button>
@@ -304,7 +304,7 @@ export default function TenantListPage() {
                 onClick={() =>
                   setConfirmDialog({ isOpen: true, tenant: row, action: 'suspend' })
                 }
-                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-warning-soft"
               >
                 {t('suspend')}
               </button>
@@ -314,7 +314,7 @@ export default function TenantListPage() {
                 onClick={() =>
                   setConfirmDialog({ isOpen: true, tenant: row, action: 'reactivate' })
                 }
-                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success-soft"
               >
                 {t('reactivate')}
               </button>
@@ -324,7 +324,7 @@ export default function TenantListPage() {
                 onClick={() =>
                   setConfirmDialog({ isOpen: true, tenant: row, action: 'delete' })
                 }
-                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                className="rounded-md px-2.5 py-1.5 text-xs font-medium text-danger transition-colors hover:bg-danger-soft"
               >
                 {t('deleteTenant')}
               </button>

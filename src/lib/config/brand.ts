@@ -1,44 +1,32 @@
 /**
- * Platform branding — the single source of truth for the platform's name.
+ * Platform branding: the platform's name, in each language. Nothing else in
+ * the app should spell it out. (An earlier version hardcoded the first
+ * academy's name in 222 places: page titles, logo badges, trainee codes,
+ * cookie names.)
  *
- * The platform has no final name yet. Set NEXT_PUBLIC_APP_NAME to name it
- * everywhere at once. Nothing else in the codebase should spell out a platform
- * name: an earlier version hardcoded the first academy's name in 222 places —
- * page titles, logo badges, trainee codes, cookie names — and this variable was
- * declared in .env.example but never read by anything.
- *
- * Why NEXT_PUBLIC_: the name renders in the browser (login page, logo marks) as
- * well as on the server. Next.js inlines NEXT_PUBLIC_ values into the client
- * bundle AT BUILD TIME, so changing the name requires a rebuild and redeploy —
- * restarting the server is not enough.
+ * The name used to come from NEXT_PUBLIC_APP_NAME, with "Academy Platform" as
+ * a placeholder, while the platform had no name. It has one now, and the logo
+ * files carry it as artwork, so a variable that renamed only the text would
+ * leave the two disagreeing. The variable is no longer read.
  *
  * Scope: this is the PLATFORM's name. An academy's own name lives in its tenant
  * record and is what academy-facing screens should show.
- */
-
-/** Neutral placeholder until a name is chosen. */
-const DEFAULT_APP_NAME = 'Academy Platform';
-
-/**
- * The platform's display name.
  *
- * Referenced as `process.env.NEXT_PUBLIC_APP_NAME` literally — Next.js only
- * inlines statically-written references, so this must not be read dynamically.
+ * The logo files are in public/assets/img; see src/components/layout/brand-logo.tsx.
  */
-export const APP_NAME: string =
-  process.env.NEXT_PUBLIC_APP_NAME?.trim() || DEFAULT_APP_NAME;
 
-/**
- * Short mark for the small circular logo badges: the initials of the name, up
- * to three characters. "Academy Platform" → "AP".
- */
-export const APP_MARK: string = deriveMark(APP_NAME);
+import { isValidLocale, type Locale } from '@/lib/i18n/config';
 
-function deriveMark(name: string): string {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((word) => word[0])
-    .join('');
-  return (initials || name).slice(0, 3).toUpperCase();
+/** The name as written in each language. Keep both spellings exactly. */
+export const APP_NAMES: Record<Locale, string> = {
+  en: 'Yallacademy',
+  ar: 'يلّا أكاديمي',
+};
+
+/** The English name, for places with no language of their own. */
+export const APP_NAME: string = APP_NAMES.en;
+
+/** The name in the page's language; English for anything unrecognised. */
+export function appName(locale: string): string {
+  return isValidLocale(locale) ? APP_NAMES[locale] : APP_NAME;
 }

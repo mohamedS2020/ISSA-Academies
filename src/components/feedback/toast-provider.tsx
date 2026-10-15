@@ -118,10 +118,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 // ─── Toast Container ────────────────────────────────────────
 
 const variantStyles: Record<ToastVariant, string> = {
-  success: 'bg-emerald-600 text-white',
-  error: 'bg-red-600 text-white',
-  warning: 'bg-amber-500 text-white',
-  info: 'bg-primary text-white',
+  success: 'bg-success text-success-foreground',
+  error: 'bg-destructive text-destructive-foreground',
+  warning: 'bg-warning text-warning-foreground',
+  info: 'bg-primary text-primary-foreground',
 };
 
 const variantIcons: Record<ToastVariant, string> = {

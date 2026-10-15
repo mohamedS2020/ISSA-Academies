@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { APP_NAME } from "@/lib/config/brand";
-import "./globals.css";
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -10,8 +9,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout — minimal wrapper. Locale-specific layout is in [locale]/layout.tsx.
- * This file exists because Next.js requires a root layout.tsx in src/app/.
+ * Root layout — minimal wrapper. Next.js requires one in src/app/.
+ *
+ * Each section renders its own <html>: the app in [locale]/layout.tsx, the
+ * marketing site in marketing/[locale]/layout.tsx. Global styles are imported
+ * by those layouts, not here, so the app's stylesheet never loads on the
+ * marketing site and vice versa.
  */
 export default function RootLayout({
   children,

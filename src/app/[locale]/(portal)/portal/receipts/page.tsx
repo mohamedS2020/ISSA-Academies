@@ -101,7 +101,7 @@ export default function PortalReceiptsPage() {
       key: 'plan',
       header: t('planName'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400 text-xs">
+        <span className="text-muted-foreground text-xs">
           {row.subscription.plan.name} / {row.subscription.level.name}
         </span>
       ),
@@ -115,19 +115,19 @@ export default function PortalReceiptsPage() {
       key: 'issuedAt',
       header: tFinance('date'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400">{new Date(row.issuedAt).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{new Date(row.issuedAt).toLocaleDateString()}</span>
       ),
     },
   ];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
         <ReceiptIcon size={22} className="text-primary dark:text-primary" />
         {t('receipts')}
       </h2>
 
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={receipts}
@@ -139,7 +139,7 @@ export default function PortalReceiptsPage() {
             <button
               onClick={() => handleDownload(row)}
               disabled={downloadingId === row.id}
-              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
+              className="h-7 w-7 rounded-lg border border-border hover:border-primary/50 bg-background flex items-center justify-center text-muted-foreground hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
               title={tFinance('downloadReceipt')}
             >
               {downloadingId === row.id ? (

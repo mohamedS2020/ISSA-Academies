@@ -32,22 +32,27 @@ the wrong service. Two services, different needs:
 | `RATE_LIMIT_*` | ✅ | — | Defaults are fine to start |
 | `TENANT_CLIENT_CACHE_MAX` | ✅ | ✅ | Default 25 |
 | `NODE_ENV` | ✅ `production` | ✅ `production` | JWT secret strength is only enforced in production |
-| `NEXT_PUBLIC_APP_NAME` | ✅ | — | **The platform's name** — the only place it is set. **Build-time** (see below) |
 | `SENTRY_DSN` | ✅ | ✅ | Server-side error reporting. Public by design, not a secret |
 | `NEXT_PUBLIC_SENTRY_DSN` | ✅ | — | Browser error reporting — same value as `SENTRY_DSN`. **Build-time** |
 | `SENTRY_ORG` / `SENTRY_PROJECT` | ✅ | optional | Source-map upload during the build, so stack traces are readable. On the worker only if you want readable traces for job errors |
 | `SENTRY_AUTH_TOKEN` | ✅ | optional | Same upload. ⚠️ **A real secret** — Railway variables only, never `NEXT_PUBLIC_`, never committed |
 | `SENTRY_TRACES_SAMPLE_RATE` / `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE` | optional | optional | Leave unset (0) on the free tier — `.env.example` explains why |
 | `PRIVILEGE_CACHE_TTL_MS` | optional | optional | Default `30000`. Worst-case delay before a revoked moderator privilege stops working on another replica |
+| `RESEND_API_KEY` | ✅ | — | Emails a new landing-page lead to the address in Super Admin → Settings. ⚠️ **A real secret.** Without it leads are still saved, just not emailed |
+| `EMAIL_FROM` | ✅ | — | Sender for those emails, on a domain verified in Resend, e.g. `Yallacademy <notifications@yallacademy.com>` |
 | `REDIS_URL` 🚧 | ✅ | ✅ | Step 5 |
 
 **`NEXT_PUBLIC_` variables are baked in when the app is built, not read when it
-runs:** `NEXT_PUBLIC_APP_NAME`, `NEXT_PUBLIC_ROOT_DOMAIN`, `NEXT_PUBLIC_SENTRY_DSN` and
+runs:** `NEXT_PUBLIC_ROOT_DOMAIN`, `NEXT_PUBLIC_SENTRY_DSN` and
 `NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE`. Set them **before** the build. After changing
 one, deploy a **new build**: Restart re-runs the old build, and Railway's docs do not
 promise that Redeploy rebuilds either — pushing a commit to `main` always does. Then
-check the change is live (for the name: the login page and the browser tab). The Sentry
-upload variables are read during the build too; Railway passes service variables to it.
+check the change is live. The Sentry upload variables are read during the build too;
+Railway passes service variables to it.
+
+The platform's name is no longer a variable: it is set in code
+(`src/lib/config/brand.ts`). If Railway still has `NEXT_PUBLIC_APP_NAME`, delete it;
+nothing reads it.
 
 **CI needs none of these.** GitHub Actions builds only to check the code; that build is
 never deployed, so uploading its source maps would attach them to a release nothing
@@ -162,6 +167,15 @@ service should be registering.
 
 - [ ] External uptime monitor pointed at `/api/health`
 
+**Lead emails (Resend):**
+
+- [ ] In Resend, add the domain and create the DNS records it lists (SPF and DKIM)
+      at your DNS provider; wait until Resend shows it as verified
+- [ ] `RESEND_API_KEY` and `EMAIL_FROM` on the web service
+- [ ] Super Admin → Settings: set the email address that should receive new leads
+- [ ] Submit a demo request on the landing page: it appears in Super Admin → Leads
+      and the email arrives. Then delete the test lead
+
 **🚧 Redis — waits on hardening-plan §6:**
 
 - [ ] Upstash Redis created, `REDIS_URL` on both services
@@ -191,8 +205,6 @@ is happening.
 
 - [ ] Custom domain attached, `NEXT_PUBLIC_ROOT_DOMAIN` set to it — then a **new build**
       (it is build-time)
-- [ ] Platform name chosen: `NEXT_PUBLIC_APP_NAME` set — also build-time — and the login
-      page shows it
 - [ ] Local test runs no longer point at the production database (hardening plan §31)
 - [ ] Wildcard DNS (`*.yourdomain.com`) so academy subdomains resolve
 - [ ] Log in via an academy subdomain and confirm it themes correctly

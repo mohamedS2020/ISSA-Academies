@@ -1,0 +1,376 @@
+{
+  "meta": {
+    "title": "Yallacademy · Sports Academy Management Software (Arabic & English)",
+    "description": "Run your sports academy in one place: branches, groups, attendance, subscriptions, receipts and coach payroll, plus a parent portal. Arabic & English.",
+    "siteName": "Yallacademy"
+  },
+  "a11y": {
+    "skipLink": "Skip to content",
+    "sampleData": "Sample data for illustration",
+    "on": "On",
+    "off": "Off",
+    "whatsappFloat": "Chat on WhatsApp"
+  },
+  "nav": {
+    "logoLabel": "Yallacademy",
+    "menuLabel": "Menu",
+    "links": {
+      "platform": "Platform",
+      "roles": "Roles",
+      "how": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ"
+    },
+    "otherLanguage": "العربية",
+    "login": "Log in",
+    "bookDemo": "Book a demo"
+  },
+  "hero": {
+    "eyebrow": "The operating platform for sports academies",
+    "titleLine1": "Run your academy.",
+    "titleLine2": "Raise your champions.",
+    "lead": "Branches, groups, attendance, subscriptions and finances in one calm, connected place. Your team and parents each get exactly the access they need.",
+    "bookDemo": "Book a demo",
+    "whatsapp": "Chat on WhatsApp",
+    "sportsLabel": "Built for every sport",
+    "sports": ["Football", "Swimming", "Tennis", "Gymnastics", "Karate", "Basketball"],
+    "attendance": {
+      "title": "Attendance · Today",
+      "group": "U12 Football · Nasr City",
+      "count": "18 / 20",
+      "present": "present"
+    },
+    "collections": {
+      "label": "Collected this month",
+      "amount": "EGP 184,500",
+      "paidShare": "92% of subscriptions paid",
+      "paid": "Paid",
+      "dueThisWeek": "Due this week",
+      "balanceDue": "Balance due"
+    },
+    "toast": {
+      "title": "Attendance saved · U12 Football",
+      "time": "5:02 PM"
+    }
+  },
+  "platform": {
+    "eyebrow": "One platform",
+    "title": "Everything your academy runs on, in one place.",
+    "lead": "Replace the spreadsheets, paper receipts and WhatsApp groups with one system your whole team can use.",
+    "features": [
+      {
+        "title": "Branches & groups",
+        "text": "Run every branch and training group from one dashboard, each with its own captains and schedule."
+      },
+      {
+        "title": "Attendance",
+        "text": "Your staff mark attendance in seconds. You see who showed up, by group and by branch."
+      },
+      {
+        "title": "Subscriptions & receipts",
+        "text": "Know who paid, who's due to renew and who still owes, and issue receipts without paper."
+      },
+      {
+        "title": "Finance",
+        "text": "Track income and expenses for every branch, including coach payroll."
+      }
+    ]
+  },
+  "roles": {
+    "eyebrow": "Four roles, one platform",
+    "title": "Everyone sees exactly what they need.",
+    "lead": "Switch between roles to see Yallacademy through the eyes of each person in your academy.",
+    "tablistLabel": "Four roles, one platform",
+    "tabs": {
+      "owner": "Owner",
+      "moderator": "Moderator",
+      "captain": "Captain",
+      "parent": "Parent"
+    },
+    "owner": {
+      "eyebrow": "For the owner (admin)",
+      "title": "Every branch, and every pound, in one place.",
+      "ticks": [
+        "Income, expenses and net for every branch",
+        "Decide what each moderator can see and do",
+        "Spot unpaid balances before they pile up"
+      ],
+      "kpis": [
+        { "label": "Income", "value": "EGP 184.5K" },
+        { "label": "Expenses", "value": "EGP 84.7K" },
+        { "label": "Net", "value": "EGP 99.8K" }
+      ],
+      "tableTitle": "Finance · Nasr City",
+      "columns": {
+        "period": "Month",
+        "income": "Income",
+        "expenses": "Expenses",
+        "net": "Net"
+      },
+      "periods": ["August", "September", "October"],
+      "total": "Total (EGP)"
+    },
+    "moderator": {
+      "eyebrow": "For moderators",
+      "title": "Trusted staff, with only the access you give them.",
+      "ticks": [
+        "The owner sets each moderator's permissions",
+        "Assign each moderator to a branch",
+        "Daily work gets done; control stays with the owner"
+      ],
+      "initial": "S",
+      "name": "Sara M.",
+      "role": "Moderator · Nasr City branch",
+      "permissions": ["Attendance", "Subscriptions", "Schedule", "Finance", "Reports"],
+      "setByOwner": "Permissions set by the owner"
+    },
+    "captain": {
+      "eyebrow": "For captains",
+      "title": "Today's sessions and players, in your pocket.",
+      "ticks": [
+        "See today's groups at a glance",
+        "Write notes on each player after a session",
+        "Know your schedule for the week"
+      ],
+      "session": "U12 Football · 5:00 PM",
+      "players": [
+        { "initial": "K", "name": "Karim H." },
+        { "initial": "L", "name": "Laila S." },
+        { "initial": "H", "name": "Hassan A." },
+        { "initial": "S", "name": "Salma M." },
+        { "initial": "O", "name": "Omar K." }
+      ],
+      "button": "Add session notes"
+    },
+    "parent": {
+      "eyebrow": "For parents",
+      "title": "Everything about their child, without a phone call.",
+      "ticks": [
+        "Upcoming sessions, always up to date",
+        "Attendance history",
+        "Subscriptions and receipts"
+      ],
+      "greeting": "Hi, Mona",
+      "child": "Youssef · U10 Swimming",
+      "nextLabel": "Next session",
+      "nextWhen": "Tomorrow · 5:00 PM",
+      "nextWhere": "Maadi branch",
+      "attendanceLabel": "Attendance this month",
+      "attendanceValue": "11 of 12",
+      "subscriptionLabel": "October subscription",
+      "paid": "Paid"
+    }
+  },
+  "why": {
+    "eyebrow": "Why Yallacademy",
+    "title": "Why academies choose Yallacademy",
+    "roles": {
+      "number": "4",
+      "lead": "roles, one platform: owner, moderator, captain and parent.",
+      "chips": ["Owner", "Moderator", "Captain", "Parent"]
+    },
+    "brand": {
+      "title": "Your academy, your brand",
+      "slug": "your-academy",
+      "domain": ".yallacademy.com",
+      "text": "Every academy gets its own web address, so parents see your name first."
+    },
+    "money": {
+      "title": "Every pound, every branch",
+      "text": "See income, expenses and net for each branch, month by month.",
+      "chartLabel": "Net income · last 6 months",
+      "amount": "EGP 99,800",
+      "months": ["May", "Jun", "Jul", "Aug", "Sep", "Oct"]
+    },
+    "data": {
+      "title": "Your data stays yours",
+      "text": "Each academy's data is kept separate from every other academy's, at the database level."
+    },
+    "lang": {
+      "title": "Arabic and English",
+      "text": "Switch language any time, with proper right-to-left layout."
+    }
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "From first call to first session, in three steps.",
+    "steps": [
+      {
+        "title": "Book a demo",
+        "text": "We walk you through Yallacademy with your academy's setup in mind."
+      },
+      {
+        "title": "We set you up",
+        "text": "Send us your current sheets. We help bring in your branches, groups and trainees."
+      },
+      {
+        "title": "Invite your team",
+        "text": "Captains and parents get their logins, and you're up and running."
+      }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Founding academies",
+    "title": "Be one of the first academies on Yallacademy",
+    "lead": "We're onboarding a small group of founding academies and working closely with each one.",
+    "facts": [
+      { "value": "Free", "label": "onboarding & setup" },
+      { "value": "Excel", "label": "data import, done with you" },
+      { "value": "Arabic", "label": "speaking support" }
+    ],
+    "label": "Pricing",
+    "srTitle": "Simple plans that grow with your academy",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "for": "For a single-branch academy",
+        "features": ["All core features", "Parent portal", "Arabic & English", "Email & WhatsApp support"]
+      },
+      "pro": {
+        "name": "Pro",
+        "for": "For academies with several branches",
+        "features": [
+          "Everything in Starter",
+          "Multiple branches",
+          "Priority onboarding & data import",
+          "A dedicated contact person"
+        ]
+      }
+    },
+    "price": "{price} EGP",
+    "perMonth": "/ month",
+    "bookDemo": "Book a demo",
+    "note": "Not sure which plan fits? Book a demo and we'll recommend one."
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Questions academy owners ask",
+    "items": [
+      {
+        "q": "What is Yallacademy?",
+        "a": "Yallacademy is a cloud platform that sports academies use to run their whole operation: branches, coaches, trainees, training groups, schedules, attendance, subscriptions, receipts, coach payroll, and income and expenses for every branch. Owners, moderators, coaches and parents each get their own access. It works in Arabic and English and supports any sport."
+      },
+      {
+        "q": "Which sports does Yallacademy support?",
+        "a": "Any sport taught in groups or sessions: football, swimming, tennis, gymnastics, martial arts, basketball and more. Each academy sets up its own groups, levels and schedules."
+      },
+      {
+        "q": "Can I manage several branches?",
+        "a": "Yes. You manage every branch from one account, each with its own groups, captains and schedules, and switch between branches in one click."
+      },
+      {
+        "q": "Can I give my staff limited access?",
+        "a": "Yes. The owner is the academy's admin and can add moderators, choosing exactly what each one can see and do, and which branch they work in."
+      },
+      {
+        "q": "Can I track income and expenses per branch?",
+        "a": "Yes. The finance section shows income, expenses and net for each branch, including subscriptions and coach payroll."
+      },
+      {
+        "q": "What can parents see?",
+        "a": "Parents get their own portal showing their child's schedule, attendance and payment receipts."
+      },
+      {
+        "q": "Does Yallacademy work in Arabic?",
+        "a": "Yes. Yallacademy is fully bilingual in Arabic and English, including right-to-left layout."
+      },
+      {
+        "q": "How is our academy's data protected?",
+        "a": "Every academy's data is stored separately from other academies at the database level, and each user only sees what their role allows."
+      },
+      {
+        "q": "How do we get started?",
+        "a": "Book a demo or message us on WhatsApp. We set up your academy and help you import your existing data."
+      },
+      {
+        "q": "Where is Yallacademy available?",
+        "a": "We're launching in Egypt and the Arab world first. Yallacademy runs in the browser, so it works anywhere with an internet connection."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "Yalla!",
+    "title": "Ready to run your academy like a pro?",
+    "lead": "Book a demo or send us a message. We'll show you Yallacademy with your academy in mind.",
+    "or": "Prefer to chat?",
+    "whatsapp": "Chat on WhatsApp",
+    "form": {
+      "title": "Book your demo",
+      "name": "Your name",
+      "academy": "Academy name",
+      "phone": "Phone or WhatsApp",
+      "branches": "Number of branches",
+      "branchOptions": {
+        "one": "1 branch",
+        "twoToFive": "2 to 5 branches",
+        "sixPlus": "6 or more"
+      },
+      "sport": "Main sport",
+      "sportOptions": {
+        "football": "Football",
+        "swimming": "Swimming",
+        "tennis": "Tennis",
+        "gymnastics": "Gymnastics",
+        "karate": "Karate",
+        "basketball": "Basketball",
+        "volleyball": "Volleyball",
+        "padel": "Padel"
+      },
+      "submit": "Request my demo",
+      "note": "We'll get back to you on WhatsApp. No spam, ever.",
+      "honeypot": "Leave this field empty",
+      "sending": "Sending…",
+      "successTitle": "Thanks, {name}!",
+      "successText": "We've got your request and will message you on WhatsApp shortly.",
+      "errors": {
+        "generic": "Something went wrong and your request wasn't sent. Please try again, or message us on WhatsApp.",
+        "rateLimited": "You've sent several requests already. Please try again in a little while, or message us on WhatsApp.",
+        "fields": "Please check the highlighted fields.",
+        "name": "Please enter your name.",
+        "academy": "Please enter your academy's name.",
+        "phone": "Please enter a valid phone or WhatsApp number.",
+        "branches": "Please choose the number of branches.",
+        "sport": "Please choose your main sport."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "The operating platform for sports academies.",
+    "product": "Product",
+    "productLinks": {
+      "platform": "Platform",
+      "roles": "Roles",
+      "pricing": "Pricing",
+      "faq": "FAQ"
+    },
+    "company": "Company",
+    "companyLinks": {
+      "about": "About",
+      "contact": "Contact",
+      "privacy": "Privacy policy",
+      "terms": "Terms"
+    },
+    "getInTouch": "Get in touch",
+    "whatsapp": "WhatsApp",
+    "copyright": "© {year} Yallacademy. All rights reserved.",
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn"
+    }
+  },
+  "jsonLd": {
+    "featureList": [
+      "Branches",
+      "Groups & schedules",
+      "Attendance",
+      "Subscriptions & receipts",
+      "Income and expenses per branch",
+      "Roles & permissions",
+      "Owner (admin) dashboard",
+      "Moderator access",
+      "Captain view",
+      "Parent portal"
+    ]
+  }
+}

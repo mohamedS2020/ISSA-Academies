@@ -7,59 +7,61 @@
  * (dark). Uses `useTheme().toggle()`. A `mounted` guard prevents an SSR/client
  * mismatch (the server can't know the resolved theme). Styled correctly in
  * both themes itself (JS-conditional classes, not the global codemod).
+ *
+ * Laid out left to right in both languages (dir="ltr"): sun on the left, moon
+ * on the right. Its positions are physical (left-2, translate-x), so under RTL
+ * the thumb used to start on the wrong side and slide out of the track.
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/theme/theme-context';
 
 export function ThemeToggle({ className = '' }: { className?: string }) {
+  const t = useTranslations('common');
   const { resolvedTheme, toggle } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // Before mount, assume dark (the app's historical default) to avoid a flash;
   // the real value snaps in on mount.
   const isDark = !mounted || resolvedTheme === 'dark';
+  const label = isDark ? t('switchToLight') : t('switchToDark');
 
   return (
     <button
       type="button"
       role="switch"
+      dir="ltr"
       aria-checked={isDark}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Light mode' : 'Dark mode'}
+      aria-label={label}
+      title={label}
       onClick={toggle}
-      className={`group relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border p-0.5 transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
-        isDark
-          ? 'border-slate-700 bg-gradient-to-r from-slate-800 to-indigo-950'
-          : 'border-primary/70 bg-gradient-to-r from-primary to-amber-200'
-      } ${className}`}
+      className={`group relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border border-input bg-muted p-0.5 transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
     >
       {/* faint ambient icons on the track */}
       <Sun
         size={13}
-        className={`pointer-events-none absolute left-2 text-amber-500 transition-opacity duration-500 ${
+        className={`pointer-events-none absolute left-2 text-warning transition-opacity duration-500 ${
           isDark ? 'opacity-0' : 'opacity-70'
         }`}
       />
       <Moon
         size={11}
-        className={`pointer-events-none absolute right-2 text-slate-400 transition-opacity duration-500 ${
+        className={`pointer-events-none absolute right-2 text-muted-foreground transition-opacity duration-500 ${
           isDark ? 'opacity-60' : 'opacity-0'
         }`}
       />
 
       {/* sliding thumb */}
       <span
-        className={`relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-full shadow-md ring-1 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isDark
-            ? 'translate-x-[26px] bg-slate-900 ring-slate-700'
-            : 'translate-x-0 bg-white ring-primary'
+        className={`relative z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-card shadow-md ring-1 ring-border transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isDark ? 'translate-x-[26px]' : 'translate-x-0'
         }`}
       >
         <Sun
           size={13}
-          className={`absolute text-amber-500 transition-all duration-300 ${
+          className={`absolute text-warning transition-all duration-300 ${
             isDark ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
           }`}
         />

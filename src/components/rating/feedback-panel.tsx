@@ -87,13 +87,13 @@ export function FeedbackPanel({
             rows={3}
             maxLength={2000}
             placeholder={t('writePlaceholder')}
-            className="w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all resize-none"
+            className="w-full px-3 py-2 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all resize-none"
           />
           <div className="flex justify-end">
             <button
               onClick={handleSubmit}
               disabled={isSaving || !message.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-xs font-semibold disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -111,15 +111,15 @@ export function FeedbackPanel({
           <Loader2 className="w-5 h-5 animate-spin text-primary dark:text-primary" />
         </div>
       ) : entries.length === 0 ? (
-        <p className="text-xs text-slate-500 text-center py-6">{t('empty')}</p>
+        <p className="text-xs text-muted-foreground text-center py-6">{t('empty')}</p>
       ) : (
         <div className="space-y-2.5">
           {entries.map((f) => (
-            <div key={f.id} className="p-3 rounded-xl bg-slate-200/50 dark:bg-slate-800/40 border border-slate-300/40 dark:border-slate-700/40">
-              <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
+            <div key={f.id} className="p-3 rounded-xl bg-muted/50 border border-input/40">
+              <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                 {f.message}
               </p>
-              <div className="flex items-center justify-between mt-2 text-[10px] text-slate-500">
+              <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                 <span className="font-semibold">{f.captain.user.name}</span>
                 <span className="font-mono">{new Date(f.createdAt).toLocaleString()}</span>
               </div>

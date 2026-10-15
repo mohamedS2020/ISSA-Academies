@@ -50,9 +50,9 @@ interface Session {
 // ─── Status Badge ────────────────────────────────────────────
 
 const STATUS_STYLES = {
-  SCHEDULED: 'bg-primary/20 text-primary dark:text-primary border border-primary/30',
-  COMPLETED: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30',
-  CANCELLED: 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30',
+  SCHEDULED: 'bg-primary/10 text-primary dark:text-primary border border-primary/30',
+  COMPLETED: 'bg-success-soft text-success border border-success/30',
+  CANCELLED: 'bg-danger-soft text-danger border border-danger/30',
 };
 
 function StatusBadge({ status }: { status: Session['status'] }) {
@@ -83,24 +83,24 @@ function SessionCard({
       onClick={onClick}
       className={`w-full text-start p-2 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${
         session.status === 'CANCELLED'
-          ? 'bg-red-500/5 border-red-500/20 opacity-60'
-          : 'bg-slate-900/5 dark:bg-white/5 border-slate-900/10 dark:border-white/10 hover:bg-slate-900/5 dark:hover:bg-white/10'
+          ? 'bg-danger-soft border-danger/20 opacity-60'
+          : 'bg-foreground/5 border-foreground/10 hover:bg-foreground/5'
       }`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{session.group.name}</span>
+        <span className="text-[11px] font-bold text-foreground truncate">{session.group.name}</span>
         <StatusBadge status={session.status} />
       </div>
-      <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+      <div className="flex items-center gap-1 text-muted-foreground">
         <Clock className="w-3 h-3 shrink-0" />
         <span className="text-[10px]">
           {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
             format(parseISO(session.scheduledAt), 'HH:mm')}
         </span>
-        <span className="text-[10px] text-slate-500 ms-auto">{session.durationMinutes}m</span>
+        <span className="text-[10px] text-muted-foreground ms-auto">{session.durationMinutes}m</span>
       </div>
       {session.group.captain?.user?.name && (
-        <p className="text-[10px] text-slate-500 truncate mt-0.5">
+        <p className="text-[10px] text-muted-foreground truncate mt-0.5">
           {session.group.captain.user.name}
         </p>
       )}
@@ -196,17 +196,17 @@ function SessionModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-slate-900 border border-slate-900/10 dark:border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl"
+        className="bg-card border border-foreground/10 rounded-2xl p-6 w-full max-w-md shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{session.group.name}</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <h2 className="text-lg font-bold text-foreground">{session.group.name}</h2>
+            <p className="text-sm text-muted-foreground">
               {session.scheduledAtLocal
                 ? format(parseISO(session.scheduledAt), 'EEEE, MMM d yyyy')
                 : ''}{' '}
@@ -220,18 +220,18 @@ function SessionModal({
 
         <div className="space-y-2 mb-4 text-sm">
           <div className="flex justify-between">
-            <span className="text-slate-600 dark:text-slate-400">{t('duration')}</span>
-            <span className="text-slate-900 dark:text-white">{session.durationMinutes} min</span>
+            <span className="text-muted-foreground">{t('duration')}</span>
+            <span className="text-foreground">{session.durationMinutes} min</span>
           </div>
           {session.group.captain?.user?.name && (
             <div className="flex justify-between">
-              <span className="text-slate-600 dark:text-slate-400">{t('captain')}</span>
-              <span className="text-slate-900 dark:text-white">{session.group.captain.user.name}</span>
+              <span className="text-muted-foreground">{t('captain')}</span>
+              <span className="text-foreground">{session.group.captain.user.name}</span>
             </div>
           )}
           {session.status === 'CANCELLED' && session.cancelledReason && (
-            <div className="mt-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
-              <p className="text-xs text-red-600 dark:text-red-400">{session.cancelledReason}</p>
+            <div className="mt-3 p-3 bg-danger-soft rounded-lg border border-danger/20">
+              <p className="text-xs text-danger">{session.cancelledReason}</p>
             </div>
           )}
         </div>
@@ -246,7 +246,7 @@ function SessionModal({
         </Link>
 
         {error && (
-          <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm mb-3 p-2 bg-red-500/10 rounded-lg">
+          <div className="flex items-center gap-2 text-danger text-sm mb-3 p-2 bg-danger-soft rounded-lg">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -261,19 +261,19 @@ function SessionModal({
                   onChange={(e) => setCancelReason(e.target.value)}
                   placeholder={t('cancelReason')}
                   rows={3}
-                  className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 resize-none focus:outline-none focus:ring-1 focus:ring-red-500"
+                  className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-danger"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowCancelForm(false)}
-                    className="flex-1 py-2 rounded-lg border border-slate-900/10 dark:border-white/10 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-900/5 dark:bg-white/5 transition"
+                    className="flex-1 py-2 rounded-lg border border-foreground/10 text-sm text-foreground/80 hover:bg-foreground/5 transition"
                   >
                     {t('back')}
                   </button>
                   <button
                     onClick={handleCancel}
                     disabled={saving || !cancelReason.trim()}
-                    className="flex-1 py-2 rounded-lg bg-red-600 text-sm text-white font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2 rounded-lg bg-destructive text-sm text-destructive-foreground font-semibold hover:bg-destructive/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     {t('cancelSession')}
@@ -284,35 +284,35 @@ function SessionModal({
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">{t('newDate')}</label>
+                    <label className="block text-xs text-muted-foreground mb-1">{t('newDate')}</label>
                     <input
                       type="date"
                       value={rescheduleDate}
                       onChange={(e) => setRescheduleDate(e.target.value)}
-                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1">{t('newTime')}</label>
+                    <label className="block text-xs text-muted-foreground mb-1">{t('newTime')}</label>
                     <input
                       type="time"
                       value={rescheduleTime}
                       onChange={(e) => setRescheduleTime(e.target.value)}
-                      className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowRescheduleForm(false)}
-                    className="flex-1 py-2 rounded-lg border border-slate-900/10 dark:border-white/10 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-900/5 dark:bg-white/5 transition"
+                    className="flex-1 py-2 rounded-lg border border-foreground/10 text-sm text-foreground/80 hover:bg-foreground/5 transition"
                   >
                     {t('back')}
                   </button>
                   <button
                     onClick={handleReschedule}
                     disabled={saving || !rescheduleDate || !rescheduleTime}
-                    className="flex-1 py-2 rounded-lg bg-primary text-sm text-white font-semibold hover:bg-primary transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2 rounded-lg bg-primary text-sm text-primary-foreground font-semibold hover:bg-primary/90 transition disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     {t('confirmReschedule')}
@@ -323,14 +323,14 @@ function SessionModal({
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowRescheduleForm(true)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-slate-900/10 dark:border-white/10 text-sm text-slate-900 dark:text-white hover:bg-slate-900/5 dark:hover:bg-white/10 transition"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-foreground/10 text-sm text-foreground hover:bg-foreground/5 transition"
                 >
                   <CalendarClock className="w-4 h-4" />
                   {t('rescheduleSession')}
                 </button>
                 <button
                   onClick={() => setShowCancelForm(true)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-red-500/30 bg-red-500/10 text-sm text-red-600 dark:text-red-400 hover:bg-red-500/20 transition"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-danger/30 bg-danger-soft text-sm text-danger hover:bg-danger/15 transition"
                 >
                   <XCircle className="w-4 h-4" />
                   {t('cancelSession')}
@@ -393,15 +393,15 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 dark:from-slate-950 via-white dark:via-slate-900 to-slate-50 dark:to-slate-950 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-card to-background p-4 md:p-6">
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Calendar className="w-6 h-6 text-primary dark:text-primary" />
             {t('title')}
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             {format(weekStart, 'MMM d')} – {format(endOfWeek(weekStart, { weekStartsOn: 0 }), 'MMM d, yyyy')}
           </p>
         </div>
@@ -409,19 +409,19 @@ export default function SchedulePage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekStart((w) => subWeeks(w, 1))}
-            className="p-2 rounded-lg bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 transition"
+            className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }))}
-            className="px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary transition"
+            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
           >
             {t('today')}
           </button>
           <button
             onClick={() => setWeekStart((w) => addWeeks(w, 1))}
-            className="p-2 rounded-lg bg-slate-900/5 dark:bg-white/5 border border-slate-900/10 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 transition"
+            className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -446,14 +446,14 @@ export default function SchedulePage() {
                 <div
                   className={`text-center mb-2 py-2 rounded-lg ${
                     dayIsToday
-                      ? 'bg-primary text-white'
-                      : 'bg-slate-900/5 dark:bg-white/5 text-slate-600 dark:text-slate-400'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-foreground/5 text-muted-foreground'
                   }`}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-wider">
                     {format(day, 'EEE')}
                   </p>
-                  <p className={`text-xl font-bold ${dayIsToday ? 'text-slate-900 dark:text-white' : 'text-slate-800 dark:text-slate-200'}`}>
+                  <p className={`text-xl font-bold ${dayIsToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                     {format(day, 'd')}
                   </p>
                 </div>
@@ -461,7 +461,7 @@ export default function SchedulePage() {
                 {/* Sessions */}
                 <div className="space-y-1.5">
                   {daySessions.length === 0 ? (
-                    <p className="text-[10px] text-slate-500 dark:text-slate-600 text-center py-4">{t('noSessions')}</p>
+                    <p className="text-[10px] text-muted-foreground text-center py-4">{t('noSessions')}</p>
                   ) : (
                     daySessions.map((session) => (
                       <SessionCard

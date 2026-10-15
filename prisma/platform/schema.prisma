@@ -104,3 +104,45 @@ model UserPhoneIndex {
   @@index([phoneNumber])
   @@map("user_phone_index")
 }
+
+// ─── Marketing Leads ────────────────────────────────────────
+// Demo requests from the landing page, managed by the Super Admin.
+// Contains personal data (name, phone): Super Admin access only.
+model MarketingLead {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @db.VarChar(120)
+  academyName String     @map("academy_name") @db.VarChar(160)
+  phone       String     @db.VarChar(32) // normalized: digits with an optional leading +
+  branches    String     @db.VarChar(8) // "1" | "2-5" | "6+"
+  sport       String     @db.VarChar(32) // see LEAD_SPORTS in src/schemas/lead.schema.ts
+  locale      String     @db.VarChar(5) // the landing page language it came from
+  status      LeadStatus @default(NEW)
+  notes       String?    @db.Text
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@map("marketing_leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  DEMO_BOOKED
+  WON
+  LOST
+
+  @@map("lead_status")
+}
+
+// ─── Platform Settings ──────────────────────────────────────
+// Key/value settings the Super Admin can change at runtime, validated per key
+// in code (see PLATFORM_SETTING_KEYS in src/services/lead.service.ts).
+model PlatformSetting {
+  key       String   @id @db.VarChar(64)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("platform_settings")
+}
