@@ -89,9 +89,9 @@ const COMMON_TIMEZONES = [
 // Representative gradient swatch per sport for the picker preview only — the
 // live theme is driven by the data-sport blocks in globals.css.
 const SPORT_SWATCH: Record<SportKey, string> = {
-  swimming: 'from-cyan-500 to-blue-600',
-  football: 'from-green-500 to-emerald-700',
-  padel: 'from-purple-500 to-violet-700',
+  swimming: 'from-primary to-accent',
+  football: 'from-success to-success',
+  padel: 'from-primary to-accent',
 };
 
 // ─── API Helper ─────────────────────────────────────────────
@@ -224,7 +224,7 @@ export default function CreateTenantPage() {
       {/* Back link */}
       <button
         onClick={() => router.push('./admin' === './admin' ? '../admin' : './admin')}
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground/80"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -233,7 +233,7 @@ export default function CreateTenantPage() {
       </button>
 
       {/* Title */}
-      <h1 className="mb-8 text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 className="mb-8 text-2xl font-bold text-foreground">
         {t('wizardTitle')}
       </h1>
 
@@ -247,22 +247,22 @@ export default function CreateTenantPage() {
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-all ${
                       step > s.num
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-success text-success-foreground'
                         : step === s.num
-                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                          : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                          ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                          : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     {step > s.num ? '✓' : s.num}
                   </div>
-                  <span className="mt-2 hidden text-xs font-medium text-gray-500 dark:text-gray-400 sm:block">
+                  <span className="mt-2 hidden text-xs font-medium text-muted-foreground sm:block">
                     {s.label}
                   </span>
                 </div>
                 {i < steps.length - 1 && (
                   <div
                     className={`mx-2 h-0.5 flex-1 transition-colors ${
-                      step > s.num ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'
+                      step > s.num ? 'bg-success' : 'bg-muted'
                     }`}
                   />
                 )}
@@ -273,52 +273,52 @@ export default function CreateTenantPage() {
       )}
 
       {/* Form Card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-8">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
         {/* Step 1: Academy Info */}
         {step === 1 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               {t('wizardStep1')}
             </h2>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('tenantName')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('tenantName')} <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={data.name}
                 onChange={(e) => updateField('name', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
                   errors.name
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
                 placeholder="e.g., Aqua Stars Academy"
               />
-              {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+              {errors.name && <p className="text-xs text-danger">{errors.name}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('slug')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('slug')} <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={data.slug}
                 onChange={(e) => updateField('slug', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm focus:outline-none focus:ring-2 ${
                   errors.slug
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
               />
-              <p className="text-xs text-gray-400">{t('slugHint')}</p>
-              {errors.slug && <p className="text-xs text-red-500">{errors.slug}</p>}
+              <p className="text-xs text-muted-foreground">{t('slugHint')}</p>
+              {errors.slug && <p className="text-xs text-danger">{errors.slug}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-foreground/80">
                 {t('sportTheme')}
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -331,56 +331,56 @@ export default function CreateTenantPage() {
                     className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${
                       data.themeKey === key
                         ? 'border-primary bg-primary ring-2 ring-primary/20 dark:border-primary dark:bg-primary/10'
-                        : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
+                        : 'border-input hover:border-primary/50'
                     }`}
                   >
                     <span
                       className={`h-8 w-8 rounded-full bg-gradient-to-tr shadow-inner ${SPORT_SWATCH[key]}`}
                     />
-                    <span className="text-gray-800 dark:text-gray-200">
+                    <span className="text-foreground">
                       {sportLabel(key, locale)}
                     </span>
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-400">{t('sportThemeHint')}</p>
+              <p className="text-xs text-muted-foreground">{t('sportThemeHint')}</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-foreground/80">
                   {t('contactName')}
                 </label>
                 <input
                   type="text"
                   value={data.contactName}
                   onChange={(e) => updateField('contactName', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-foreground/80">
                   {t('contactPhone')}
                 </label>
                 <input
                   type="tel"
                   value={data.contactPhone}
                   onChange={(e) => updateField('contactPhone', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                  className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="+20..."
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-foreground/80">
                 {t('contactEmail')}
               </label>
               <input
                 type="email"
                 value={data.contactEmail}
                 onChange={(e) => updateField('contactEmail', e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="admin@academy.com"
               />
             </div>
@@ -390,7 +390,7 @@ export default function CreateTenantPage() {
         {/* Step 2: Admin Account */}
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               {t('wizardStep2')}
             </h2>
             <div className="rounded-lg bg-primary p-4 text-sm text-primary dark:bg-primary/20 dark:text-primary">
@@ -398,40 +398,40 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('adminName')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('adminName')} <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={data.adminName}
                 onChange={(e) => updateField('adminName', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
                   errors.adminName
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
                 placeholder="e.g., Ahmed Hassan"
               />
-              {errors.adminName && <p className="text-xs text-red-500">{errors.adminName}</p>}
+              {errors.adminName && <p className="text-xs text-danger">{errors.adminName}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('adminPhone')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('adminPhone')} <span className="text-danger">*</span>
               </label>
               <input
                 type="tel"
                 value={data.adminPhone}
                 onChange={(e) => updateField('adminPhone', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
                   errors.adminPhone
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
                 placeholder="+201111111111"
               />
-              <p className="text-xs text-gray-400">{t('adminPhoneHint')}</p>
-              {errors.adminPhone && <p className="text-xs text-red-500">{errors.adminPhone}</p>}
+              <p className="text-xs text-muted-foreground">{t('adminPhoneHint')}</p>
+              {errors.adminPhone && <p className="text-xs text-danger">{errors.adminPhone}</p>}
             </div>
           </div>
         )}
@@ -439,58 +439,58 @@ export default function CreateTenantPage() {
         {/* Step 3: Default Branch */}
         {step === 3 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               {t('wizardStep3')}
             </h2>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('branchName')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('branchName')} <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={data.branchName}
                 onChange={(e) => updateField('branchName', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
                   errors.branchName
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
                 placeholder="e.g., Heliopolis Branch"
               />
-              {errors.branchName && <p className="text-xs text-red-500">{errors.branchName}</p>}
+              {errors.branchName && <p className="text-xs text-danger">{errors.branchName}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('branchCode')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('branchCode')} <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={data.branchCode}
                 onChange={(e) => updateField('branchCode', e.target.value.toUpperCase())}
-                className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm uppercase focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 font-mono text-sm uppercase focus:outline-none focus:ring-2 ${
                   errors.branchCode
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
                 placeholder="HELIO"
               />
-              <p className="text-xs text-gray-400">{t('branchCodeHint')}</p>
-              {errors.branchCode && <p className="text-xs text-red-500">{errors.branchCode}</p>}
+              <p className="text-xs text-muted-foreground">{t('branchCodeHint')}</p>
+              {errors.branchCode && <p className="text-xs text-danger">{errors.branchCode}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('branchTimezone')} <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/80">
+                {t('branchTimezone')} <span className="text-danger">*</span>
               </label>
               <select
                 value={data.branchTimezone}
                 onChange={(e) => updateField('branchTimezone', e.target.value)}
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-gray-100 ${
+                className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
                   errors.branchTimezone
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-gray-300 focus:border-primary focus:ring-primary/20 dark:border-gray-600'
+                    ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
+                    : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
               >
                 {COMMON_TIMEZONES.map((tz) => (
@@ -500,7 +500,7 @@ export default function CreateTenantPage() {
                 ))}
               </select>
               {errors.branchTimezone && (
-                <p className="text-xs text-red-500">{errors.branchTimezone}</p>
+                <p className="text-xs text-danger">{errors.branchTimezone}</p>
               )}
             </div>
           </div>
@@ -509,73 +509,73 @@ export default function CreateTenantPage() {
         {/* Step 4: Review */}
         {step === 4 && (
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               {t('reviewTitle')}
             </h2>
 
             {/* Academy */}
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-600">
-              <h3 className="mb-3 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400">
+            <div className="rounded-lg border border-border p-4">
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground uppercase">
                 {t('reviewAcademy')}
               </h3>
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('tenantName')}</dt>
-                  <dd className="font-medium text-gray-900 dark:text-gray-100">{data.name}</dd>
+                  <dt className="text-muted-foreground">{t('tenantName')}</dt>
+                  <dd className="font-medium text-foreground">{data.name}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('slug')}</dt>
-                  <dd className="font-mono text-gray-900 dark:text-gray-100">{data.slug}</dd>
+                  <dt className="text-muted-foreground">{t('slug')}</dt>
+                  <dd className="font-mono text-foreground">{data.slug}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('sportTheme')}</dt>
-                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                  <dt className="text-muted-foreground">{t('sportTheme')}</dt>
+                  <dd className="font-medium text-foreground">
                     {sportLabel(data.themeKey, locale)}
                   </dd>
                 </div>
                 {data.contactEmail && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-500 dark:text-gray-400">{t('contactEmail')}</dt>
-                    <dd className="text-gray-900 dark:text-gray-100">{data.contactEmail}</dd>
+                    <dt className="text-muted-foreground">{t('contactEmail')}</dt>
+                    <dd className="text-foreground">{data.contactEmail}</dd>
                   </div>
                 )}
               </dl>
             </div>
 
             {/* Admin */}
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-600">
-              <h3 className="mb-3 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400">
+            <div className="rounded-lg border border-border p-4">
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground uppercase">
                 {t('reviewAdmin')}
               </h3>
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('adminName')}</dt>
-                  <dd className="font-medium text-gray-900 dark:text-gray-100">{data.adminName}</dd>
+                  <dt className="text-muted-foreground">{t('adminName')}</dt>
+                  <dd className="font-medium text-foreground">{data.adminName}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('adminPhone')}</dt>
-                  <dd className="font-mono text-gray-900 dark:text-gray-100">{data.adminPhone}</dd>
+                  <dt className="text-muted-foreground">{t('adminPhone')}</dt>
+                  <dd className="font-mono text-foreground">{data.adminPhone}</dd>
                 </div>
               </dl>
             </div>
 
             {/* Branch */}
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-600">
-              <h3 className="mb-3 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400">
+            <div className="rounded-lg border border-border p-4">
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground uppercase">
                 {t('reviewBranch')}
               </h3>
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('branchName')}</dt>
-                  <dd className="font-medium text-gray-900 dark:text-gray-100">{data.branchName}</dd>
+                  <dt className="text-muted-foreground">{t('branchName')}</dt>
+                  <dd className="font-medium text-foreground">{data.branchName}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('branchCode')}</dt>
-                  <dd className="font-mono text-gray-900 dark:text-gray-100">{data.branchCode}</dd>
+                  <dt className="text-muted-foreground">{t('branchCode')}</dt>
+                  <dd className="font-mono text-foreground">{data.branchCode}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500 dark:text-gray-400">{t('branchTimezone')}</dt>
-                  <dd className="text-gray-900 dark:text-gray-100">{data.branchTimezone}</dd>
+                  <dt className="text-muted-foreground">{t('branchTimezone')}</dt>
+                  <dd className="text-foreground">{data.branchTimezone}</dd>
                 </div>
               </dl>
             </div>
@@ -585,58 +585,58 @@ export default function CreateTenantPage() {
         {/* Step 5: Success */}
         {step === 5 && result && (
           <div className="space-y-6 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-              <svg className="h-8 w-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success-soft">
+              <svg className="h-8 w-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-xl font-bold text-foreground">
                 {t('createSuccess')}
               </h2>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {result.tenant.name} has been created.
               </p>
             </div>
 
             {/* Admin Credentials */}
-            <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-5 text-start dark:border-amber-600 dark:bg-amber-900/20">
-              <h3 className="mb-1 text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <div className="rounded-lg border-2 border-warning/30 bg-warning-soft p-5 text-start">
+              <h3 className="mb-1 text-sm font-semibold text-warning">
                 {t('adminCredentials')}
               </h3>
-              <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
+              <p className="mb-4 text-xs text-warning">
                 {t('credentialsWarning')}
               </p>
 
               <dl className="space-y-3 text-sm">
                 <div>
-                  <dt className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  <dt className="text-xs font-medium text-warning">
                     {t('adminName')}
                   </dt>
-                  <dd className="font-medium text-gray-900 dark:text-gray-100">
+                  <dd className="font-medium text-foreground">
                     {result.adminCredentials.name}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  <dt className="text-xs font-medium text-warning">
                     {t('adminPhone')}
                   </dt>
-                  <dd className="font-mono text-gray-900 dark:text-gray-100">
+                  <dd className="font-mono text-foreground">
                     {result.adminCredentials.phoneNumber}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                  <dt className="text-xs font-medium text-warning">
                     Password
                   </dt>
                   <dd className="flex items-center gap-2">
-                    <code className="rounded bg-white px-2 py-1 font-mono text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+                    <code className="rounded bg-card px-2 py-1 font-mono text-sm text-foreground">
                       {result.adminCredentials.password}
                     </code>
                     <button
                       onClick={handleCopyPassword}
-                      className="rounded-md bg-amber-200 px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-300 dark:bg-amber-800 dark:text-amber-200"
+                      className="rounded-md bg-warning-soft px-2.5 py-1 text-xs font-medium text-warning transition-colors hover:bg-warning/15"
                     >
                       {copied ? t('copied') : t('copyPassword')}
                     </button>
@@ -649,7 +649,7 @@ export default function CreateTenantPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <button
                 onClick={() => router.push('../admin')}
-                className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="rounded-lg border border-input px-6 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
               >
                 {t('goToTenantList')}
               </button>
@@ -659,7 +659,7 @@ export default function CreateTenantPage() {
                   setResult(null);
                   setStep(1);
                 }}
-                className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary"
+                className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 {t('createAnother')}
               </button>
@@ -669,10 +669,10 @@ export default function CreateTenantPage() {
 
         {/* Navigation Buttons */}
         {step <= totalSteps && (
-          <div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-5 dark:border-gray-700">
+          <div className="mt-8 flex items-center justify-between border-t border-border pt-5">
             <button
               onClick={step === 1 ? () => router.push('../admin') : handleBack}
-              className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="rounded-lg border border-input px-5 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
             >
               {step === 1 ? 'Cancel' : 'Back'}
             </button>
@@ -680,7 +680,7 @@ export default function CreateTenantPage() {
             {step < totalSteps ? (
               <button
                 onClick={handleNext}
-                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Next →
               </button>
@@ -688,7 +688,7 @@ export default function CreateTenantPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
