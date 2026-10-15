@@ -11,6 +11,7 @@ import type { Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { Readex_Pro } from 'next/font/google';
 import { isRtlLocale, isValidLocale, locales } from '@/lib/i18n/config';
+import { BRAND_COLORS } from '@/lib/config/brand-colors';
 import '@/styles/marketing.css';
 
 // The brand typeface: one variable font covering Arabic and Latin, self-hosted
@@ -22,7 +23,7 @@ const readexPro = Readex_Pro({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#001219', // brand Midnight
+  themeColor: BRAND_COLORS.midnight,
 };
 
 export function generateStaticParams() {

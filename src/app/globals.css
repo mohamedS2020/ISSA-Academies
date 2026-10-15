@@ -24,7 +24,15 @@
       text-muted-foreground, bg-primary, border-border, text-danger … They
       switch between light and dark (the :root and .dark blocks below) and
       follow the academy's sport. Components should normally use these.
+
+   Tailwind's built-in palette is switched off, so these are the only
+   colours: a stray bg-slate-200 renders nothing, and
+   src/lib/config/brand-colors.test.ts fails on it.
    ──────────────────────────────────────────────────────────── */
+@theme {
+  --color-*: initial;
+}
+
 @theme inline {
   /* 1. Brand */
   --color-midnight: var(--ya-midnight);

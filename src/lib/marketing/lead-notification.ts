@@ -12,6 +12,7 @@ import { MARKETING, SITE_URL, isPlaceholder } from '@/lib/config/marketing';
 import { escapeHtml, sendEmail, type EmailMessage } from '@/lib/email/send-email';
 import { getPlatformSettings } from '@/services/lead.service';
 import { LEAD_BRANCHES, type LEAD_SPORTS } from '@/schemas/lead.schema';
+import { BRAND_COLORS } from '@/lib/config/brand-colors';
 
 export interface LeadForNotification {
   id: string;
@@ -62,17 +63,19 @@ export function buildLeadNotificationEmail(lead: LeadForNotification, to: string
     `Manage leads: ${LEADS_ADMIN_URL}`,
   ].join('\n');
 
-  const html = `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#001219;line-height:1.5">
+  // Mail clients ignore CSS variables, so the brand colours go in as values.
+  const { midnight, slate, 'deep-sea': deepSea } = BRAND_COLORS;
+  const html = `<!doctype html><html><body style="font-family:Arial,sans-serif;color:${midnight};line-height:1.5">
 <p style="margin:0 0 16px">New demo request from the Yallacademy website.</p>
 <table cellpadding="6" style="border-collapse:collapse">
 ${rows
   .map(
     ([label, value]) =>
-      `<tr><td style="color:#4F6268;padding-right:16px">${escapeHtml(label)}</td><td><strong>${escapeHtml(value)}</strong></td></tr>`
+      `<tr><td style="color:${slate};padding-right:16px">${escapeHtml(label)}</td><td><strong>${escapeHtml(value)}</strong></td></tr>`
   )
   .join('\n')}
 </table>
-<p style="margin:20px 0 0"><a href="${escapeHtml(whatsapp)}" style="color:#005F73">Message on WhatsApp</a> · <a href="${escapeHtml(LEADS_ADMIN_URL)}" style="color:#005F73">Manage leads</a></p>
+<p style="margin:20px 0 0"><a href="${escapeHtml(whatsapp)}" style="color:${deepSea}">Message on WhatsApp</a> · <a href="${escapeHtml(LEADS_ADMIN_URL)}" style="color:${deepSea}">Manage leads</a></p>
 </body></html>`;
 
   return {
