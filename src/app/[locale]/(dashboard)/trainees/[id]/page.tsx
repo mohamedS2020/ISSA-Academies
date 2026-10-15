@@ -469,7 +469,7 @@ export default function TraineeDetailPage() {
                 {activeSubscription && activeSubscription.status !== 'ACTIVE' && (
                   <button
                     onClick={openEnrollDialog}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-warning text-warning-foreground text-sm font-semibold hover:shadow-lg hover:shadow-warning/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
                     <RefreshCw className="w-4 h-4" />Renew
                   </button>

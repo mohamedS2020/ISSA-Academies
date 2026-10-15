@@ -156,32 +156,32 @@ export default function ManualIncomePage() {
 
   if (user && !canView) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <XCircle className="w-8 h-8 me-3 text-danger" />
         <span>Access denied.</span>
       </div>
     );
   }
 
   const columns: Column<ManualIncome>[] = [
-    { key: 'category', header: t('category'), className: 'font-semibold text-slate-900 dark:text-slate-100' },
+    { key: 'category', header: t('category'), className: 'font-semibold text-foreground' },
     {
       key: 'amount',
       header: t('amount'),
-      render: (row) => <span className="text-emerald-700 dark:text-emerald-300">{Number(row.amount).toFixed(2)}</span>,
+      render: (row) => <span className="text-success">{Number(row.amount).toFixed(2)}</span>,
     },
     {
       key: 'date',
       header: t('date'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400">{new Date(row.date).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{new Date(row.date).toLocaleDateString()}</span>
       ),
     },
     {
       key: 'description',
       header: t('description'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400 max-w-xs truncate block">{row.description || '—'}</span>
+        <span className="text-muted-foreground max-w-xs truncate block">{row.description || '—'}</span>
       ),
     },
   ];
@@ -189,14 +189,14 @@ export default function ManualIncomePage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-extrabold tracking-wide text-foreground">
           {t('manualIncome')}
         </h2>
 
         {canManage && (
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white transition-all duration-300 shadow-lg shadow-emerald-500/10"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-lg shadow-primary/10"
           >
             <Plus size={14} />
             <span>{t('addIncome')}</span>
@@ -204,7 +204,7 @@ export default function ManualIncomePage() {
         )}
       </div>
 
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={incomes}
@@ -217,7 +217,7 @@ export default function ManualIncomePage() {
               ? (row) => (
                   <button
                     onClick={() => handleDelete(row)}
-                    className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-red-900/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    className="h-7 w-7 rounded-lg border border-border hover:border-danger/50 bg-background flex items-center justify-center text-muted-foreground hover:text-danger transition-colors"
                     title={tCommon('delete')}
                   >
                     <Trash2 size={13} />
@@ -229,30 +229,30 @@ export default function ManualIncomePage() {
       </div>
 
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-emerald-500/10 via-teal-500/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
-            <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
+          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-success/10 via-accent/5 to-background border border-border/80 shadow-2xl backdrop-blur-xl">
+            <div className="bg-card/95 rounded-[22px] p-6">
               <div className="flex justify-between items-center mb-5">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{t('addIncome')}</h3>
+                <h3 className="text-lg font-bold text-foreground">{t('addIncome')}</h3>
                 <button
                   onClick={resetForm}
-                  className="h-7 w-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
               </div>
 
               {formError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-800/40 text-red-200 text-xs flex items-start gap-2.5">
-                  <AlertTriangle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="mb-4 p-3 rounded-xl bg-danger-soft border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+                  <AlertTriangle size={14} className="text-danger flex-shrink-0 mt-0.5" />
                   <span>{formError}</span>
                 </div>
               )}
 
               <form onSubmit={handleCreate} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    {t('category')} <span className="text-red-500">*</span>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {t('category')} <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -260,14 +260,14 @@ export default function ManualIncomePage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     placeholder={t('incomeCategoryPlaceholder')}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {t('amount')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {t('amount')} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
@@ -276,32 +276,32 @@ export default function ManualIncomePage() {
                       required
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {t('date')} <span className="text-red-500">*</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {t('date')} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="date"
                       required
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                      className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t('description')}
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                    className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                   />
                 </div>
 
@@ -309,14 +309,14 @@ export default function ManualIncomePage() {
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all duration-200"
                     disabled={isSubmitting}
                   >
                     {tCommon('cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 size={12} className="animate-spin" />}

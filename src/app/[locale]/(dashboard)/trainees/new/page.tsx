@@ -709,7 +709,7 @@ export default function NewTraineePage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-success text-success-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-success/25 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             {tCommon('submit')}

@@ -106,8 +106,8 @@ export default function ReceiptsPage() {
       header: 'Trainee',
       render: (row) => (
         <div>
-          <div className="text-slate-800 dark:text-slate-200">{row.trainee.name}</div>
-          <div className="text-[10px] text-slate-500 font-mono">{row.trainee.systemCode}</div>
+          <div className="text-foreground">{row.trainee.name}</div>
+          <div className="text-[10px] text-muted-foreground font-mono">{row.trainee.systemCode}</div>
         </div>
       ),
     },
@@ -115,7 +115,7 @@ export default function ReceiptsPage() {
       key: 'plan',
       header: 'Plan / Level',
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400 text-xs">
+        <span className="text-muted-foreground text-xs">
           {row.subscription.plan.name} / {row.subscription.level.name}
         </span>
       ),
@@ -129,7 +129,7 @@ export default function ReceiptsPage() {
       key: 'issuedAt',
       header: t('date'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400">{new Date(row.issuedAt).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{new Date(row.issuedAt).toLocaleDateString()}</span>
       ),
     },
   ];
@@ -137,7 +137,7 @@ export default function ReceiptsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+        <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
           <ReceiptIcon size={22} className="text-primary dark:text-primary" />
           {t('receipt')}
         </h2>
@@ -147,19 +147,19 @@ export default function ReceiptsPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
-          <span className="text-slate-500 dark:text-slate-600 text-xs">—</span>
+          <span className="text-muted-foreground text-xs">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
         </div>
       </div>
 
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={receipts}
@@ -171,7 +171,7 @@ export default function ReceiptsPage() {
             <button
               onClick={() => handleDownload(row)}
               disabled={downloadingId === row.id}
-              className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-primary/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
+              className="h-7 w-7 rounded-lg border border-border hover:border-primary/50 bg-background flex items-center justify-center text-muted-foreground hover:text-primary dark:hover:text-primary transition-colors disabled:opacity-50"
               title={t('downloadReceipt')}
             >
               {downloadingId === row.id ? (

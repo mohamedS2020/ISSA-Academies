@@ -163,8 +163,8 @@ export default function PayrollPage() {
 
   if (user && user.role !== UserRole.ADMIN) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <XCircle className="w-8 h-8 me-3 text-danger" />
         <span>Access denied. Payroll is Admin-only.</span>
       </div>
     );
@@ -174,14 +174,14 @@ export default function PayrollPage() {
     {
       key: 'captain',
       header: 'Captain',
-      className: 'font-semibold text-slate-900 dark:text-slate-100',
+      className: 'font-semibold text-foreground',
       render: (row) => row.captain.user.name,
     },
     {
       key: 'period',
       header: t('payrollPeriod'),
       render: (row) => (
-        <span className="text-slate-600 dark:text-slate-400 text-xs">
+        <span className="text-muted-foreground text-xs">
           {new Date(row.periodStart).toLocaleDateString()} —{' '}
           {new Date(row.periodEnd).toLocaleDateString()}
         </span>
@@ -200,8 +200,8 @@ export default function PayrollPage() {
         <span
           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
             row.isPaid
-              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+              ? 'bg-success-soft text-success border border-success/20'
+              : 'bg-warning-soft text-warning border border-warning/20'
           }`}
         >
           {row.isPaid ? t('paid') : t('unpaid')}
@@ -212,21 +212,21 @@ export default function PayrollPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground">
         {t('payroll')}
       </h2>
 
       {/* ─── Calculate Panel ─── */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-900 bg-white/70 dark:bg-slate-900/40 p-5 backdrop-blur-xl space-y-4">
+      <div className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Captain
             </label>
             <select
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
             >
               <option value="">Select...</option>
               {captains.map((c) => (
@@ -237,32 +237,32 @@ export default function PayrollPage() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Period Start
             </label>
             <input
               type="date"
               value={periodStart}
               onChange={(e) => setPeriodStart(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Period End
             </label>
             <input
               type="date"
               value={periodEnd}
               onChange={(e) => setPeriodEnd(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
             />
           </div>
           <div className="flex items-end">
             <button
               onClick={handleCalculate}
               disabled={isCalculating}
-              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white transition-all duration-300 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 disabled:opacity-50"
             >
               {isCalculating ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -276,14 +276,14 @@ export default function PayrollPage() {
 
         {preview && (
           <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 space-y-3">
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               {preview.captainName} · {preview.payrollType}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               {preview.payrollType === 'HOURS' ? (
                 <>
                   <div>
-                    <span className="text-slate-500 block">{t('hoursWorked')}</span>
+                    <span className="text-muted-foreground block">{t('hoursWorked')}</span>
                     <input
                       type="number"
                       step="0.01"
@@ -300,12 +300,12 @@ export default function PayrollPage() {
                             : p
                         )
                       }
-                      className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-2 py-1.5 text-slate-900 dark:text-slate-100"
+                      className="w-full mt-1 rounded-lg border border-border bg-muted/70 px-2 py-1.5 text-foreground"
                     />
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Hourly Rate</span>
-                    <span className="text-slate-800 dark:text-slate-200 font-semibold">
+                    <span className="text-muted-foreground block">Hourly Rate</span>
+                    <span className="text-foreground font-semibold">
                       {Number(preview.hourlyRate ?? 0).toFixed(2)}
                     </span>
                   </div>
@@ -313,13 +313,13 @@ export default function PayrollPage() {
               ) : (
                 <>
                   <div>
-                    <span className="text-slate-500 block">Base Salary</span>
-                    <span className="text-slate-800 dark:text-slate-200 font-semibold">
+                    <span className="text-muted-foreground block">Base Salary</span>
+                    <span className="text-foreground font-semibold">
                       {Number(preview.baseSalary ?? 0).toFixed(2)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Percentage Base</span>
+                    <span className="text-muted-foreground block">Percentage Base</span>
                     <input
                       type="number"
                       step="0.01"
@@ -337,13 +337,13 @@ export default function PayrollPage() {
                             : p
                         )
                       }
-                      className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-2 py-1.5 text-slate-900 dark:text-slate-100"
+                      className="w-full mt-1 rounded-lg border border-border bg-muted/70 px-2 py-1.5 text-foreground"
                     />
                   </div>
                 </>
               )}
               <div>
-                <span className="text-slate-500 block">{t('totalAmount')}</span>
+                <span className="text-muted-foreground block">{t('totalAmount')}</span>
                 <span className="text-primary dark:text-primary font-bold text-base">
                   {preview.totalAmount.toFixed(2)}
                 </span>
@@ -352,7 +352,7 @@ export default function PayrollPage() {
             <button
               onClick={handleRecord}
               disabled={isRecording}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-semibold text-xs transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
             >
               {isRecording && <Loader2 size={12} className="animate-spin" />}
               Record Payroll
@@ -362,7 +362,7 @@ export default function PayrollPage() {
       </div>
 
       {/* ─── Recorded Payrolls ─── */}
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={payrolls}
@@ -372,7 +372,7 @@ export default function PayrollPage() {
             !row.isPaid && (
               <button
                 onClick={() => handleMarkPaid(row.id)}
-                className="h-7 w-7 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-900/50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                className="h-7 w-7 rounded-lg border border-border hover:border-success/50 bg-background flex items-center justify-center text-muted-foreground hover:text-success transition-colors"
                 title={t('markAsPaid')}
               >
                 <CheckCircle size={13} />
