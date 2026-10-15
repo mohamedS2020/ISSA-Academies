@@ -34,7 +34,9 @@
     "somethingWentWrong": "Something went wrong",
     "pageNotFoundTitle": "Page Not Found",
     "pageNotFoundDesc": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
   },
   "auth": {
     "login": "Login",
@@ -57,7 +59,8 @@
     "newPasswordGenerated": "New password generated",
     "error": "Something went wrong",
     "passwordMismatch": "Passwords do not match",
-    "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to."
+    "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to.",
+    "poweredBy": "Powered by {name}"
   },
   "nav": {
     "dashboard": "Dashboard",

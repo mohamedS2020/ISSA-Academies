@@ -7,27 +7,35 @@
  * (dark). Uses `useTheme().toggle()`. A `mounted` guard prevents an SSR/client
  * mismatch (the server can't know the resolved theme). Styled correctly in
  * both themes itself (JS-conditional classes, not the global codemod).
+ *
+ * Laid out left to right in both languages (dir="ltr"): sun on the left, moon
+ * on the right. Its positions are physical (left-2, translate-x), so under RTL
+ * the thumb used to start on the wrong side and slide out of the track.
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/theme/theme-context';
 
 export function ThemeToggle({ className = '' }: { className?: string }) {
+  const t = useTranslations('common');
   const { resolvedTheme, toggle } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   // Before mount, assume dark (the app's historical default) to avoid a flash;
   // the real value snaps in on mount.
   const isDark = !mounted || resolvedTheme === 'dark';
+  const label = isDark ? t('switchToLight') : t('switchToDark');
 
   return (
     <button
       type="button"
       role="switch"
+      dir="ltr"
       aria-checked={isDark}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Light mode' : 'Dark mode'}
+      aria-label={label}
+      title={label}
       onClick={toggle}
       className={`group relative inline-flex h-8 w-[58px] shrink-0 items-center rounded-full border p-0.5 transition-colors duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
         isDark

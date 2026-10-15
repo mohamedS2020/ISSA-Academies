@@ -8,8 +8,11 @@ import { appName } from '@/lib/config/brand';
  *
  * Each file comes in two colourways: "color" (Midnight Y and crossbar) for
  * light backgrounds and "reversed" (white Y and crossbar) for dark ones. Both
- * are rendered and `.dark` decides which shows; the hidden one is lazy, so
- * it only downloads if the theme switches.
+ * are rendered and `.dark` decides which shows; they load lazily, so the
+ * hidden one only downloads if the theme switches. Pass `eager` where the
+ * logo is the largest thing on screen at first paint (the login page): the
+ * server can't know the theme, so both then load as soon as the HTML is read,
+ * instead of after the browser has laid the page out.
  *
  * Size it with a height class (h-8 …) and w-auto.
  */
@@ -37,16 +40,33 @@ export function BrandSymbol({ className = '', alt = '' }: { className?: string; 
 }
 
 /** The horizontal logo with the wordmark in the page's language. */
-export function BrandLogo({ locale, className = '' }: { locale: string; className?: string }) {
-  return <Colourways artwork={locale === 'ar' ? LOGOS.ar : LOGOS.en} className={className} alt={appName(locale)} />;
+export function BrandLogo({ locale, className = '', eager = false }: { locale: string; className?: string; eager?: boolean }) {
+  return (
+    <Colourways
+      artwork={locale === 'ar' ? LOGOS.ar : LOGOS.en}
+      className={className}
+      alt={appName(locale)}
+      loading={eager ? 'eager' : 'lazy'}
+    />
+  );
 }
 
-function Colourways({ artwork, className, alt }: { artwork: Artwork; className: string; alt: string }) {
+function Colourways({
+  artwork,
+  className,
+  alt,
+  loading = 'lazy',
+}: {
+  artwork: Artwork;
+  className: string;
+  alt: string;
+  loading?: 'eager' | 'lazy';
+}) {
   const { light, dark, width, height } = artwork;
   return (
     <>
-      <Image src={light} alt={alt} width={width} height={height} unoptimized className={`${className} dark:hidden`} />
-      <Image src={dark} alt={alt} width={width} height={height} unoptimized className={`${className} hidden dark:block`} />
+      <Image src={light} alt={alt} width={width} height={height} loading={loading} unoptimized className={`${className} dark:hidden`} />
+      <Image src={dark} alt={alt} width={width} height={height} loading={loading} unoptimized className={`${className} hidden dark:block`} />
     </>
   );
 }

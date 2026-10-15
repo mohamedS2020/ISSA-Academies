@@ -141,6 +141,9 @@
   --input: var(--ya-line);
   --ring: var(--ya-lagoon);
   --radius: 0.75rem;
+
+  /* Native controls (checkboxes, scrollbars, date pickers) follow the theme. */
+  color-scheme: light;
 }
 
 /* Dark, derived from the brand: Midnight pages, Midnight-2 cards. Buttons
@@ -180,6 +183,8 @@
   --border: var(--ya-midnight-3);
   --input: var(--ya-deepsea-700);
   --ring: var(--ya-lagoon);
+
+  color-scheme: dark;
 }
 
 /* ────────────────────────────────────────────────────────────

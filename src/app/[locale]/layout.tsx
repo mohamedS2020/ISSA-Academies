@@ -64,10 +64,13 @@ const readexPro = Readex_Pro({
   display: "swap",
 });
 
-// Trainee codes, receipt numbers and other codes (font-mono). Latin only.
+// Trainee codes, receipt numbers and other codes (font-mono). Latin only, and
+// not preloaded: most pages, the login among them, have no monospace text, so
+// the file downloads only where some appears.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 /**
