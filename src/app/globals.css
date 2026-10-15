@@ -264,3 +264,10 @@ body {
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
 }
+
+/* Arabic is a joined script: letter-spacing pulls its letters apart. Labels
+   tracked out for English (tracking-wider …) stay unspaced in Arabic, as on
+   the landing page. */
+:lang(ar) {
+  letter-spacing: normal !important;
+}
