@@ -146,8 +146,8 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       className="min-h-screen bg-background text-foreground font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 dark:bg-primary/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 dark:bg-primary/15 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
 
       {/* ─── Top Nav Bar ─── */}
       <header className="sticky top-0 z-20 w-full bg-card/80 border-b border-border/80 backdrop-blur-lg">
