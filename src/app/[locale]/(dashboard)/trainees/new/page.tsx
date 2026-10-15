@@ -101,10 +101,10 @@ const INITIAL_FORM: FormData = {
 };
 
 const STEPS = [
-  { label: 'Personal Info', icon: User, color: 'from-cyan-500 to-blue-600' },
-  { label: 'Skills & Level', icon: Star, color: 'from-purple-500 to-indigo-600' },
-  { label: 'Family Info', icon: Heart, color: 'from-pink-500 to-rose-600' },
-  { label: 'Physical & Psych', icon: Activity, color: 'from-emerald-500 to-teal-600' },
+  { label: 'Personal Info', icon: User },
+  { label: 'Skills & Level', icon: Star },
+  { label: 'Family Info', icon: Heart },
+  { label: 'Physical & Psych', icon: Activity },
 ];
 
 // ─── Field Component ──────────────────────────────────────────
@@ -118,8 +118,8 @@ interface FieldProps {
 function Field({ label, required, children }: FieldProps) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-        {label} {required && <span className="text-red-600 dark:text-red-400">*</span>}
+      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+        {label} {required && <span className="text-danger">*</span>}
       </label>
       {children}
     </div>
@@ -127,7 +127,7 @@ function Field({ label, required, children }: FieldProps) {
 }
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
+  'w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all';
 
 const textareaClass = inputClass + ' resize-none h-24';
 
@@ -342,7 +342,7 @@ export default function NewTraineePage() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Field label={t('name')} required>
         <input type="text" value={form.name} onChange={set('name')} className={inputClass} placeholder={t('traineeNamePlaceholder')} />
-        {errors.name && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name}</p>}
+        {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
       </Field>
       <div className="md:col-span-2 flex items-center gap-2">
         <input
@@ -350,37 +350,37 @@ export default function NewTraineePage() {
           type="checkbox"
           checked={form.isSelfAccount}
           onChange={(e) => setForm((p) => ({ ...p, isSelfAccount: e.target.checked, guardianName: e.target.checked ? '' : p.guardianName }))}
-          className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 accent-cyan-500"
+          className="h-4 w-4 rounded border-input bg-muted accent-primary"
         />
-        <label htmlFor="selfAccount" className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+        <label htmlFor="selfAccount" className="text-xs text-foreground/80 cursor-pointer">
           {t('selfAccount')}
         </label>
       </div>
       {!form.isSelfAccount && (
         <Field label={t('guardianName')} required>
           <input type="text" value={form.guardianName} onChange={set('guardianName')} className={inputClass} placeholder={t('guardianNamePlaceholder')} />
-          {errors.guardianName && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.guardianName}</p>}
+          {errors.guardianName && <p className="text-xs text-danger mt-1">{errors.guardianName}</p>}
         </Field>
       )}
       <Field label={t('dateOfBirth')} required>
         <input type="date" value={form.dateOfBirth} onChange={set('dateOfBirth')} className={inputClass} />
-        {errors.dateOfBirth && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.dateOfBirth}</p>}
+        {errors.dateOfBirth && <p className="text-xs text-danger mt-1">{errors.dateOfBirth}</p>}
       </Field>
       <Field label={t('phoneNumber')} required>
         <input type="tel" value={form.phoneNumber} onChange={set('phoneNumber')} className={inputClass} placeholder="+201234567890" />
-        {errors.phoneNumber && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.phoneNumber}</p>}
+        {errors.phoneNumber && <p className="text-xs text-danger mt-1">{errors.phoneNumber}</p>}
       </Field>
       <Field label={t('whatsappNumber')} required>
         <input type="tel" value={form.whatsappNumber} onChange={set('whatsappNumber')} className={inputClass} placeholder="+201234567890" />
-        {errors.whatsappNumber && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.whatsappNumber}</p>}
+        {errors.whatsappNumber && <p className="text-xs text-danger mt-1">{errors.whatsappNumber}</p>}
       </Field>
       <Field label={t('parentIdCard')} required>
         <input type="text" value={form.parentIdCard} onChange={set('parentIdCard')} className={inputClass} placeholder="National ID number" />
-        {errors.parentIdCard && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.parentIdCard}</p>}
+        {errors.parentIdCard && <p className="text-xs text-danger mt-1">{errors.parentIdCard}</p>}
       </Field>
       <Field label={t('medicalCondition')} required>
         <input type="text" value={form.medicalCondition} onChange={set('medicalCondition')} className={inputClass} placeholder='e.g., "None" or describe condition' />
-        {errors.medicalCondition && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.medicalCondition}</p>}
+        {errors.medicalCondition && <p className="text-xs text-danger mt-1">{errors.medicalCondition}</p>}
       </Field>
       <Field label={t('referralType')} required>
         <select
@@ -397,7 +397,7 @@ export default function NewTraineePage() {
           <option value="OLD">{t('referralOld')}</option>
           <option value="CONTINUOUS">{t('referralContinuous')}</option>
         </select>
-        {errors.referralType && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.referralType}</p>}
+        {errors.referralType && <p className="text-xs text-danger mt-1">{errors.referralType}</p>}
       </Field>
     </div>
   );
@@ -412,10 +412,10 @@ export default function NewTraineePage() {
       </Field>
 
       {/* ── Enrollment section ─────────────────────── */}
-      <div className="pt-2 border-t border-slate-300/60 dark:border-slate-700/60">
-        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">Enrollment (optional)</p>
+      <div className="pt-2 border-t border-input/60">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Enrollment (optional)</p>
         {plans.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-400 py-2">No active subscription plans. You can enroll the trainee later from their profile.</p>
+          <p className="text-sm text-muted-foreground py-2">No active subscription plans. You can enroll the trainee later from their profile.</p>
         ) : (
           <div className="space-y-3">
             {/* Plan selector */}
@@ -454,11 +454,11 @@ export default function NewTraineePage() {
             {selectedPlan && (
               <Field label="Assign to Group">
                 {isLoadingGroups ? (
-                  <div className="flex items-center gap-2 py-2 text-slate-600 dark:text-slate-400 text-sm">
+                  <div className="flex items-center gap-2 py-2 text-muted-foreground text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" /> Loading groups...
                   </div>
                 ) : groups.length === 0 ? (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 py-1">No available groups for this plan.</p>
+                  <p className="text-sm text-muted-foreground py-1">No available groups for this plan.</p>
                 ) : (
                   <select value={form.groupId} onChange={set('groupId')} className={inputClass}>
                     <option value="">Select a group</option>
@@ -506,7 +506,7 @@ export default function NewTraineePage() {
                     <option value="CASH">{t('paymentCash')}</option>
                     <option value="EWALLET">{t('paymentEwallet')}</option>
                   </select>
-                  {errors.paymentMethod && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.paymentMethod}</p>}
+                  {errors.paymentMethod && <p className="text-xs text-danger mt-1">{errors.paymentMethod}</p>}
                 </Field>
               )}
               </>
@@ -569,39 +569,39 @@ export default function NewTraineePage() {
 
   if (success) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-        <div className="bg-white dark:bg-slate-900 border border-emerald-500/40 rounded-2xl w-full max-w-md p-8 shadow-2xl text-center space-y-5">
-          <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-            <UserCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/80 backdrop-blur-sm">
+        <div className="bg-card border border-success/40 rounded-2xl w-full max-w-md p-8 shadow-2xl text-center space-y-5">
+          <div className="w-16 h-16 mx-auto rounded-full bg-success-soft border border-success/40 flex items-center justify-center">
+            <UserCheck className="w-8 h-8 text-success" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Trainee Registered!</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Registration complete. Save the details below.</p>
+            <h2 className="text-xl font-bold text-foreground mb-1">Trainee Registered!</h2>
+            <p className="text-sm text-muted-foreground">Registration complete. Save the details below.</p>
           </div>
-          <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl p-4 text-start space-y-3">
+          <div className="bg-muted border border-input rounded-xl p-4 text-start space-y-3">
             <div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{t('systemCode')}</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('systemCode')}</p>
               <p className="font-mono text-lg font-bold text-primary dark:text-primary">{success.systemCode}</p>
             </div>
-            <hr className="border-slate-300 dark:border-slate-700" />
+            <hr className="border-input" />
             {success.password ? (
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{t('portalPassword')}</p>
-                <p className="font-mono text-lg font-bold text-amber-600 dark:text-amber-400">{success.password}</p>
-                <p className="text-xs text-slate-500 mt-1">{t('portalPasswordNote')}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('portalPassword')}</p>
+                <p className="font-mono text-lg font-bold text-warning">{success.password}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('portalPasswordNote')}</p>
               </div>
             ) : (
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{t('portalPassword')}</p>
-                <p className="text-sm text-slate-700 dark:text-slate-300">{t('linkedToAccount')}</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('portalPassword')}</p>
+                <p className="text-sm text-foreground/80">{t('linkedToAccount')}</p>
               </div>
             )}
             {success.receiptNumber && (
               <>
-                <hr className="border-slate-300 dark:border-slate-700" />
+                <hr className="border-input" />
                 <div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Receipt Number</p>
-                  <p className="font-mono text-base font-bold text-emerald-600 dark:text-emerald-400">{success.receiptNumber}</p>
+                  <p className="text-xs text-muted-foreground mb-1">Receipt Number</p>
+                  <p className="font-mono text-base font-bold text-success">{success.receiptNumber}</p>
                 </div>
               </>
             )}
@@ -609,7 +609,7 @@ export default function NewTraineePage() {
           {success.password && (
             <button
               onClick={() => { navigator.clipboard.writeText(success.password!); toast.success('Copied!'); }}
-              className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+              className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
             >
               Copy Password
             </button>
@@ -617,13 +617,13 @@ export default function NewTraineePage() {
           <div className="flex gap-3">
             <button
               onClick={() => { setSuccess(null); setForm(INITIAL_FORM); setStep(0); setSelectedPlan(null); setGroups([]); }}
-              className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex-1 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
             >
               Register Another
             </button>
             <button
               onClick={() => router.push(`/${locale}/trainees`)}
-              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
+              className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
             >
               Go to Trainees
             </button>
@@ -642,7 +642,7 @@ export default function NewTraineePage() {
         <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
           <UserCheck className="w-6 h-6 text-primary dark:text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('register')}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t('register')}</h1>
       </div>
 
       {/* ─── Step Progress ─── */}
@@ -655,10 +655,10 @@ export default function NewTraineePage() {
             <div key={i} className="flex items-center flex-1 last:flex-none">
               <div className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
                 isActive
-                  ? `bg-gradient-to-r ${s.color} text-white shadow-lg`
+                  ? 'bg-primary text-primary-foreground shadow-lg'
                   : isDone
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-slate-500'
+                  ? 'text-success'
+                  : 'text-muted-foreground'
               }`}>
                 {isDone ? (
                   <Check className="w-4 h-4 shrink-0" />
@@ -668,7 +668,7 @@ export default function NewTraineePage() {
                 <span className="text-xs font-semibold hidden sm:block">{s.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`flex-1 h-px mx-1 ${isDone ? 'bg-emerald-500/50' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                <div className={`flex-1 h-px mx-1 ${isDone ? 'bg-success/50' : 'bg-muted'}`} />
               )}
             </div>
           );
@@ -676,10 +676,10 @@ export default function NewTraineePage() {
       </div>
 
       {/* ─── Step Card ─── */}
-      <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl backdrop-blur-xl overflow-hidden">
-        <div className={`h-1 bg-gradient-to-r ${STEPS[step].color}`} />
+      <div className="bg-card/80 border border-input/60 rounded-2xl backdrop-blur-xl overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-primary to-accent" />
         <div className="p-6 md:p-8">
-          <h2 className="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+          <h2 className="text-base font-bold text-foreground mb-5 flex items-center gap-2">
             {(() => { const Icon = STEPS[step].icon; return <Icon className="w-4 h-4 text-primary dark:text-primary" />; })()}
             {t(`step${step + 1}Title` as any)}
           </h2>
@@ -692,7 +692,7 @@ export default function NewTraineePage() {
         <button
           onClick={() => setStep((s) => s - 1)}
           disabled={step === 0}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
           {tCommon('previous')}
@@ -700,7 +700,7 @@ export default function NewTraineePage() {
         {step < STEPS.length - 1 ? (
           <button
             onClick={handleNext}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
           >
             {tCommon('next')}
             <ChevronRight className="w-4 h-4" />
@@ -709,7 +709,7 @@ export default function NewTraineePage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-emerald-500/25 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-success text-success-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-success/25 transition-all hover:-translate-y-0.5"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             {tCommon('submit')}

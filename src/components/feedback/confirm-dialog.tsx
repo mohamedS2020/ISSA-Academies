@@ -66,7 +66,7 @@ const variantStyles = {
       </svg>
     ),
     confirmClass:
-      'bg-primary text-primary-foreground hover:bg-primary focus:ring-primary shadow-sm',
+      'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary shadow-sm',
     bgClass: 'bg-primary dark:bg-primary/20',
   },
 };

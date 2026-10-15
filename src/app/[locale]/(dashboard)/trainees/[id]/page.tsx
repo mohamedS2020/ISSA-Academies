@@ -89,7 +89,7 @@ interface TraineeDetail {
 }
 
 const inputClass =
-  'w-full px-3 py-2 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all';
+  'w-full px-3 py-2 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all';
 
 // ─── Component ────────────────────────────────────────────────
 
@@ -391,8 +391,8 @@ export default function TraineeDetailPage() {
 
   if (!trainee) {
     return (
-      <div className="text-center py-16 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-12 h-12 mx-auto mb-3 text-red-600 dark:text-red-400" />
+      <div className="text-center py-16 text-muted-foreground">
+        <XCircle className="w-12 h-12 mx-auto mb-3 text-danger" />
         <p>Trainee not found</p>
       </div>
     );
@@ -409,17 +409,17 @@ export default function TraineeDetailPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/trainees`)}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{trainee.name}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{trainee.name}</h1>
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                 trainee.user.isActive
-                  ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                  : 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-300/30 dark:border-slate-600/30'
+                  ? 'bg-success-soft text-success border border-success/30'
+                  : 'bg-muted/70 text-muted-foreground border border-input/30'
               }`}>
                 {trainee.user.isActive
                   ? <><CheckCircle className="w-3 h-3 inline me-1" />{tCommon('active')}</>
@@ -435,14 +435,14 @@ export default function TraineeDetailPage() {
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
                 >
                   <X className="w-4 h-4" />{tCommon('cancel')}
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {tCommon('save')}
@@ -452,7 +452,7 @@ export default function TraineeDetailPage() {
               <>
                 <button
                   onClick={startEdit}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:border-primary/60 hover:text-primary dark:hover:text-primary transition-all"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-input text-sm text-foreground/80 hover:border-primary/60 hover:text-primary dark:hover:text-primary transition-all"
                 >
                   <Edit2 className="w-4 h-4" />{tCommon('edit')}
                 </button>
@@ -460,7 +460,7 @@ export default function TraineeDetailPage() {
                 {!activeSubscription && (
                   <button
                     onClick={openEnrollDialog}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
                     <Plus className="w-4 h-4" />Enroll
                   </button>
@@ -469,7 +469,7 @@ export default function TraineeDetailPage() {
                 {activeSubscription && activeSubscription.status !== 'ACTIVE' && (
                   <button
                     onClick={openEnrollDialog}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-amber-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-warning text-warning-foreground text-sm font-semibold hover:shadow-lg hover:shadow-warning/20 transition-all"
                   >
                     <RefreshCw className="w-4 h-4" />Renew
                   </button>
@@ -477,7 +477,7 @@ export default function TraineeDetailPage() {
                 {trainee.user.isActive && (
                   <button
                     onClick={handleDeactivate}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-500/40 text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-danger/40 text-sm text-danger hover:bg-danger-soft transition-all"
                   >
                     <PowerOff className="w-4 h-4" />Deactivate
                   </button>
@@ -490,17 +490,17 @@ export default function TraineeDetailPage() {
 
       {/* ─── Active Subscription Card ─── */}
       {activeSubscription && (
-        <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-5">
+        <div className="bg-gradient-to-r from-success/10 to-accent/10 border border-success/30 rounded-2xl p-5">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/20">
-                <CreditCard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-2 rounded-xl bg-success-soft">
+                <CreditCard className="w-5 h-5 text-success" />
               </div>
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white">{activeSubscription.plan.name}</p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300">{activeSubscription.level.name}</p>
+                <p className="font-semibold text-foreground">{activeSubscription.plan.name}</p>
+                <p className="text-sm text-success">{activeSubscription.level.name}</p>
                 {trainee.groupTrainees?.length > 0 && (
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1">
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                     <Users2 className="w-3 h-3 text-primary dark:text-primary" />
                     {trainee.groupTrainees.map((gt) => gt.group.name).join(', ')}
                   </p>
@@ -517,20 +517,20 @@ export default function TraineeDetailPage() {
             </div>
             <div className="flex gap-6 text-sm">
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Sessions</p>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="text-xs text-muted-foreground">Sessions</p>
+                <p className="font-semibold text-foreground">
                   {activeSubscription.attendedSessions} / {activeSubscription.totalSessions}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Expires</p>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="text-xs text-muted-foreground">Expires</p>
+                <p className="font-semibold text-foreground">
                   {new Date(activeSubscription.endDate).toLocaleDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">Amount Due</p>
-                <p className={`font-semibold ${Number(activeSubscription.amountDue) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                <p className="text-xs text-muted-foreground">Amount Due</p>
+                <p className={`font-semibold ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </p>
               </div>
@@ -542,7 +542,7 @@ export default function TraineeDetailPage() {
                     setPaymentError(null);
                     setShowPaymentDialog(true);
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/25 text-xs font-bold transition-colors self-center"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-soft border border-success/30 text-success hover:bg-success/15 text-xs font-bold transition-colors self-center"
                 >
                   <Wallet size={14} />
                   Record Payment
@@ -554,8 +554,8 @@ export default function TraineeDetailPage() {
       )}
 
       {/* ─── Captain Feedback (read-only) ─── */}
-      <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl p-6 backdrop-blur-xl">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">
+      <div className="bg-card/80 border border-input/60 rounded-2xl p-6 backdrop-blur-xl">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-foreground/80 mb-4">
           <MessageSquare className="w-4 h-4 text-primary dark:text-primary" />
           {tFeedback('title')}
         </h2>
@@ -564,39 +564,39 @@ export default function TraineeDetailPage() {
 
       {/* ─── Record Payment Dialog ─── */}
       {showPaymentDialog && activeSubscription && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-sm p-1 rounded-3xl bg-gradient-to-b from-emerald-500/10 via-slate-100/40 dark:via-slate-900/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
-            <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
+          <div className="w-full max-w-sm p-1 rounded-3xl bg-gradient-to-b from-success/10 via-muted/40 to-background border border-border/80 shadow-2xl backdrop-blur-xl">
+            <div className="bg-card/95 rounded-[22px] p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Wallet size={18} className="text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <Wallet size={18} className="text-success" />
                   Record Payment
                 </h3>
                 <button
                   onClick={() => setShowPaymentDialog(false)}
-                  className="h-7 w-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
               </div>
 
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 Outstanding balance:{' '}
-                <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                <span className="text-warning font-semibold">
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </span>
               </p>
 
               {paymentError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-800/40 text-red-200 text-xs flex items-start gap-2.5">
-                  <XCircle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="mb-4 p-3 rounded-xl bg-danger-soft border border-danger/40 text-danger text-xs flex items-start gap-2.5">
+                  <XCircle size={14} className="text-danger flex-shrink-0 mt-0.5" />
                   <span>{paymentError}</span>
                 </div>
               )}
 
               <div className="space-y-1.5 mb-5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Amount <span className="text-red-500">*</span>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Amount <span className="text-danger">*</span>
                 </label>
                 <input
                   type="number"
@@ -606,18 +606,18 @@ export default function TraineeDetailPage() {
                   autoFocus
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                 />
               </div>
 
               <div className="space-y-1.5 mb-5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  {t('paymentMethod')} <span className="text-red-500">*</span>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {t('paymentMethod')} <span className="text-danger">*</span>
                 </label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as '' | 'INSTAPAY' | 'CASH' | 'EWALLET')}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-4 py-2.5 text-xs focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-slate-900 dark:text-slate-100"
+                  className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
                 >
                   <option value="">—</option>
                   <option value="INSTAPAY">{t('paymentInstapay')}</option>
@@ -629,7 +629,7 @@ export default function TraineeDetailPage() {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setShowPaymentDialog(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all duration-200"
                   disabled={isRecordingPayment}
                 >
                   {tCommon('cancel')}
@@ -637,7 +637,7 @@ export default function TraineeDetailPage() {
                 <button
                   onClick={handleRecordPayment}
                   disabled={isRecordingPayment}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {isRecordingPayment && <Loader2 size={12} className="animate-spin" />}
                   Submit
@@ -650,25 +650,25 @@ export default function TraineeDetailPage() {
 
       {/* ─── Change Level & Group Dialog ─── */}
       {showAssignDialog && activeSubscription && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md px-4">
-          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-slate-100/40 dark:via-slate-900/5 to-slate-50 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800/80 shadow-2xl backdrop-blur-xl">
-            <div className="bg-white/95 dark:bg-slate-950/95 rounded-[22px] p-6 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
+          <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-muted/40 to-background border border-border/80 shadow-2xl backdrop-blur-xl">
+            <div className="bg-card/95 rounded-[22px] p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Edit Level &amp; Group</h2>
+                <h2 className="text-lg font-bold text-foreground">Edit Level &amp; Group</h2>
                 <button
                   onClick={() => setShowAssignDialog(false)}
-                  className="h-7 w-7 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500">
-                Within plan <span className="text-slate-700 dark:text-slate-300 font-semibold">{activeSubscription.plan.name}</span>
+              <p className="text-xs text-muted-foreground">
+                Within plan <span className="text-foreground/80 font-semibold">{activeSubscription.plan.name}</span>
               </p>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Level</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Level</label>
                 <select
                   value={assignForm.levelId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, levelId: e.target.value }))}
@@ -682,7 +682,7 @@ export default function TraineeDetailPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Group</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Group</label>
                 <select
                   value={assignForm.groupId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, groupId: e.target.value }))}
@@ -704,14 +704,14 @@ export default function TraineeDetailPage() {
                 <button
                   onClick={() => setShowAssignDialog(false)}
                   disabled={isSavingAssign}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-all"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all"
                 >
                   {tCommon('cancel')}
                 </button>
                 <button
                   onClick={handleSaveAssignment}
                   disabled={isSavingAssign || !assignForm.levelId || !assignForm.groupId}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary text-white font-semibold text-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {isSavingAssign && <Loader2 size={12} className="animate-spin" />}
                   {tCommon('save')}
@@ -759,15 +759,15 @@ export default function TraineeDetailPage() {
           ],
         },
       ] as const).map(({ icon: Icon, title, fields }) => (
-        <div key={title} className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl p-6 backdrop-blur-xl">
-          <h3 className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">
+        <div key={title} className="bg-card/80 border border-input/60 rounded-2xl p-6 backdrop-blur-xl">
+          <h3 className="flex items-center gap-2 text-sm font-bold text-foreground/80 mb-4">
             <Icon className="w-4 h-4 text-primary dark:text-primary" />
             {title}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {fields.map(({ key, label, value }) => (
               <div key={key}>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{label}</p>
+                <p className="text-xs text-muted-foreground mb-1">{label}</p>
                 {isEditing ? (
                   <input
                     type="text"
@@ -776,9 +776,9 @@ export default function TraineeDetailPage() {
                     className={inputClass}
                   />
                 ) : (
-                  <p className="text-sm text-slate-900 dark:text-white">
+                  <p className="text-sm text-foreground">
                     {value != null && value !== '' ? String(value) : (
-                      <span className="text-slate-500">—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </p>
                 )}
@@ -790,32 +790,32 @@ export default function TraineeDetailPage() {
 
       {/* ─── Enrollment Dialog ────────────────────────────── */}
       {showEnrollDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-purple-500/30 rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-t-2xl" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/70 backdrop-blur-sm">
+          <div className="bg-card border border-primary/30 rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-t-2xl" />
             <div className="p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-primary" />
                   {activeSubscription ? 'Renew Subscription' : 'Enroll Trainee'}
                 </h2>
-                <button onClick={() => setShowEnrollDialog(false)} className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"><X className="w-5 h-5" /></button>
+                <button onClick={() => setShowEnrollDialog(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
               </div>
 
               {enrollReceipt ? (
                 /* Success state */
                 <div className="text-center py-4 space-y-3">
-                  <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                    <CheckCircle className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+                  <div className="w-14 h-14 mx-auto rounded-full bg-success-soft border border-success/40 flex items-center justify-center">
+                    <CheckCircle className="w-7 h-7 text-success" />
                   </div>
-                  <p className="font-semibold text-slate-900 dark:text-white">Enrollment complete!</p>
-                  <div className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3">
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Receipt</p>
-                    <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{enrollReceipt}</p>
+                  <p className="font-semibold text-foreground">Enrollment complete!</p>
+                  <div className="bg-muted rounded-xl p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Receipt</p>
+                    <p className="font-mono font-bold text-success">{enrollReceipt}</p>
                   </div>
                   <button
                     onClick={() => setShowEnrollDialog(false)}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold"
+                    className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
                   >
                     Done
                   </button>
@@ -825,9 +825,9 @@ export default function TraineeDetailPage() {
                 <div className="space-y-4">
                   {/* Plan */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Subscription Plan <span className="text-red-600 dark:text-red-400">*</span></label>
+                    <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Subscription Plan <span className="text-danger">*</span></label>
                     <select
-                      className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                      className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       value={enrollForm.planId}
                       onChange={(e) => {
                         const plan = enrollPlans.find((p) => p.id === e.target.value) || null;
@@ -845,9 +845,9 @@ export default function TraineeDetailPage() {
                   {/* Level */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Level <span className="text-red-600 dark:text-red-400">*</span></label>
+                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Level <span className="text-danger">*</span></label>
                       <select
-                        className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                        className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                         value={enrollForm.levelId}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, levelId: e.target.value }))}
                       >
@@ -860,12 +860,12 @@ export default function TraineeDetailPage() {
                   {/* Group */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Group <span className="text-red-600 dark:text-red-400">*</span></label>
+                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Group <span className="text-danger">*</span></label>
                       {isLoadingEnrollGroups ? (
-                        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm py-1"><Loader2 className="w-4 h-4 animate-spin" />Loading groups...</div>
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-1"><Loader2 className="w-4 h-4 animate-spin" />Loading groups...</div>
                       ) : (
                         <select
-                          className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                          className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                           value={enrollForm.groupId}
                           onChange={(e) => setEnrollForm((f) => ({ ...f, groupId: e.target.value }))}
                         >
@@ -883,20 +883,20 @@ export default function TraineeDetailPage() {
                   {/* Payment */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Amount Paid (EGP)</label>
+                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Amount Paid (EGP)</label>
                       <input
                         type="number" min={0}
                         value={enrollForm.amountPaid}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, amountPaid: e.target.value }))}
-                        className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                        className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Payment Status</label>
+                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Payment Status</label>
                       <select
                         value={enrollForm.paymentStatus}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, paymentStatus: e.target.value as any }))}
-                        className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                        className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       >
                         <option value="UNPAID">Unpaid</option>
                         <option value="PARTIAL">Partial</option>
@@ -907,13 +907,13 @@ export default function TraineeDetailPage() {
 
                   {Number(enrollForm.amountPaid) > 0 && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        {t('paymentMethod')} <span className="text-red-500">*</span>
+                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                        {t('paymentMethod')} <span className="text-danger">*</span>
                       </label>
                       <select
                         value={enrollForm.paymentMethod}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, paymentMethod: e.target.value as '' | 'INSTAPAY' | 'CASH' | 'EWALLET' }))}
-                        className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500/60 transition-all"
+                        className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       >
                         <option value="">—</option>
                         <option value="INSTAPAY">{t('paymentInstapay')}</option>
@@ -926,7 +926,7 @@ export default function TraineeDetailPage() {
                   <button
                     onClick={() => handleEnroll(!!activeSubscription)}
                     disabled={isEnrolling || !enrollForm.planId || !enrollForm.levelId || !enrollForm.groupId}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+                    className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
                     {isEnrolling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                     {activeSubscription ? 'Renew Subscription' : 'Enroll & Generate Receipt'}
