@@ -30,9 +30,9 @@ interface Pagination {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  PRESENT: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-  ABSENT: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-  EXCUSED: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  PRESENT: 'bg-success-soft text-success border-success/20',
+  ABSENT: 'bg-danger-soft text-danger border-danger/20',
+  EXCUSED: 'bg-warning-soft text-warning border-warning/20',
 };
 
 export default function PortalAttendancePage() {
@@ -80,7 +80,7 @@ export default function PortalAttendancePage() {
       key: 'date',
       header: t('date'),
       render: (row) => (
-        <span className="text-slate-700 dark:text-slate-300">
+        <span className="text-foreground/80">
           {new Date(row.session.scheduledAt).toLocaleDateString()}
         </span>
       ),
@@ -88,7 +88,7 @@ export default function PortalAttendancePage() {
     {
       key: 'group',
       header: t('group'),
-      render: (row) => <span className="text-slate-600 dark:text-slate-400">{row.session.group.name}</span>,
+      render: (row) => <span className="text-muted-foreground">{row.session.group.name}</span>,
     },
     {
       key: 'status',
@@ -96,7 +96,7 @@ export default function PortalAttendancePage() {
       render: (row) => (
         <span
           className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-            STATUS_STYLES[row.status] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+            STATUS_STYLES[row.status] ?? 'bg-muted text-foreground/80 border-input'
           }`}
         >
           {tAttendance(row.status.toLowerCase() as 'present' | 'absent' | 'excused')}
@@ -107,7 +107,7 @@ export default function PortalAttendancePage() {
       key: 'notes',
       header: tAttendance('notes'),
       render: (row) => (
-        <span className="text-slate-500 text-xs max-w-xs truncate block">
+        <span className="text-muted-foreground text-xs max-w-xs truncate block">
           {row.notes || '—'}
         </span>
       ),
@@ -116,12 +116,12 @@ export default function PortalAttendancePage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
         <UserCheck size={22} className="text-primary dark:text-primary" />
         {t('attendance')}
       </h2>
 
-      <div className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
+      <div className="bg-card/70 border border-border shadow-2xl rounded-2xl p-4 backdrop-blur-xl">
         <DataTable
           columns={columns}
           data={records}

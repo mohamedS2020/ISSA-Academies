@@ -138,34 +138,34 @@ export default function PortalDashboardPage() {
   return (
     <div className="space-y-6">
       {/* ─── Welcome Hero ─── */}
-      <div className="rounded-2xl bg-gradient-to-r from-white/80 dark:from-slate-900/60 to-accent/20 border border-slate-200 dark:border-slate-900 p-6 shadow-xl">
-        <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <div className="rounded-2xl bg-gradient-to-r from-card/80 to-accent/20 border border-border p-6 shadow-xl">
+        <h2 className="text-xl font-extrabold text-foreground flex items-center gap-2">
           <Sparkles size={20} className="text-primary dark:text-primary" />
           {t('welcome', { name: data.trainee.name })}
         </h2>
-        <p className="text-xs text-slate-500 mt-1 font-mono">{data.trainee.systemCode}</p>
+        <p className="text-xs text-muted-foreground mt-1 font-mono">{data.trainee.systemCode}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ─── Upcoming Sessions ─── */}
-        <div className="lg:col-span-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-5 flex items-center gap-2">
+        <div className="lg:col-span-2 rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider mb-5 flex items-center gap-2">
             <Calendar size={16} className="text-primary dark:text-primary" />
             {t('upcomingSessions')}
           </h3>
 
           {data.upcomingSessions.length === 0 ? (
-            <p className="text-xs text-slate-500 py-8 text-center">{t('noUpcoming')}</p>
+            <p className="text-xs text-muted-foreground py-8 text-center">{t('noUpcoming')}</p>
           ) : (
             <div className="space-y-3">
               {data.upcomingSessions.map((s) => (
                 <div
                   key={s.id}
-                  className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-xl bg-background border border-border flex items-center justify-between gap-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">{s.group.name}</p>
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className="text-xs font-semibold text-foreground">{s.group.name}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
                       {s.group.captain.user.name}
                     </p>
                   </div>
@@ -180,52 +180,52 @@ export default function PortalDashboardPage() {
         </div>
 
         {/* ─── Subscription Summary ─── */}
-        <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
+        <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <CreditCard size={16} className="text-primary dark:text-primary" />
               {t('subscription')}
             </h3>
 
             {data.activeSubscription ? (
-              <div className="space-y-3 text-xs leading-relaxed text-slate-700 dark:text-slate-300">
-                <div className="flex justify-between border-b border-slate-200 dark:border-slate-900 pb-2">
-                  <span className="text-slate-500">{t('planName')}</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="space-y-3 text-xs leading-relaxed text-foreground/80">
+                <div className="flex justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">{t('planName')}</span>
+                  <span className="font-semibold text-foreground">
                     {data.activeSubscription.plan.name}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200 dark:border-slate-900 pb-2">
-                  <span className="text-slate-500">{t('sessionsRemaining')}</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <div className="flex justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">{t('sessionsRemaining')}</span>
+                  <span className="font-semibold text-foreground">
                     {data.activeSubscription.totalSessions -
                       data.activeSubscription.attendedSessions}{' '}
                     / {data.activeSubscription.totalSessions}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">{t('expiresOn')}</span>
-                  <span className="font-semibold text-amber-500 font-mono">
+                  <span className="text-muted-foreground">{t('expiresOn')}</span>
+                  <span className="font-semibold text-warning font-mono">
                     {new Date(data.activeSubscription.endDate).toLocaleDateString()}
                   </span>
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-slate-500">{t('noActiveSubscription')}</p>
+              <p className="text-xs text-muted-foreground">{t('noActiveSubscription')}</p>
             )}
           </div>
 
-          <div className="border-t border-slate-200 dark:border-slate-900 pt-4 mt-6 grid grid-cols-2 gap-2">
+          <div className="border-t border-border pt-4 mt-6 grid grid-cols-2 gap-2">
             {quickLinks.map((link) => {
               const Icon = link.icon;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 hover:border-slate-200 dark:hover:border-slate-800 hover:bg-white/70 dark:hover:bg-slate-900/40 transition-colors flex flex-col items-center gap-1.5 text-center"
+                  className="p-3 rounded-xl bg-background border border-border hover:border-primary/50 hover:bg-card/70 transition-colors flex flex-col items-center gap-1.5 text-center"
                 >
                   <Icon size={16} className="text-primary dark:text-primary" />
-                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{link.label}</span>
+                  <span className="text-[10px] font-bold text-foreground/80">{link.label}</span>
                 </Link>
               );
             })}
@@ -236,51 +236,51 @@ export default function PortalDashboardPage() {
       {/* ─── Rate Your Captain + Feedback ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rate your captain */}
-        <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Star size={16} className="text-amber-600 dark:text-amber-400" />
+        <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Star size={16} className="text-warning" />
             {t('rateCaptain')}
           </h3>
 
           {rating?.captain ? (
             <div className="space-y-3">
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-muted-foreground">
                 {t('yourCaptain')}:{' '}
-                <span className="font-semibold text-slate-800 dark:text-slate-200">{rating.captain.name}</span>
+                <span className="font-semibold text-foreground">{rating.captain.name}</span>
               </p>
               <StarRating value={rating.myStars} onRate={handleRate} />
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-muted-foreground">
                 {rating.myStars ? t('tapToChange') : t('tapToRate')}
               </p>
               {rating.average !== null && (
-                <div className="flex items-center gap-1.5 pt-3 border-t border-slate-200 dark:border-slate-900 text-[11px] text-slate-600 dark:text-slate-400">
+                <div className="flex items-center gap-1.5 pt-3 border-t border-border text-[11px] text-muted-foreground">
                   {t('captainAverage')}:
                   <RatingBadge average={rating.average} count={rating.count} size={13} />
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-xs text-slate-500">{t('noCaptainYet')}</p>
+            <p className="text-xs text-muted-foreground">{t('noCaptainYet')}</p>
           )}
         </div>
 
         {/* Feedback from your captain */}
-        <div className="lg:col-span-2 rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <div className="lg:col-span-2 rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
             <MessageSquare size={16} className="text-primary dark:text-primary" />
             {t('captainFeedback')}
           </h3>
 
           {feedback.length === 0 ? (
-            <p className="text-xs text-slate-500 py-8 text-center">{t('noFeedback')}</p>
+            <p className="text-xs text-muted-foreground py-8 text-center">{t('noFeedback')}</p>
           ) : (
             <div className="space-y-3">
               {feedback.map((f) => (
-                <div key={f.id} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900">
-                  <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
+                <div key={f.id} className="p-3.5 rounded-xl bg-background border border-border">
+                  <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                     {f.message}
                   </p>
-                  <div className="flex items-center justify-between mt-2.5 text-[10px] text-slate-500">
+                  <div className="flex items-center justify-between mt-2.5 text-[10px] text-muted-foreground">
                     <span className="font-semibold">{f.captain.user.name}</span>
                     <span className="font-mono">
                       {new Date(f.createdAt).toLocaleDateString()}

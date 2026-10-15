@@ -56,27 +56,27 @@ export default function PortalSchedulePage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
         <Calendar size={22} className="text-primary dark:text-primary" />
         {t('schedule')}
       </h2>
 
-      <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-4 backdrop-blur-xl shadow-xl">
+      <div className="rounded-2xl bg-card/70 border border-border p-4 backdrop-blur-xl shadow-xl">
         {isLoading ? (
           <SkeletonTable rows={5} cols={3} />
         ) : sessions.length === 0 ? (
-          <p className="text-xs text-slate-500 py-12 text-center">{t('noUpcoming')}</p>
+          <p className="text-xs text-muted-foreground py-12 text-center">{t('noUpcoming')}</p>
         ) : (
           <div className="space-y-3">
             {sessions.map((s) => (
               <div
                 key={s.id}
-                className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                className="p-4 rounded-xl bg-background border border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               >
                 <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{s.group.name}</p>
-                  <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
-                    <Award size={11} className="text-slate-500 dark:text-slate-600" />
+                  <p className="text-sm font-semibold text-foreground">{s.group.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <Award size={11} className="text-muted-foreground" />
                     {s.group.captain.user.name}
                   </p>
                 </div>
@@ -85,7 +85,7 @@ export default function PortalSchedulePage() {
                     <Clock size={12} />
                     {s.scheduledAtLocal}
                   </span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-muted-foreground">
                     {s.durationMinutes} {tSchedule('duration')}
                   </span>
                 </div>

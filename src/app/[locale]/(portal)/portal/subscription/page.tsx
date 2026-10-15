@@ -64,7 +64,7 @@ export default function PortalSubscriptionPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent flex items-center gap-2">
+      <h2 className="text-2xl font-extrabold tracking-wide text-foreground flex items-center gap-2">
         <CreditCard size={22} className="text-primary dark:text-primary" />
         {t('subscription')}
       </h2>
@@ -72,34 +72,34 @@ export default function PortalSubscriptionPage() {
       {isLoading ? (
         <SkeletonCard />
       ) : !data?.hasActiveSubscription || !data.subscription ? (
-        <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-12 backdrop-blur-xl shadow-xl text-center">
-          <p className="text-sm text-slate-500">{t('noActiveSubscription')}</p>
+        <div className="rounded-2xl bg-card/70 border border-border p-12 backdrop-blur-xl shadow-xl text-center">
+          <p className="text-sm text-muted-foreground">{t('noActiveSubscription')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="rounded-2xl bg-gradient-to-r from-primary/30 to-accent/20 border border-primary/30 p-6 backdrop-blur-xl shadow-xl md:col-span-2">
-            <p className="text-xs text-slate-600 dark:text-slate-400">{t('planName')}</p>
-            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-xs text-muted-foreground">{t('planName')}</p>
+            <h3 className="text-2xl font-extrabold text-foreground mt-1">
               {data.subscription.planName}
             </h3>
             <p className="text-sm text-primary dark:text-primary mt-1">{data.subscription.levelName}</p>
           </div>
 
-          <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
+          <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
               <Calendar size={16} className="text-primary dark:text-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {t('sessionsRemaining')}
               </span>
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 dark:text-slate-100">
+            <p className="text-3xl font-extrabold text-foreground">
               {data.subscription.sessionsRemaining}
-              <span className="text-sm text-slate-500 font-normal">
+              <span className="text-sm text-muted-foreground font-normal">
                 {' '}
                 / {data.subscription.totalSessions}
               </span>
             </p>
-            <div className="h-1.5 w-full bg-slate-50 dark:bg-slate-950 rounded-full overflow-hidden border border-slate-200 dark:border-slate-900 mt-3">
+            <div className="h-1.5 w-full bg-background rounded-full overflow-hidden border border-border mt-3">
               <div
                 className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
                 style={{
@@ -111,44 +111,44 @@ export default function PortalSubscriptionPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
+          <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <Calendar size={16} className="text-amber-500" />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <Calendar size={16} className="text-warning" />
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {t('expiresOn')}
               </span>
             </div>
-            <p className="text-2xl font-extrabold text-amber-500 font-mono">
+            <p className="text-2xl font-extrabold text-warning font-mono">
               {new Date(data.subscription.endDate).toLocaleDateString()}
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
+          <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
               <Snowflake size={16} className="text-primary dark:text-primary" />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {t('freezeStatus')}
               </span>
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 dark:text-slate-100">
+            <p className="text-3xl font-extrabold text-foreground">
               {data.subscription.freezeUsed}
-              <span className="text-sm text-slate-500 font-normal">
+              <span className="text-sm text-muted-foreground font-normal">
                 {' '}
                 / {data.subscription.freezeAllowed}
               </span>
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 p-6 backdrop-blur-xl shadow-xl">
+          <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <Wallet size={16} className="text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <Wallet size={16} className="text-success" />
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 {tFinance('outstandingBalance')}
               </span>
             </div>
             <p
               className={`text-2xl font-extrabold ${
-                Number(data.subscription.amountDue) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'
+                Number(data.subscription.amountDue) > 0 ? 'text-warning' : 'text-success'
               }`}
             >
               {Number(data.subscription.amountDue).toFixed(2)}
