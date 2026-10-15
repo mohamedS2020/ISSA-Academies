@@ -84,6 +84,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -144,6 +146,8 @@
   --border: var(--ya-line);
   --input: var(--ya-line);
   --ring: var(--ya-lagoon);
+  --chart-1: var(--ya-chart-1);
+  --chart-2: var(--ya-chart-2);
   --radius: 0.75rem;
 
   /* Native controls (checkboxes, scrollbars, date pickers) follow the theme. */
@@ -189,6 +193,8 @@
   --border: var(--ya-midnight-3);
   --input: var(--ya-deepsea-700);
   --ring: var(--ya-lagoon);
+  --chart-1: var(--ya-chart-1);
+  --chart-2: var(--ya-chart-2-dark);
 
   color-scheme: dark;
 }

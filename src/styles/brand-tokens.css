@@ -67,6 +67,15 @@
   --ya-on-dark-danger: #F97066; /* danger text and buttons on Midnight (dark mode) */
   --ya-status-ok: #5BD3A6; /* status dots on Deep Sea; success text in dark mode */
   --ya-status-warn: #F2C14E; /* warning text in dark mode */
+  /* ─── Data colours (charts) ───
+     Series colours in a fixed order. Checked with a colour-blind palette
+     validator (separation under protanopia and deuteranopia, contrast) on
+     white cards and on Midnight-2 cards. Deep Sea reads grey at line width
+     and two teals are too close, so series 2 is the one non-brand hue. */
+  --ya-chart-1: #0A9396; /* series 1: Lagoon, both themes */
+  --ya-chart-2: #EB6834; /* series 2: orange on light */
+  --ya-chart-2-dark: #D95926; /* series 2: orange on dark */
+
   --ya-whatsapp: #128C4A; /* WhatsApp's own green: their brand, not ours */
   --ya-whatsapp-light: #5BD38F; /* WhatsApp icon on dark backgrounds */
 }

@@ -34,7 +34,7 @@ const AreaTrendChart = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[280px] w-full animate-pulse rounded-xl bg-slate-200/60 dark:bg-slate-800/40" />
+      <div className="h-[280px] w-full animate-pulse rounded-xl bg-muted/60" />
     ),
   }
 );
@@ -95,8 +95,8 @@ export default function FinanceDashboardPage() {
 
   if (user && !canView) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <XCircle className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <XCircle className="w-8 h-8 me-3 text-danger" />
         <span>Access denied.</span>
       </div>
     );
@@ -110,25 +110,25 @@ export default function FinanceDashboardPage() {
           label: t('totalIncome'),
           value: summary.totalIncome,
           icon: TrendingUp,
-          colorClass: 'text-emerald-600 dark:text-emerald-400',
+          colorClass: 'text-success',
         },
         {
           label: t('totalExpenses'),
           value: summary.totalExpenses,
           icon: TrendingDown,
-          colorClass: 'text-red-600 dark:text-red-400',
+          colorClass: 'text-danger',
         },
         {
           label: t('netProfit'),
           value: summary.netProfit,
           icon: Wallet,
-          colorClass: summary.netProfit >= 0 ? 'text-primary dark:text-primary' : 'text-amber-600 dark:text-amber-400',
+          colorClass: summary.netProfit >= 0 ? 'text-primary dark:text-primary' : 'text-warning',
         },
         {
           label: t('outstandingBalances'),
           value: summary.outstandingBalances,
           icon: AlertCircle,
-          colorClass: 'text-amber-600 dark:text-amber-400',
+          colorClass: 'text-warning',
         },
       ]
     : [];
@@ -137,7 +137,7 @@ export default function FinanceDashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-extrabold tracking-wide bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-extrabold tracking-wide text-foreground">
             {t('title')}
           </h2>
         </div>
@@ -145,28 +145,28 @@ export default function FinanceDashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href={`/${locale}/finance/manual-income`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
           >
             <TrendingUp size={14} />
             {t('manualIncome')}
           </Link>
           <Link
             href={`/${locale}/finance/expenses`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
           >
             <Receipt size={14} />
             {t('expenses')}
           </Link>
           <Link
             href={`/${locale}/finance/receipts`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
           >
             <Receipt size={14} />
             {t('receipt')}
           </Link>
           <Link
             href={`/${locale}/finance/payroll`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
           >
             <Banknote size={14} />
             {t('payroll')}
@@ -175,14 +175,14 @@ export default function FinanceDashboardPage() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
-          <span className="text-slate-500 dark:text-slate-600 text-xs">—</span>
+          <span className="text-muted-foreground text-xs">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/50 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none"
+            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -197,15 +197,15 @@ export default function FinanceDashboardPage() {
               return (
                 <div
                   key={kpi.label}
-                  className="rounded-2xl border border-slate-200 dark:border-slate-900 bg-white/70 dark:bg-slate-900/40 p-5 backdrop-blur-xl"
+                  className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {kpi.label}
                     </span>
                     <Icon size={16} className={kpi.colorClass} />
                   </div>
-                  <p className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">
+                  <p className="text-2xl font-extrabold text-foreground">
                     {kpi.value.toFixed(2)}
                   </p>
                 </div>
@@ -213,12 +213,12 @@ export default function FinanceDashboardPage() {
             })}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-900 bg-white/70 dark:bg-slate-900/40 p-5 backdrop-blur-xl">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">
+          <div className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl">
+            <h3 className="text-sm font-bold text-foreground mb-4">
               {t('income')} / {t('expenses')}
             </h3>
             {summary.series.length === 0 ? (
-              <p className="text-xs text-slate-500 py-12 text-center">
+              <p className="text-xs text-muted-foreground py-12 text-center">
                 {tCommon('noResults')}
               </p>
             ) : (
@@ -227,8 +227,8 @@ export default function FinanceDashboardPage() {
                 height={280}
                 fontSize={10}
                 series={[
-                  { dataKey: 'income', stroke: '#22d3ee', fill: '#22d3ee22', name: t('income') },
-                  { dataKey: 'expenses', stroke: '#f87171', fill: '#f8717122', name: t('expenses') },
+                  { dataKey: 'income', name: t('income') },
+                  { dataKey: 'expenses', name: t('expenses') },
                 ]}
               />
             )}

@@ -7,6 +7,9 @@
  * ({ ssr: false }) — it stays OUT of each page's initial JS bundle and only
  * downloads when a chart actually renders. Colors come from useChartTheme, so
  * charts follow light/dark automatically.
+ *
+ * Series take the theme's categorical colours in order (series 1, series 2),
+ * and a legend names them, so no line is told apart by colour alone.
  */
 
 import {
@@ -17,18 +20,18 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  Legend,
 } from 'recharts';
 import { useChartTheme } from '@/lib/theme/use-chart-theme';
 
 export interface AreaSeries {
   dataKey: string;
-  stroke: string;
-  fill: string;
   name: string;
 }
 
 interface AreaTrendChartProps {
   data: Record<string, unknown>[];
+  /** At most two: one per categorical colour. */
   series: AreaSeries[];
   height?: number;
   xKey?: string;
@@ -61,13 +64,20 @@ export default function AreaTrendChart({
             color: chart.tooltipText,
           }}
         />
-        {series.map((s) => (
+        <Legend
+          iconType="plainline"
+          wrapperStyle={{ fontSize: 11 }}
+          formatter={(value) => <span style={{ color: chart.text }}>{value}</span>}
+        />
+        {series.map((s, index) => (
           <Area
             key={s.dataKey}
             type="monotone"
             dataKey={s.dataKey}
-            stroke={s.stroke}
-            fill={s.fill}
+            stroke={chart.series[index]}
+            strokeWidth={2}
+            fill={chart.series[index]}
+            fillOpacity={0.13}
             name={s.name}
           />
         ))}
