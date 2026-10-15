@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import { PortalTraineeProvider, TraineeSwitcher } from './portal-trainee-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { APP_MARK } from '@/lib/config/brand';
+import { BrandSymbol } from '@/components/layout/brand-logo';
 
 interface PortalLayoutProps {
   children: React.ReactNode;
@@ -153,9 +153,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       <header className="sticky top-0 z-20 w-full bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/80 dark:border-slate-900/80 backdrop-blur-lg">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white text-xs font-black">{APP_MARK}</span>
-            </div>
+            <BrandSymbol className="h-8 w-auto" />
             <span className="hidden sm:inline text-xs font-extrabold tracking-wider text-slate-700 dark:text-slate-300">
               {t('title')}
             </span>

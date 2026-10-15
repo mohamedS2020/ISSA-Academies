@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Readex_Pro } from "next/font/google";
 import { isValidLocale, isRtlLocale } from "@/lib/i18n/config";
 import { ToastProvider } from "@/components/feedback/toast-provider";
 import { ErrorBoundary } from "@/components/feedback/error-boundary";
@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/lib/theme/theme-context";
 import { QueryProvider } from "@/lib/query/query-provider";
 import { getAcademyHostContext } from "@/lib/tenant/host-context";
 import { SPORTS } from "@/lib/theme/sports";
-import { APP_NAME } from "@/lib/config/brand";
+import { appName } from "@/lib/config/brand";
 import { THEME_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/config/storage-keys";
 import "../globals.css";
 
@@ -31,30 +31,40 @@ const USER_KEY = JSON.stringify(USER_STORAGE_KEY);
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem(${THEME_KEY});var d=t==='dark'||((t==='system'||!t)&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}try{var el=document.documentElement;var host=el.getAttribute('data-host-sport');var u=localStorage.getItem(${USER_KEY})||sessionStorage.getItem(${USER_KEY});var s=u?JSON.parse(u).themeKey:null;var active=(s&&/^[a-z]+$/.test(s))?s:(host||'swimming');el.setAttribute('data-sport',active);}catch(e){}})();`;
 
 /**
- * Per-academy metadata when reached via a subdomain (title + favicon reflect
- * the academy's sport). Falls back to the root layout's default metadata on the
- * bare domain.
+ * The tab title is the platform's name in the page's language. Reached via an
+ * academy subdomain, the academy's name comes first and the favicon reflects
+ * its sport.
  */
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const name = appName(locale);
   // App pages (login, dashboards, portals) stay out of search results; only the
   // marketing site is meant to be found.
   const robots = { index: false, follow: false };
   const academy = await getAcademyHostContext();
-  if (!academy) return { robots };
+  if (!academy) return { robots, title: name };
   return {
     robots,
     // Academy first: browser tabs truncate from the right, so the specific part
     // should survive a narrow tab and the platform name can be the one cut off.
-    title: `${academy.name} · ${APP_NAME}`,
+    title: `${academy.name} · ${name}`,
     icons: { icon: SPORTS[academy.sport].favicon },
   };
 }
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// The brand typeface: one variable font for Arabic and Latin, as on the
+// marketing site, self-hosted by next/font.
+const readexPro = Readex_Pro({
+  variable: "--font-readex",
+  subsets: ["arabic", "latin"],
+  display: "swap",
 });
 
+// Trainee codes, receipt numbers and other codes (font-mono). Latin only.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -96,7 +106,7 @@ export default async function LocaleLayout({
       dir={direction}
       data-sport={hostSport}
       data-host-sport={hostSport}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${readexPro.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">

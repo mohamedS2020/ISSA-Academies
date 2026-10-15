@@ -7,7 +7,9 @@
  *
  * Used by:
  *   - the marketing site (src/styles/marketing.css), directly;
- *   - the app, through Tailwind's theme (@theme in src/app/globals.css).
+ *   - the app, through Tailwind's theme (@theme in src/app/globals.css), which
+ *     names them as utilities (bg-midnight, text-deepsea, border-line …) and
+ *     maps the app's light and dark colours onto them.
  *
  * Change a colour here, never in a component.
  */
@@ -50,17 +52,21 @@
 
   /* ─── Supporting UI colours ───
      Not part of the brand palette; these come from the website design for
-     states and surfaces the palette does not cover. */
+     states and surfaces the palette does not cover. Every text colour here
+     reaches 4.5:1 on the background it is paired with. */
   --ya-midnight-2: #04222C; /* raised surface on Midnight */
   --ya-midnight-3: #0A2F3A; /* hover surface on Midnight */
-  --ya-success: #12805C;
+  --ya-success: #0F7656; /* the design's #12805C, darkened: 4.3:1 → 4.9:1 on --ya-success-bg */
   --ya-success-bg: #E3F4EC;
   --ya-warning: #A15C07;
   --ya-warning-bg: #FBF0DF;
+  --ya-danger: #B42318; /* errors and destructive actions: 6.6:1 on white */
+  --ya-danger-bg: #FDECEA;
   --ya-on-dark-muted: #A9BFC4; /* secondary text on Midnight */
   --ya-on-deepsea-muted: #CFE3E5; /* secondary text on Deep Sea */
-  --ya-status-ok: #5BD3A6; /* status dots on Deep Sea */
-  --ya-status-warn: #F2C14E;
+  --ya-on-dark-danger: #F97066; /* danger text and buttons on Midnight (dark mode) */
+  --ya-status-ok: #5BD3A6; /* status dots on Deep Sea; success text in dark mode */
+  --ya-status-warn: #F2C14E; /* warning text in dark mode */
   --ya-whatsapp: #128C4A; /* WhatsApp's own green: their brand, not ours */
   --ya-whatsapp-light: #5BD38F; /* WhatsApp icon on dark backgrounds */
 }

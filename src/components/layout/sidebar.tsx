@@ -15,7 +15,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { resolveSport, sportLabel } from '@/lib/theme/sports';
 import { UserRole } from '@/types';
 import { isRtlLocale } from '@/lib/i18n/config';
-import { APP_MARK } from '@/lib/config/brand';
+import { BrandSymbol } from '@/components/layout/brand-logo';
 import {
   LayoutDashboard,
   Users,
@@ -165,17 +165,15 @@ export default function Sidebar({
       <div className="flex items-center justify-between px-5 py-6 border-b border-slate-200/60 dark:border-slate-800/60">
         {!isCollapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="text-white text-xs font-black">{APP_MARK}</span>
-            </div>
+            <BrandSymbol className="h-8 w-auto" />
             <span className="text-sm font-extrabold tracking-wider bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
               {sportName}
             </span>
           </div>
         )}
         {isCollapsed && (
-          <div className="mx-auto h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-md">
-            <span className="text-white text-[10px] font-black">{APP_MARK}</span>
+          <div className="mx-auto flex h-8 items-center">
+            <BrandSymbol className="h-8 w-auto" />
           </div>
         )}
         

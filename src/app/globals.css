@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/brand-tokens.css";
 
 /* The marketing site has its own stylesheet (src/styles/marketing.css). Keep
    its class names (container, grid, hidden, …) from generating utilities in
@@ -12,7 +13,50 @@
    what makes the manual light/dark toggle work app-wide. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ────────────────────────────────────────────────────────────
+   Colours. Two layers:
+
+   1. Brand colours, named as utilities: bg-midnight, text-deepsea,
+      border-line, bg-lagoon-50 … Fixed: they look the same in dark mode.
+      The values live in src/styles/brand-tokens.css; this file only names
+      them.
+   2. Semantic colours: bg-background, bg-card, text-foreground,
+      text-muted-foreground, bg-primary, border-border, text-danger … They
+      switch between light and dark (the :root and .dark blocks below) and
+      follow the academy's sport. Components should normally use these.
+   ──────────────────────────────────────────────────────────── */
 @theme inline {
+  /* 1. Brand */
+  --color-midnight: var(--ya-midnight);
+  --color-midnight-2: var(--ya-midnight-2);
+  --color-midnight-3: var(--ya-midnight-3);
+  --color-lagoon: var(--ya-lagoon);
+  --color-lagoon-50: var(--ya-lagoon-50);
+  --color-lagoon-100: var(--ya-lagoon-100);
+  --color-lagoon-200: var(--ya-lagoon-200);
+  --color-lagoon-300: var(--ya-lagoon-300);
+  --color-lagoon-400: var(--ya-lagoon-400);
+  --color-lagoon-500: var(--ya-lagoon-500);
+  --color-lagoon-600: var(--ya-lagoon-600);
+  --color-lagoon-700: var(--ya-lagoon-700);
+  --color-lagoon-800: var(--ya-lagoon-800);
+  --color-lagoon-900: var(--ya-lagoon-900);
+  --color-deepsea: var(--ya-deep-sea);
+  --color-deepsea-50: var(--ya-deepsea-50);
+  --color-deepsea-100: var(--ya-deepsea-100);
+  --color-deepsea-200: var(--ya-deepsea-200);
+  --color-deepsea-300: var(--ya-deepsea-300);
+  --color-deepsea-400: var(--ya-deepsea-400);
+  --color-deepsea-500: var(--ya-deepsea-500);
+  --color-deepsea-600: var(--ya-deepsea-600);
+  --color-deepsea-700: var(--ya-deepsea-700);
+  --color-deepsea-800: var(--ya-deepsea-800);
+  --color-deepsea-900: var(--ya-deepsea-900);
+  --color-mist: var(--ya-mist);
+  --color-line: var(--ya-line);
+  --color-slate: var(--ya-slate);
+
+  /* 2. Semantic */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -29,15 +73,23 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-  --font-sans: var(--font-geist-sans);
+  /* Readex Pro: the brand typeface, Arabic and Latin in one font. */
+  --font-sans: var(--font-readex);
   --font-mono: var(--font-geist-mono);
-  
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
@@ -52,104 +104,123 @@
   to { height: 0; }
 }
 
+/* Light: Mist pages, white cards, Midnight text, Deep Sea buttons with white
+   text, Lagoon focus rings. Lagoon never carries white text (3.7:1), so the
+   accent pairs it with Midnight. */
 :root {
-  --background: hsl(210 40% 98%);       /* Cool pool water light gray/blue */
-  --foreground: hsl(222 47% 11%);       /* Deep ocean navy */
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222 47% 11%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222 47% 11%);
-  
-  --primary: hsl(198 93% 45%);          /* Wave Aqua / Blue */
-  --primary-foreground: hsl(210 40% 98%);
-  
-  --secondary: hsl(184 80% 94%);        /* Soft sky blue */
-  --secondary-foreground: hsl(198 93% 20%);
-  
-  --muted: hsl(210 40% 92%);
-  --muted-foreground: hsl(215 16% 47%);
-  
-  --accent: hsl(11 100% 60%);           /* Neon Coral */
-  --accent-foreground: hsl(0 0% 100%);
-  
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 40% 98%);
-  
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(198 93% 45%);
+  --background: var(--ya-mist);
+  --foreground: var(--ya-midnight);
+  --card: var(--ya-white);
+  --card-foreground: var(--ya-midnight);
+  --popover: var(--ya-white);
+  --popover-foreground: var(--ya-midnight);
+
+  --primary: var(--ya-deep-sea);
+  --primary-foreground: var(--ya-white);
+
+  --secondary: var(--ya-deepsea-50);
+  --secondary-foreground: var(--ya-deep-sea);
+
+  --muted: var(--ya-mist);
+  --muted-foreground: var(--ya-slate);
+
+  --accent: var(--ya-lagoon);
+  --accent-foreground: var(--ya-midnight);
+
+  --destructive: var(--ya-danger);
+  --destructive-foreground: var(--ya-white);
+
+  --success: var(--ya-success);
+  --success-soft: var(--ya-success-bg);
+  --warning: var(--ya-warning);
+  --warning-soft: var(--ya-warning-bg);
+  --danger: var(--ya-danger);
+  --danger-soft: var(--ya-danger-bg);
+
+  --border: var(--ya-line);
+  --input: var(--ya-line);
+  --ring: var(--ya-lagoon);
   --radius: 0.75rem;
 }
 
+/* Dark, derived from the brand: Midnight pages, Midnight-2 cards. Buttons
+   turn Lagoon with Midnight text, as on the landing page's dark sections; the
+   lighter Lagoon-400 keeps text-primary at 6.3:1 on cards (Lagoon itself
+   reaches only 4.4:1 there). */
 .dark {
-  --background: hsl(222 47% 4%);        /* Deep ocean abyss */
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222 47% 7%);              /* Dark ocean card */
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222 47% 7%);
-  --popover-foreground: hsl(210 40% 98%);
-  
-  --primary: hsl(183 100% 50%);         /* Electric Neon Aqua */
-  --primary-foreground: hsl(222 47% 4%);
-  
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-  
-  --muted: hsl(217.2 32.6% 12%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  
-  --accent: hsl(11 100% 60%);           /* Glowing Neon Coral */
-  --accent-foreground: hsl(0 0% 100%);
-  
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(183 100% 50%);
+  --background: var(--ya-midnight);
+  --foreground: var(--ya-mist);
+  --card: var(--ya-midnight-2);
+  --card-foreground: var(--ya-mist);
+  --popover: var(--ya-midnight-2);
+  --popover-foreground: var(--ya-mist);
+
+  --primary: var(--ya-lagoon-400);
+  --primary-foreground: var(--ya-midnight);
+
+  --secondary: var(--ya-midnight-3);
+  --secondary-foreground: var(--ya-mist);
+
+  --muted: var(--ya-midnight-3);
+  --muted-foreground: var(--ya-on-dark-muted);
+
+  --accent: var(--ya-lagoon-300);
+  --accent-foreground: var(--ya-midnight);
+
+  --destructive: var(--ya-on-dark-danger);
+  --destructive-foreground: var(--ya-midnight);
+
+  --success: var(--ya-status-ok);
+  --success-soft: color-mix(in oklab, var(--ya-status-ok) 14%, transparent);
+  --warning: var(--ya-status-warn);
+  --warning-soft: color-mix(in oklab, var(--ya-status-warn) 14%, transparent);
+  --danger: var(--ya-on-dark-danger);
+  --danger-soft: color-mix(in oklab, var(--ya-on-dark-danger) 14%, transparent);
+
+  --border: var(--ya-midnight-3);
+  --input: var(--ya-deepsea-700);
+  --ring: var(--ya-lagoon);
 }
 
 /* ────────────────────────────────────────────────────────────
-   Sport themes — a SEPARATE axis from light/dark.
+   Sport themes: a SEPARATE axis from light/dark.
 
    `data-sport` on <html> (set by the theme provider from the academy's
-   themeKey, or server-side from the subdomain) only overrides the brand/hue
-   tokens; neutrals stay shared. It composes with `.dark`:
+   themeKey, or server-side from the subdomain) recolours only the academy's
+   own accents: primary, accent and ring, each with its text colour.
+   Backgrounds, cards, text, borders and status colours stay Yallacademy's.
+   It composes with `.dark`:
      - `:root[data-sport="x"]`      → (0,2,0) beats base `:root` (0,1,0)   [light]
      - `:root.dark[data-sport="x"]` → (0,3,0) beats base `.dark` (0,1,0)   [dark]
-   Dark blocks are listed after light blocks. `swimming` has NO block — it IS
-   the base `:root` / `.dark` palette, so it needs no override.
+   Dark blocks are listed after light blocks. `swimming` has NO block: it uses
+   the brand colours above, as do the platform's own pages (the login page on
+   the main domain, Super Admin).
 
-   Catalog + metadata (labels, logo, favicon) live in src/lib/theme/sports.ts.
+   Every pair here reaches 4.5:1. Catalog + metadata (labels, logo, favicon)
+   live in src/lib/theme/sports.ts.
    ──────────────────────────────────────────────────────────── */
 
-/* ─── Football — grass green + gold ─── */
+/* ─── Football: grass green + gold ─── */
 :root[data-sport="football"] {
-  --primary: hsl(142 72% 36%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(142 45% 92%);
-  --secondary-foreground: hsl(142 72% 18%);
+  --primary: hsl(142 72% 29%); /* 36% before: white text was 3.5:1, now 5.1:1 */
+  --primary-foreground: var(--ya-white);
   --accent: hsl(45 93% 47%);
   --accent-foreground: hsl(30 60% 12%);
-  --ring: hsl(142 72% 36%);
+  --ring: hsl(142 72% 29%);
 }
 
-/* ─── Padel — violet + emerald ─── */
+/* ─── Padel: violet + emerald ─── */
 :root[data-sport="padel"] {
   --primary: hsl(265 84% 58%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(265 60% 94%);
-  --secondary-foreground: hsl(265 60% 30%);
+  --primary-foreground: var(--ya-white);
   --accent: hsl(160 84% 40%);
-  --accent-foreground: hsl(0 0% 100%);
+  --accent-foreground: hsl(160 70% 8%); /* white before: 2.5:1, now 6.8:1 */
   --ring: hsl(265 84% 58%);
 }
 
 .dark:root[data-sport="football"] {
   --primary: hsl(142 68% 46%);
   --primary-foreground: hsl(144 61% 7%);
-  --secondary: hsl(142 25% 16%);
-  --secondary-foreground: hsl(142 40% 92%);
   --accent: hsl(45 96% 56%);
   --accent-foreground: hsl(30 60% 10%);
   --ring: hsl(142 68% 46%);
@@ -158,8 +229,6 @@
 .dark:root[data-sport="padel"] {
   --primary: hsl(265 90% 70%);
   --primary-foreground: hsl(266 60% 9%);
-  --secondary: hsl(265 30% 20%);
-  --secondary-foreground: hsl(265 60% 92%);
   --accent: hsl(160 84% 48%);
   --accent-foreground: hsl(160 70% 8%);
   --ring: hsl(265 90% 70%);

@@ -15,7 +15,7 @@ import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { APP_NAME, APP_MARK } from '@/lib/config/brand';
+import { BrandLogo } from '@/components/layout/brand-logo';
 import { fetchLeads, leadKeys } from '@/components/superadmin/leads-api';
 
 export default function SuperAdminLayout({
@@ -61,19 +61,14 @@ export default function SuperAdminLayout({
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Brand */}
+          {/* Brand: the logo file, at the 40px the full mark needs */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-indigo-600 text-sm font-bold text-white shadow-sm">
-              {APP_MARK}
-            </div>
-            <div>
-              <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {APP_NAME}
-              </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t('title')}
-              </p>
-            </div>
+            <h1 className="flex">
+              <BrandLogo locale={locale} className="h-10 w-auto" />
+            </h1>
+            <p className="border-s border-border ps-3 text-xs text-gray-500 dark:text-gray-400">
+              {t('title')}
+            </p>
           </div>
 
           {/* Actions */}
