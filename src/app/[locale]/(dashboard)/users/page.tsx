@@ -119,8 +119,8 @@ export default function UsersPage() {
   // Guard: Admin only — AFTER all hooks
   if (user && user.role !== UserRole.ADMIN) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-600 dark:text-slate-400">
-        <Shield className="w-8 h-8 me-3 text-red-600 dark:text-red-400" />
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <Shield className="w-8 h-8 me-3 text-danger" />
         <span>Access denied. Admin only.</span>
       </div>
     );
@@ -245,8 +245,8 @@ export default function UsersPage() {
       header: t('name'),
       render: (row) => (
         <div>
-          <p className="font-semibold text-slate-900 dark:text-white">{row.name}</p>
-          <p className="text-xs text-slate-600 dark:text-slate-400">{row.phoneNumber}</p>
+          <p className="font-semibold text-foreground">{row.name}</p>
+          <p className="text-xs text-muted-foreground">{row.phoneNumber}</p>
         </div>
       ),
     },
@@ -257,7 +257,7 @@ export default function UsersPage() {
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
           row.role === UserRole.ADMIN
             ? 'bg-primary/20 text-primary dark:text-primary border border-primary/30'
-            : 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30'
+            : 'bg-muted text-foreground/80 border border-border'
         }`}>
           {row.role === UserRole.ADMIN ? (
             <ShieldCheck className="w-3 h-3" />
@@ -273,7 +273,7 @@ export default function UsersPage() {
       header: t('privileges'),
       render: (row) =>
         row.role === UserRole.MODERATOR ? (
-          <span className="text-xs text-slate-600 dark:text-slate-400">
+          <span className="text-xs text-muted-foreground">
             {row.privileges.length} / {MODERATOR_PRIVILEGES.length}
           </span>
         ) : (
@@ -286,8 +286,8 @@ export default function UsersPage() {
       render: (row) => (
         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
           row.isActive
-            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-            : 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-300/30 dark:border-slate-600/30'
+            ? 'bg-success-soft text-success border border-success/30'
+            : 'bg-muted/70 text-muted-foreground border border-input/30'
         }`}>
           {row.isActive ? tCommon('active') : tCommon('inactive')}
         </span>
@@ -300,14 +300,14 @@ export default function UsersPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => openEdit(row)}
-            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-colors"
             title={t('editUser')}
           >
             <Edit2 className="w-4 h-4" />
           </button>
           <button
             onClick={() => handlePasswordReset(row)}
-            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-warning hover:bg-warning-soft transition-colors"
             title="Reset Password"
           >
             <KeyRound className="w-4 h-4" />
@@ -315,7 +315,7 @@ export default function UsersPage() {
           {row.isActive && (
             <button
               onClick={() => handleDeactivate(row)}
-              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-soft transition-colors"
               title="Deactivate"
             >
               <PowerOff className="w-4 h-4" />
@@ -341,15 +341,15 @@ export default function UsersPage() {
             <Users className="w-6 h-6 text-primary dark:text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">
               {pagination.total} {pagination.total === 1 ? 'user' : 'users'} in this branch
             </p>
           </div>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
         >
           <Plus className="w-4 h-4" />
           {t('createUser')}
@@ -359,19 +359,19 @@ export default function UsersPage() {
       {/* ─── Filters ─── */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or phone..."
-            className="w-full ps-9 pe-4 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
+            className="w-full ps-9 pe-4 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
           />
         </div>
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-3 py-2.5 bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-primary/60 transition-all"
+          className="px-3 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
         >
           <option value="">{tCommon('all')} roles</option>
           <option value="ADMIN">{t('admin')}</option>
@@ -391,16 +391,16 @@ export default function UsersPage() {
 
       {/* ─── Create / Edit Dialog ─── */}
       {isDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/60 backdrop-blur-sm">
+          <div className="bg-card border border-input/60 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl shadow-midnight/50">
             {/* Dialog Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-300/60 dark:border-slate-700/60">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            <div className="flex items-center justify-between p-6 border-b border-input/60">
+              <h2 className="text-lg font-bold text-foreground">
                 {isCreateOpen ? t('createUser') : t('editUser')}
               </h2>
               <button
                 onClick={closeDialogs}
-                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-700/50 transition-colors"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -410,28 +410,28 @@ export default function UsersPage() {
             <div className="p-6 space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t('name')} <span className="text-red-600 dark:text-red-400">*</span>
+                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                  {t('name')} <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
+                  className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all"
                   placeholder="Full name"
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t('phoneNumber')} <span className="text-red-600 dark:text-red-400">*</span>
+                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                  {t('phoneNumber')} <span className="text-danger">*</span>
                 </label>
                 <input
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
+                  className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all"
                   placeholder="+201234567890"
                 />
               </div>
@@ -439,21 +439,21 @@ export default function UsersPage() {
               {/* Password — only on create */}
               {isCreateOpen && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Password <span className="text-red-600 dark:text-red-400">*</span>
+                  <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                    Password <span className="text-danger">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 pe-10 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-500 focus:outline-none focus:border-primary/60 transition-all"
+                      className="w-full px-3 pe-10 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all"
                       placeholder="Min 8 characters"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -464,8 +464,8 @@ export default function UsersPage() {
               {/* Role — only on create */}
               {isCreateOpen && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    {t('role')} <span className="text-red-600 dark:text-red-400">*</span>
+                  <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                    {t('role')} <span className="text-danger">*</span>
                   </label>
                   <div className="flex gap-3">
                     {[UserRole.MODERATOR, UserRole.ADMIN].map((r) => (
@@ -476,7 +476,7 @@ export default function UsersPage() {
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                           role === r
                             ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
-                            : 'bg-slate-200/60 dark:bg-slate-800/60 border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
+                            : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                         }`}
                       >
                         {r === UserRole.ADMIN ? <ShieldCheck className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
@@ -490,12 +490,12 @@ export default function UsersPage() {
               {/* Privilege Grid — for Moderators */}
               {role === UserRole.MODERATOR && (
                 <div className="mt-4 space-y-4">
-                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {t('configurePrivileges')}
                   </p>
                   {Object.entries(PRIVILEGE_GROUPS).map(([groupKey, group]) => (
                     <div key={groupKey}>
-                      <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">{group.label}</p>
+                      <p className="text-xs font-medium text-foreground/80 mb-2">{group.label}</p>
                       <div className="flex flex-wrap gap-2">
                         {group.privileges.map((priv) => (
                           <label key={priv} className="flex items-center gap-2 cursor-pointer group">
@@ -503,9 +503,9 @@ export default function UsersPage() {
                               type="checkbox"
                               checked={privileges.includes(priv)}
                               onChange={() => togglePrivilege(priv)}
-                              className="w-4 h-4 rounded accent-cyan-500"
+                              className="w-4 h-4 rounded accent-primary"
                             />
-                            <span className="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                               {priv.replace('can_', '').replace(/_/g, ' ')}
                             </span>
                           </label>
@@ -518,24 +518,24 @@ export default function UsersPage() {
 
               {/* Error */}
               {formError && (
-                <p className="text-sm text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+                <p className="text-sm text-danger bg-danger-soft border border-danger/20 rounded-xl px-3 py-2">
                   {formError}
                 </p>
               )}
             </div>
 
             {/* Dialog Footer */}
-            <div className="flex justify-end gap-3 p-6 border-t border-slate-300/60 dark:border-slate-700/60">
+            <div className="flex justify-end gap-3 p-6 border-t border-input/60">
               <button
                 onClick={closeDialogs}
-                className="px-4 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-700/50 transition-colors"
+                className="px-4 py-2 rounded-xl text-sm text-foreground/80 hover:text-foreground hover:bg-muted/70 transition-colors"
               >
                 {tCommon('cancel')}
               </button>
               <button
                 onClick={isCreateOpen ? handleCreate : handleUpdate}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all"
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all"
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {tCommon('save')}
@@ -547,28 +547,28 @@ export default function UsersPage() {
 
       {/* ─── Password Display Modal (one-time) ─── */}
       {createdPassword && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 border border-amber-500/40 rounded-2xl w-full max-w-sm p-6 shadow-2xl shadow-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-midnight/60 backdrop-blur-sm">
+          <div className="bg-card border border-warning/40 rounded-2xl w-full max-w-sm p-6 shadow-2xl shadow-midnight/50">
             <div className="text-center space-y-4">
-              <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                <KeyRound className="w-7 h-7 text-amber-600 dark:text-amber-400" />
+              <div className="w-14 h-14 mx-auto rounded-full bg-warning-soft border border-warning/40 flex items-center justify-center">
+                <KeyRound className="w-7 h-7 text-warning" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">New Password Generated</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Share this password with the user. It will <strong className="text-amber-600 dark:text-amber-400">not be shown again</strong>.
+              <h3 className="text-lg font-bold text-foreground">New Password Generated</h3>
+              <p className="text-sm text-muted-foreground">
+                Share this password with the user. It will <strong className="text-warning">not be shown again</strong>.
               </p>
-              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 font-mono text-lg text-primary dark:text-primary tracking-wider select-all">
+              <div className="bg-muted border border-input rounded-xl px-4 py-3 font-mono text-lg text-primary dark:text-primary tracking-wider select-all">
                 {createdPassword}
               </div>
               <button
                 onClick={() => { navigator.clipboard.writeText(createdPassword); toast.success('Copied!'); }}
-                className="w-full py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-sm text-slate-900 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
               >
                 Copy to Clipboard
               </button>
               <button
                 onClick={() => setCreatedPassword(null)}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold"
+                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
               >
                 I've saved it — Close
               </button>
