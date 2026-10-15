@@ -47,9 +47,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-8">
-          <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+          <div className="rounded-full bg-danger-soft p-4">
             <svg
-              className="h-8 w-8 text-red-600 dark:text-red-400"
+              className="h-8 w-8 text-danger"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth="1.5"
@@ -62,15 +62,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-foreground">
             Something went wrong
           </h2>
-          <p className="max-w-md text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="max-w-md text-center text-sm text-muted-foreground">
             An unexpected error occurred. Please try again or contact support if the
             problem persists.
           </p>
           {process.env.NODE_ENV === 'development' && this.state.error && (
-            <pre className="mt-2 max-w-lg overflow-auto rounded-lg bg-gray-100 p-4 text-xs text-red-700 dark:bg-gray-800 dark:text-red-300">
+            <pre className="mt-2 max-w-lg overflow-auto rounded-lg bg-muted p-4 text-xs text-danger">
               {this.state.error.message}
               {'\n'}
               {this.state.error.stack}
@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           )}
           <button
             onClick={this.handleRetry}
-            className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Try Again
           </button>

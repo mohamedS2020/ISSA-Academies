@@ -41,23 +41,23 @@ export interface ConfirmDialogProps {
 const variantStyles = {
   danger: {
     icon: (
-      <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-6 w-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
       </svg>
     ),
     confirmClass:
-      'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
-    bgClass: 'bg-red-50 dark:bg-red-900/20',
+      'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-danger shadow-sm',
+    bgClass: 'bg-danger-soft',
   },
   warning: {
     icon: (
-      <svg className="h-6 w-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-6 w-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
       </svg>
     ),
     confirmClass:
-      'bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500 shadow-sm',
-    bgClass: 'bg-amber-50 dark:bg-amber-900/20',
+      'bg-warning text-warning-foreground hover:bg-warning/90 focus:ring-warning shadow-sm',
+    bgClass: 'bg-warning-soft',
   },
   info: {
     icon: (
@@ -66,7 +66,7 @@ const variantStyles = {
       </svg>
     ),
     confirmClass:
-      'bg-primary text-white hover:bg-primary focus:ring-primary shadow-sm',
+      'bg-primary text-primary-foreground hover:bg-primary focus:ring-primary shadow-sm',
     bgClass: 'bg-primary dark:bg-primary/20',
   },
 };
@@ -119,7 +119,7 @@ export function ConfirmDialog({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/50 p-4 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current && !isLoading) onCancel();
       }}
@@ -127,7 +127,7 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
-      <div className="w-full max-w-md transform rounded-2xl bg-white shadow-2xl transition-all dark:bg-gray-800">
+      <div className="w-full max-w-md transform rounded-2xl bg-card shadow-2xl transition-all">
         {/* Header */}
         <div className="flex items-start gap-4 p-6 pb-2">
           <div className={`flex-shrink-0 rounded-full p-2 ${styles.bgClass}`}>
@@ -136,11 +136,11 @@ export function ConfirmDialog({
           <div className="flex-1">
             <h3
               id="confirm-dialog-title"
-              className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+              className="text-lg font-semibold text-foreground"
             >
               {title}
             </h3>
-            <div className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            <div className="mt-2 text-sm text-muted-foreground">
               {message}
             </div>
           </div>
@@ -149,9 +149,9 @@ export function ConfirmDialog({
         {/* Type to Confirm */}
         {typeToConfirm && (
           <div className="px-6 pt-2">
-            <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mb-2 text-xs text-muted-foreground">
               Type{' '}
-              <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-red-600 dark:bg-gray-700 dark:text-red-400">
+              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-danger">
                 {typeToConfirm}
               </code>{' '}
               to confirm:
@@ -160,7 +160,7 @@ export function ConfirmDialog({
               type="text"
               value={typedValue}
               onChange={(e) => setTypedValue(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              className="w-full rounded-lg border border-input px-3 py-2 text-sm focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20"
               placeholder={typeToConfirm}
               autoComplete="off"
             />
@@ -173,7 +173,7 @@ export function ConfirmDialog({
             ref={cancelBtnRef}
             onClick={onCancel}
             disabled={isLoading}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted disabled:opacity-50"
           >
             {cancelLabel}
           </button>

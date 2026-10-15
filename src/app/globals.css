@@ -75,8 +75,10 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-border: var(--border);
@@ -132,8 +134,10 @@
 
   --success: var(--ya-success);
   --success-soft: var(--ya-success-bg);
+  --success-foreground: var(--ya-white); /* text on solid success: 5.6:1 */
   --warning: var(--ya-warning);
   --warning-soft: var(--ya-warning-bg);
+  --warning-foreground: var(--ya-white); /* text on solid warning: 5.2:1 */
   --danger: var(--ya-danger);
   --danger-soft: var(--ya-danger-bg);
 
@@ -175,8 +179,10 @@
 
   --success: var(--ya-status-ok);
   --success-soft: color-mix(in oklab, var(--ya-status-ok) 14%, transparent);
+  --success-foreground: var(--ya-midnight);
   --warning: var(--ya-status-warn);
   --warning-soft: color-mix(in oklab, var(--ya-status-warn) 14%, transparent);
+  --warning-foreground: var(--ya-midnight);
   --danger: var(--ya-on-dark-danger);
   --danger-soft: color-mix(in oklab, var(--ya-on-dark-danger) 14%, transparent);
 

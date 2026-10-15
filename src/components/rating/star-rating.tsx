@@ -26,21 +26,21 @@ export function RatingBadge({
   if (average === null) {
     return (
       <span
-        className={`inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 ${className}`}
+        className={`inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground ${className}`}
       >
-        <Star size={size} className="text-slate-500 dark:text-slate-600" />
+        <Star size={size} className="text-muted-foreground" />
         <span>—</span>
       </span>
     );
   }
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 ${className}`}
+      className={`inline-flex items-center gap-1 text-[11px] font-bold text-warning ${className}`}
     >
-      <Star size={size} className="fill-amber-400 text-amber-600 dark:text-amber-400" />
+      <Star size={size} className="fill-warning text-warning" />
       <span>{average.toFixed(1)}</span>
       {count !== undefined && count > 0 && (
-        <span className="text-slate-500 font-medium">({count})</span>
+        <span className="text-muted-foreground font-medium">({count})</span>
       )}
     </span>
   );
@@ -78,7 +78,7 @@ export function StarRating({
         >
           <Star
             size={size}
-            className={n <= active ? 'fill-amber-400 text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-600'}
+            className={n <= active ? 'fill-warning text-warning' : 'text-muted-foreground'}
           />
         </button>
       ))}
