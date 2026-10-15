@@ -275,7 +275,7 @@ export default function EditSubscriptionPlanPage() {
                 disabled={!isAdmin}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
                   form.periodType === 'FROM_SUBSCRIPTION_DATE'
-                    ? 'bg-primary/20 border-primary/60 text-primary'
+                    ? 'bg-primary/10 border-primary/60 text-primary'
                     : 'bg-muted border-input text-foreground/80'
                 }`}
               >

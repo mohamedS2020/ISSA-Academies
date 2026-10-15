@@ -330,7 +330,7 @@ export default function CreateTenantPage() {
                     aria-pressed={data.themeKey === key}
                     className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-sm font-medium transition-all ${
                       data.themeKey === key
-                        ? 'border-primary bg-primary ring-2 ring-primary/20 dark:border-primary dark:bg-primary/10'
+                        ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
                         : 'border-input hover:border-primary/50'
                     }`}
                   >
@@ -393,7 +393,7 @@ export default function CreateTenantPage() {
             <h2 className="text-lg font-semibold text-foreground">
               {t('wizardStep2')}
             </h2>
-            <div className="rounded-lg bg-primary p-4 text-sm text-primary dark:bg-primary/20 dark:text-primary">
+            <div className="rounded-lg bg-primary/10 p-4 text-sm text-primary">
               A default admin account will be created. The password will be auto-generated and shown once after creation.
             </div>
 

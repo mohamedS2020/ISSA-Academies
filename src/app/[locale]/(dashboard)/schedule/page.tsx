@@ -50,7 +50,7 @@ interface Session {
 // ─── Status Badge ────────────────────────────────────────────
 
 const STATUS_STYLES = {
-  SCHEDULED: 'bg-primary/20 text-primary dark:text-primary border border-primary/30',
+  SCHEDULED: 'bg-primary/10 text-primary dark:text-primary border border-primary/30',
   COMPLETED: 'bg-success-soft text-success border border-success/30',
   CANCELLED: 'bg-danger-soft text-danger border border-danger/30',
 };
@@ -453,7 +453,7 @@ export default function SchedulePage() {
                   <p className="text-[10px] font-semibold uppercase tracking-wider">
                     {format(day, 'EEE')}
                   </p>
-                  <p className={`text-xl font-bold ${dayIsToday ? 'text-foreground' : 'text-foreground'}`}>
+                  <p className={`text-xl font-bold ${dayIsToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                     {format(day, 'd')}
                   </p>
                 </div>

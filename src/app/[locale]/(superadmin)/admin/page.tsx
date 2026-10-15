@@ -295,7 +295,7 @@ export default function TenantListPage() {
           <div className="flex items-center justify-end gap-1">
             <button
               onClick={() => router.push(`./admin/${row.id}`)}
-              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary dark:text-primary dark:hover:bg-primary/20"
+              className="rounded-md px-2.5 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
             >
               {t('viewDetails')}
             </button>

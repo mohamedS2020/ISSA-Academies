@@ -147,7 +147,7 @@ export default function SubscriptionsPage() {
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.levels.slice(0, 3).map((l) => (
-            <span key={l.id} className="px-1.5 py-0.5 bg-primary/20 text-primary border border-primary/30 rounded text-xs">
+            <span key={l.id} className="px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/30 rounded text-xs">
               {l.name}
             </span>
           ))}

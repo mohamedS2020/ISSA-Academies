@@ -146,8 +146,8 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       className="min-h-screen bg-background text-foreground font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
-      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/20 dark:bg-primary/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/30 dark:bg-primary/15 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 dark:bg-primary/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] end-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 dark:bg-primary/15 blur-[120px] pointer-events-none" />
 
       {/* ─── Top Nav Bar ─── */}
       <header className="sticky top-0 z-20 w-full bg-card/80 border-b border-border/80 backdrop-blur-lg">
@@ -169,7 +169,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   href={item.href}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
                     isActive
-                      ? 'bg-primary/15 text-primary dark:text-primary border border-primary/30'
+                      ? 'bg-primary/10 text-primary dark:text-primary border border-primary/30'
                       : 'text-muted-foreground hover:text-foreground border border-transparent'
                   }`}
                 >

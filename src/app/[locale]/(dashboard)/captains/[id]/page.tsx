@@ -343,7 +343,7 @@ export default function CaptainDetailPage() {
                   onClick={() => toggleDay(key)}
                   className={`px-3 py-1.5 rounded-xl text-sm font-medium border transition-all ${
                     editDays.includes(key)
-                      ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
+                      ? 'bg-primary/10 border-primary/60 text-primary dark:text-primary'
                       : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                   }`}
                 >
@@ -376,7 +376,7 @@ export default function CaptainDetailPage() {
                   onClick={() => setEditPayrollType(type)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                     editPayrollType === type
-                      ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
+                      ? 'bg-primary/10 border-primary/60 text-primary dark:text-primary'
                       : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                   }`}
                 >

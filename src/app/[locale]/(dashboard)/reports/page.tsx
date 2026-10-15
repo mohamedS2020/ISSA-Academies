@@ -206,7 +206,7 @@ export default function ReportsCenterPage() {
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors ${
                 type === rt.value
-                  ? 'bg-primary/15 text-primary dark:text-primary border border-primary/30'
+                  ? 'bg-primary/10 text-primary dark:text-primary border border-primary/30'
                   : 'border border-border text-muted-foreground hover:text-foreground'
               }`}
             >

@@ -325,7 +325,7 @@ export default function EditGroupPage() {
                       conflict
                         ? 'bg-warning-soft border-warning/60 text-warning'
                         : selected
-                          ? 'bg-primary/20 border-primary/60 text-primary'
+                          ? 'bg-primary/10 border-primary/60 text-primary'
                           : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                     }`}
                   >

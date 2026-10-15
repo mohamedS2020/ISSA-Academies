@@ -149,8 +149,8 @@ export default function CaptainsPage() {
       render: (row) => (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
           row.payrollType === 'HOURS'
-            ? 'bg-primary/20 text-primary dark:text-primary border border-primary/30'
-            : 'bg-primary/20 text-primary border border-primary/30'
+            ? 'bg-primary/10 text-primary dark:text-primary border border-primary/30'
+            : 'bg-primary/10 text-primary border border-primary/30'
         }`}>
           {row.payrollType === 'HOURS'
             ? <><Clock className="w-3 h-3" />{t('hours')}</>

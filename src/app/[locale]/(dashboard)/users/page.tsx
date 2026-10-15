@@ -256,7 +256,7 @@ export default function UsersPage() {
       render: (row) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
           row.role === UserRole.ADMIN
-            ? 'bg-primary/20 text-primary dark:text-primary border border-primary/30'
+            ? 'bg-primary/10 text-primary dark:text-primary border border-primary/30'
             : 'bg-muted text-foreground/80 border border-border'
         }`}>
           {row.role === UserRole.ADMIN ? (
@@ -475,7 +475,7 @@ export default function UsersPage() {
                         onClick={() => { setRole(r); if (r === UserRole.ADMIN) setPrivileges([]); }}
                         className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                           role === r
-                            ? 'bg-primary/20 border-primary/60 text-primary dark:text-primary'
+                            ? 'bg-primary/10 border-primary/60 text-primary dark:text-primary'
                             : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                         }`}
                       >
