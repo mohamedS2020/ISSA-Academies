@@ -54,7 +54,7 @@ interface FormState {
 }
 
 const inputClass =
-  'w-full px-3 py-2.5 bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300/60 dark:border-slate-600/60 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500/60 focus:ring-1 focus:ring-purple-500/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed';
+  'w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-ring/20 transition-all disabled:opacity-60 disabled:cursor-not-allowed';
 
 // ─── Component ────────────────────────────────────────────────
 
@@ -167,7 +167,7 @@ export default function EditSubscriptionPlanPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600 dark:text-purple-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -175,10 +175,10 @@ export default function EditSubscriptionPlanPage() {
   if (!plan || !form) {
     return (
       <div className="max-w-2xl mx-auto text-center py-16">
-        <p className="text-slate-600 dark:text-slate-400">{tCommon('noResults')}</p>
+        <p className="text-muted-foreground">{tCommon('noResults')}</p>
         <button
           onClick={() => router.push(`/${locale}/subscriptions`)}
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary"
         >
           <ArrowLeft className="w-4 h-4" /> {t('title')}
         </button>
@@ -193,20 +193,20 @@ export default function EditSubscriptionPlanPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/subscriptions`)}
-            className="p-2 rounded-lg border border-slate-300/60 dark:border-slate-600/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-500 transition-all"
+            className="p-2 rounded-lg border border-input/60 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-600/20 border border-purple-500/30">
-            <CreditCard className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+            <CreditCard className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{isAdmin ? t('editPlan') : plan.name}</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">{plan.name}</p>
+            <h1 className="text-2xl font-bold text-foreground">{isAdmin ? t('editPlan') : plan.name}</h1>
+            <p className="text-sm text-muted-foreground">{plan.name}</p>
           </div>
         </div>
         {!plan.isActive && (
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-200/70 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-300/30 dark:border-slate-600/30">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-muted/70 text-muted-foreground border border-input/30">
             {t('expired')}
           </span>
         )}
@@ -214,58 +214,58 @@ export default function EditSubscriptionPlanPage() {
 
       {/* Usage banner */}
       <div className="flex flex-wrap gap-3">
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/80 border border-input/60">
           <Users2 className="w-4 h-4 text-primary dark:text-primary" />
-          <span className="text-sm text-slate-700 dark:text-slate-300">
-            <span className="font-semibold text-slate-900 dark:text-white">{plan._count.groups}</span> {plan._count.groups === 1 ? 'group' : 'groups'}
+          <span className="text-sm text-foreground/80">
+            <span className="font-semibold text-foreground">{plan._count.groups}</span> {plan._count.groups === 1 ? 'group' : 'groups'}
           </span>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60">
-          <CreditCard className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-sm text-slate-700 dark:text-slate-300">
-            <span className="font-semibold text-slate-900 dark:text-white">{plan._count.subscriptions}</span> {plan._count.subscriptions === 1 ? 'subscription' : 'subscriptions'}
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card/80 border border-input/60">
+          <CreditCard className="w-4 h-4 text-success" />
+          <span className="text-sm text-foreground/80">
+            <span className="font-semibold text-foreground">{plan._count.subscriptions}</span> {plan._count.subscriptions === 1 ? 'subscription' : 'subscriptions'}
           </span>
         </div>
       </div>
 
       {/* Form card */}
-      <div className="bg-white/80 dark:bg-slate-900/60 border border-slate-300/60 dark:border-slate-700/60 rounded-2xl backdrop-blur-xl">
-        <div className="h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-t-2xl" />
+      <div className="bg-card/80 border border-input/60 rounded-2xl backdrop-blur-xl">
+        <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-t-2xl" />
         <div className="p-6 md:p-8 space-y-5">
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {t('planName')} <span className="text-red-600 dark:text-red-400">*</span>
+            <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              {t('planName')} <span className="text-danger">*</span>
             </label>
             <input value={form.name} onChange={set('name')} disabled={!isAdmin} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
-            {errors.name && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
           {/* Sessions + Amount */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('minSessions')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('minSessions')} <span className="text-danger">*</span>
               </label>
               <input type="number" min={1} value={form.minSessions} onChange={set('minSessions')} disabled={!isAdmin} className={inputClass} placeholder="12" />
-              {errors.minSessions && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.minSessions}</p>}
+              {errors.minSessions && <p className="text-xs text-danger mt-1">{errors.minSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('amount')} (EGP) <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('amount')} (EGP) <span className="text-danger">*</span>
               </label>
               <input type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} disabled={!isAdmin} className={inputClass} placeholder="500" />
-              {errors.amount && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.amount}</p>}
+              {errors.amount && <p className="text-xs text-danger mt-1">{errors.amount}</p>}
             </div>
           </div>
 
           {/* Period type */}
-          <div className="bg-slate-200/50 dark:bg-slate-800/40 border border-slate-300/60 dark:border-slate-700/60 rounded-xl p-4 space-y-3">
+          <div className="bg-muted/50 border border-input/60 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">{t('periodType')}</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                <p className="text-sm font-semibold text-foreground">{t('periodType')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {form.periodType === 'FROM_SUBSCRIPTION_DATE' ? 'N days from enrollment date' : '1st to last day of the current month'}
                 </p>
               </div>
@@ -275,8 +275,8 @@ export default function EditSubscriptionPlanPage() {
                 disabled={!isAdmin}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
                   form.periodType === 'FROM_SUBSCRIPTION_DATE'
-                    ? 'bg-purple-500/20 border-purple-500/60 text-purple-700 dark:text-purple-300'
-                    : 'bg-slate-200 dark:bg-slate-700/60 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300'
+                    ? 'bg-primary/20 border-primary/60 text-primary'
+                    : 'bg-muted border-input text-foreground/80'
                 }`}
               >
                 {form.periodType === 'FROM_SUBSCRIPTION_DATE'
@@ -287,11 +287,11 @@ export default function EditSubscriptionPlanPage() {
 
             {form.periodType === 'FROM_SUBSCRIPTION_DATE' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {t('periodDays')} <span className="text-red-600 dark:text-red-400">*</span>
+                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                  {t('periodDays')} <span className="text-danger">*</span>
                 </label>
                 <input type="number" min={1} max={365} value={form.periodDays} onChange={set('periodDays')} disabled={!isAdmin} className={inputClass} placeholder="30" />
-                {errors.periodDays && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.periodDays}</p>}
+                {errors.periodDays && <p className="text-xs text-danger mt-1">{errors.periodDays}</p>}
               </div>
             )}
           </div>
@@ -299,40 +299,40 @@ export default function EditSubscriptionPlanPage() {
           {/* Freeze settings */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('freezeSessions')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('freezeSessions')} <span className="text-danger">*</span>
               </label>
               <input type="number" min={0} value={form.freezeSessions} onChange={set('freezeSessions')} disabled={!isAdmin} className={inputClass} placeholder="2" />
-              {errors.freezeSessions && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.freezeSessions}</p>}
+              {errors.freezeSessions && <p className="text-xs text-danger mt-1">{errors.freezeSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {t('freezeRetakeDays')} <span className="text-red-600 dark:text-red-400">*</span>
+              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                {t('freezeRetakeDays')} <span className="text-danger">*</span>
               </label>
               <input type="number" min={0} value={form.freezeRetakeDays} onChange={set('freezeRetakeDays')} disabled={!isAdmin} className={inputClass} placeholder="7" />
-              {errors.freezeRetakeDays && <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.freezeRetakeDays}</p>}
+              {errors.freezeRetakeDays && <p className="text-xs text-danger mt-1">{errors.freezeRetakeDays}</p>}
             </div>
           </div>
 
           {/* Levels — read-only */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> {t('levels')}
+              <label className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-primary" /> {t('levels')}
               </label>
-              <span className="flex items-center gap-1 text-[11px] text-slate-500">
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                 <Lock className="w-3 h-3" /> read-only
               </span>
             </div>
             <div className="space-y-2">
               {plan.levels.map((level, idx) => (
-                <div key={level.id} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/50 dark:bg-slate-800/40 border border-slate-300/50 dark:border-slate-700/50">
-                  <span className="text-xs text-slate-500 w-5 text-end">{idx + 1}.</span>
-                  <span className="text-sm text-slate-800 dark:text-slate-200 flex-1">{level.name}</span>
+                <div key={level.id} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/50 border border-input/50">
+                  <span className="text-xs text-muted-foreground w-5 text-end">{idx + 1}.</span>
+                  <span className="text-sm text-foreground flex-1">{level.name}</span>
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-slate-500 mt-2">
+            <p className="text-[11px] text-muted-foreground mt-2">
               Levels are locked here because trainees are linked to them. Ask to enable safe level editing if you need it.
             </p>
           </div>
@@ -343,7 +343,7 @@ export default function EditSubscriptionPlanPage() {
       <div className="flex justify-between gap-3">
         <button
           onClick={() => router.push(`/${locale}/subscriptions`)}
-          className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+          className="px-5 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-all"
         >
           {tCommon('back')}
         </button>
@@ -351,7 +351,7 @@ export default function EditSubscriptionPlanPage() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-purple-500/25 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             {tCommon('save')}
