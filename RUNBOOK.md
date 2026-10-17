@@ -101,6 +101,14 @@ npx prisma migrate deploy --schema=prisma/platform/schema.prisma   # in producti
 
 Do not use `prisma db push` against either database.
 
+**When a release has both**, apply the platform migrations first, then
+`npm run migrate:tenants`. The 2026-10-17 phone-number release is one: login looks
+numbers up in the platform's `user_phone_index`, so that side must be normalized first.
+Its tenant migration (`20261017000000_login_identity`) **refuses to run** for an academy
+where two active accounts share a phone number once normalized; it names the query that
+finds them. Decide which account keeps the number (deactivate the other or give it its
+own), then re-run.
+
 ---
 
 ## Background jobs
@@ -120,8 +128,17 @@ duplicate archiving, duplicate sessions.
 
 A Postgres advisory lock sits behind that flag as a second line of defence — a second
 runner logs *"already running elsewhere — skipping"* and exits. The lock is taken on
-`DIRECT_DATABASE_URL`; if that is unset the jobs still run but log a warning that they
-are unprotected.
+`DIRECT_DATABASE_URL`; if that is unset (or carries `pgbouncer=true`) the worker
+**refuses to start the jobs at all** and reports why, rather than running them
+unprotected.
+
+**The archive job** moves attendance after 1 year, financial records (receipts,
+expenses, manual income, paid payroll, each with its ledger row) after 5 years, and an
+expired subscription only once none of its receipts is still live (they reference it).
+Each step runs on its own: a failing step is reported to Sentry
+(`job:archive-records`, `step:<name>`), the other steps still run, and the academy is
+then counted as failed in the run summary. Archived rows stay in the `archived_*`
+tables; nothing is deleted outright.
 
 **Verifying:** each job logs `Running <job> for N tenant(s)` on start and
 `<job> finished in Ns` on completion. Exactly one of each per scheduled time across the
@@ -131,6 +148,36 @@ rest.
 
 **Running a job by hand** is not currently exposed; trigger by temporarily adjusting the
 cron expression on the worker, or call the job function from a one-off `tsx` script.
+
+---
+
+## Logins: the phone index
+
+Login finds an account by phone number in the platform table `user_phone_index`, then
+checks the password in that academy's own schema. The table is a copy of each academy's
+**active** accounts:
+
+- **One active account per phone number per academy**, across branches. The database
+  enforces it (`users_one_active_account_per_phone`), so a second branch can no longer
+  take over the first account's login; staff see *"This phone number is already used
+  by an active account in another branch"*. A deactivated account's number is free to
+  reuse. The same person can still have accounts at different academies.
+- **Phone numbers are stored in one form** (`src/lib/phone.ts`): spaces and symbols
+  removed, Arabic digits converted, and an Egyptian mobile always as `+201…`. People
+  can type `010…`, `+20 10…` or Arabic digits, at login and in every form.
+- Every account change writes the index **in the same transaction**
+  (`src/services/login-index.ts`). Never edit `user_phone_index` by hand.
+
+To check the index against the accounts (read-only; reports user ids, never numbers):
+
+```bash
+npm run reconcile:login-index
+npm run reconcile:login-index -- --repair   # rebuild the entries from the accounts
+```
+
+Run it after any manual database edit to users, after restoring a backup, or when
+someone with the right password cannot sign in. It exits non-zero while anything
+disagrees, so it can run as a check.
 
 ---
 
@@ -244,6 +291,22 @@ another service which opens its own.
 **Login returns 500 for every user of one academy**
 That academy's schema is missing a column the app selects — it was provisioned before a
 migration and never caught up. Run `npm run migrate:tenants`.
+
+**Someone cannot sign in although their password is right**
+Check the login index: `npm run reconcile:login-index`. If it reports their account
+missing or stale, `--repair` rebuilds the entries from the accounts. Also check the
+account and its branch are active.
+
+**"This phone number is already used by an active account in another branch"**
+Expected: a phone number signs in to one account per academy. Deactivate the old
+account, or register the person with a different number. One parent account cannot
+hold children in two branches.
+
+**`Timed out trying to acquire a postgres advisory lock` (P1002)**
+Two `migrate deploy` runs on the same database at once, usually two
+`npm run migrate:tenants`. Let one finish and re-run the other. Creating an academy does
+not take this lock (its new schema is unique), so academies can be created while a
+rollout runs.
 
 **"This account belongs to a different academy"**
 The user reached an academy subdomain their account does not belong to. Expected: log in

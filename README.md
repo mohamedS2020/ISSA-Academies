@@ -108,6 +108,7 @@ only move when `npm run migrate:tenants` is run. Do not use `prisma db push`.
 | `npm test` | Unit + integration tests (Jest) |
 | `npm run test:isolation` | Provisions two real academies, verifies cross-tenant and cross-branch isolation, tears them down |
 | `npm run migrate:tenants` | Applies pending tenant migrations to every active academy |
+| `npm run reconcile:login-index` | Checks the login index against every academy's accounts (`-- --repair` rebuilds it); see RUNBOOK → Logins |
 | `npm run lint` | ESLint |
 
 `npm run test:isolation` is the safety-critical suite — it is the check that tenant
