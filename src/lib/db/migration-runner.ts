@@ -138,6 +138,15 @@ export async function provisionTenantSchema(
       const runEnv = { ...process.env };
       runEnv.DATABASE_URL = tenantDbUrl;
       runEnv.DIRECT_DATABASE_URL = tenantDbUrl;
+      // `migrate deploy` takes ONE advisory lock for the whole database, not per
+      // schema, and gives up after 10 seconds. Academies being set up at the same
+      // time therefore queued behind each other, and the later ones failed with
+      // P1002 once the migration count made each setup take long enough (seen
+      // with four set up at once). The lock guards against two processes migrating
+      // the SAME schema, which cannot happen here: this schema was just created
+      // under a unique name and nothing else knows it yet. Rolling migrations of
+      // existing academies (scripts/migrate-all-tenants.ts) keep the lock.
+      runEnv.PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK = '1';
 
       await execAsync(
         `node "${prismaCliPath}" migrate deploy --schema="${tenantSchemaPath}"`,

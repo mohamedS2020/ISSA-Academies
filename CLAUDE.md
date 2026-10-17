@@ -1,5 +1,25 @@
 # CLAUDE.md
 
+## Data rules
+
+- **Phone numbers** go through `phoneNumberField()` (`src/schemas/phone.schema.ts`) in
+  every schema, and `normalizePhone` (`src/lib/phone.ts`) anywhere else a phone is
+  compared. Stored numbers are canonical (Egyptian mobiles as `+201…`); a phone is a
+  login, so two spellings must never reach the database.
+- **The login index** (`user_phone_index`) is written only by
+  `src/services/login-index.ts`: after any change to a user's phone, active flag,
+  branch or role, call `syncLoginIndex(tx, tenantId, userId)` inside the same
+  transaction. One active account per phone per academy is a database rule.
+- **The ledger** (`financial_transactions`) is written only by `src/services/ledger.ts`,
+  in the same transaction as its source row.
+- **A trainee's status** is `TraineeProfile.isActive`; `User.isActive` is the account
+  that siblings share. Group placement goes through `placeTraineeInGroup`.
+- **Rules that must hold under concurrency live in the database** (a constraint, a
+  partial unique index, an atomic `UPDATE … RETURNING`, a row lock), not in a
+  read-then-write. A transaction does not lock rows it only reads.
+- Never edit an applied migration; add a new one in the right folder
+  (`prisma/platform/` or `prisma/tenant/`).
+
 ## Brand
 
 The platform is **Yallacademy / يلّا أكاديمي** (keep both spellings exactly). The name

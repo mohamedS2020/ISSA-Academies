@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "jest",
     "test:isolation": "tsx scripts/run-isolation-tests.ts",
-    "migrate:tenants": "tsx scripts/migrate-all-tenants.ts"
+    "migrate:tenants": "tsx scripts/migrate-all-tenants.ts",
+    "reconcile:login-index": "tsx scripts/reconcile-login-index.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

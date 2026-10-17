@@ -192,10 +192,11 @@ async function getActiveTenantIds(): Promise<string[]> {
  * Run `job` once per active tenant, sequentially.
  *
  * Each tenant is isolated in its own try/catch: one academy throwing must not
- * cost every academy after it in the list. (runSubscriptionExpiryJob and
- * runArchiveJob also swallow their own errors internally;
- * generateRollingSessionsForAllGroups does not, which is why this guard is
- * load-bearing rather than decorative.)
+ * cost every academy after it in the list. (generateRollingSessionsForAllGroups
+ * throws on failure, and runSubscriptionExpiryJob and runArchiveJob
+ * deliberately rethrow after running every step, so their failures are counted
+ * here rather than logged as success. This guard is load-bearing rather than
+ * decorative.)
  */
 async function runForAllTenants(
   jobName: string,

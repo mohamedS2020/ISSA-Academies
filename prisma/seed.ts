@@ -32,6 +32,9 @@ import { PrismaClient as PlatformClient } from '../src/generated/platform-client
 // constant — the two had already drifted apart once (the app moved to 10 rounds
 // while this file still said 12). Importing it means they cannot drift again.
 import { hashPassword } from '../src/lib/auth/password';
+// The same phone rule as login, so the Super Admin is stored in exactly the form
+// the login form will look up.
+import { normalizePhone, explainInvalidPhone } from '../src/lib/phone';
 
 /** The Super Admin can delete any academy, so demand a real password. */
 const MIN_PASSWORD_LENGTH = 12;
@@ -53,7 +56,7 @@ function requireEnv(name: string): string {
 
 function readSuperAdmin() {
   const name = requireEnv('SEED_SUPER_ADMIN_NAME');
-  const phoneNumber = requireEnv('SEED_SUPER_ADMIN_PHONE');
+  const rawPhone = requireEnv('SEED_SUPER_ADMIN_PHONE');
   const password = requireEnv('SEED_SUPER_ADMIN_PASSWORD');
 
   if (password.length < MIN_PASSWORD_LENGTH) {
@@ -61,11 +64,17 @@ function readSuperAdmin() {
       `SEED_SUPER_ADMIN_PASSWORD must be at least ${MIN_PASSWORD_LENGTH} characters.`
     );
   }
-  if (!/^\+?[0-9\s-]{7,20}$/.test(phoneNumber)) {
-    throw new Error('SEED_SUPER_ADMIN_PHONE is not a valid phone number.');
+
+  // Say exactly what is wrong: this used to report only "not a valid phone
+  // number", and the cause was a character copy-paste had added invisibly.
+  // Invisible marks are now simply removed; anything else is named, by
+  // character and code point, without repeating the number itself.
+  const problem = explainInvalidPhone(rawPhone);
+  if (problem) {
+    throw new Error(`SEED_SUPER_ADMIN_PHONE ${problem}.`);
   }
 
-  return { name, phoneNumber, password };
+  return { name, phoneNumber: normalizePhone(rawPhone), password };
 }
 
 async function main() {

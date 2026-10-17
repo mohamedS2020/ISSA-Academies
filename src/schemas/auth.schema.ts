@@ -7,14 +7,14 @@
  */
 
 import { z } from 'zod';
+import { phoneNumberField } from './phone.schema';
 
 // ─── Login ──────────────────────────────────────────────────
 
 export const loginSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(1, 'Phone number is required')
-    .regex(/^\+?[0-9\s-]{7,20}$/, 'Invalid phone number format'),
+  // Normalized exactly as stored (src/lib/phone.ts): spaces, Arabic digits and
+  // the national/international spellings of an Egyptian mobile all sign in.
+  phoneNumber: phoneNumberField(),
   password: z
     .string()
     .min(1, 'Password is required')

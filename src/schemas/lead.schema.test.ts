@@ -1,19 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { demoRequestSchema, normalizePhone, platformSettingsSchema } from './lead.schema';
-
-describe('normalizePhone', () => {
-  it.each([
-    ['+20 100 123 4567', '+201001234567'],
-    ['+20-100-(123)-4567', '+201001234567'],
-    ['٠١٠٠١٢٣٤٥٦٧', '01001234567'], // Arabic-Indic digits
-    ['۰۱۰۰۱۲۳۴۵۶۷', '01001234567'], // Eastern Arabic-Indic (Persian) digits
-    ['‪+201001234567‬', '+201001234567'], // bidi embedding from copy-paste
-    ['‏+20 100 123 4567', '+201001234567'], // right-to-left mark
-    ['+20 100 123 4567', '+201001234567'], // non-breaking spaces
-  ])('%j → %s', (input, expected) => {
-    expect(normalizePhone(input)).toBe(expected);
-  });
-});
+import { demoRequestSchema, platformSettingsSchema } from './lead.schema';
 
 const valid = {
   name: 'Mona Adel',
@@ -29,6 +15,11 @@ describe('demoRequestSchema', () => {
     const result = demoRequestSchema.parse(valid);
     expect(result.phone).toBe('+201001234567');
     expect(result.branches).toBe('2-5');
+  });
+
+  it('stores a national-format Egyptian mobile with its country code', () => {
+    // Otherwise the Super Admin's WhatsApp link (wa.me/<number>) has no country code.
+    expect(demoRequestSchema.parse({ ...valid, phone: '0100 123 4567' }).phone).toBe('+201001234567');
   });
 
   it('trims names', () => {

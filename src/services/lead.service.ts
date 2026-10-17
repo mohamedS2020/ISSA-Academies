@@ -8,7 +8,8 @@
 
 import { platformPrisma } from '@/lib/db/platform-client';
 import { NotFoundError } from '@/lib/api/error-handler';
-import { normalizePhone, type DemoRequestInput, type LeadStatus } from '@/schemas/lead.schema';
+import { type DemoRequestInput, type LeadStatus } from '@/schemas/lead.schema';
+import { phoneSearchFragment } from '@/lib/phone';
 
 /** Every runtime-editable platform setting, by its storage key. */
 export const PLATFORM_SETTING_KEYS = {
@@ -42,7 +43,7 @@ export async function listLeads(query: {
   pageSize: number;
 }) {
   const search = query.search?.trim();
-  const phoneSearch = search ? normalizePhone(search) : '';
+  const phoneSearch = search ? phoneSearchFragment(search) : null;
   const where = {
     ...(query.status ? { status: query.status } : {}),
     ...(search

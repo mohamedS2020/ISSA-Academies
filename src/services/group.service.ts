@@ -6,8 +6,9 @@
  */
 
 import { subYears } from 'date-fns';
-import { withTenantContext } from '@/lib/db/tenant-client';
+import { withTenantContext, type TransactionClient } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
+import { getSubscriptionState } from '@/lib/utils/subscription';
 import { BadRequestError, ConflictError, NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction } from '@/types';
 import type {
@@ -15,6 +16,156 @@ import type {
   UpdateGroupInput,
   ListGroupsQuery,
 } from '@/schemas/group.schema';
+
+// ─── Group placement ──────────────────────────────────────────
+
+/**
+ * Make `group` the trainee's group, inside the caller's transaction. Shared by
+ * enrollment, renewal and changing a trainee's group, so they cannot drift
+ * apart again (hardening plan §27). Enrollment used to `create` the membership
+ * and renewal to `upsert` it, and both counted the trainee against their own
+ * group's capacity.
+ *
+ *   - Capacity counts the OTHER members. A member renewing into their own full
+ *     group already holds one of its seats; they were refused with "Group is at
+ *     maximum capacity".
+ *   - The membership is upserted. Memberships outlive subscriptions (the
+ *     attendance sheet uses them for the post-expiry retake window), so a
+ *     returning trainee is usually still a member, and `create` failed on the
+ *     (group_id, trainee_id) unique constraint: an expired trainee could not
+ *     re-enroll into the group they had been in.
+ *   - The trainee leaves any other group. One active subscription means one
+ *     group, exactly as changing a trainee's group already moved them; staying
+ *     behind in the old group took a seat and a line on its attendance sheet.
+ *   - The group row is locked first, so two placements into the last seat
+ *     cannot both pass the count. A transaction does not lock rows it only
+ *     reads (see subscription.service.ts).
+ */
+export async function placeTraineeInGroup(
+  tx: TransactionClient,
+  group: { id: string; maxTrainees: number },
+  traineeId: string
+): Promise<void> {
+  await tx.$queryRaw`SELECT 1 FROM "groups" WHERE "id" = ${group.id}::uuid FOR UPDATE`;
+
+  const otherMembers = await tx.groupTrainee.count({
+    where: { groupId: group.id, NOT: { traineeId } },
+  });
+  if (otherMembers >= group.maxTrainees) {
+    throw new ConflictError(`Group is at maximum capacity (${group.maxTrainees} trainees)`);
+  }
+
+  await tx.groupTrainee.deleteMany({ where: { traineeId, NOT: { groupId: group.id } } });
+  await tx.groupTrainee.upsert({
+    where: { groupId_traineeId: { groupId: group.id, traineeId } },
+    create: { groupId: group.id, traineeId },
+    update: {},
+  });
+}
+
+// ─── Lapsed members ───────────────────────────────────────────
+
+/** The nil UUID: audit entries written by a background job, not by a person. */
+const SYSTEM_USER_ID = '00000000-0000-0000-0000-000000000000';
+
+/**
+ * Release the group seats of trainees whose subscription is over and whose
+ * retake window has passed, inside the caller's transaction. Run daily by the
+ * subscription-expiry job (hardening plan §42).
+ *
+ * Memberships outlive subscriptions on purpose: for `plan.freezeRetakeDays`
+ * after a subscription ends, the trainee stays on the attendance sheet for
+ * makeups. Nothing ever removed them after that, so someone who left months ago
+ * still held a seat: groups filled with people who had gone, and new
+ * enrollments were refused as "at maximum capacity".
+ *
+ *   - "Past the window" is getSubscriptionState's pastGrace, the same rule that
+ *     takes the trainee off the attendance sheet, so a seat is released exactly
+ *     when they stop appearing there.
+ *   - Only a trainee whose LATEST subscription the system has EXPIRED is
+ *     touched. One with no subscription at all is left alone: there is nothing
+ *     to judge by.
+ *   - The DELETE re-checks for an ACTIVE subscription, so a trainee who renews
+ *     while this runs keeps their seat.
+ *   - Each release is audited, so staff can see why someone left a group. Their
+ *     attendance history stays on the sheets of the sessions they attended
+ *     (getAttendanceSheet includes former members with a record).
+ *
+ * Returns how many seats were released.
+ */
+export async function releaseLapsedSeats(
+  tx: TransactionClient,
+  now: Date = new Date()
+): Promise<number> {
+  const candidates = await tx.groupTrainee.findMany({
+    where: { trainee: { subscriptions: { none: { status: 'ACTIVE' } } } },
+    select: {
+      id: true,
+      trainee: {
+        select: {
+          subscriptions: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: {
+              status: true,
+              endDate: true,
+              attendedSessions: true,
+              totalSessions: true,
+              expiredAt: true,
+              plan: { select: { freezeRetakeDays: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const lapsedIds = candidates
+    .filter(({ trainee }) => {
+      const latest = trainee.subscriptions[0];
+      if (!latest || latest.status !== 'EXPIRED') return false;
+      return getSubscriptionState(
+        {
+          status: latest.status,
+          endDate: latest.endDate,
+          attendedSessions: latest.attendedSessions,
+          totalSessions: latest.totalSessions,
+          expiredAt: latest.expiredAt,
+          freezeRetakeDays: latest.plan.freezeRetakeDays,
+        },
+        now
+      ).pastGrace;
+    })
+    .map((m) => m.id);
+  if (lapsedIds.length === 0) return 0;
+
+  const released = await tx.$queryRaw<
+    { group_id: string; trainee_id: string; branch_id: string }[]
+  >`
+    DELETE FROM group_trainees gt
+    USING groups g
+    WHERE gt.id = ANY(${lapsedIds}::uuid[])
+      AND g.id = gt.group_id
+      AND NOT EXISTS (
+        SELECT 1 FROM trainee_subscriptions s
+        WHERE s.trainee_id = gt.trainee_id AND s.status = 'ACTIVE'
+      )
+    RETURNING gt.group_id::text AS group_id, gt.trainee_id::text AS trainee_id,
+              g.branch_id::text AS branch_id
+  `;
+
+  for (const seat of released) {
+    await writeAuditLog(tx, {
+      branchId: seat.branch_id,
+      userId: SYSTEM_USER_ID,
+      action: AuditAction.UPDATE,
+      entityType: 'Group',
+      entityId: seat.group_id,
+      newValues: { removedTrainee: seat.trainee_id, reason: 'retake window ended' },
+    });
+  }
+  return released.length;
+}
 
 // ─── Create Group ─────────────────────────────────────────────
 

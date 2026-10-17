@@ -20,6 +20,7 @@ import {
   sanitizeSchemaName,
 } from '@/lib/db/migration-runner';
 import { hashPassword, generateRandomPassword } from '@/lib/auth/password';
+import { syncLoginIndex, removeTenantFromLoginIndex } from './login-index';
 import type { CreateTenantInput, UpdateTenantInput } from '@/schemas/tenant.schema';
 import { isValidStatusTransition } from '@/schemas/tenant.schema';
 import { randomUUID } from 'crypto';
@@ -82,8 +83,8 @@ export interface TenantListFilters {
  *   1. Create tenant record in platform DB
  *   2. Create PostgreSQL schema (DDL — cannot be in a transaction)
  *   3. Run Prisma migrations against the new schema
- *   4. Seed default Admin account in tenant schema
- *   5. Create phone index entry for the admin
+ *   4. Seed the default branch + Admin account in the tenant schema, with the
+ *      Admin's login, in one transaction
  *
  * ⚠️ On failure after schema creation, cleanup drops the schema
  *    and deletes the platform record to avoid orphans.
@@ -165,17 +166,9 @@ export async function createTenant(
           language: 'en',
         },
       });
-    });
 
-    // Step 5: Create phone index entry for the admin
-    await platformPrisma.userPhoneIndex.create({
-      data: {
-        phoneNumber: input.adminPhone,
-        tenantId: tenant.id,
-        userId: adminUserId,
-        branchId,
-        role: 'ADMIN',
-      },
+      // The Admin's login, in the same transaction as the account.
+      await syncLoginIndex(tx, tenant.id, adminUserId);
     });
 
     return {
@@ -313,8 +306,7 @@ export async function changeTenantStatus(
   // would linger as an orphan. The platform record is retained (soft-delete)
   // for audit/history, but it is now non-functional.
   if (newStatus === 'DELETED') {
-    await platformPrisma.userPhoneIndex
-      .deleteMany({ where: { tenantId: id } })
+    await removeTenantFromLoginIndex(id)
       .catch((e) =>
         console.error(
           `[tenant] Phone-index cleanup failed for deleted tenant ${id}:`,
@@ -337,6 +329,27 @@ export async function changeTenantStatus(
 }
 
 // ─── Tenant Usage Stats ─────────────────────────────────────
+
+/** Postgres: 3F000 = invalid_schema_name, 42P01 = undefined_table. */
+const MISSING_SCHEMA_CODES = new Set(['3F000', '42P01']);
+
+/**
+ * True when a query failed because the academy's schema, or a table in it,
+ * does not exist: an academy whose provisioning never finished.
+ *
+ * Prisma does not surface the Postgres code as `code` for a raw query. It
+ * reports `P2010` ("raw query failed") and puts the database's code in
+ * `meta.code`. Checking only `code` never matched, so a half-set-up academy
+ * returned a 500 and alerted Sentry instead of showing zeros (hardening plan
+ * §37). The bare Postgres code is still accepted, for errors raised below
+ * Prisma.
+ */
+export function isMissingSchemaError(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  const { code, meta } = err as { code?: unknown; meta?: { code?: unknown } };
+  if (typeof code === 'string' && MISSING_SCHEMA_CODES.has(code)) return true;
+  return code === 'P2010' && typeof meta?.code === 'string' && MISSING_SCHEMA_CODES.has(meta.code);
+}
 
 /**
  * Get aggregate usage statistics for a tenant by querying
@@ -386,14 +399,10 @@ export async function getTenantUsageStats(
 
     return stats;
   } catch (err) {
-    // Postgres error 3F000 = "invalid_schema_name", 42P01 = "undefined_table".
     // For a not-yet-provisioned (or dropped) tenant schema we legitimately
     // return zeros. Any other failure is a real error and must surface, not be
     // silently masked as "0 everything".
-    const code = (err as { code?: string }).code;
-    const isMissingSchema = code === '3F000' || code === '42P01';
-
-    if (isMissingSchema) {
+    if (isMissingSchemaError(err)) {
       return {
         tenantId,
         activeUsers: 0,

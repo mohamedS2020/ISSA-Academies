@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { phoneNumberField } from './phone.schema';
 import { UserRole } from '@/types';
 import { filterValidPrivileges, MODERATOR_PRIVILEGES } from '@/lib/auth/permissions';
 
@@ -14,11 +15,7 @@ import { filterValidPrivileges, MODERATOR_PRIVILEGES } from '@/lib/auth/permissi
 export const createUserSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(255),
-    phoneNumber: z
-      .string()
-      .min(7, 'Phone number is required')
-      .max(50)
-      .regex(/^[+\d\s()-]+$/, 'Invalid phone number format'),
+    phoneNumber: phoneNumberField(),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
@@ -51,12 +48,7 @@ export type CreateUserInput = z.infer<typeof createUserSchema>;
 
 export const updateUserSchema = z.object({
   name: z.string().min(2).max(255).optional(),
-  phoneNumber: z
-    .string()
-    .min(7)
-    .max(50)
-    .regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
-    .optional(),
+  phoneNumber: phoneNumberField().optional(),
   isActive: z.boolean().optional(),
   language: z.enum(['en', 'ar']).optional(),
 });

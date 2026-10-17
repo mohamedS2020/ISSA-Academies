@@ -182,7 +182,14 @@ model User {
   captainProfile  CaptainProfile?
   evaluations     TraineeEvaluation[] @relation("EvaluatorEvaluations")
 
-  @@unique([branchId, phoneNumber])
+  // A phone number is a login, so it may belong to at most ONE ACTIVE account
+  // per academy, across branches. That rule is the partial unique index
+  // `users_one_active_account_per_phone` (migration 20261017000000_login_identity);
+  // Prisma cannot express partial indexes, so it lives only in the migration.
+  // The old per-branch @@unique([branchId, phoneNumber]) was looser than the
+  // login index (one row per phone per academy), so a second branch could reuse
+  // a number and silently take over the first account's login (hardening plan §26).
+  // Inactive accounts are history and do not take part.
   @@index([phoneNumber])
   @@map("users")
 }
@@ -216,6 +223,11 @@ model TraineeProfile {
   parentIdCard      String   @map("parent_id_card") @db.VarChar(50)
   medicalCondition  String   @map("medical_condition") @db.Text
   referralType      ReferralType? @map("referral_type") // how the trainee was referred (New/Network/Old/Continuous)
+  // The athlete's own status. Siblings share one account (User), so this cannot
+  // live on the account: deactivating one child used to deactivate the account,
+  // which showed every sibling as inactive and ended the parent's portal login.
+  // The account stays active while any of its trainees is.
+  isActive          Boolean  @default(true) @map("is_active")
 
   // Skills Level
   pastExperience    String?  @map("past_experience") @db.Text
@@ -697,6 +709,7 @@ model ArchivedTraineeSubscription {
   amountPaid       Decimal            @map("amount_paid") @db.Decimal(10, 2)
   amountDue        Decimal            @map("amount_due") @db.Decimal(10, 2)
   paymentStatus    PaymentStatus      @map("payment_status")
+  expiredAt        DateTime?          @map("expired_at") @db.Timestamptz
   createdAt        DateTime           @map("created_at") @db.Timestamptz
   updatedAt        DateTime           @map("updated_at") @db.Timestamptz
   archivedAt       DateTime           @default(now()) @map("archived_at") @db.Timestamptz
@@ -732,6 +745,7 @@ model ArchivedReceipt {
   receiptNumber    String   @map("receipt_number") @db.VarChar(50)
   seq              Int
   amount           Decimal  @db.Decimal(10, 2)
+  paymentMethod    PaymentMethod? @map("payment_method")
   description      String?  @db.Text
   issuedAt         DateTime @map("issued_at") @db.Timestamptz
   createdAt        DateTime @map("created_at") @db.Timestamptz
@@ -757,6 +771,26 @@ model ArchivedExpense {
 
   @@index([branchId, date])
   @@map("archived_expenses")
+}
+
+// ─── Archived Manual Incomes (retention: 5 years) ───────────
+// Manual income mirrors into the ledger like an expense, so it is archived with
+// the same cutoff and in the same step as its ledger row. Without this table the
+// ledger rows were archived after five years and their sources never were.
+model ArchivedManualIncome {
+  id          String   @id @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  category    String   @db.VarChar(100)
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?  @db.Text
+  date        DateTime @db.Date
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @map("updated_at") @db.Timestamptz
+  archivedAt  DateTime @default(now()) @map("archived_at") @db.Timestamptz
+
+  @@index([branchId, date])
+  @@map("archived_manual_incomes")
 }
 
 // ─── Archived Captain Payroll (retention: 5 years) ──────────

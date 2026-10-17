@@ -4,6 +4,7 @@
 
 import { z } from 'zod';
 import { LEAD_BRANCHES, LEAD_SPORTS } from './lead-options';
+import { normalizePhone, PHONE_PATTERN } from '@/lib/phone';
 
 export { LEAD_BRANCHES, LEAD_SPORTS };
 
@@ -11,27 +12,14 @@ export { LEAD_BRANCHES, LEAD_SPORTS };
 export const LEAD_STATUSES = ['NEW', 'CONTACTED', 'DEMO_BOOKED', 'WON', 'LOST'] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 
-/**
- * Bring a phone number to one plain form before validating or storing it:
- * Arabic-Indic digits become ASCII, and the invisible direction marks and
- * zero-width characters that copy-paste (WhatsApp, contacts) brings along are
- * removed, as are spaces, dashes, dots and brackets. "+٢٠ ١٠٠ ١٢٣ ٤٥٦٧" and
- * "+20 100-123-4567" both become "+201001234567".
- */
-export function normalizePhone(raw: string): string {
-  return raw
-    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
-    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
-    .replace(/[​-‏‪-‮⁦-⁩﻿]/g, '')
-    .replace(/[\s\-().]/g, '');
-}
-
 /** The public demo form. */
 export const demoRequestSchema = z.object({
   name: z.string().trim().min(2).max(120),
   academy: z.string().trim().min(2).max(160),
   // E.164 allows at most 15 digits; 7 is the shortest plausible local number.
-  phone: z.string().transform(normalizePhone).pipe(z.string().regex(/^\+?[0-9]{7,15}$/)),
+  // The same normalization as every login phone (src/lib/phone.ts), so a lead's
+  // WhatsApp link always carries the country code.
+  phone: z.string().transform(normalizePhone).pipe(z.string().regex(PHONE_PATTERN)),
   branches: z.enum(LEAD_BRANCHES),
   sport: z.enum(LEAD_SPORTS),
   locale: z.enum(['en', 'ar']),
