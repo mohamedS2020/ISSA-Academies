@@ -80,7 +80,9 @@
     "payroll": "Payroll",
     "reports": "Reports",
     "settings": "Settings",
-    "portal": "My Portal"
+    "portal": "My Portal",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -155,7 +157,8 @@
     "captain": "Captain",
     "trainee": "Trainee",
     "privileges": "Privileges",
-    "configurePrivileges": "Configure Privileges"
+    "configurePrivileges": "Configure Privileges",
+    "filterByRole": "Filter by role"
   },
   "trainees": {
     "title": "Trainees",
@@ -254,7 +257,10 @@
     "sessions": "Sessions",
     "sessionsRemaining": "Sessions Remaining",
     "expiresOn": "Expires On",
-    "oneActiveOnly": "A trainee can only have one active subscription at a time."
+    "oneActiveOnly": "A trainee can only have one active subscription at a time.",
+    "moveLevelUp": "Move level up",
+    "moveLevelDown": "Move level down",
+    "removeLevel": "Remove level"
   },
   "groups": {
     "title": "Groups",
@@ -306,7 +312,9 @@
     "newDate": "New Date",
     "newTime": "New Time",
     "confirmReschedule": "Confirm Reschedule",
-    "viewGroup": "View Group"
+    "viewGroup": "View Group",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week"
   },
   "attendance": {
     "title": "Attendance",
@@ -331,7 +339,9 @@
     "unmarked": "unmarked",
     "allCaptains": "All captains",
     "allHours": "All hours",
-    "noSessionsMatch": "No sessions match these filters"
+    "noSessionsMatch": "No sessions match these filters",
+    "filterByCaptain": "Filter by captain",
+    "filterByHour": "Filter by start time"
   },
   "finance": {
     "title": "Finance",
@@ -364,7 +374,9 @@
     "calculatePayroll": "Calculate",
     "manualIncome": "Manual Income",
     "addIncome": "Add Income",
-    "incomeCategoryPlaceholder": "Grant, Rental, Sale..."
+    "incomeCategoryPlaceholder": "Grant, Rental, Sale...",
+    "dateFrom": "From date",
+    "dateTo": "To date"
   },
   "reports": {
     "title": "Reports",
@@ -407,7 +419,8 @@
     "noCaptainYet": "You are not assigned to a captain yet",
     "captainFeedback": "Feedback From Your Captain",
     "noFeedback": "No feedback yet",
-    "ratingSaved": "Rating saved"
+    "ratingSaved": "Rating saved",
+    "selectTrainee": "Choose a trainee"
   },
   "superAdmin": {
     "title": "Platform Administration",

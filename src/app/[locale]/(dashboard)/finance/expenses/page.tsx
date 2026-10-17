@@ -236,10 +236,10 @@ function ExpensesPageContent() {
 
               <form onSubmit={handleCreate} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="dashboard-finance-expenses-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t('category')} <span className="text-danger">*</span>
                   </label>
-                  <input
+                  <input id="dashboard-finance-expenses-f1"
                     type="text"
                     required
                     value={category}
@@ -251,10 +251,10 @@ function ExpensesPageContent() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-finance-expenses-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {t('amount')} <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input id="dashboard-finance-expenses-f2"
                       type="number"
                       step="0.01"
                       min="0"
@@ -265,10 +265,10 @@ function ExpensesPageContent() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-finance-expenses-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {t('date')} <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input id="dashboard-finance-expenses-f3"
                       type="date"
                       required
                       value={date}
@@ -279,10 +279,10 @@ function ExpensesPageContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="dashboard-finance-expenses-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t('description')}
                   </label>
-                  <textarea
+                  <textarea id="dashboard-finance-expenses-f4"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}

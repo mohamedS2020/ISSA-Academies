@@ -12,7 +12,7 @@
  * Full RTL support via logical CSS properties.
  */
 
-import { useState, useEffect } from 'react';
+import { Children, useState, useEffect, cloneElement, isValidElement, useId, type ReactElement } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -118,12 +118,30 @@ interface FieldProps {
 }
 
 function Field({ label, required, children }: FieldProps) {
+  // Tie the label to its control (hardening plan §39): the first input, select
+  // or textarea among the children gets an id the label points at, so clicking
+  // the label focuses the field and a screen reader announces the label with
+  // it. (The children also hold the field's error message.)
+  const fallbackId = useId();
+  const items = Children.toArray(children);
+  const controlIndex = items.findIndex(
+    (child) =>
+      isValidElement(child) &&
+      typeof child.type === 'string' &&
+      ['input', 'select', 'textarea'].includes(child.type)
+  );
+  const control =
+    controlIndex === -1 ? null : (items[controlIndex] as ReactElement<{ id?: string }>);
+  const fieldId = control ? (control.props.id ?? fallbackId) : undefined;
+  const content = control
+    ? items.map((child, i) => (i === controlIndex ? cloneElement(control, { id: fieldId }) : child))
+    : children;
   return (
     <div>
-      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+      <label htmlFor={fieldId} className="block text-xs font-semibold text-foreground/80 mb-1.5">
         {label} {required && <span className="text-danger">*</span>}
       </label>
-      {children}
+      {content}
     </div>
   );
 }

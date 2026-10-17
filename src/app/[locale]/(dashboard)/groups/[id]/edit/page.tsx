@@ -237,20 +237,20 @@ function EditGroupPageContent() {
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+            <label htmlFor="dashboard-groups-id-edit-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('groupName')} <span className="text-danger">*</span>
             </label>
-            <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Beginner Group A" />
+            <input id="dashboard-groups-id-edit-f1" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Beginner Group A" />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
           {/* Captain + Plan */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f2" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('captain')} <span className="text-danger">*</span>
               </label>
-              <select value={captainId} onChange={(e) => setCaptainId(e.target.value)} className={inputClass}>
+              <select id="dashboard-groups-id-edit-f2" value={captainId} onChange={(e) => setCaptainId(e.target.value)} className={inputClass}>
                 <option value="">Select captain</option>
                 {captains.map((c) => (
                   <option key={c.id} value={c.id}>{c.user.name}</option>
@@ -267,10 +267,10 @@ function EditGroupPageContent() {
               {errors.captainId && <p className="text-xs text-danger mt-1">{errors.captainId}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f3" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('plan')} <span className="text-danger">*</span>
               </label>
-              <select value={planId} onChange={(e) => setPlanId(e.target.value)} className={inputClass}>
+              <select id="dashboard-groups-id-edit-f3" value={planId} onChange={(e) => setPlanId(e.target.value)} className={inputClass}>
                 <option value="">Select plan</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -283,17 +283,17 @@ function EditGroupPageContent() {
           {/* Min / Max trainees */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f4" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('minTrainees')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={1} step={1} value={minTrainees} onChange={(e) => setMinTrainees(e.target.value)} className={inputClass} placeholder="3" />
+              <input id="dashboard-groups-id-edit-f4" type="number" min={1} step={1} value={minTrainees} onChange={(e) => setMinTrainees(e.target.value)} className={inputClass} placeholder="3" />
               {errors.minTrainees && <p className="text-xs text-danger mt-1">{errors.minTrainees}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('maxTrainees')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={1} step={1} value={maxTrainees} onChange={(e) => setMaxTrainees(e.target.value)} className={inputClass} placeholder="10" />
+              <input id="dashboard-groups-id-edit-f5" type="number" min={1} step={1} value={maxTrainees} onChange={(e) => setMaxTrainees(e.target.value)} className={inputClass} placeholder="10" />
               {errors.maxTrainees && <p className="text-xs text-danger mt-1">{errors.maxTrainees}</p>}
             </div>
           </div>
@@ -345,17 +345,17 @@ function EditGroupPageContent() {
           {/* Start time + Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('startTime')} <span className="text-danger">*</span>
               </label>
-              <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
+              <input id="dashboard-groups-id-edit-f6" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
               {errors.startTime && <p className="text-xs text-danger mt-1">{errors.startTime}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-groups-id-edit-f7" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('sessionDuration')} (min) <span className="text-danger">*</span>
               </label>
-              <input type="number" min={15} max={480} step={1} value={sessionDuration} onChange={(e) => setSessionDuration(e.target.value)} className={inputClass} placeholder="60" />
+              <input id="dashboard-groups-id-edit-f7" type="number" min={15} max={480} step={1} value={sessionDuration} onChange={(e) => setSessionDuration(e.target.value)} className={inputClass} placeholder="60" />
               {errors.sessionDuration && <p className="text-xs text-danger mt-1">{errors.sessionDuration}</p>}
             </div>
           </div>

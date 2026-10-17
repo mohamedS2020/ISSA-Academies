@@ -31,6 +31,7 @@ import {
   getIncomeSummary,
   getExpenseSummary,
   getOutstandingBalance,
+  subtractMoney,
 } from './finance.service';
 
 // ─── Financial Report ───────────────────────────────────────
@@ -90,7 +91,7 @@ async function getIncomeByPlan(
 
     interface Acc {
       planName: string;
-      income: number;
+      income: Prisma.Decimal;
       trainees: Set<string>;
       referralSets: Record<ReferralCat, Set<string>>;
     }
@@ -109,11 +110,12 @@ async function getIncomeByPlan(
         map.get(key) ??
         {
           planName: plan?.name ?? 'Unknown',
-          income: 0,
+          income: new Prisma.Decimal(0),
           trainees: new Set<string>(),
           referralSets: newReferralSets(),
         };
-      entry.income += Number(r.amount);
+      // Added as Decimal, not float (hardening plan §30).
+      entry.income = entry.income.plus(r.amount);
       entry.trainees.add(r.traineeId);
       // Count each DISTINCT trainee once per referral category.
       const cat = r.trainee?.referralType ? REFERRAL_CAT[r.trainee.referralType] : undefined;
@@ -131,7 +133,7 @@ async function getIncomeByPlan(
           continuous: e.referralSets.continuous.size,
           old: e.referralSets.old.size,
         },
-        income: Math.round(e.income * 100) / 100,
+        income: e.income.toNumber(),
       }))
       .sort((a, b) => b.income - a.income);
   });
@@ -165,7 +167,7 @@ export async function getFinancialReport(
       collections: income.total,
       expenses: expense.total,
       outstandingPayments,
-      profitLoss: income.total - expense.total,
+      profitLoss: subtractMoney(income.total, expense.total),
     },
     byPlan,
     records,

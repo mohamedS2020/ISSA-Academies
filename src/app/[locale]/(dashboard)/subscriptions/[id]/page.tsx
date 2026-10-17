@@ -194,9 +194,10 @@ function EditSubscriptionPlanPageContent() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/subscriptions`)}
+            aria-label={tCommon('back')}
             className="p-2 rounded-lg border border-input/60 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
             <CreditCard className="w-6 h-6 text-primary" />
@@ -236,27 +237,27 @@ function EditSubscriptionPlanPageContent() {
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+            <label htmlFor="dashboard-subscriptions-id-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('planName')} <span className="text-danger">*</span>
             </label>
-            <input value={form.name} onChange={set('name')} disabled={!isAdmin} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
+            <input id="dashboard-subscriptions-id-f1" value={form.name} onChange={set('name')} disabled={!isAdmin} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
           {/* Sessions + Amount */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-id-f2" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('minSessions')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={1} value={form.minSessions} onChange={set('minSessions')} disabled={!isAdmin} className={inputClass} placeholder="12" />
+              <input id="dashboard-subscriptions-id-f2" type="number" min={1} value={form.minSessions} onChange={set('minSessions')} disabled={!isAdmin} className={inputClass} placeholder="12" />
               {errors.minSessions && <p className="text-xs text-danger mt-1">{errors.minSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-id-f3" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('amount')} (EGP) <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} disabled={!isAdmin} className={inputClass} placeholder="500" />
+              <input id="dashboard-subscriptions-id-f3" type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} disabled={!isAdmin} className={inputClass} placeholder="500" />
               {errors.amount && <p className="text-xs text-danger mt-1">{errors.amount}</p>}
             </div>
           </div>
@@ -288,10 +289,10 @@ function EditSubscriptionPlanPageContent() {
 
             {form.periodType === 'FROM_SUBSCRIPTION_DATE' && (
               <div>
-                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                <label htmlFor="dashboard-subscriptions-id-f4" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                   {t('periodDays')} <span className="text-danger">*</span>
                 </label>
-                <input type="number" min={1} max={365} value={form.periodDays} onChange={set('periodDays')} disabled={!isAdmin} className={inputClass} placeholder="30" />
+                <input id="dashboard-subscriptions-id-f4" type="number" min={1} max={365} value={form.periodDays} onChange={set('periodDays')} disabled={!isAdmin} className={inputClass} placeholder="30" />
                 {errors.periodDays && <p className="text-xs text-danger mt-1">{errors.periodDays}</p>}
               </div>
             )}
@@ -300,17 +301,17 @@ function EditSubscriptionPlanPageContent() {
           {/* Freeze settings */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-id-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('freezeSessions')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} value={form.freezeSessions} onChange={set('freezeSessions')} disabled={!isAdmin} className={inputClass} placeholder="2" />
+              <input id="dashboard-subscriptions-id-f5" type="number" min={0} value={form.freezeSessions} onChange={set('freezeSessions')} disabled={!isAdmin} className={inputClass} placeholder="2" />
               {errors.freezeSessions && <p className="text-xs text-danger mt-1">{errors.freezeSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-id-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('freezeRetakeDays')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} value={form.freezeRetakeDays} onChange={set('freezeRetakeDays')} disabled={!isAdmin} className={inputClass} placeholder="7" />
+              <input id="dashboard-subscriptions-id-f6" type="number" min={0} value={form.freezeRetakeDays} onChange={set('freezeRetakeDays')} disabled={!isAdmin} className={inputClass} placeholder="7" />
               {errors.freezeRetakeDays && <p className="text-xs text-danger mt-1">{errors.freezeRetakeDays}</p>}
             </div>
           </div>

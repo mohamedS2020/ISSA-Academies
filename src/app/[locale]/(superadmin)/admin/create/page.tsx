@@ -284,10 +284,10 @@ export default function CreateTenantPage() {
             </h2>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f1" className="block text-sm font-medium text-foreground/80">
                 {t('tenantName')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f1"
                 type="text"
                 value={data.name}
                 onChange={(e) => updateField('name', e.target.value)}
@@ -302,10 +302,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f2" className="block text-sm font-medium text-foreground/80">
                 {t('slug')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f2"
                 type="text"
                 value={data.slug}
                 onChange={(e) => updateField('slug', e.target.value)}
@@ -350,10 +350,10 @@ export default function CreateTenantPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground/80">
+                <label htmlFor="superadmin-admin-create-f3" className="block text-sm font-medium text-foreground/80">
                   {t('contactName')}
                 </label>
-                <input
+                <input id="superadmin-admin-create-f3"
                   type="text"
                   value={data.contactName}
                   onChange={(e) => updateField('contactName', e.target.value)}
@@ -361,10 +361,10 @@ export default function CreateTenantPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground/80">
+                <label htmlFor="superadmin-admin-create-f4" className="block text-sm font-medium text-foreground/80">
                   {t('contactPhone')}
                 </label>
-                <input
+                <input id="superadmin-admin-create-f4"
                   type="tel"
                   value={data.contactPhone}
                   onChange={(e) => updateField('contactPhone', e.target.value)}
@@ -375,10 +375,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f5" className="block text-sm font-medium text-foreground/80">
                 {t('contactEmail')}
               </label>
-              <input
+              <input id="superadmin-admin-create-f5"
                 type="email"
                 value={data.contactEmail}
                 onChange={(e) => updateField('contactEmail', e.target.value)}
@@ -400,10 +400,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f6" className="block text-sm font-medium text-foreground/80">
                 {t('adminName')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f6"
                 type="text"
                 value={data.adminName}
                 onChange={(e) => updateField('adminName', e.target.value)}
@@ -418,10 +418,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f7" className="block text-sm font-medium text-foreground/80">
                 {t('adminPhone')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f7"
                 type="tel"
                 value={data.adminPhone}
                 onChange={(e) => updateField('adminPhone', e.target.value)}
@@ -446,10 +446,10 @@ export default function CreateTenantPage() {
             </h2>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f8" className="block text-sm font-medium text-foreground/80">
                 {t('branchName')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f8"
                 type="text"
                 value={data.branchName}
                 onChange={(e) => updateField('branchName', e.target.value)}
@@ -464,10 +464,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f9" className="block text-sm font-medium text-foreground/80">
                 {t('branchCode')} <span className="text-danger">*</span>
               </label>
-              <input
+              <input id="superadmin-admin-create-f9"
                 type="text"
                 value={data.branchCode}
                 onChange={(e) => updateField('branchCode', e.target.value.toUpperCase())}
@@ -483,10 +483,10 @@ export default function CreateTenantPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground/80">
+              <label htmlFor="superadmin-admin-create-f10" className="block text-sm font-medium text-foreground/80">
                 {t('branchTimezone')} <span className="text-danger">*</span>
               </label>
-              <select
+              <select id="superadmin-admin-create-f10"
                 value={data.branchTimezone}
                 onChange={(e) => updateField('branchTimezone', e.target.value)}
                 className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${

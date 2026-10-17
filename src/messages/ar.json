@@ -80,7 +80,9 @@
     "payroll": "الرواتب",
     "reports": "التقارير",
     "settings": "الإعدادات",
-    "portal": "بوابتي"
+    "portal": "بوابتي",
+    "collapseSidebar": "طي القائمة الجانبية",
+    "expandSidebar": "توسيع القائمة الجانبية"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -155,7 +157,8 @@
     "captain": "مدرب",
     "trainee": "متدرب",
     "privileges": "الصلاحيات",
-    "configurePrivileges": "إعداد الصلاحيات"
+    "configurePrivileges": "إعداد الصلاحيات",
+    "filterByRole": "تصفية حسب الدور"
   },
   "trainees": {
     "title": "المتدربون",
@@ -254,7 +257,10 @@
     "sessions": "الحصص",
     "sessionsRemaining": "الحصص المتبقية",
     "expiresOn": "ينتهي في",
-    "oneActiveOnly": "يمكن للمتدرب أن يكون لديه اشتراك نشط واحد فقط في نفس الوقت."
+    "oneActiveOnly": "يمكن للمتدرب أن يكون لديه اشتراك نشط واحد فقط في نفس الوقت.",
+    "moveLevelUp": "نقل المستوى لأعلى",
+    "moveLevelDown": "نقل المستوى لأسفل",
+    "removeLevel": "حذف المستوى"
   },
   "groups": {
     "title": "المجموعات",
@@ -306,7 +312,9 @@
     "newDate": "التاريخ الجديد",
     "newTime": "الوقت الجديد",
     "confirmReschedule": "تأكيد إعادة الجدولة",
-    "viewGroup": "عرض المجموعة"
+    "viewGroup": "عرض المجموعة",
+    "previousWeek": "الأسبوع السابق",
+    "nextWeek": "الأسبوع التالي"
   },
   "attendance": {
     "title": "الحضور",
@@ -331,7 +339,9 @@
     "unmarked": "غير محدد",
     "allCaptains": "كل الكباتن",
     "allHours": "كل الأوقات",
-    "noSessionsMatch": "لا توجد حصص مطابقة"
+    "noSessionsMatch": "لا توجد حصص مطابقة",
+    "filterByCaptain": "تصفية حسب الكابتن",
+    "filterByHour": "تصفية حسب وقت البدء"
   },
   "finance": {
     "title": "المالية",
@@ -364,7 +374,9 @@
     "calculatePayroll": "احتساب",
     "manualIncome": "إيراد يدوي",
     "addIncome": "إضافة إيراد",
-    "incomeCategoryPlaceholder": "منحة، إيجار، بيع..."
+    "incomeCategoryPlaceholder": "منحة، إيجار، بيع...",
+    "dateFrom": "من تاريخ",
+    "dateTo": "إلى تاريخ"
   },
   "reports": {
     "title": "التقارير",
@@ -407,7 +419,8 @@
     "noCaptainYet": "لم يتم تعيين كابتن لك بعد",
     "captainFeedback": "ملاحظات الكابتن",
     "noFeedback": "لا توجد ملاحظات بعد",
-    "ratingSaved": "تم حفظ التقييم"
+    "ratingSaved": "تم حفظ التقييم",
+    "selectTrainee": "اختر المتدرب"
   },
   "superAdmin": {
     "slug": "المعرف في الرابط",

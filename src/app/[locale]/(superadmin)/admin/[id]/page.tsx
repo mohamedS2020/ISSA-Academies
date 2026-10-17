@@ -320,8 +320,8 @@ export default function TenantDetailPage() {
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground/80">{t('tenantName')}</label>
-                  <input
+                  <label htmlFor="superadmin-admin-id-f1" className="block text-sm font-medium text-foreground/80">{t('tenantName')}</label>
+                  <input id="superadmin-admin-id-f1"
                     type="text"
                     value={editData.name}
                     onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
@@ -329,8 +329,8 @@ export default function TenantDetailPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground/80">{t('contactName')}</label>
-                  <input
+                  <label htmlFor="superadmin-admin-id-f2" className="block text-sm font-medium text-foreground/80">{t('contactName')}</label>
+                  <input id="superadmin-admin-id-f2"
                     type="text"
                     value={editData.contactName}
                     onChange={(e) => setEditData((p) => ({ ...p, contactName: e.target.value }))}
@@ -338,8 +338,8 @@ export default function TenantDetailPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground/80">{t('contactPhone')}</label>
-                  <input
+                  <label htmlFor="superadmin-admin-id-f3" className="block text-sm font-medium text-foreground/80">{t('contactPhone')}</label>
+                  <input id="superadmin-admin-id-f3"
                     type="tel"
                     value={editData.contactPhone}
                     onChange={(e) => setEditData((p) => ({ ...p, contactPhone: e.target.value }))}
@@ -347,8 +347,8 @@ export default function TenantDetailPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground/80">{t('contactEmail')}</label>
-                  <input
+                  <label htmlFor="superadmin-admin-id-f4" className="block text-sm font-medium text-foreground/80">{t('contactEmail')}</label>
+                  <input id="superadmin-admin-id-f4"
                     type="email"
                     value={editData.contactEmail}
                     onChange={(e) => setEditData((p) => ({ ...p, contactEmail: e.target.value }))}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -141,6 +141,8 @@ function SessionModal({
   // Cancel/reschedule are Admin/Moderator actions. Captains view only.
   // Rescheduling and cancelling are "Manage schedule" (access.ts).
   const canManage = useAccess()('manageSchedule');
+  // One card per session, so the reschedule fields need ids unique per card.
+  const fieldId = useId();
   const initialDateTime = parseLocalDateTime(session.scheduledAtLocal);
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelForm, setShowCancelForm] = useState(false);
@@ -286,8 +288,8 @@ function SessionModal({
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1">{t('newDate')}</label>
-                    <input
+                    <label htmlFor={`${fieldId}-date`} className="block text-xs text-muted-foreground mb-1">{t('newDate')}</label>
+                    <input id={`${fieldId}-date`}
                       type="date"
                       value={rescheduleDate}
                       onChange={(e) => setRescheduleDate(e.target.value)}
@@ -295,8 +297,8 @@ function SessionModal({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1">{t('newTime')}</label>
-                    <input
+                    <label htmlFor={`${fieldId}-time`} className="block text-xs text-muted-foreground mb-1">{t('newTime')}</label>
+                    <input id={`${fieldId}-time`}
                       type="time"
                       value={rescheduleTime}
                       onChange={(e) => setRescheduleTime(e.target.value)}
@@ -411,9 +413,11 @@ function SchedulePageContent() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekStart((w) => subWeeks(w, 1))}
+            aria-label={t('previousWeek')}
+            title={t('previousWeek')}
             className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <button
             onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }))}
@@ -423,9 +427,11 @@ function SchedulePageContent() {
           </button>
           <button
             onClick={() => setWeekStart((w) => addWeeks(w, 1))}
+            aria-label={t('nextWeek')}
+            title={t('nextWeek')}
             className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
         </div>
       </div>

@@ -16,7 +16,7 @@
  *    must go through the trainee relation (`trainee: { branchId }`).
  */
 
-import { withTenantContext } from '@/lib/db/tenant-client';
+import { withTenantContext, Prisma } from '@/lib/db/tenant-client';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
 import { recordLedgerEntry, updateLedgerEntry, removeLedgerEntry } from './ledger';
 import { NotFoundError } from '@/lib/api/error-handler';
@@ -375,8 +375,28 @@ export async function deleteManualIncome(
 // ─── Income / Expense Aggregation (archive-aware) ─────────────
 
 /**
- * Sum FinancialTransaction rows of a given type within a date range.
- * UNIONs the archived table when dateFrom predates the 5-year cutoff.
+ * `a - b` for two money amounts, computed exactly.
+ *
+ * Totals arrive as JavaScript numbers, each the closest double to an exact
+ * two-decimal sum; subtracting them as doubles is where 0.30 - 0.10 becomes
+ * 0.19999999999999998. Going back through Decimal (from the shortest string
+ * that round-trips) makes the subtraction exact again.
+ */
+export function subtractMoney(a: number, b: number): number {
+  return new Prisma.Decimal(a).minus(b).toNumber();
+}
+
+/**
+ * Sum FinancialTransaction rows of a given type within a date range, in total
+ * and per day. UNIONs the archived table when dateFrom predates the 5-year
+ * cutoff.
+ *
+ * Postgres does the adding (hardening plan §30): `aggregate` and `groupBy`
+ * return exact Decimals and send one row per day instead of every transaction
+ * in the range. This used to load every matching row and add them as
+ * JavaScript floats, which is how ten payments of 0.10 come to 0.9999999999999999,
+ * and a year-long report shipped a year of rows over the network to do it.
+ * Amounts stay Decimal until the very end.
  */
 async function getFinancialTransactionTotals(
   tenantId: string,
@@ -386,32 +406,29 @@ async function getFinancialTransactionTotals(
   dateTo: Date
 ): Promise<FinanceTotals> {
   return withTenantContext(tenantId, async (tx) => {
-    const live = await tx.financialTransaction.findMany({
-      where: { branchId, type, date: { gte: dateFrom, lte: dateTo } },
-      select: { amount: true, date: true },
-    });
+    const where = { branchId, type, date: { gte: dateFrom, lte: dateTo } };
+    const includeArchive = rangeSpansArchive(dateFrom, getFinancialArchiveCutoff());
 
-    let archived: { amount: unknown; date: Date }[] = [];
-    if (rangeSpansArchive(dateFrom, getFinancialArchiveCutoff())) {
-      archived = await tx.archivedFinancialTransaction.findMany({
-        where: { branchId, type, date: { gte: dateFrom, lte: dateTo } },
-        select: { amount: true, date: true },
-      });
-    }
+    const [live, archived] = await Promise.all([
+      tx.financialTransaction.groupBy({ by: ['date'], where, _sum: { amount: true } }),
+      includeArchive
+        ? tx.archivedFinancialTransaction.groupBy({ by: ['date'], where, _sum: { amount: true } })
+        : Promise.resolve([]),
+    ]);
 
-    const all = [...live, ...archived];
-    const total = all.reduce((sum, r) => sum + Number(r.amount), 0);
-
-    const byDate = new Map<string, number>();
-    for (const r of all) {
-      const key = r.date.toISOString().slice(0, 10);
-      byDate.set(key, (byDate.get(key) ?? 0) + Number(r.amount));
+    let total = new Prisma.Decimal(0);
+    const byDate = new Map<string, Prisma.Decimal>();
+    for (const row of [...live, ...archived]) {
+      const amount = row._sum.amount ?? new Prisma.Decimal(0);
+      const key = row.date.toISOString().slice(0, 10);
+      byDate.set(key, (byDate.get(key) ?? new Prisma.Decimal(0)).plus(amount));
+      total = total.plus(amount);
     }
     const series = Array.from(byDate.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, amount]) => ({ date, amount }));
+      .map(([date, amount]) => ({ date, amount: amount.toNumber() }));
 
-    return { total, series };
+    return { total: total.toNumber(), series };
   });
 }
 
@@ -491,7 +508,7 @@ export async function getDashboardSummary(
   return {
     totalIncome: income.total,
     totalExpenses: expense.total,
-    netProfit: income.total - expense.total,
+    netProfit: subtractMoney(income.total, expense.total),
     outstandingBalances,
     series,
   };

@@ -212,10 +212,10 @@ function PayrollPageContent() {
       <div className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="dashboard-finance-payroll-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Captain
             </label>
-            <select
+            <select id="dashboard-finance-payroll-f1"
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
               className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
@@ -229,10 +229,10 @@ function PayrollPageContent() {
             </select>
           </div>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="dashboard-finance-payroll-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Period Start
             </label>
-            <input
+            <input id="dashboard-finance-payroll-f2"
               type="date"
               value={periodStart}
               onChange={(e) => setPeriodStart(e.target.value)}
@@ -240,10 +240,10 @@ function PayrollPageContent() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="dashboard-finance-payroll-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Period End
             </label>
-            <input
+            <input id="dashboard-finance-payroll-f3"
               type="date"
               value={periodEnd}
               onChange={(e) => setPeriodEnd(e.target.value)}

@@ -170,27 +170,27 @@ function NewSubscriptionPageContent() {
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+            <label htmlFor="dashboard-subscriptions-new-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('planName')} <span className="text-danger">*</span>
             </label>
-            <input value={form.name} onChange={set('name')} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
+            <input id="dashboard-subscriptions-new-f1" value={form.name} onChange={set('name')} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
           {/* Sessions + Amount row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-new-f2" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('minSessions')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={1} value={form.minSessions} onChange={set('minSessions')} className={inputClass} placeholder="12" />
+              <input id="dashboard-subscriptions-new-f2" type="number" min={1} value={form.minSessions} onChange={set('minSessions')} className={inputClass} placeholder="12" />
               {errors.minSessions && <p className="text-xs text-danger mt-1">{errors.minSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-new-f3" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('amount')} (EGP) <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} className={inputClass} placeholder="500" />
+              <input id="dashboard-subscriptions-new-f3" type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} className={inputClass} placeholder="500" />
               {errors.amount && <p className="text-xs text-danger mt-1">{errors.amount}</p>}
             </div>
           </div>
@@ -224,10 +224,10 @@ function NewSubscriptionPageContent() {
             {/* period days — only when FROM_SUBSCRIPTION_DATE */}
             {form.periodType === 'FROM_SUBSCRIPTION_DATE' && (
               <div>
-                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                <label htmlFor="dashboard-subscriptions-new-f4" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                   {t('periodDays')} <span className="text-danger">*</span>
                 </label>
-                <input
+                <input id="dashboard-subscriptions-new-f4"
                   type="number" min={1} max={365}
                   value={form.periodDays}
                   onChange={set('periodDays')}
@@ -242,17 +242,17 @@ function NewSubscriptionPageContent() {
           {/* Freeze settings */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-new-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('freezeSessions')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} value={form.freezeSessions} onChange={set('freezeSessions')} className={inputClass} placeholder="2" />
+              <input id="dashboard-subscriptions-new-f5" type="number" min={0} value={form.freezeSessions} onChange={set('freezeSessions')} className={inputClass} placeholder="2" />
               {errors.freezeSessions && <p className="text-xs text-danger mt-1">{errors.freezeSessions}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+              <label htmlFor="dashboard-subscriptions-new-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                 {t('freezeRetakeDays')} <span className="text-danger">*</span>
               </label>
-              <input type="number" min={0} value={form.freezeRetakeDays} onChange={set('freezeRetakeDays')} className={inputClass} placeholder="7" />
+              <input id="dashboard-subscriptions-new-f6" type="number" min={0} value={form.freezeRetakeDays} onChange={set('freezeRetakeDays')} className={inputClass} placeholder="7" />
               {errors.freezeRetakeDays && <p className="text-xs text-danger mt-1">{errors.freezeRetakeDays}</p>}
             </div>
           </div>
@@ -275,10 +275,10 @@ function NewSubscriptionPageContent() {
               {levels.map((level, idx) => (
                 <div key={level.id} className="flex items-center gap-2">
                   <div className="flex flex-col gap-0.5">
-                    <button type="button" onClick={() => moveLevel(idx, -1)} disabled={idx === 0} className="text-muted-foreground hover:text-foreground/80 disabled:opacity-20 transition-colors">
+                    <button type="button" onClick={() => moveLevel(idx, -1)} disabled={idx === 0} aria-label={t('moveLevelUp')} title={t('moveLevelUp')} className="text-muted-foreground hover:text-foreground/80 disabled:opacity-20 transition-colors">
                       <ArrowUp className="w-3 h-3" />
                     </button>
-                    <button type="button" onClick={() => moveLevel(idx, 1)} disabled={idx === levels.length - 1} className="text-muted-foreground hover:text-foreground/80 disabled:opacity-20 transition-colors">
+                    <button type="button" onClick={() => moveLevel(idx, 1)} disabled={idx === levels.length - 1} aria-label={t('moveLevelDown')} title={t('moveLevelDown')} className="text-muted-foreground hover:text-foreground/80 disabled:opacity-20 transition-colors">
                       <ArrowDown className="w-3 h-3" />
                     </button>
                   </div>
@@ -294,6 +294,8 @@ function NewSubscriptionPageContent() {
                     type="button"
                     onClick={() => removeLevel(level.id)}
                     disabled={levels.length === 1}
+                    aria-label={t('removeLevel')}
+                    title={t('removeLevel')}
                     className="text-danger hover:text-danger disabled:opacity-20 transition-colors p-1"
                   >
                     <Trash2 className="w-4 h-4" />
