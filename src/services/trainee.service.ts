@@ -28,6 +28,7 @@ import {
   phoneInUseError,
   withPhoneGuard,
 } from './login-index';
+import { placeTraineeInGroup } from './group.service';
 import { BadRequestError, NotFoundError, ConflictError } from '@/lib/api/error-handler';
 import { AuditAction, UserRole } from '@/types';
 import type {
@@ -506,18 +507,14 @@ export async function updateTraineeAssignment(
       if (!current || current.groupId !== input.groupId) {
         const group = await tx.group.findFirst({
           where: { id: input.groupId, branchId, isActive: true },
-          include: { _count: { select: { trainees: true } } },
+          select: { id: true, planId: true, maxTrainees: true },
         });
         if (!group) throw new NotFoundError('Group not found or inactive');
         if (group.planId !== sub.planId) {
           throw new BadRequestError('Group belongs to a different subscription plan');
         }
-        if (group._count.trainees >= group.maxTrainees) {
-          throw new ConflictError(`Group is at maximum capacity (${group.maxTrainees} trainees)`);
-        }
-        // Move: drop existing membership(s), assign to the new group.
-        await tx.groupTrainee.deleteMany({ where: { traineeId } });
-        await tx.groupTrainee.create({ data: { groupId: input.groupId, traineeId } });
+        // Move: the same placement enrollment and renewal use.
+        await placeTraineeInGroup(tx, group, traineeId);
         changes.groupId = { from: current?.groupId ?? null, to: input.groupId };
       }
     }

@@ -6,7 +6,7 @@
  */
 
 import { subYears } from 'date-fns';
-import { withTenantContext } from '@/lib/db/tenant-client';
+import { withTenantContext, type TransactionClient } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
 import { BadRequestError, ConflictError, NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction } from '@/types';
@@ -15,6 +15,52 @@ import type {
   UpdateGroupInput,
   ListGroupsQuery,
 } from '@/schemas/group.schema';
+
+// ─── Group placement ──────────────────────────────────────────
+
+/**
+ * Make `group` the trainee's group, inside the caller's transaction. Shared by
+ * enrollment, renewal and changing a trainee's group, so they cannot drift
+ * apart again (hardening plan §27). Enrollment used to `create` the membership
+ * and renewal to `upsert` it, and both counted the trainee against their own
+ * group's capacity.
+ *
+ *   - Capacity counts the OTHER members. A member renewing into their own full
+ *     group already holds one of its seats; they were refused with "Group is at
+ *     maximum capacity".
+ *   - The membership is upserted. Memberships outlive subscriptions (the
+ *     attendance sheet uses them for the post-expiry retake window), so a
+ *     returning trainee is usually still a member, and `create` failed on the
+ *     (group_id, trainee_id) unique constraint: an expired trainee could not
+ *     re-enroll into the group they had been in.
+ *   - The trainee leaves any other group. One active subscription means one
+ *     group, exactly as changing a trainee's group already moved them; staying
+ *     behind in the old group took a seat and a line on its attendance sheet.
+ *   - The group row is locked first, so two placements into the last seat
+ *     cannot both pass the count. A transaction does not lock rows it only
+ *     reads (see subscription.service.ts).
+ */
+export async function placeTraineeInGroup(
+  tx: TransactionClient,
+  group: { id: string; maxTrainees: number },
+  traineeId: string
+): Promise<void> {
+  await tx.$queryRaw`SELECT 1 FROM "groups" WHERE "id" = ${group.id}::uuid FOR UPDATE`;
+
+  const otherMembers = await tx.groupTrainee.count({
+    where: { groupId: group.id, NOT: { traineeId } },
+  });
+  if (otherMembers >= group.maxTrainees) {
+    throw new ConflictError(`Group is at maximum capacity (${group.maxTrainees} trainees)`);
+  }
+
+  await tx.groupTrainee.deleteMany({ where: { traineeId, NOT: { groupId: group.id } } });
+  await tx.groupTrainee.upsert({
+    where: { groupId_traineeId: { groupId: group.id, traineeId } },
+    create: { groupId: group.id, traineeId },
+    update: {},
+  });
+}
 
 // ─── Create Group ─────────────────────────────────────────────
 

@@ -34,6 +34,7 @@ import {
 } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
 import { generateReceiptNumber } from './receipt.service';
+import { placeTraineeInGroup } from './group.service';
 import { recordLedgerEntry } from './ledger';
 import {
   BadRequestError,
@@ -290,17 +291,17 @@ export async function deactivatePlan(
  * Enroll a trainee in a subscription plan + group.
  *
  * Atomically (single tx):
- *   1. Assert trainee has no ACTIVE subscription (inside tx — race-safe)
+ *   1. Check the trainee has no ACTIVE subscription (for the message; the
+ *      partial unique index is the guarantee — see the file header)
  *   2. Load plan → assert periodDays non-null if FROM_SUBSCRIPTION_DATE
  *   3. Compute startDate / endDate
- *   4. Validate group capacity
- *   5. Validate plan match (group.planId === plan.id)
- *   6. Create TraineeSubscription
- *   7. Create GroupTrainee
- *   8. Generate sequential receipt number (MAX+1 inside tx)
- *   9. Create Receipt
- *  10. Create FinancialTransaction INCOME record
- *  11. Audit log
+ *   4. Validate the group and its plan (group.planId === plan.id)
+ *   5. Create TraineeSubscription
+ *   6. Place the trainee in the group (capacity, membership: placeTraineeInGroup)
+ *   7. Take the next receipt number (atomic per-branch counter)
+ *   8. Create Receipt
+ *   9. Create FinancialTransaction INCOME record
+ *  10. Audit log
  */
 export async function enrollTrainee(
   tenantId: string,
@@ -353,14 +354,11 @@ export async function enrollTrainee(
     // ── 5. Load group + validate ──────────────────────────────
     const group = await tx.group.findFirst({
       where: { id: input.groupId, branchId, isActive: true },
-      include: { _count: { select: { trainees: true } } },
+      select: { id: true, planId: true, maxTrainees: true },
     });
     if (!group) throw new NotFoundError('Group not found or inactive');
     if (group.planId !== plan.id) {
       throw new BadRequestError('This group belongs to a different subscription plan');
-    }
-    if (group._count.trainees >= group.maxTrainees) {
-      throw new ConflictError(`Group is at maximum capacity (${group.maxTrainees} trainees)`);
     }
 
     // ── 6. Create subscription ────────────────────────────────
@@ -376,10 +374,10 @@ export async function enrollTrainee(
       paymentStatus: input.paymentStatus,
     });
 
-    // ── 7. Assign to group ────────────────────────────────────
-    await tx.groupTrainee.create({
-      data: { groupId: group.id, traineeId: input.traineeId },
-    });
+    // ── 7. Place in the group ─────────────────────────────────
+    // A returning trainee is often still a member of this group; `create` used
+    // to fail on that, so they could not re-enroll (§27).
+    await placeTraineeInGroup(tx, group, input.traineeId);
 
     // ── 8 & 9. Generate receipt number + create receipt ───────
     const branch = await tx.branch.findUnique({
@@ -478,14 +476,11 @@ export async function renewSubscription(
 
     const group = await tx.group.findFirst({
       where: { id: input.groupId, branchId, isActive: true },
-      include: { _count: { select: { trainees: true } } },
+      select: { id: true, planId: true, maxTrainees: true },
     });
     if (!group) throw new NotFoundError('Group not found or inactive');
     if (group.planId !== plan.id) {
       throw new BadRequestError('Group belongs to a different plan');
-    }
-    if (group._count.trainees >= group.maxTrainees) {
-      throw new ConflictError(`Group is at maximum capacity`);
     }
 
     // Concurrent renewals both expire the old subscription and both reach this
@@ -503,12 +498,9 @@ export async function renewSubscription(
       paymentStatus: input.paymentStatus,
     });
 
-    // Re-assign to group (may already be in group — upsert-style)
-    await tx.groupTrainee.upsert({
-      where: { groupId_traineeId: { groupId: group.id, traineeId: input.traineeId } },
-      create: { groupId: group.id, traineeId: input.traineeId },
-      update: {},
-    });
+    // Usually their own group: their seat is not a new one, so a member of a
+    // full group can still renew into it (§27).
+    await placeTraineeInGroup(tx, group, input.traineeId);
 
     const branch = await tx.branch.findUnique({
       where: { id: branchId },
