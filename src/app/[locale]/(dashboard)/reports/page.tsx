@@ -205,10 +205,10 @@ function ReportsCenterPageContent() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {type !== 'expiringSoon' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label htmlFor="dashboard-reports-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t('from')}
               </label>
-              <input
+              <input id="dashboard-reports-f1"
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
@@ -218,10 +218,10 @@ function ReportsCenterPageContent() {
           )}
           {type !== 'subscription' && type !== 'expiringSoon' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label htmlFor="dashboard-reports-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t('to')}
               </label>
-              <input
+              <input id="dashboard-reports-f2"
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
@@ -231,10 +231,10 @@ function ReportsCenterPageContent() {
           )}
           {type === 'subscription' && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label htmlFor="dashboard-reports-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Status
               </label>
-              <select
+              <select id="dashboard-reports-f3"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
@@ -248,10 +248,10 @@ function ReportsCenterPageContent() {
           )}
           {(type === 'attendance' || type === 'captainPerformance') && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <label htmlFor="dashboard-reports-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Captain
               </label>
-              <select
+              <select id="dashboard-reports-f4"
                 value={captainId}
                 onChange={(e) => setCaptainId(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"

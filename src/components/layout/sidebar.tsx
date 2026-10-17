@@ -200,9 +200,15 @@ export default function Sidebar({
         {/* Collapse Button (large screens only) */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? t('expandSidebar') : t('collapseSidebar')}
+          title={isCollapsed ? t('expandSidebar') : t('collapseSidebar')}
           className="hidden md:flex h-6 w-6 rounded-full border border-input bg-background items-center justify-center hover:bg-muted transition-colors absolute -end-3 top-7 z-50 text-muted-foreground hover:text-foreground"
         >
-          {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          {isCollapsed ? (
+            <ChevronRight size={12} className="rtl:-scale-x-100" aria-hidden="true" />
+          ) : (
+            <ChevronLeft size={12} className="rtl:-scale-x-100" aria-hidden="true" />
+          )}
         </button>
 
         {/* Close Button (mobile drawer only) */}

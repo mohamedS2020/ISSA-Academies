@@ -461,10 +461,10 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('branchName')} <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input id="dashboard-branches-f1"
                       type="text"
                       required
                       placeholder="New Cairo Branch"
@@ -476,10 +476,10 @@ export default function BranchesPage() {
 
                   {/* Code */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('branchCode')} <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input id="dashboard-branches-f2"
                       type="text"
                       required
                       placeholder="NC1"
@@ -493,10 +493,10 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('phone')}
                     </label>
-                    <input
+                    <input id="dashboard-branches-f3"
                       type="tel"
                       placeholder="+20123456789"
                       value={phone}
@@ -507,10 +507,10 @@ export default function BranchesPage() {
 
                   {/* Timezone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('timezone')} <span className="text-danger">*</span>
                     </label>
-                    <select
+                    <select id="dashboard-branches-f4"
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
                       className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
@@ -526,10 +526,10 @@ export default function BranchesPage() {
 
                 {/* Address */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="dashboard-branches-f5" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {tBranches('address')}
                   </label>
-                  <input
+                  <input id="dashboard-branches-f5"
                     type="text"
                     placeholder="123 Road, District 5"
                     value={address}
@@ -604,10 +604,10 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f6" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('branchName')} <span className="text-danger">*</span>
                     </label>
-                    <input
+                    <input id="dashboard-branches-f6"
                       type="text"
                       required
                       placeholder="New Cairo Branch"
@@ -619,10 +619,10 @@ export default function BranchesPage() {
 
                   {/* Code (Read-only on edit) */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f7" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('branchCode')}
                     </label>
-                    <input
+                    <input id="dashboard-branches-f7"
                       type="text"
                       readOnly
                       value={code}
@@ -634,10 +634,10 @@ export default function BranchesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f8" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('phone')}
                     </label>
-                    <input
+                    <input id="dashboard-branches-f8"
                       type="tel"
                       placeholder="+20123456789"
                       value={phone}
@@ -648,10 +648,10 @@ export default function BranchesPage() {
 
                   {/* Timezone */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f9" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('timezone')} <span className="text-danger">*</span>
                     </label>
-                    <select
+                    <select id="dashboard-branches-f9"
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
                       className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat"
@@ -667,10 +667,10 @@ export default function BranchesPage() {
 
                 {/* Address */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <label htmlFor="dashboard-branches-f10" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {tBranches('address')}
                   </label>
-                  <input
+                  <input id="dashboard-branches-f10"
                     type="text"
                     placeholder="123 Road, District 5"
                     value={address}
@@ -682,10 +682,10 @@ export default function BranchesPage() {
                 {/* Payroll Frequency (FR-FN-08) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <label htmlFor="dashboard-branches-f11" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {tBranches('payrollFrequency')}
                     </label>
-                    <select
+                    <select id="dashboard-branches-f11"
                       value={payrollFrequency}
                       onChange={(e) => setPayrollFrequency(e.target.value)}
                       className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
@@ -699,10 +699,10 @@ export default function BranchesPage() {
                   </div>
                   {payrollFrequency === 'CUSTOM' && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <label htmlFor="dashboard-branches-f12" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {tBranches('payrollCustomDays')} <span className="text-danger">*</span>
                       </label>
-                      <input
+                      <input id="dashboard-branches-f12"
                         type="number"
                         min={1}
                         max={365}

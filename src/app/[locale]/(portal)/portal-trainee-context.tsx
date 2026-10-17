@@ -12,6 +12,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Users, ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 
 export interface PortalTrainee {
@@ -63,12 +64,14 @@ export function PortalTraineeProvider({ children }: { children: React.ReactNode 
  */
 export function TraineeSwitcher() {
   const { trainees, selectedTraineeId, setSelectedTraineeId } = usePortalTrainee();
+  const t = useTranslations('portal');
   if (trainees.length <= 1) return null;
 
   return (
     <div className="relative flex items-center gap-1.5 rounded-xl bg-muted/70 border border-border ps-2.5 pe-1.5 py-1.5">
       <Users size={14} className="text-primary dark:text-primary flex-shrink-0" />
       <select
+        aria-label={t('selectTrainee')}
         value={selectedTraineeId ?? ''}
         onChange={(e) => setSelectedTraineeId(e.target.value)}
         className="appearance-none bg-transparent text-xs font-semibold text-foreground focus:outline-none pe-4 cursor-pointer"

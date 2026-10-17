@@ -253,10 +253,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
 
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="portal-layout-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {tAuth('currentPassword')}
                 </label>
-                <input
+                <input id="portal-layout-f1"
                   type="password"
                   required
                   value={currentPassword}
@@ -267,10 +267,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="portal-layout-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {tAuth('newPassword')}
                 </label>
-                <input
+                <input id="portal-layout-f2"
                   type="password"
                   required
                   value={newPassword}
@@ -281,10 +281,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="portal-layout-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {tAuth('confirmPassword')}
                 </label>
-                <input
+                <input id="portal-layout-f3"
                   type="password"
                   required
                   value={confirmPassword}

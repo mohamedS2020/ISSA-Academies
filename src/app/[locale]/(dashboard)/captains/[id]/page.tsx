@@ -218,9 +218,10 @@ function CaptainDetailPageContent() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/captains`)}
+            aria-label={tCommon('back')}
             className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
             <Award className="w-6 h-6 text-primary dark:text-primary" />

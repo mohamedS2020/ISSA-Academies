@@ -418,9 +418,10 @@ function TraineeDetailPageContent() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/trainees`)}
+            aria-label={tCommon('back')}
             className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <div>
             <div className="flex items-center gap-2">
@@ -613,10 +614,10 @@ function TraineeDetailPageContent() {
               )}
 
               <div className="space-y-1.5 mb-5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="dashboard-trainees-id-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Amount <span className="text-danger">*</span>
                 </label>
-                <input
+                <input id="dashboard-trainees-id-f1"
                   type="number"
                   step="0.01"
                   min="0"
@@ -629,10 +630,10 @@ function TraineeDetailPageContent() {
               </div>
 
               <div className="space-y-1.5 mb-5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="dashboard-trainees-id-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {t('paymentMethod')} <span className="text-danger">*</span>
                 </label>
-                <select
+                <select id="dashboard-trainees-id-f2"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value as '' | 'INSTAPAY' | 'CASH' | 'EWALLET')}
                   className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-success focus:outline-none focus:ring-4 focus:ring-success/10 text-foreground"
@@ -686,8 +687,8 @@ function TraineeDetailPageContent() {
               </p>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Level</label>
-                <select
+                <label htmlFor="dashboard-trainees-id-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Level</label>
+                <select id="dashboard-trainees-id-f3"
                   value={assignForm.levelId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, levelId: e.target.value }))}
                   className={inputClass}
@@ -700,8 +701,8 @@ function TraineeDetailPageContent() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Group</label>
-                <select
+                <label htmlFor="dashboard-trainees-id-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Group</label>
+                <select id="dashboard-trainees-id-f4"
                   value={assignForm.groupId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, groupId: e.target.value }))}
                   className={inputClass}
@@ -843,8 +844,8 @@ function TraineeDetailPageContent() {
                 <div className="space-y-4">
                   {/* Plan */}
                   <div>
-                    <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Subscription Plan <span className="text-danger">*</span></label>
-                    <select
+                    <label htmlFor="dashboard-trainees-id-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">Subscription Plan <span className="text-danger">*</span></label>
+                    <select id="dashboard-trainees-id-f5"
                       className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       value={enrollForm.planId}
                       onChange={(e) => {
@@ -863,8 +864,8 @@ function TraineeDetailPageContent() {
                   {/* Level */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Level <span className="text-danger">*</span></label>
-                      <select
+                      <label htmlFor="dashboard-trainees-id-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">Level <span className="text-danger">*</span></label>
+                      <select id="dashboard-trainees-id-f6"
                         className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                         value={enrollForm.levelId}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, levelId: e.target.value }))}
@@ -878,11 +879,12 @@ function TraineeDetailPageContent() {
                   {/* Group */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Group <span className="text-danger">*</span></label>
+                      <label htmlFor="dashboard-trainees-id-group" className="block text-xs font-semibold text-foreground/80 mb-1.5">Group <span className="text-danger">*</span></label>
                       {isLoadingEnrollGroups ? (
                         <div className="flex items-center gap-2 text-muted-foreground text-sm py-1"><Loader2 className="w-4 h-4 animate-spin" />Loading groups...</div>
                       ) : (
                         <select
+                          id="dashboard-trainees-id-group"
                           className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                           value={enrollForm.groupId}
                           onChange={(e) => setEnrollForm((f) => ({ ...f, groupId: e.target.value }))}
@@ -901,8 +903,8 @@ function TraineeDetailPageContent() {
                   {/* Payment */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Amount Paid (EGP)</label>
-                      <input
+                      <label htmlFor="dashboard-trainees-id-f7" className="block text-xs font-semibold text-foreground/80 mb-1.5">Amount Paid (EGP)</label>
+                      <input id="dashboard-trainees-id-f7"
                         type="number" min={0}
                         value={enrollForm.amountPaid}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, amountPaid: e.target.value }))}
@@ -910,8 +912,8 @@ function TraineeDetailPageContent() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">Payment Status</label>
-                      <select
+                      <label htmlFor="dashboard-trainees-id-f8" className="block text-xs font-semibold text-foreground/80 mb-1.5">Payment Status</label>
+                      <select id="dashboard-trainees-id-f8"
                         value={enrollForm.paymentStatus}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, paymentStatus: e.target.value as any }))}
                         className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
@@ -925,10 +927,10 @@ function TraineeDetailPageContent() {
 
                   {Number(enrollForm.amountPaid) > 0 && (
                     <div>
-                      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                      <label htmlFor="dashboard-trainees-id-f9" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                         {t('paymentMethod')} <span className="text-danger">*</span>
                       </label>
-                      <select
+                      <select id="dashboard-trainees-id-f9"
                         value={enrollForm.paymentMethod}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, paymentMethod: e.target.value as '' | 'INSTAPAY' | 'CASH' | 'EWALLET' }))}
                         className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"

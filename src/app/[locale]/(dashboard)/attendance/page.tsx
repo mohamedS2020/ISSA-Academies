@@ -286,7 +286,7 @@ function AttendancePageContent() {
 
       {/* Step 1 — Session Selector */}
       <div className="bg-foreground/5 border border-foreground/10 rounded-2xl p-5 mb-5">
-        <label className="block text-sm font-semibold text-foreground/80 mb-3">
+        <label htmlFor="attendance-session" className="block text-sm font-semibold text-foreground/80 mb-3">
           {t('selectSession')}
         </label>
 
@@ -306,6 +306,7 @@ function AttendancePageContent() {
                   <div className="relative flex-1 min-w-[160px]">
                     <Award className="absolute start-3 top-3 w-4 h-4 text-muted-foreground pointer-events-none" />
                     <select
+                      aria-label={t('filterByCaptain')}
                       value={filterCaptain}
                       onChange={(e) => setFilterCaptain(e.target.value)}
                       className="w-full appearance-none bg-foreground/5 border border-foreground/10 rounded-xl ps-9 pe-8 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -322,6 +323,7 @@ function AttendancePageContent() {
                   <div className="relative flex-1 min-w-[120px]">
                     <Clock className="absolute start-3 top-3 w-4 h-4 text-muted-foreground pointer-events-none" />
                     <select
+                      aria-label={t('filterByHour')}
                       value={filterHour}
                       onChange={(e) => setFilterHour(e.target.value)}
                       className="w-full appearance-none bg-foreground/5 border border-foreground/10 rounded-xl ps-9 pe-8 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -340,9 +342,10 @@ function AttendancePageContent() {
             {/* Session picker (filtered) */}
             <div className="relative">
               <select
+                id="attendance-session"
                 value={selectedSessionId ?? ''}
                 onChange={(e) => setSelectedSessionId(e.target.value || null)}
-                className="w-full appearance-none bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring pr-10"
+                className="w-full appearance-none bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring pe-10"
               >
                 <option value="">{t('selectSession')}...</option>
                 {filteredSessions.map((s) => (

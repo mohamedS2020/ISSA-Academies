@@ -176,6 +176,7 @@ function FinanceDashboardPageContent() {
           <input
             type="date"
             value={dateFrom}
+            aria-label={t('dateFrom')}
             onChange={(e) => setDateFrom(e.target.value)}
             className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
@@ -183,6 +184,7 @@ function FinanceDashboardPageContent() {
           <input
             type="date"
             value={dateTo}
+            aria-label={t('dateTo')}
             onChange={(e) => setDateTo(e.target.value)}
             className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />

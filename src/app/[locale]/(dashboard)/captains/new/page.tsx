@@ -11,7 +11,7 @@
  * Full RTL support via logical CSS properties.
  */
 
-import { useState } from 'react';
+import { Children, useState, cloneElement, isValidElement, useId, type ReactElement } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -44,12 +44,30 @@ const inputClass =
 
 interface FieldProps { label: string; required?: boolean; children: React.ReactNode; error?: string; }
 function Field({ label, required, children, error }: FieldProps) {
+  // Tie the label to its control (hardening plan §39): the first input, select
+  // or textarea among the children gets an id the label points at, so clicking
+  // the label focuses the field and a screen reader announces the label with
+  // it. (The children also hold the field's error message.)
+  const fallbackId = useId();
+  const items = Children.toArray(children);
+  const controlIndex = items.findIndex(
+    (child) =>
+      isValidElement(child) &&
+      typeof child.type === 'string' &&
+      ['input', 'select', 'textarea'].includes(child.type)
+  );
+  const control =
+    controlIndex === -1 ? null : (items[controlIndex] as ReactElement<{ id?: string }>);
+  const fieldId = control ? (control.props.id ?? fallbackId) : undefined;
+  const content = control
+    ? items.map((child, i) => (i === controlIndex ? cloneElement(control, { id: fieldId }) : child))
+    : children;
   return (
     <div>
-      <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+      <label htmlFor={fieldId} className="block text-xs font-semibold text-foreground/80 mb-1.5">
         {label} {required && <span className="text-danger">*</span>}
       </label>
-      {children}
+      {content}
       {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
@@ -190,9 +208,10 @@ function NewCaptainPageContent() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push(`/${locale}/captains`)}
+          aria-label={tCommon('back')}
           className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5 rtl:-scale-x-100" aria-hidden="true" />
         </button>
         <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
           <Award className="w-6 h-6 text-primary dark:text-primary" />

@@ -369,6 +369,7 @@ export default function UsersPage() {
           />
         </div>
         <select
+          aria-label={t('filterByRole')}
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
           className="px-3 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
@@ -410,10 +411,10 @@ export default function UsersPage() {
             <div className="p-6 space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                <label htmlFor="dashboard-users-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                   {t('name')} <span className="text-danger">*</span>
                 </label>
-                <input
+                <input id="dashboard-users-f1"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -424,10 +425,10 @@ export default function UsersPage() {
 
               {/* Phone */}
               <div>
-                <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
+                <label htmlFor="dashboard-users-f2" className="block text-xs font-semibold text-foreground/80 mb-1.5">
                   {t('phoneNumber')} <span className="text-danger">*</span>
                 </label>
-                <input
+                <input id="dashboard-users-f2"
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}

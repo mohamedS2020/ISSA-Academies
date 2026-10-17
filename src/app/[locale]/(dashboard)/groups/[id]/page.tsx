@@ -132,9 +132,10 @@ function GroupDetailPageContent() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push(`/${locale}/groups`)}
+            aria-label={tCommon('back')}
             className="p-2 rounded-lg border border-input/60 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
