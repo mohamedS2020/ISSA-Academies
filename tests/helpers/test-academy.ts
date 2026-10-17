@@ -191,6 +191,49 @@ export async function createTestTrainee(academy: TestAcademy): Promise<{ id: str
 }
 
 /**
+ * Tear down every test academy older than `olderThanMs`: leftovers of runs that
+ * died before their own teardown (a killed worker, a laptop closed mid-run).
+ *
+ * Only `test-` slugs with a `tenant_test_` schema qualify, and each goes
+ * through destroyTestAcademy, which refuses anything else. The age floor keeps
+ * it from touching a suite running at the same moment. Returns how many were
+ * removed; throws, listing them, if any teardown failed.
+ */
+export async function sweepStaleTestAcademies(
+  olderThanMs = 60 * 60 * 1000
+): Promise<number> {
+  const stale = await platformPrisma.tenant.findMany({
+    where: {
+      slug: { startsWith: 'test-' },
+      schemaName: { startsWith: TEST_SCHEMA_PREFIX },
+      createdAt: { lt: new Date(Date.now() - olderThanMs) },
+    },
+    select: { id: true, schemaName: true },
+  });
+
+  const failures: string[] = [];
+  for (const tenant of stale) {
+    try {
+      await destroyTestAcademy({
+        tenantId: tenant.id,
+        schemaName: tenant.schemaName,
+        branchId: '',
+        adminId: '',
+        planId: '',
+        levelId: '',
+        captainId: '',
+      });
+    } catch (err) {
+      failures.push(err instanceof Error ? err.message : String(err));
+    }
+  }
+  if (failures.length > 0) {
+    throw new Error(`Sweeping stale test academies failed:\n  ${failures.join('\n  ')}`);
+  }
+  return stale.length;
+}
+
+/**
  * Tear down a test academy completely.
  *
  * Refuses anything that is not a test schema. Attempts every step even if one

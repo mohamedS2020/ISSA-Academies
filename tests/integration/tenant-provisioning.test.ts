@@ -13,7 +13,7 @@
  *    Run with: npx jest tests/integration/tenant-provisioning.test.ts
  */
 
-import { describe, test, expect, afterAll } from '@jest/globals';
+import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
 import {
   createTenant,
   getTenantById,
@@ -24,7 +24,7 @@ import {
 import { isValidStatusTransition } from '@/schemas/tenant.schema';
 import { platformPrisma } from '@/lib/db/platform-client';
 import { comparePassword } from '@/lib/auth/password';
-import { destroyTestAcademy } from '../helpers/test-academy';
+import { destroyTestAcademy, sweepStaleTestAcademies } from '../helpers/test-academy';
 import { withTenantContext } from '@/lib/db/tenant-client';
 
 // ─── Test Configuration ─────────────────────────────────────
@@ -35,7 +35,21 @@ const TEST_TENANT_SLUG = 'test-provisioning-' + Date.now();
 let testTenantId: string | null = null;
 let testAdminPassword: string | null = null;
 
-// ─── Cleanup ────────────────────────────────────────────────
+/**
+ * The provisioning call itself, kept so teardown can wait for it (hardening
+ * plan §38). On a database waking from idle, creation could outlast the test's
+ * time limit: Jest gave up on the test and ran teardown while createTenant was
+ * still running, found no tenant id yet, cleaned nothing, and the academy
+ * appeared a moment later, leaked. Four leaked that way, and two more since.
+ */
+let creation: Promise<unknown> | null = null;
+
+// ─── Setup and cleanup ──────────────────────────────────────
+
+beforeAll(async () => {
+  // Leftovers of earlier runs that died before their own teardown.
+  await sweepStaleTestAcademies();
+}, 120_000);
 
 afterAll(async () => {
   // This used to wrap every step in `catch {}` and drop the schema through the
@@ -43,11 +57,18 @@ afterAll(async () => {
   // into the live database that way. destroyTestAcademy uses the direct
   // connection, refuses anything that is not a test schema, and fails loudly.
   try {
-    if (testTenantId) {
+    // Let an unfinished creation finish (or fail) first, then find the academy
+    // by its slug, whether or not the test got as far as recording its id.
+    await creation?.catch(() => undefined);
+    const tenant = await platformPrisma.tenant.findUnique({
+      where: { slug: TEST_TENANT_SLUG },
+      select: { id: true },
+    });
+    if (tenant) {
       // The DELETED-status test below drops the schema mid-run; teardown uses
       // DROP SCHEMA IF EXISTS and deleteMany, so an already-removed academy is fine.
       await destroyTestAcademy({
-        tenantId: testTenantId,
+        tenantId: tenant.id,
         schemaName: `tenant_${TEST_TENANT_SLUG.replace(/-/g, '_')}`,
         // Only tenantId and schemaName are used for teardown.
         branchId: '',
@@ -60,7 +81,7 @@ afterAll(async () => {
   } finally {
     await platformPrisma.$disconnect();
   }
-});
+}, 180_000);
 
 // ─── Tests ──────────────────────────────────────────────────
 
@@ -79,7 +100,7 @@ describe('Tenant Provisioning Flow', () => {
   });
 
   test('creates a tenant with full provisioning', async () => {
-    const result = await createTenant({
+    const pending = createTenant({
       name: 'Integration Test Academy',
       slug: TEST_TENANT_SLUG,
       themeKey: 'swimming',
@@ -92,6 +113,8 @@ describe('Tenant Provisioning Flow', () => {
       branchCode: 'TEST',
       branchTimezone: 'Africa/Cairo',
     });
+    creation = pending;
+    const result = await pending;
 
     testTenantId = result.tenant.id;
     testAdminPassword = result.adminCredentials.password;
@@ -112,7 +135,7 @@ describe('Tenant Provisioning Flow', () => {
     expect(result.branch.name).toBe('Test Branch');
     expect(result.branch.code).toBe('TEST');
     expect(result.branch.timezone).toBe('Africa/Cairo');
-  }, 30000); // 30s timeout for schema creation + migrations
+  }, 120_000); // a database waking from idle makes schema creation + migrations slow
 
   test('can retrieve the created tenant', async () => {
     expect(testTenantId).toBeTruthy();
