@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { phoneNumberField } from './phone.schema';
 import { SPORT_KEYS, DEFAULT_SPORT, type SportKey } from '@/lib/theme/sports';
 
 // ─── Create Tenant ──────────────────────────────────────────
@@ -30,10 +31,7 @@ export const createTenantSchema = z.object({
       'Slug must be lowercase letters, numbers, and hyphens only'
     ),
   contactName: z.string().max(255).optional(),
-  contactPhone: z
-    .string()
-    .regex(/^\+?[0-9\s-]{7,20}$/, 'Invalid phone number format')
-    .optional(),
+  contactPhone: phoneNumberField().optional(),
   contactEmail: z.string().email('Invalid email address').optional(),
 
   // Default admin account
@@ -41,10 +39,7 @@ export const createTenantSchema = z.object({
     .string()
     .min(2, 'Admin name must be at least 2 characters')
     .max(255),
-  adminPhone: z
-    .string()
-    .min(1, 'Admin phone number is required')
-    .regex(/^\+?[0-9\s-]{7,20}$/, 'Invalid phone number format'),
+  adminPhone: phoneNumberField({ required: 'Admin phone number is required' }),
 
   // Default branch
   branchName: z
@@ -76,10 +71,7 @@ export const updateTenantSchema = z.object({
     .max(255)
     .optional(),
   contactName: z.string().max(255).optional(),
-  contactPhone: z
-    .string()
-    .regex(/^\+?[0-9\s-]{7,20}$/, 'Invalid phone number format')
-    .optional(),
+  contactPhone: phoneNumberField().optional(),
   contactEmail: z.string().email('Invalid email address').optional(),
   maxBranches: z.number().int().min(1).max(100).optional(),
 });

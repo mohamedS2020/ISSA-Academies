@@ -56,7 +56,9 @@ describe('lead service', () => {
   it('saves a lead as NEW with a normalized phone', async () => {
     const lead = await newLead('a', '٠١٠ ٠٠١٢ ٣٤٥٦');
     expect(lead.status).toBe('NEW');
-    expect(lead.phone).toBe('01000123456');
+    // Arabic digits, spaces and the national form all normalized: stored with the
+    // country code, so the WhatsApp link (wa.me/<number>) reaches Egypt.
+    expect(lead.phone).toBe('+201000123456');
   });
 
   it('finds leads by academy, name or phone, and filters by status', async () => {
@@ -66,6 +68,10 @@ describe('lead service', () => {
 
     const byPhone = await listLeads({ search: '111 222 3333', page: 1, pageSize: 25 });
     expect(byPhone.items.map((item) => item.id)).toContain(lead.id);
+
+    // Typed the way people say it here: national form, with the leading 0.
+    const byNationalPhone = await listLeads({ search: '0111 222', page: 1, pageSize: 25 });
+    expect(byNationalPhone.items.map((item) => item.id)).toContain(lead.id);
 
     await updateLead(lead.id, { status: 'CONTACTED' });
     const contacted = await listLeads({ status: 'CONTACTED', search: MARKER, page: 1, pageSize: 25 });

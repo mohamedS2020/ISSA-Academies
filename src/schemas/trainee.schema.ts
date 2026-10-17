@@ -11,6 +11,7 @@
  */
 
 import { z } from 'zod';
+import { phoneNumberField } from './phone.schema';
 
 // ─── Enums ───────────────────────────────────────────────────
 
@@ -31,16 +32,11 @@ export const traineeStep1Schema = z.object({
       const date = new Date(d);
       return !isNaN(date.getTime()) && date < new Date();
     }, 'Date of birth must be a valid past date'),
-  phoneNumber: z
-    .string()
-    .min(7, 'Phone number is required')
-    .max(50)
-    .regex(/^[+\d\s()-]+$/, 'Invalid phone number format'),
-  whatsappNumber: z
-    .string()
-    .min(7, 'WhatsApp number is required')
-    .max(50)
-    .regex(/^[+\d\s()-]+$/, 'Invalid WhatsApp number format'),
+  phoneNumber: phoneNumberField(),
+  whatsappNumber: phoneNumberField({
+    required: 'WhatsApp number is required',
+    invalid: 'Invalid WhatsApp number format',
+  }),
   parentIdCard: z
     .string()
     .min(5, 'Parent ID card number is required')

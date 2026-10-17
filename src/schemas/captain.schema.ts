@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { phoneNumberField } from './phone.schema';
 import { PayrollType, DayOfWeek } from '@/types';
 
 // ─── Days of Week Enum ────────────────────────────────────────
@@ -20,11 +21,7 @@ export const createCaptainSchema = z
       .string()
       .min(2, 'Name must be at least 2 characters')
       .max(255),
-    phoneNumber: z
-      .string()
-      .min(7, 'Phone number is required')
-      .max(50)
-      .regex(/^[+\d\s()-]+$/, 'Invalid phone number format'),
+    phoneNumber: phoneNumberField(),
     specialization: z.string().max(255).optional().nullable(),
     attendingDays: z
       .array(dayOfWeekEnum)
@@ -91,12 +88,7 @@ export type CreateCaptainInput = z.infer<typeof createCaptainSchema>;
 export const updateCaptainSchema = z
   .object({
     name: z.string().min(2).max(255).optional(),
-    phoneNumber: z
-      .string()
-      .min(7)
-      .max(50)
-      .regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
-      .optional(),
+    phoneNumber: phoneNumberField().optional(),
     specialization: z.string().max(255).optional().nullable(),
     attendingDays: z.array(dayOfWeekEnum).min(1).optional(),
     payrollType: z.nativeEnum(PayrollType).optional(),
