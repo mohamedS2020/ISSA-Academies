@@ -463,6 +463,13 @@ export async function createEvaluation(
     });
     if (!session) throw new NotFoundError('Session not found');
 
+    // The trainee id comes from the request too: it must be in this branch.
+    const trainee = await tx.traineeProfile.findFirst({
+      where: { id: traineeId, branchId },
+      select: { id: true },
+    });
+    if (!trainee) throw new NotFoundError('Trainee not found');
+
     const evaluation = await tx.traineeEvaluation.create({
       data: { sessionId, traineeId, evaluatorId, notes },
     });
@@ -515,11 +522,14 @@ export async function deleteEvaluation(
 
 export async function listEvaluationsBySession(
   tenantId: string,
+  branchId: string,
   sessionId: string
 ) {
   return withTenantContext(tenantId, async (tx) => {
+    // Branch-scoped through the session: this read used to return any
+    // session's evaluations in the academy, given its id.
     return tx.traineeEvaluation.findMany({
-      where: { sessionId },
+      where: { sessionId, session: { branchId } },
       include: {
         trainee: { select: { id: true, name: true, user: { select: { name: true } } } },
         evaluator: { select: { id: true, name: true } },

@@ -18,12 +18,19 @@ import {
   getCaptainDashboard,
   resolveOwnCaptainId,
 } from '@/services/dashboard.service';
+import { canAccess } from '@/lib/auth/access';
 import { UserRole } from '@/types';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
     if (ctx.role === UserRole.ADMIN || ctx.role === UserRole.MODERATOR) {
-      const dashboard = await getAdminDashboard(ctx.tenantId, ctx.branchId);
+      // A moderator sees only the sections their permissions cover: revenue
+      // used to reach every moderator here, "View finances" or not.
+      const dashboard = await getAdminDashboard(ctx.tenantId, ctx.branchId, {
+        finances: canAccess(ctx, 'viewFinances'),
+        renewals: canAccess(ctx, 'viewRenewals'),
+        sessions: canAccess(ctx, 'viewSchedule'),
+      });
       return successResponse(dashboard);
     }
 

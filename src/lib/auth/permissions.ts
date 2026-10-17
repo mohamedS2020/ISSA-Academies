@@ -19,6 +19,8 @@ import {
   type RequestContext,
 } from '@/types';
 
+import { ACCESS, canAccess, type AccessKey } from '@/lib/auth/access';
+
 // Re-export for convenience
 export { MODERATOR_PRIVILEGES, type ModeratorPrivilege };
 
@@ -148,6 +150,26 @@ export function hasAnyPrivilege(
   privileges: ModeratorPrivilege[]
 ): boolean {
   return privileges.some((p) => hasPrivilege(ctx, p));
+}
+
+// ─── Access (the shared table) ──────────────────────────────
+
+/**
+ * Throw ForbiddenError unless the caller may do `access`: an ADMIN always may,
+ * a MODERATOR needs one of the privileges ACCESS lists for it, and any other
+ * role may not. Every tenant staff route checks its access this way, from the
+ * same table the sidebar and pages use (src/lib/auth/access.ts).
+ */
+export function requireAccess(ctx: RequestContext, access: AccessKey): void {
+  if (!canAccess(ctx, access)) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { ForbiddenError } = require('@/lib/api/error-handler');
+    throw new ForbiddenError(
+      ctx.role === UserRole.MODERATOR
+        ? `Access denied. Requires one of: ${ACCESS[access].join(', ')}`
+        : 'Access denied.'
+    );
+  }
 }
 
 // ─── Validation ─────────────────────────────────────────────

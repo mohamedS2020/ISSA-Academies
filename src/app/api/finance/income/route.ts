@@ -10,17 +10,12 @@ import { withErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { getDashboardSummary } from '@/services/finance.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 import { subDays } from 'date-fns';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_finances');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewFinances');
 
     const sp = new URL(request.url).searchParams;
     const dateFromParam = sp.get('dateFrom') ?? undefined;

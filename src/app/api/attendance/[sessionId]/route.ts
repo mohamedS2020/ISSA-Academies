@@ -6,12 +6,11 @@ import { withErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { getAttendanceSheet } from '@/services/attendance.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewAttendance');
 
     // ⚠️ The dynamic segment is [sessionId], so the param key is `sessionId`,
     //    NOT `id`. Reading `.id` yields undefined, which Prisma treats as

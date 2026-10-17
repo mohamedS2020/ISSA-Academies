@@ -13,12 +13,12 @@ import {
   updatePlan,
   deactivatePlan,
 } from '@/services/subscription.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewPlans');
     const { id } = await routeContext!.params;
     const plan = await getPlanById(ctx.tenantId, ctx.branchId, id);
     return successResponse(plan);

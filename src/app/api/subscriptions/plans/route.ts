@@ -8,12 +8,12 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse, createdResponse } from '@/lib/api/response';
 import { createPlanSchema, listPlansQuerySchema } from '@/schemas/subscription.schema';
 import { createPlan, listPlans } from '@/services/subscription.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewPlans');
 
     const sp = new URL(request.url).searchParams;
     const query = listPlansQuerySchema.parse({

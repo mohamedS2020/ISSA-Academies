@@ -48,17 +48,21 @@ const DAY_OF_WEEK_INDEX: Record<string, number> = {
  * @param groupId   - The group to generate sessions for
  * @param fromDate  - Start date string (YYYY-MM-DD)
  * @param toDate    - End date string (YYYY-MM-DD)
+ * @param scope     - When the group id comes from a request, the caller's
+ *                    branch: a group in any other branch is "not found". The
+ *                    weekly job, which walks every group itself, passes none.
  * @returns Number of sessions created
  */
 export async function generateSessionsForGroup(
   tenantId: string,
   groupId: string,
   fromDate: string,
-  toDate: string
+  toDate: string,
+  scope: { branchId?: string } = {}
 ): Promise<{ created: number }> {
   return withTenantContext(tenantId, async (tx) => {
-    const group = await tx.group.findUnique({
-      where: { id: groupId },
+    const group = await tx.group.findFirst({
+      where: { id: groupId, ...(scope.branchId ? { branchId: scope.branchId } : {}) },
       select: {
         id: true,
         branchId: true,

@@ -8,17 +8,12 @@ import {
   deactivateTrainee,
   activateTrainee,
 } from '@/services/trainee.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 // ─── GET — Get Trainee By ID ──────────────────────────────────
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeCtx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_trainees');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewTrainees');
 
     const { id } = await routeCtx!.params;
     const trainee = await getTraineeById(ctx.tenantId, ctx.branchId, id);
@@ -30,11 +25,7 @@ export const GET = withErrorHandler(
 // ─── PATCH — Update Trainee / Deactivate ─────────────────────
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeCtx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_trainees');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageTrainees');
 
     const { id } = await routeCtx!.params;
     const body = await request.json();

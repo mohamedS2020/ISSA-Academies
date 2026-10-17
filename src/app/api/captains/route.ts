@@ -7,17 +7,12 @@ import {
 } from '@/lib/api/response';
 import { createCaptainSchema, listCaptainsQuerySchema } from '@/schemas/captain.schema';
 import { createCaptain, listCaptains } from '@/services/captain.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 // ─── GET — List Captains ──────────────────────────────────────
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_captains');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewCaptains');
 
     const { searchParams } = new URL(request.url);
     const query = listCaptainsQuerySchema.parse({
@@ -43,11 +38,7 @@ export const GET = withErrorHandler(
 // ─── POST — Register Captain ──────────────────────────────────
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_captains');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageCaptains');
 
     const body = await request.json();
     const input = createCaptainSchema.parse(body);

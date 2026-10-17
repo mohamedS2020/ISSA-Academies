@@ -7,17 +7,12 @@ import {
   updateCaptain,
   deactivateCaptain,
 } from '@/services/captain.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 // ─── GET — Get Captain By ID ──────────────────────────────────
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeCtx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_captains');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewCaptains');
 
     const { id } = await routeCtx!.params;
     const captain = await getCaptainById(ctx.tenantId, ctx.branchId, id);
@@ -29,11 +24,7 @@ export const GET = withErrorHandler(
 // ─── PATCH — Update Captain / Deactivate ─────────────────────
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeCtx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_captains');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageCaptains');
 
     const { id } = await routeCtx!.params;
     const body = await request.json();

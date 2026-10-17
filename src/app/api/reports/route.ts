@@ -27,8 +27,7 @@ import {
   type ExportMeta,
 } from '@/services/export.service';
 import { getBranchById } from '@/services/branch.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 import { subDays } from 'date-fns';
 
 const REPORT_TITLES: Record<string, string> = {
@@ -42,11 +41,7 @@ const REPORT_TITLES: Record<string, string> = {
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_reports');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewReports');
 
     const sp = new URL(request.url).searchParams;
     const query = reportQuerySchema.parse({

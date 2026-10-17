@@ -10,16 +10,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { updateAssignmentSchema } from '@/schemas/trainee.schema';
 import { updateTraineeAssignment } from '@/services/trainee.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeCtx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_trainees');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageTrainees');
 
     const { id } = await routeCtx!.params;
     const body = await request.json();

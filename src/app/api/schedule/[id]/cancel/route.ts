@@ -7,12 +7,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { cancelSessionSchema } from '@/schemas/schedule.schema';
 import { cancelSession } from '@/services/schedule.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'manageSchedule');
 
     const id = (await routeContext!.params).id as string;
     const body = await request.json();

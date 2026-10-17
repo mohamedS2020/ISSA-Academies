@@ -9,13 +9,14 @@ import { successResponse, createdResponse } from '@/lib/api/response';
 import { generateSessionsSchema } from '@/schemas/schedule.schema';
 import { listSessions, generateSessionsForGroup } from '@/services/schedule.service';
 import { resolveOwnCaptainId } from '@/services/dashboard.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 import { addDays, format } from 'date-fns';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
     requireMinRole(ctx, UserRole.CAPTAIN);
+    if (ctx.role !== UserRole.CAPTAIN) requireAccess(ctx, 'viewSchedule');
 
     const sp = new URL(request.url).searchParams;
 
@@ -44,7 +45,7 @@ export const GET = withErrorHandler(
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'manageSchedule');
 
     const body = await request.json();
 
@@ -55,11 +56,14 @@ export const POST = withErrorHandler(
       toDate: body.toDate ?? format(addDays(new Date(), 28), 'yyyy-MM-dd'),
     });
 
+    // Scoped to the caller's branch: the group id comes from the request, and
+    // generating sessions for another branch's group must not be possible.
     const result = await generateSessionsForGroup(
       ctx.tenantId,
       input.groupId,
       input.fromDate,
-      input.toDate
+      input.toDate,
+      { branchId: ctx.branchId }
     );
 
     return createdResponse(result);

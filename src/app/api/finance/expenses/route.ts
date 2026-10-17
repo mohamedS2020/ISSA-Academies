@@ -11,16 +11,11 @@ import {
   listExpensesQuerySchema,
 } from '@/schemas/finance.schema';
 import { createExpense, listExpenses } from '@/services/finance.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_view_finances');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'viewExpenses');
 
     const sp = new URL(request.url).searchParams;
     const query = listExpensesQuerySchema.parse({
@@ -38,11 +33,7 @@ export const GET = withErrorHandler(
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_expenses');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageExpenses');
 
     const body = await request.json();
     const input = createExpenseSchema.parse(body);

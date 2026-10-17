@@ -7,12 +7,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { createdResponse } from '@/lib/api/response';
 import { scheduleRetakeSchema } from '@/schemas/attendance.schema';
 import { scheduleRetake } from '@/services/attendance.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'markAttendance');
 
     const body = await request.json();
     const input = scheduleRetakeSchema.parse(body);

@@ -9,12 +9,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { calculatePayrollQuerySchema } from '@/schemas/finance.schema';
 import { calculatePayrollPreview } from '@/services/payroll.service';
-import { requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireRole(ctx, UserRole.ADMIN);
+    requireAccess(ctx, 'managePayroll');
 
     const sp = new URL(request.url).searchParams;
     const query = calculatePayrollQuerySchema.parse({
