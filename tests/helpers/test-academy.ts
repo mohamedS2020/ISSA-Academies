@@ -25,6 +25,7 @@ import { withTenantContext } from '@/lib/db/tenant-client';
 import { platformPrisma } from '@/lib/db/platform-client';
 import { dropTenantSchema } from '@/lib/db/migration-runner';
 import { hashPassword } from '@/lib/auth/password';
+import { syncLoginIndex } from '@/services/login-index';
 
 /** Only schemas with this prefix may ever be dropped by test teardown. */
 const TEST_SCHEMA_PREFIX = 'tenant_test_';
@@ -91,6 +92,9 @@ export async function provisionTestAcademy(label: string): Promise<TestAcademy> 
     const captain = await tx.captainProfile.create({
       data: { userId: captainUser.id, branchId: branch.id, payrollType: 'HOURS', attendingDays: [] },
     });
+    // Accounts get their login the way the app gives it, so the fixture's data
+    // passes the same reconciliation real data must (login-index.ts).
+    await syncLoginIndex(tx, tenant.id, captainUser.id);
 
     const plan = await tx.subscriptionPlan.create({
       data: {
@@ -169,6 +173,7 @@ export async function createTestTrainee(academy: TestAcademy): Promise<{ id: str
         role: 'TRAINEE',
       },
     });
+    await syncLoginIndex(tx, academy.tenantId, account.id);
     return tx.traineeProfile.create({
       data: {
         userId: account.id,

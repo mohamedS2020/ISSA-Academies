@@ -204,7 +204,12 @@
     "selfAccount": "Adult registering themselves — the phone number is their own login",
     "guardianNameRequired": "Guardian name is required (or tick the adult option)",
     "linkedToAccount": "Added under an existing account — this trainee logs in with the existing account phone and password.",
-    "guardianAccount": "Guardian (account)"
+    "guardianAccount": "Guardian (account)",
+    "deactivate": "Deactivate",
+    "deactivateConfirm": "Deactivate this trainee? Their account keeps portal access while any of its other trainees is still active.",
+    "deactivated": "Trainee deactivated",
+    "activate": "Reactivate",
+    "activated": "Trainee reactivated"
   },
   "captains": {
     "title": "Captains",

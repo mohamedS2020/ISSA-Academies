@@ -6,6 +6,7 @@ import {
   getTraineeById,
   updateTrainee,
   deactivateTrainee,
+  activateTrainee,
 } from '@/services/trainee.service';
 import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
@@ -45,6 +46,11 @@ export const PATCH = withErrorHandler(
         id,
         ctx.userId
       );
+      return successResponse(result);
+    }
+
+    if (body.action === 'activate') {
+      const result = await activateTrainee(ctx.tenantId, ctx.branchId, id, ctx.userId);
       return successResponse(result);
     }
 

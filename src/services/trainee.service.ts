@@ -5,16 +5,29 @@
  *
  * Key behaviors:
  *   - System code format: {BRANCHCODE}-{PADDED_SEQ}, from an atomic per-branch counter
- *   - On registration: auto-create User (role=TRAINEE) + TraineeProfile in one tx
+ *   - On registration: find-or-create the account (User, role=TRAINEE) + the
+ *     TraineeProfile in one tx. One account (a guardian) owns all its children.
  *   - Portal password returned ONCE — never stored in plain text
  *   - Every query includes { branchId } for strict branch isolation
- *   - Platform phone index kept in sync
+ *   - Each trainee has its OWN active flag; the account stays active (and keeps
+ *     its login) while any of its trainees is. A trainee's status used to be the
+ *     account's, so deactivating one child deactivated every sibling and ended
+ *     the parent's portal login.
+ *   - The login follows every account change in the same transaction
+ *     (syncLoginIndex, login-index.ts). Never write user_phone_index directly.
  */
 
-import { withTenantContext } from '@/lib/db/tenant-client';
-import { platformPrisma } from '@/lib/db/platform-client';
+import { withTenantContext, type TransactionClient } from '@/lib/db/tenant-client';
 import { hashPassword, passwordFromPhone } from '@/lib/auth/password';
+import { phoneSearchFragment } from '@/lib/phone';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
+import {
+  syncLoginIndex,
+  assertPhoneAvailable,
+  findActiveAccountByPhone,
+  phoneInUseError,
+  withPhoneGuard,
+} from './login-index';
 import { BadRequestError, NotFoundError, ConflictError } from '@/lib/api/error-handler';
 import { AuditAction, UserRole } from '@/types';
 import type {
@@ -67,15 +80,71 @@ async function generateSystemCode(
   return `${branchCode.toUpperCase()}-${String(row.trainee_seq).padStart(6, '0')}`;
 }
 
+// ─── Guardian account ─────────────────────────────────────────
+
+const ACCOUNT_SELECT = { id: true, role: true, name: true, phoneNumber: true } as const;
+
+type GuardianAccount =
+  | { kind: 'link'; account: { id: string; role: string; name: string; phoneNumber: string } }
+  | { kind: 'reactivate'; account: { id: string; role: string; name: string; phoneNumber: string } }
+  | { kind: 'create' };
+
+/**
+ * Which account a new trainee with this phone belongs to.
+ *
+ *   - link:       the active guardian account in this branch (a second child);
+ *   - reactivate: this branch's deactivated guardian account with this phone
+ *                 (a returning family keeps its account, history and login);
+ *   - create:     nobody uses the number, so a new account.
+ *
+ * Throws when the number already signs in to another account: a staff account,
+ * or a guardian account in another branch. A phone is one login per academy,
+ * and the portal shows one branch per account, so one account cannot hold
+ * trainees in two branches.
+ */
+async function resolveGuardianAccount(
+  tx: TransactionClient,
+  branchId: string,
+  phoneNumber: string
+): Promise<GuardianAccount> {
+  const active = await findActiveAccountByPhone(tx, phoneNumber);
+  if (active) {
+    if (active.role !== UserRole.TRAINEE) {
+      if (active.branchId !== branchId) throw phoneInUseError(active, branchId);
+      throw new ConflictError(
+        `Phone number ${phoneNumber} belongs to a staff account and cannot be reused for a trainee.`
+      );
+    }
+    if (active.branchId !== branchId) {
+      throw new ConflictError(
+        'This phone number is the parent account of a trainee in another branch. One account ' +
+          'cannot hold trainees in two branches; register this trainee with another number.'
+      );
+    }
+    return { kind: 'link', account: active };
+  }
+
+  const dormant = await tx.user.findFirst({
+    where: { branchId, phoneNumber, role: UserRole.TRAINEE, isActive: false },
+    orderBy: { updatedAt: 'desc' },
+    select: ACCOUNT_SELECT,
+  });
+  if (dormant) return { kind: 'reactivate', account: dormant };
+
+  return { kind: 'create' };
+}
+
 // ─── Create Trainee ───────────────────────────────────────────
 
 /**
- * Register a new trainee. Creates:
- *   1. User record (role=TRAINEE, auto-generated portal password)
- *   2. TraineeProfile with auto-generated system code
- *   3. Platform phone index entry
+ * Register a new trainee. In ONE transaction:
+ *   1. find or create the account (User, role=TRAINEE): an existing guardian
+ *      account in this branch is linked, a deactivated one is reactivated;
+ *   2. the TraineeProfile with its auto-generated system code;
+ *   3. the account's login.
  *
- * Returns the trainee + portal password (shown ONCE to admin).
+ * Returns the trainee + portal password (shown ONCE to admin), or null for the
+ * password when the trainee joined an existing account, which keeps its login.
  */
 export async function createTrainee(
   tenantId: string,
@@ -92,130 +161,126 @@ export async function createTrainee(
     );
   }
 
-  // Find an existing account by phone in this branch — link to it (a parent's
-  // second child) instead of rejecting; otherwise a new account is created.
-  const existingUser = await withTenantContext(tenantId, async (tx) => {
-    return tx.user.findFirst({
-      where: { branchId, phoneNumber: input.phoneNumber },
-      select: { id: true, role: true, name: true, phoneNumber: true },
-    });
-  });
-
-  // A phone already used by staff (captain/moderator/admin) can't back a trainee.
-  if (existingUser && existingUser.role !== UserRole.TRAINEE) {
-    throw new ConflictError(
-      `Phone number ${input.phoneNumber} belongs to a non-trainee account and cannot be reused for a trainee.`
-    );
-  }
-
-  const branch = await withTenantContext(tenantId, async (tx) => {
-    return tx.branch.findUnique({ where: { id: branchId }, select: { code: true } });
-  });
-  if (!branch) {
-    throw new BadRequestError('Branch not found');
-  }
-
-  // A brand-new account gets a one-time portal password (last 6 digits of phone);
-  // linking to an existing account reuses that account's existing login.
-  const isNewAccount = !existingUser;
-  const portalPassword = isNewAccount ? passwordFromPhone(input.phoneNumber) : null;
+  // Look first, outside the transaction, only to know whether a password hash
+  // is needed: bcrypt is slow, and a transaction should not hold its connection
+  // while it runs. The transaction below decides for real.
+  const preview = await withTenantContext(tenantId, (tx) =>
+    resolveGuardianAccount(tx, branchId, input.phoneNumber)
+  );
+  // A brand-new account gets a one-time portal password (last 6 digits of phone).
+  const portalPassword = preview.kind === 'create' ? passwordFromPhone(input.phoneNumber) : null;
   const passwordHash = portalPassword ? await hashPassword(portalPassword) : null;
 
-  const { account, trainee } = await withTenantContext(tenantId, async (tx) => {
-    // 1. Find-or-create the ACCOUNT (guardian, or the adult themselves)
-    const account = existingUser
-      ? existingUser
-      : await tx.user.create({
+  const { account, trainee, created } = await withPhoneGuard(() =>
+    withTenantContext(tenantId, async (tx) => {
+      const branch = await tx.branch.findUnique({
+        where: { id: branchId },
+        select: { code: true },
+      });
+      if (!branch) throw new BadRequestError('Branch not found');
+
+      // 1. Find-or-create the ACCOUNT (guardian, or the adult themselves)
+      const resolved = await resolveGuardianAccount(tx, branchId, input.phoneNumber);
+      let account;
+      if (resolved.kind === 'link') {
+        account = resolved.account;
+      } else if (resolved.kind === 'reactivate') {
+        account = await tx.user.update({
+          where: { id: resolved.account.id },
+          data: { isActive: true },
+          select: ACCOUNT_SELECT,
+        });
+      } else {
+        // The number was in use a moment ago and is free now (its account was
+        // deactivated in between). Rare; asking again is simpler than guessing.
+        if (!passwordHash) {
+          throw new ConflictError(
+            'This phone number changed while the trainee was being saved. Please try again.'
+          );
+        }
+        account = await tx.user.create({
           data: {
             branchId,
             name: guardianName,
             phoneNumber: input.phoneNumber,
-            passwordHash: passwordHash!,
+            passwordHash,
             role: UserRole.TRAINEE,
-            language: 'ar', // default for Egyptian swimming academies
+            language: 'ar', // default for Egyptian academies
             isActive: true,
           },
-          select: { id: true, role: true, name: true, phoneNumber: true },
+          select: ACCOUNT_SELECT,
         });
+      }
 
-    // 2. Generate system code INSIDE this transaction
-    const systemCode = await generateSystemCode(tx, branchId, branch.code);
+      // 2. Generate system code INSIDE this transaction
+      const systemCode = await generateSystemCode(tx, branchId, branch.code);
 
-    // 3. Create the TraineeProfile (the athlete) under the account
-    const newTrainee = await tx.traineeProfile.create({
-      data: {
-        userId: account.id,
+      // 3. Create the TraineeProfile (the athlete) under the account
+      const newTrainee = await tx.traineeProfile.create({
+        data: {
+          userId: account.id,
+          branchId,
+          name: input.name,
+          systemCode,
+          dateOfBirth: new Date(input.dateOfBirth),
+          whatsappNumber: input.whatsappNumber,
+          parentIdCard: input.parentIdCard,
+          medicalCondition: input.medicalCondition,
+          referralType: input.referralType,
+          // Skills
+          pastExperience: input.pastExperience ?? null,
+          otherAcademies: input.otherAcademies ?? null,
+          levelId: input.levelId ?? null,
+          // Optional personal
+          maritalStatus: input.maritalStatus ?? null,
+          fatherJob: input.fatherJob ?? null,
+          fatherQualifications: input.fatherQualifications ?? null,
+          motherJob: input.motherJob ?? null,
+          motherQualifications: input.motherQualifications ?? null,
+          birthOrder: input.birthOrder ?? null,
+          // Psychological
+          personalityTraits: input.personalityTraits ?? null,
+          // Physical
+          height: input.height ?? null,
+          weight: input.weight ?? null,
+          armLength: input.armLength ?? null,
+          footLength: input.footLength ?? null,
+          chestCircumference: input.chestCircumference ?? null,
+          waistCircumference: input.waistCircumference ?? null,
+        },
+      });
+
+      // 4. Audit log
+      await writeAuditLog(tx, {
         branchId,
-        name: input.name,
-        systemCode,
-        dateOfBirth: new Date(input.dateOfBirth),
-        whatsappNumber: input.whatsappNumber,
-        parentIdCard: input.parentIdCard,
-        medicalCondition: input.medicalCondition,
-        referralType: input.referralType,
-        // Skills
-        pastExperience: input.pastExperience ?? null,
-        otherAcademies: input.otherAcademies ?? null,
-        levelId: input.levelId ?? null,
-        // Optional personal
-        maritalStatus: input.maritalStatus ?? null,
-        fatherJob: input.fatherJob ?? null,
-        fatherQualifications: input.fatherQualifications ?? null,
-        motherJob: input.motherJob ?? null,
-        motherQualifications: input.motherQualifications ?? null,
-        birthOrder: input.birthOrder ?? null,
-        // Psychological
-        personalityTraits: input.personalityTraits ?? null,
-        // Physical
-        height: input.height ?? null,
-        weight: input.weight ?? null,
-        armLength: input.armLength ?? null,
-        footLength: input.footLength ?? null,
-        chestCircumference: input.chestCircumference ?? null,
-        waistCircumference: input.waistCircumference ?? null,
-      },
-    });
+        userId: executorId,
+        action: AuditAction.CREATE,
+        entityType: 'trainee',
+        entityId: newTrainee.id,
+        newValues: {
+          systemCode,
+          traineeName: input.name,
+          account: account.name,
+          phoneNumber: account.phoneNumber,
+          linkedToExistingAccount: resolved.kind !== 'create',
+          reactivatedAccount: resolved.kind === 'reactivate',
+        },
+      });
 
-    // 4. Audit log
-    await writeAuditLog(tx, {
-      branchId,
-      userId: executorId,
-      action: AuditAction.CREATE,
-      entityType: 'trainee',
-      entityId: newTrainee.id,
-      newValues: {
-        systemCode,
-        traineeName: input.name,
-        account: account.name,
-        phoneNumber: account.phoneNumber,
-        linkedToExistingAccount: !isNewAccount,
-      },
-    });
+      // 5. The account's login, in the same transaction: a new account can sign
+      // in the moment it exists, and a failure rolls the whole registration back
+      // rather than leaving an account that can never sign in.
+      await syncLoginIndex(tx, tenantId, account.id);
 
-    return { account, trainee: newTrainee };
-  });
+      return { account, trainee: newTrainee, created: resolved.kind === 'create' };
+    })
+  );
 
-  // Sync platform phone index only when a NEW account was created.
-  if (isNewAccount) {
-    await platformPrisma.userPhoneIndex.upsert({
-      where: {
-        phoneNumber_tenantId: { phoneNumber: input.phoneNumber, tenantId },
-      },
-      create: {
-        phoneNumber: input.phoneNumber,
-        tenantId,
-        userId: account.id,
-        branchId,
-        role: UserRole.TRAINEE,
-      },
-      update: { userId: account.id, branchId, role: UserRole.TRAINEE },
-    });
-  }
-
-  // portalPassword is returned ONCE for a new account; null when linking.
+  // portalPassword is returned ONCE for a new account; null when the trainee
+  // joined an existing account, which keeps its own password.
   return {
     trainee: { ...trainee, user: { name: account.name, phoneNumber: account.phoneNumber } },
-    portalPassword,
+    portalPassword: created ? portalPassword : null,
   };
 }
 
@@ -232,17 +297,19 @@ export async function listTrainees(
   return withTenantContext(tenantId, async (tx) => {
     const { page, limit, search, isActive } = query;
     const skip = (page - 1) * limit;
+    const phoneFragment = search ? phoneSearchFragment(search) : null;
 
     const where = {
       branchId,
-      ...(isActive !== undefined && {
-        user: { isActive },
-      }),
+      // The trainee's own status, not the account's: siblings share an account.
+      ...(isActive !== undefined && { isActive }),
       ...(search && {
         OR: [
           { systemCode: { startsWith: search.toUpperCase() } },
+          { name: { contains: search, mode: 'insensitive' as const } },
           { user: { name: { contains: search, mode: 'insensitive' as const } } },
-          { user: { phoneNumber: { contains: search } } },
+          // Stored numbers are canonical (+201...): match what was typed in any spelling.
+          ...(phoneFragment ? [{ user: { phoneNumber: { contains: phoneFragment } } }] : []),
         ],
       }),
     };
@@ -293,13 +360,15 @@ export async function searchTrainees(
   return withTenantContext(tenantId, async (tx) => {
     const { q, page, limit } = query;
     const skip = (page - 1) * limit;
+    const phoneFragment = phoneSearchFragment(q);
 
     const where = {
       branchId,
       OR: [
         { systemCode: { contains: q.toUpperCase() } },
+        { name: { contains: q, mode: 'insensitive' as const } },
         { user: { name: { contains: q, mode: 'insensitive' as const } } },
-        { user: { phoneNumber: { contains: q } } },
+        ...(phoneFragment ? [{ user: { phoneNumber: { contains: phoneFragment } } }] : []),
       ],
     };
 
@@ -471,7 +540,9 @@ export async function updateTraineeAssignment(
 // ─── Update Trainee ───────────────────────────────────────────
 
 /**
- * Update trainee profile fields. Also updates User.name if provided.
+ * Update trainee profile fields. A phone change moves the whole account's login
+ * (every sibling's) to the new number, in the same transaction; the old number
+ * stops signing in.
  */
 export async function updateTrainee(
   tenantId: string,
@@ -480,39 +551,21 @@ export async function updateTrainee(
   input: UpdateTraineeInput,
   executorId: string
 ) {
-  // Check phone conflict if changing phone
-  if (input.phoneNumber) {
-    const conflict = await withTenantContext(tenantId, async (tx) => {
-      const trainee = await tx.traineeProfile.findFirst({
-        where: { id: traineeId, branchId },
-        include: { user: { select: { id: true } } },
-      });
-      if (!trainee) return null;
-
-      return tx.user.findFirst({
-        where: {
-          branchId,
-          phoneNumber: input.phoneNumber,
-          NOT: { id: trainee.userId },
-        },
-        select: { id: true },
-      });
-    });
-
-    if (conflict) {
-      throw new ConflictError(
-        `Phone number ${input.phoneNumber} is already registered by another user`
-      );
-    }
-  }
-
-  return withTenantContext(tenantId, async (tx) => {
+  return withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
     const existing = await tx.traineeProfile.findFirst({
       where: { id: traineeId, branchId },
-      include: { user: { select: { id: true, name: true, phoneNumber: true } } },
+      include: {
+        user: { select: { id: true, name: true, phoneNumber: true, isActive: true } },
+      },
     });
 
     if (!existing) throw new NotFoundError('Trainee not found');
+
+    const phoneChanges =
+      input.phoneNumber !== undefined && input.phoneNumber !== existing.user.phoneNumber;
+    if (phoneChanges && existing.user.isActive) {
+      await assertPhoneAvailable(tx, input.phoneNumber!, branchId, existing.userId);
+    }
 
     // The account (User) now holds only the shared login phone; the athlete's
     // own name lives on TraineeProfile.name (updated below). Note: changing the
@@ -608,14 +661,20 @@ export async function updateTrainee(
       });
     }
 
+    // The login index used to keep the old number, so after a phone change the
+    // parent could only sign in with the number they no longer use.
+    if (phoneChanges) await syncLoginIndex(tx, tenantId, existing.userId);
+
     return updated;
-  });
+  }));
 }
 
-// ─── Deactivate Trainee ───────────────────────────────────────
+// ─── Deactivate / Activate Trainee ────────────────────────────
 
 /**
- * Deactivate a trainee (soft delete). Removes from platform phone index.
+ * Deactivate one trainee. Its account (the guardian) is deactivated, and its
+ * login removed, only when none of the account's other trainees is still
+ * active: a parent keeps signing in for the children who still train.
  */
 export async function deactivateTrainee(
   tenantId: string,
@@ -623,17 +682,79 @@ export async function deactivateTrainee(
   traineeId: string,
   executorId: string
 ) {
-  const { userId, phoneNumber } = await withTenantContext(tenantId, async (tx) => {
+  return withTenantContext(tenantId, async (tx) => {
     const trainee = await tx.traineeProfile.findFirst({
       where: { id: traineeId, branchId },
-      include: { user: { select: { id: true, phoneNumber: true } } },
+      select: { id: true, userId: true },
     });
 
     if (!trainee) throw new NotFoundError('Trainee not found');
 
-    await tx.user.update({
-      where: { id: trainee.userId },
+    await tx.traineeProfile.update({
+      where: { id: trainee.id },
       data: { isActive: false },
+    });
+
+    const siblingsStillActive = await tx.traineeProfile.count({
+      where: { userId: trainee.userId, isActive: true },
+    });
+    const accountDeactivated = siblingsStillActive === 0;
+    if (accountDeactivated) {
+      await tx.user.update({
+        where: { id: trainee.userId },
+        data: { isActive: false },
+      });
+    }
+
+    await writeAuditLog(tx, {
+      branchId,
+      userId: executorId,
+      action: AuditAction.STATUS_CHANGE,
+      entityType: 'trainee',
+      entityId: traineeId,
+      newValues: { isActive: false, accountDeactivated },
+    });
+
+    await syncLoginIndex(tx, tenantId, trainee.userId);
+
+    return { success: true, accountDeactivated };
+  });
+}
+
+/**
+ * Reactivate a trainee, and its account with it if the account was inactive.
+ * Refused if the account's phone number now signs in to someone else.
+ */
+export async function activateTrainee(
+  tenantId: string,
+  branchId: string,
+  traineeId: string,
+  executorId: string
+) {
+  return withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
+    const trainee = await tx.traineeProfile.findFirst({
+      where: { id: traineeId, branchId },
+      select: {
+        id: true,
+        userId: true,
+        user: { select: { isActive: true, phoneNumber: true } },
+      },
+    });
+
+    if (!trainee) throw new NotFoundError('Trainee not found');
+
+    const accountReactivated = !trainee.user.isActive;
+    if (accountReactivated) {
+      await assertPhoneAvailable(tx, trainee.user.phoneNumber, branchId, trainee.userId);
+      await tx.user.update({
+        where: { id: trainee.userId },
+        data: { isActive: true },
+      });
+    }
+
+    await tx.traineeProfile.update({
+      where: { id: trainee.id },
+      data: { isActive: true },
     });
 
     await writeAuditLog(tx, {
@@ -642,16 +763,11 @@ export async function deactivateTrainee(
       action: AuditAction.STATUS_CHANGE,
       entityType: 'trainee',
       entityId: traineeId,
-      newValues: { isActive: false },
+      newValues: { isActive: true, accountReactivated },
     });
 
-    return { userId: trainee.userId, phoneNumber: trainee.user.phoneNumber };
-  });
+    await syncLoginIndex(tx, tenantId, trainee.userId);
 
-  // Remove from platform phone index
-  await platformPrisma.userPhoneIndex.deleteMany({
-    where: { userId, tenantId },
-  });
-
-  return { success: true };
+    return { success: true, accountReactivated };
+  }));
 }

@@ -32,6 +32,8 @@ interface TraineeRow {
   id: string;
   name: string;
   systemCode: string;
+  /** The trainee's own status; `user` is the account siblings share. */
+  isActive: boolean;
   user: {
     name: string;
     phoneNumber: string;
@@ -169,14 +171,14 @@ export default function TraineesPage() {
       header: tCommon('status'),
       render: (row) => (
         <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold w-fit ${
-          row.user.isActive
+          row.isActive
             ? 'bg-success-soft text-success border border-success/30'
             : 'bg-muted/70 text-muted-foreground border border-input/30'
         }`}>
-          {row.user.isActive
+          {row.isActive
             ? <CheckCircle className="w-3 h-3" />
             : <XCircle className="w-3 h-3" />}
-          {row.user.isActive ? tCommon('active') : tCommon('inactive')}
+          {row.isActive ? tCommon('active') : tCommon('inactive')}
         </span>
       ),
     },

@@ -182,7 +182,14 @@ model User {
   captainProfile  CaptainProfile?
   evaluations     TraineeEvaluation[] @relation("EvaluatorEvaluations")
 
-  @@unique([branchId, phoneNumber])
+  // A phone number is a login, so it may belong to at most ONE ACTIVE account
+  // per academy, across branches. That rule is the partial unique index
+  // `users_one_active_account_per_phone` (migration 20261017000000_login_identity);
+  // Prisma cannot express partial indexes, so it lives only in the migration.
+  // The old per-branch @@unique([branchId, phoneNumber]) was looser than the
+  // login index (one row per phone per academy), so a second branch could reuse
+  // a number and silently take over the first account's login (hardening plan §26).
+  // Inactive accounts are history and do not take part.
   @@index([phoneNumber])
   @@map("users")
 }
@@ -216,6 +223,11 @@ model TraineeProfile {
   parentIdCard      String   @map("parent_id_card") @db.VarChar(50)
   medicalCondition  String   @map("medical_condition") @db.Text
   referralType      ReferralType? @map("referral_type") // how the trainee was referred (New/Network/Old/Continuous)
+  // The athlete's own status. Siblings share one account (User), so this cannot
+  // live on the account: deactivating one child used to deactivate the account,
+  // which showed every sibling as inactive and ended the parent's portal login.
+  // The account stays active while any of its trainees is.
+  isActive          Boolean  @default(true) @map("is_active")
 
   // Skills Level
   pastExperience    String?  @map("past_experience") @db.Text

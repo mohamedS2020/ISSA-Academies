@@ -8,15 +8,16 @@
  *   - Portal password returned ONCE — never stored in plain text
  *   - payrollType determines which rate fields are required (validated in schema)
  *   - Every query includes { branchId } for strict branch isolation
- *   - Platform phone index kept in sync
+ *   - The login follows every change in the same transaction (syncLoginIndex,
+ *     login-index.ts). Never write user_phone_index directly.
  */
 
 import { withTenantContext } from '@/lib/db/tenant-client';
-import { platformPrisma } from '@/lib/db/platform-client';
 import { hashPassword, passwordFromPhone } from '@/lib/auth/password';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
 import { getCaptainRatingSummary, getCaptainRatingSummaries } from './rating.service';
-import { NotFoundError, ConflictError } from '@/lib/api/error-handler';
+import { syncLoginIndex, assertPhoneAvailable, withPhoneGuard } from './login-index';
+import { NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction, UserRole } from '@/types';
 import type {
   CreateCaptainInput,
@@ -30,7 +31,8 @@ import type {
  * Register a new captain. Creates:
  *   1. User record (role=CAPTAIN, auto-generated portal password)
  *   2. CaptainProfile with payroll info and attending days
- *   3. Platform phone index entry
+ *   3. Its login
+ * all in one transaction.
  *
  * Returns the captain + portal password (shown ONCE to admin).
  */
@@ -40,24 +42,13 @@ export async function createCaptain(
   input: CreateCaptainInput,
   executorId: string
 ) {
-  // Check for duplicate phone within the branch
-  const existingUser = await withTenantContext(tenantId, async (tx) => {
-    return tx.user.findFirst({
-      where: { branchId, phoneNumber: input.phoneNumber },
-      select: { id: true },
-    });
-  });
-
-  if (existingUser) {
-    throw new ConflictError(
-      `Phone number ${input.phoneNumber} is already registered in this branch`
-    );
-  }
-
   const portalPassword = passwordFromPhone(input.phoneNumber);
   const passwordHash = await hashPassword(portalPassword);
 
-  const { user, captain } = await withTenantContext(tenantId, async (tx) => {
+  const { captain } = await withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
+    // A phone signs in to one account per academy, not per branch (§26).
+    await assertPhoneAvailable(tx, input.phoneNumber, branchId);
+
     // 1. Create the User account
     const newUser = await tx.user.create({
       data: {
@@ -103,30 +94,11 @@ export async function createCaptain(
       },
     });
 
-    return { user: newUser, captain: newCaptain };
-  });
+    // 4. Its login, in the same transaction
+    await syncLoginIndex(tx, tenantId, newUser.id);
 
-  // Sync platform phone index for login routing
-  await platformPrisma.userPhoneIndex.upsert({
-    where: {
-      phoneNumber_tenantId: {
-        phoneNumber: input.phoneNumber,
-        tenantId,
-      },
-    },
-    create: {
-      phoneNumber: input.phoneNumber,
-      tenantId,
-      userId: user.id,
-      branchId,
-      role: UserRole.CAPTAIN,
-    },
-    update: {
-      userId: user.id,
-      branchId,
-      role: UserRole.CAPTAIN,
-    },
-  });
+    return { user: newUser, captain: newCaptain };
+  }));
 
   // Return portal password ONCE
   return { captain, portalPassword };
@@ -238,8 +210,9 @@ export async function getCaptainById(
 // ─── Update Captain ───────────────────────────────────────────
 
 /**
- * Update captain profile and/or user details.
- * If phone changes, updates the platform phone index.
+ * Update captain profile and/or user details. The login follows in the same
+ * transaction: a new phone signs in, reactivation restores sign-in,
+ * deactivation removes it.
  */
 export async function updateCaptain(
   tenantId: string,
@@ -248,39 +221,26 @@ export async function updateCaptain(
   input: UpdateCaptainInput,
   executorId: string
 ) {
-  // Check phone conflict if changing phone
-  if (input.phoneNumber) {
-    const conflict = await withTenantContext(tenantId, async (tx) => {
-      const captain = await tx.captainProfile.findFirst({
-        where: { id: captainId, branchId },
-        select: { userId: true },
-      });
-      if (!captain) return null;
-
-      return tx.user.findFirst({
-        where: {
-          branchId,
-          phoneNumber: input.phoneNumber,
-          NOT: { id: captain.userId },
-        },
-        select: { id: true },
-      });
-    });
-
-    if (conflict) {
-      throw new ConflictError(
-        `Phone number ${input.phoneNumber} is already registered by another user`
-      );
-    }
-  }
-
-  const updated = await withTenantContext(tenantId, async (tx) => {
+  const updated = await withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
     const existing = await tx.captainProfile.findFirst({
       where: { id: captainId, branchId },
-      include: { user: { select: { id: true, name: true, phoneNumber: true } } },
+      include: {
+        user: { select: { id: true, name: true, phoneNumber: true, isActive: true } },
+      },
     });
 
     if (!existing) throw new NotFoundError('Captain not found');
+
+    // If the account is active afterwards, nobody else in the academy may be
+    // signing in with its phone. Covers a phone change and a reactivation.
+    if (input.isActive ?? existing.user.isActive) {
+      await assertPhoneAvailable(
+        tx,
+        input.phoneNumber ?? existing.user.phoneNumber,
+        branchId,
+        existing.userId
+      );
+    }
 
     // Update User fields if provided
     const userUpdates: Record<string, unknown> = {};
@@ -331,23 +291,9 @@ export async function updateCaptain(
       });
     }
 
+    await syncLoginIndex(tx, tenantId, existing.userId);
     return updatedCaptain;
-  });
-
-  // Update phone index if phone changed
-  if (input.phoneNumber) {
-    await platformPrisma.userPhoneIndex.updateMany({
-      where: { userId: updated.userId, tenantId },
-      data: { phoneNumber: input.phoneNumber },
-    });
-  }
-
-  // Remove from phone index if deactivated
-  if (input.isActive === false) {
-    await platformPrisma.userPhoneIndex.deleteMany({
-      where: { userId: updated.userId, tenantId },
-    });
-  }
+  }));
 
   return updated;
 }
@@ -363,7 +309,7 @@ export async function deactivateCaptain(
   captainId: string,
   executorId: string
 ) {
-  const userId = await withTenantContext(tenantId, async (tx) => {
+  await withTenantContext(tenantId, async (tx) => {
     const captain = await tx.captainProfile.findFirst({
       where: { id: captainId, branchId },
       select: { userId: true },
@@ -385,11 +331,7 @@ export async function deactivateCaptain(
       newValues: { isActive: false },
     });
 
-    return captain.userId;
-  });
-
-  await platformPrisma.userPhoneIndex.deleteMany({
-    where: { userId, tenantId },
+    await syncLoginIndex(tx, tenantId, captain.userId);
   });
 
   return { success: true };

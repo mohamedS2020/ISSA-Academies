@@ -7,14 +7,16 @@
  *
  * Branch isolation: every query includes { branchId } in the where clause.
  * Audit log: all write operations are logged within the same transaction.
- * Phone index: platformPrisma.userPhoneIndex is kept in sync on create/deactivate.
+ * Login index: every write calls syncLoginIndex in the same transaction (see
+ * login-index.ts). Never write user_phone_index directly.
  */
 
 import { withTenantContext } from '@/lib/db/tenant-client';
-import { platformPrisma } from '@/lib/db/platform-client';
 import { hashPassword, generateRandomPassword } from '@/lib/auth/password';
+import { phoneSearchFragment } from '@/lib/phone';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
-import { BadRequestError, NotFoundError, ConflictError } from '@/lib/api/error-handler';
+import { syncLoginIndex, assertPhoneAvailable, withPhoneGuard } from './login-index';
+import { BadRequestError, NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction, UserRole } from '@/types';
 import { filterValidPrivileges } from '@/lib/auth/permissions';
 import { invalidatePrivileges } from '@/lib/auth/privilege-cache';
@@ -38,6 +40,7 @@ export async function listUsers(
   return withTenantContext(tenantId, async (tx) => {
     const { page, limit, role, isActive, search } = query;
     const skip = (page - 1) * limit;
+    const phoneFragment = search ? phoneSearchFragment(search) : null;
 
     const where = {
       branchId,
@@ -48,7 +51,8 @@ export async function listUsers(
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' as const } },
-          { phoneNumber: { contains: search } },
+          // Stored numbers are canonical (+201...): match what was typed in any spelling.
+          ...(phoneFragment ? [{ phoneNumber: { contains: phoneFragment } }] : []),
         ],
       }),
     };
@@ -109,8 +113,8 @@ export async function getUserById(
 // ─── Create User ──────────────────────────────────────────────
 
 /**
- * Create an Admin or Moderator user within a branch.
- * Also inserts into platformPrisma.userPhoneIndex for login routing.
+ * Create an Admin or Moderator user within a branch, together with its login,
+ * in one transaction.
  */
 export async function createUser(
   tenantId: string,
@@ -118,23 +122,16 @@ export async function createUser(
   input: CreateUserInput,
   executorId: string
 ) {
-  // Check for duplicate phone within the same branch (tenant client)
-  const existing = await withTenantContext(tenantId, async (tx) => {
-    return tx.user.findFirst({
-      where: { branchId, phoneNumber: input.phoneNumber },
-      select: { id: true },
-    });
-  });
-
-  if (existing) {
-    throw new ConflictError(
-      `Phone number ${input.phoneNumber} is already registered in this branch`
-    );
-  }
-
+  // Hash before the transaction: bcrypt is slow, and a transaction should not
+  // hold its connection while it runs.
   const passwordHash = await hashPassword(input.password);
 
-  const user = await withTenantContext(tenantId, async (tx) => {
+  const user = await withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
+    // One active account per phone per ACADEMY: a phone is a login, and the
+    // login index holds one entry per phone per academy. Checking only this
+    // branch is how a second branch used to take over the first account's login.
+    await assertPhoneAvailable(tx, input.phoneNumber, branchId);
+
     const newUser = await tx.user.create({
       data: {
         branchId,
@@ -172,30 +169,9 @@ export async function createUser(
       },
     });
 
+    await syncLoginIndex(tx, tenantId, newUser.id);
     return newUser;
-  });
-
-  // Sync platform phone index for login routing
-  await platformPrisma.userPhoneIndex.upsert({
-    where: {
-      phoneNumber_tenantId: {
-        phoneNumber: input.phoneNumber,
-        tenantId,
-      },
-    },
-    create: {
-      phoneNumber: input.phoneNumber,
-      tenantId,
-      userId: user.id,
-      branchId,
-      role: input.role,
-    },
-    update: {
-      userId: user.id,
-      branchId,
-      role: input.role,
-    },
-  });
+  }));
 
   return { ...user, passwordHash: undefined };
 }
@@ -203,8 +179,9 @@ export async function createUser(
 // ─── Update User ──────────────────────────────────────────────
 
 /**
- * Update user details (name, phone, isActive, language).
- * If phone changes, updates the platform phone index accordingly.
+ * Update user details (name, phone, isActive, language). The login follows in
+ * the same transaction: a new phone signs in, reactivation restores sign-in,
+ * deactivation removes it.
  */
 export async function updateUser(
   tenantId: string,
@@ -213,32 +190,19 @@ export async function updateUser(
   input: UpdateUserInput,
   executorId: string
 ) {
-  // Check new phone doesn't conflict with another user
-  if (input.phoneNumber) {
-    const conflict = await withTenantContext(tenantId, async (tx) => {
-      return tx.user.findFirst({
-        where: {
-          branchId,
-          phoneNumber: input.phoneNumber,
-          NOT: { id: userId },
-        },
-        select: { id: true },
-      });
-    });
-
-    if (conflict) {
-      throw new ConflictError(
-        `Phone number ${input.phoneNumber} is already registered by another user`
-      );
-    }
-  }
-
-  const updated = await withTenantContext(tenantId, async (tx) => {
+  const updated = await withPhoneGuard(() => withTenantContext(tenantId, async (tx) => {
     const old = await tx.user.findFirst({
       where: { id: userId, branchId },
     });
 
     if (!old) throw new NotFoundError('User not found');
+
+    // If the account is active afterwards, nobody else in the academy may be
+    // signing in with its phone. Covers a phone change and a reactivation.
+    const willBeActive = input.isActive ?? old.isActive;
+    if (willBeActive) {
+      await assertPhoneAvailable(tx, input.phoneNumber ?? old.phoneNumber, branchId, userId);
+    }
 
     const updatedUser = await tx.user.update({
       where: { id: userId },
@@ -266,23 +230,9 @@ export async function updateUser(
       });
     }
 
+    await syncLoginIndex(tx, tenantId, userId);
     return updatedUser;
-  });
-
-  // Update phone index if phone changed
-  if (input.phoneNumber) {
-    await platformPrisma.userPhoneIndex.updateMany({
-      where: { userId, tenantId },
-      data: { phoneNumber: input.phoneNumber },
-    });
-  }
-
-  // Remove from phone index if deactivated
-  if (input.isActive === false) {
-    await platformPrisma.userPhoneIndex.deleteMany({
-      where: { userId, tenantId },
-    });
-  }
+  }));
 
   return { ...updated, passwordHash: undefined };
 }
@@ -374,11 +324,8 @@ export async function deactivateUser(
       newValues: { isActive: false },
     });
 
+    await syncLoginIndex(tx, tenantId, userId);
     return deactivated;
-  });
-
-  await platformPrisma.userPhoneIndex.deleteMany({
-    where: { userId, tenantId },
   });
 
   return { ...updated, passwordHash: undefined };

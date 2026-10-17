@@ -20,6 +20,7 @@ import {
   sanitizeSchemaName,
 } from '@/lib/db/migration-runner';
 import { hashPassword, generateRandomPassword } from '@/lib/auth/password';
+import { syncLoginIndex, removeTenantFromLoginIndex } from './login-index';
 import type { CreateTenantInput, UpdateTenantInput } from '@/schemas/tenant.schema';
 import { isValidStatusTransition } from '@/schemas/tenant.schema';
 import { randomUUID } from 'crypto';
@@ -82,8 +83,8 @@ export interface TenantListFilters {
  *   1. Create tenant record in platform DB
  *   2. Create PostgreSQL schema (DDL — cannot be in a transaction)
  *   3. Run Prisma migrations against the new schema
- *   4. Seed default Admin account in tenant schema
- *   5. Create phone index entry for the admin
+ *   4. Seed the default branch + Admin account in the tenant schema, with the
+ *      Admin's login, in one transaction
  *
  * ⚠️ On failure after schema creation, cleanup drops the schema
  *    and deletes the platform record to avoid orphans.
@@ -165,17 +166,9 @@ export async function createTenant(
           language: 'en',
         },
       });
-    });
 
-    // Step 5: Create phone index entry for the admin
-    await platformPrisma.userPhoneIndex.create({
-      data: {
-        phoneNumber: input.adminPhone,
-        tenantId: tenant.id,
-        userId: adminUserId,
-        branchId,
-        role: 'ADMIN',
-      },
+      // The Admin's login, in the same transaction as the account.
+      await syncLoginIndex(tx, tenant.id, adminUserId);
     });
 
     return {
@@ -313,8 +306,7 @@ export async function changeTenantStatus(
   // would linger as an orphan. The platform record is retained (soft-delete)
   // for audit/history, but it is now non-functional.
   if (newStatus === 'DELETED') {
-    await platformPrisma.userPhoneIndex
-      .deleteMany({ where: { tenantId: id } })
+    await removeTenantFromLoginIndex(id)
       .catch((e) =>
         console.error(
           `[tenant] Phone-index cleanup failed for deleted tenant ${id}:`,

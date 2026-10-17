@@ -28,6 +28,7 @@ import {
   ArrowLeft,
   Loader2,
   PowerOff,
+  Power,
   CheckCircle,
   XCircle,
   Plus,
@@ -63,6 +64,8 @@ interface TraineeDetail {
   chestCircumference: number | null;
   waistCircumference: number | null;
   name: string;
+  /** The trainee's own status. Siblings share `user`, so its isActive is the account's. */
+  isActive: boolean;
   user: {
     name: string;
     phoneNumber: string;
@@ -215,16 +218,20 @@ export default function TraineeDetailPage() {
     }
   };
 
-  const handleDeactivate = async () => {
-    if (!confirm('Deactivate this trainee? They will lose portal access.')) return;
+  const setTraineeActive = async (action: 'activate' | 'deactivate') => {
+    if (action === 'deactivate' && !confirm(t('deactivateConfirm'))) return;
     try {
       const res = await authFetch(`/api/trainees/${traineeId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'deactivate' }),
+        body: JSON.stringify({ action }),
       });
-      if (!res.ok) throw new Error('Failed to deactivate');
-      toast.success('Trainee deactivated');
+      if (!res.ok) {
+        // e.g. reactivation refused because the phone now signs in to someone else
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error?.message ?? `Failed to ${action}`);
+      }
+      toast.success(t(action === 'activate' ? 'activated' : 'deactivated'));
       fetchTrainee();
     } catch (err: any) {
       toast.error(err.message);
@@ -417,11 +424,11 @@ export default function TraineeDetailPage() {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">{trainee.name}</h1>
               <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                trainee.user.isActive
+                trainee.isActive
                   ? 'bg-success-soft text-success border border-success/30'
                   : 'bg-muted/70 text-muted-foreground border border-input/30'
               }`}>
-                {trainee.user.isActive
+                {trainee.isActive
                   ? <><CheckCircle className="w-3 h-3 inline me-1" />{tCommon('active')}</>
                   : <><XCircle className="w-3 h-3 inline me-1" />{tCommon('inactive')}</>}
               </span>
@@ -474,12 +481,19 @@ export default function TraineeDetailPage() {
                     <RefreshCw className="w-4 h-4" />Renew
                   </button>
                 )}
-                {trainee.user.isActive && (
+                {trainee.isActive ? (
                   <button
-                    onClick={handleDeactivate}
+                    onClick={() => setTraineeActive('deactivate')}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-danger/40 text-sm text-danger hover:bg-danger-soft transition-all"
                   >
-                    <PowerOff className="w-4 h-4" />Deactivate
+                    <PowerOff className="w-4 h-4" />{t('deactivate')}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setTraineeActive('activate')}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-input text-sm text-foreground/80 hover:border-primary/60 hover:text-primary transition-all"
+                  >
+                    <Power className="w-4 h-4" />{t('activate')}
                   </button>
                 )}
               </>
