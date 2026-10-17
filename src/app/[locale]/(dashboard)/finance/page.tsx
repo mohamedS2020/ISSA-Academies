@@ -12,7 +12,8 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { SkeletonDashboard } from '@/components/feedback/skeleton-loader';
 import {
@@ -20,7 +21,6 @@ import {
   TrendingDown,
   Wallet,
   AlertCircle,
-  XCircle,
   Receipt,
   Banknote,
 } from 'lucide-react';
@@ -53,10 +53,14 @@ function todayIso(offsetDays = 0): string {
   return d.toISOString().slice(0, 10);
 }
 
-export default function FinanceDashboardPage() {
+function FinanceDashboardPageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
+  const can = useAccess();
+  // The overview opens for anyone with a finance page; the totals themselves
+  // (income, expenses, profit) need "View finances".
+  const canViewFinances = can('viewFinances');
   const { toast } = useToast();
   const routeParams = useParams();
   const locale = routeParams.locale as string;
@@ -72,7 +76,7 @@ export default function FinanceDashboardPage() {
     error,
   } = useQuery<DashboardSummary>({
     queryKey: ['finance-summary', dateFrom, dateTo],
-    enabled: !!user,
+    enabled: !!user && canViewFinances,
     queryFn: async () => {
       const qs = new URLSearchParams({ dateFrom, dateTo });
       const res = await authFetch(`/api/finance/income?${qs}`);
@@ -88,19 +92,7 @@ export default function FinanceDashboardPage() {
     }
   }, [isError, error, toast, tCommon]);
 
-  const canView =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_view_finances'));
 
-  if (user && !canView) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied.</span>
-      </div>
-    );
-  }
 
   // Tailwind needs full static class names (no dynamic `text-${color}-400`
   // interpolation — the JIT compiler can't see those at build time).
@@ -143,6 +135,8 @@ export default function FinanceDashboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {can('viewExpenses') && (
+          <>
           <Link
             href={`/${locale}/finance/manual-income`}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
@@ -157,6 +151,9 @@ export default function FinanceDashboardPage() {
             <Receipt size={14} />
             {t('expenses')}
           </Link>
+          </>
+          )}
+          {can('viewReceipts') && (
           <Link
             href={`/${locale}/finance/receipts`}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
@@ -164,6 +161,8 @@ export default function FinanceDashboardPage() {
             <Receipt size={14} />
             {t('receipt')}
           </Link>
+          )}
+          {can('managePayroll') && (
           <Link
             href={`/${locale}/finance/payroll`}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border border-border hover:border-primary/50 text-foreground/80 hover:text-foreground transition-colors"
@@ -171,6 +170,9 @@ export default function FinanceDashboardPage() {
             <Banknote size={14} />
             {t('payroll')}
           </Link>
+          )}
+          {canViewFinances && (
+          <>
           <input
             type="date"
             value={dateFrom}
@@ -184,10 +186,12 @@ export default function FinanceDashboardPage() {
             onChange={(e) => setDateTo(e.target.value)}
             className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
+          </>
+          )}
         </div>
       </div>
 
-      {isPending || !summary ? (
+      {!canViewFinances ? null : isPending || !summary ? (
         <SkeletonDashboard />
       ) : (
         <>
@@ -236,5 +240,13 @@ export default function FinanceDashboardPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function FinanceDashboardPage() {
+  return (
+    <RequireAccess access={['viewFinances', 'viewExpenses', 'viewReceipts', 'managePayroll']}>
+      <FinanceDashboardPageContent />
+    </RequireAccess>
   );
 }

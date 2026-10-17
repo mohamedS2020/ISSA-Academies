@@ -12,8 +12,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
-import { useToast } from '@/components/feedback/toast-provider';
 import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
+import { useToast } from '@/components/feedback/toast-provider';
 import {
   Users2, Award, CreditCard, Calendar, Clock,
   ChevronLeft, Trash2, Loader2, CheckCircle, XCircle, Pencil, MessageSquare, Eye,
@@ -55,11 +57,12 @@ const DAY_SHORT: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function GroupDetailPage() {
+function GroupDetailPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const { user, authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
   const router = useRouter();
   const routeParams = useParams();
@@ -112,14 +115,15 @@ export default function GroupDetailPage() {
 
   if (!group) return null;
 
-  const isAdmin = user?.role === UserRole.ADMIN;
+  // Editing the group and removing a trainee are "Manage groups" (access.ts).
+  const canManageGroup = can('manageGroups');
   // Captains must not see trainee PII (phone / system code) or the plan price.
   // The API already redacts these, so the fields arrive undefined; we also
   // hide the UI affordances so nothing renders empty.
   const isCaptain = user?.role === UserRole.CAPTAIN;
-  // Only staff who may see trainee PII can open the trainee detail page.
-  const canViewTrainee =
-    user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR;
+  // Only staff who may see trainee PII can open the trainee detail page, or read
+  // the trainee's feedback (captains read their own trainees' feedback).
+  const canViewTrainee = can('viewTrainees');
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -145,7 +149,7 @@ export default function GroupDetailPage() {
           </div>
         </div>
 
-        {isAdmin && (
+        {canManageGroup && (
           <button
             onClick={() => router.push(`/${locale}/groups/${groupId}/edit`)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all flex-shrink-0"
@@ -284,6 +288,7 @@ export default function GroupDetailPage() {
                               <Eye className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          {(isCaptain || canViewTrainee) && (
                           <button
                             onClick={() => setFeedbackFor({ id: trainee.id, name: trainee.name })}
                             className="p-1.5 rounded-lg text-primary dark:text-primary border border-primary/20 hover:bg-primary/10 transition-all"
@@ -291,7 +296,8 @@ export default function GroupDetailPage() {
                           >
                             <MessageSquare className="w-3.5 h-3.5" />
                           </button>
-                          {isAdmin && (
+                          )}
+                          {canManageGroup && (
                             <button
                               onClick={() => handleRemoveTrainee(trainee.id, trainee.name)}
                               disabled={removingId === trainee.id}
@@ -340,5 +346,13 @@ export default function GroupDetailPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function GroupDetailPage() {
+  return (
+    <RequireAccess access="viewGroups" allowRoles={[UserRole.CAPTAIN]}>
+      <GroupDetailPageContent />
+    </RequireAccess>
   );
 }

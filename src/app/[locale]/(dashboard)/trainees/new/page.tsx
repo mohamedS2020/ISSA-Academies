@@ -16,6 +16,8 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import {
   User,
@@ -133,10 +135,13 @@ const textareaClass = inputClass + ' resize-none h-24';
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function NewTraineePage() {
+function NewTraineePageContent() {
   const t = useTranslations('trainees');
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
+  const can = useAccess();
+  // Enrolling at registration is the "Create subscriptions" permission.
+  const canEnroll = can('enroll');
   const { toast } = useToast();
   const router = useRouter();
   const params = useParams();
@@ -210,7 +215,7 @@ export default function NewTraineePage() {
   // Load plans when entering step 2
   const handleNext = async () => {
     if (!validateStep()) return;
-    if (step === 0) {
+    if (step === 0 && canEnroll) {
       try {
         const res = await authFetch('/api/subscriptions/plans?isActive=true&limit=100');
         if (res.ok) {
@@ -411,7 +416,8 @@ export default function NewTraineePage() {
         <textarea value={form.otherAcademies} onChange={set('otherAcademies')} className={textareaClass} placeholder="Is the trainee enrolled in other academies?" />
       </Field>
 
-      {/* ── Enrollment section ─────────────────────── */}
+      {/* ── Enrollment section (needs the enroll permission) ── */}
+      {canEnroll && (
       <div className="pt-2 border-t border-input/60">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Enrollment (optional)</p>
         {plans.length === 0 ? (
@@ -514,6 +520,7 @@ export default function NewTraineePage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 
@@ -717,5 +724,13 @@ export default function NewTraineePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function NewTraineePage() {
+  return (
+    <RequireAccess access="manageTrainees">
+      <NewTraineePageContent />
+    </RequireAccess>
   );
 }

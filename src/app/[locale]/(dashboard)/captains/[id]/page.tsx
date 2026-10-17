@@ -14,8 +14,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
-import { UserRole } from '@/types';
 import {
   Award,
   ArrowLeft,
@@ -78,10 +79,11 @@ const inputClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function CaptainDetailPage() {
+function CaptainDetailPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
   const router = useRouter();
   const params = useParams();
@@ -103,10 +105,7 @@ export default function CaptainDetailPage() {
   const [editBaseSalary, setEditBaseSalary] = useState('');
   const [editPercentage, setEditPercentage] = useState('');
 
-  const canManage =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_manage_captains'));
+  const canManage = can('manageCaptains');
 
   // ─── Fetch ──────────────────────────────────────────────────
 
@@ -488,5 +487,13 @@ export default function CaptainDetailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CaptainDetailPage() {
+  return (
+    <RequireAccess access="viewCaptains">
+      <CaptainDetailPageContent />
+    </RequireAccess>
   );
 }

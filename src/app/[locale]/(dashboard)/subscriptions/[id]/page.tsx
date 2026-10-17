@@ -18,8 +18,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
-import { useToast } from '@/components/feedback/toast-provider';
 import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useToast } from '@/components/feedback/toast-provider';
 import {
   CreditCard, Loader2, CheckCircle, ArrowLeft, ToggleLeft, ToggleRight,
   Users2, Layers, Lock,
@@ -58,7 +59,7 @@ const inputClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function EditSubscriptionPlanPage() {
+function EditSubscriptionPlanPageContent() {
   const t = useTranslations('subscriptions');
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
@@ -359,5 +360,13 @@ export default function EditSubscriptionPlanPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function EditSubscriptionPlanPage() {
+  return (
+    <RequireAccess access="viewSubscriptions">
+      <EditSubscriptionPlanPageContent />
+    </RequireAccess>
   );
 }

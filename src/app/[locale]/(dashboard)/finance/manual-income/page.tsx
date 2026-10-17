@@ -12,10 +12,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
-import { Plus, Loader2, AlertTriangle, XCircle, Trash2 } from 'lucide-react';
+import { Plus, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 
 interface ManualIncome {
   id: string;
@@ -32,10 +33,11 @@ interface Pagination {
   totalPages: number;
 }
 
-export default function ManualIncomePage() {
+function ManualIncomePageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
 
   const [incomes, setIncomes] = useState<ManualIncome[]>([]);
@@ -77,15 +79,8 @@ export default function ManualIncomePage() {
     fetchIncomes(1);
   }, [fetchIncomes]);
 
-  const canManage =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_manage_expenses'));
+  const canManage = can('manageExpenses');
 
-  const canView =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_view_finances'));
 
   const resetForm = () => {
     setIsCreateOpen(false);
@@ -154,14 +149,6 @@ export default function ManualIncomePage() {
     }
   };
 
-  if (user && !canView) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied.</span>
-      </div>
-    );
-  }
 
   const columns: Column<ManualIncome>[] = [
     { key: 'category', header: t('category'), className: 'font-semibold text-foreground' },
@@ -329,5 +316,13 @@ export default function ManualIncomePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ManualIncomePage() {
+  return (
+    <RequireAccess access="viewExpenses">
+      <ManualIncomePageContent />
+    </RequireAccess>
   );
 }

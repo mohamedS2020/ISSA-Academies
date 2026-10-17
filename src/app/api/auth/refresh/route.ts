@@ -31,6 +31,7 @@ import {
 import { platformPrisma } from '@/lib/db/platform-client';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { refreshRateLimiter, getRateLimitKey } from '@/lib/auth/rate-limiter';
+import { filterValidPrivileges } from '@/lib/auth/permissions';
 import type { JWTPayload } from '@/types';
 import { UserRole } from '@/types';
 
@@ -68,6 +69,10 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // ── Revocation: re-validate against the DB and re-read the current role ──
   let role = decoded.role as UserRole;
+  // A moderator's current privileges travel back with the new token, so the
+  // browser's menus follow a change by the owner within one refresh interval
+  // instead of only at the next login (they used to never reach it at all).
+  let privileges: string[] | undefined;
 
   if (decoded.role === UserRole.SUPER_ADMIN) {
     const sa = await platformPrisma.superAdmin.findUnique({
@@ -89,7 +94,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const fresh = await withTenantContext(decoded.tenantId, async (tx) => {
       const user = await tx.user.findUnique({
         where: { id: decoded.userId },
-        select: { isActive: true, role: true },
+        select: { isActive: true, role: true, privileges: { select: { privilege: true } } },
       });
       if (!user || !user.isActive) return null;
       // The token's branch (the user's home branch, or an admin's switched
@@ -101,11 +106,15 @@ export const POST = withErrorHandler(async (request: Request) => {
         });
         if (!branch || !branch.isActive) return null;
       }
-      return { role: user.role as UserRole };
+      return {
+        role: user.role as UserRole,
+        privileges: filterValidPrivileges(user.privileges.map((p) => p.privilege)),
+      };
     });
 
     if (!fresh) throw new UnauthorizedError(SESSION_INVALID);
     role = fresh.role; // reflect demotions; branchId is preserved below
+    if (role === UserRole.MODERATOR) privileges = fresh.privileges;
   }
 
   const payload: JWTPayload = {
@@ -116,7 +125,11 @@ export const POST = withErrorHandler(async (request: Request) => {
   };
   const accessToken = generateAccessToken(payload);
 
-  const res = successResponse({ accessExpiresIn: ttlToSeconds(getAccessExpiry()) });
+  const res = successResponse({
+    accessExpiresIn: ttlToSeconds(getAccessExpiry()),
+    role,
+    ...(privileges && { privileges }),
+  });
   setAccessCookie(res, accessToken);
   return res;
 });

@@ -17,6 +17,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import {
   CreditCard, Plus, Trash2, ArrowUp, ArrowDown,
@@ -54,7 +56,7 @@ const inputClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function NewSubscriptionPage() {
+function NewSubscriptionPageContent() {
   const t = useTranslations('subscriptions');
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
@@ -322,5 +324,13 @@ export default function NewSubscriptionPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function NewSubscriptionPage() {
+  return (
+    <RequireAccess allowRoles={[UserRole.ADMIN]}>
+      <NewSubscriptionPageContent />
+    </RequireAccess>
   );
 }

@@ -36,7 +36,9 @@
     "pageNotFoundDesc": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
     "backToHome": "Back to Home",
     "switchToLight": "Switch to light mode",
-    "switchToDark": "Switch to dark mode"
+    "switchToDark": "Switch to dark mode",
+    "noAccessTitle": "You don't have access to this page",
+    "noAccessHint": "Ask your academy's admin to give you this permission."
   },
   "auth": {
     "login": "Login",

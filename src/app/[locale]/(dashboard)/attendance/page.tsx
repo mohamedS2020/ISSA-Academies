@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import {
   ClipboardList,
   CheckCircle2,
@@ -119,9 +120,17 @@ function StatusToggle({
 
 // ─── Main Page ───────────────────────────────────────────────
 
-export default function AttendancePage() {
+function AttendancePageContent() {
   const t = useTranslations('attendance');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
+  const can = useAccess();
+  // "View attendance" opens the sheet read-only; marking needs "Mark attendance".
+  const canMarkAttendance = can('markAttendance');
+  const statusLabel: Record<AttendanceStatus, string> = {
+    PRESENT: t('present'),
+    ABSENT: t('absent'),
+    EXCUSED: t('excused'),
+  };
 
   // Step 1: session selection (+ captain / hour filters)
   const [todaySessions, setTodaySessions] = useState<TodaySession[]>([]);
@@ -263,17 +272,6 @@ export default function AttendancePage() {
     });
   }
 
-  // Attendance is an Admin/Moderator task — captains don't mark attendance.
-  // Defense-in-depth: the nav item is already hidden for captains, but guard
-  // direct navigation too (the attendance APIs require MODERATOR regardless).
-  if (user && user.role !== UserRole.ADMIN && user.role !== UserRole.MODERATOR) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied.</span>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background p-4 md:p-6">
@@ -413,6 +411,7 @@ export default function AttendancePage() {
                       </span>
                     )}
                   </div>
+                  {canMarkAttendance && (
                   <button
                     onClick={() => markAll('PRESENT')}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/80 hover:bg-success/90 text-success-foreground text-xs font-semibold transition"
@@ -420,6 +419,7 @@ export default function AttendancePage() {
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     {t('markAllPresent')}
                   </button>
+                  )}
                 </div>
               )}
 
@@ -456,7 +456,13 @@ export default function AttendancePage() {
                           )}
                         </div>
 
-                        {isCancelled ? null : tr.canMark ? (
+                        {isCancelled ? null : !canMarkAttendance ? (
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-muted text-foreground/80 border border-border shrink-0 whitespace-nowrap">
+                            {attendanceMap[tr.traineeId]
+                              ? statusLabel[attendanceMap[tr.traineeId]!]
+                              : t('unmarked')}
+                          </span>
+                        ) : tr.canMark ? (
                           <StatusToggle
                             value={attendanceMap[tr.traineeId] ?? null}
                             onChange={(s) =>
@@ -472,6 +478,7 @@ export default function AttendancePage() {
 
                       {/* Notes field (shown when ABSENT/EXCUSED) — not for ended subs */}
                       {!isCancelled &&
+                        canMarkAttendance &&
                         tr.canMark &&
                         (attendanceMap[tr.traineeId] === 'ABSENT' ||
                           attendanceMap[tr.traineeId] === 'EXCUSED') && (
@@ -491,7 +498,7 @@ export default function AttendancePage() {
               )}
 
               {/* Submit */}
-              {!isCancelled && sheet.trainees.length > 0 && (
+              {!isCancelled && canMarkAttendance && sheet.trainees.length > 0 && (
                 <div className="px-5 py-4 border-t border-foreground/10">
                   {submitError && (
                     <div className="flex items-center gap-2 text-danger text-sm mb-3 p-2 bg-danger-soft rounded-lg">
@@ -524,5 +531,13 @@ export default function AttendancePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AttendancePage() {
+  return (
+    <RequireAccess access="viewAttendance">
+      <AttendancePageContent />
+    </RequireAccess>
   );
 }

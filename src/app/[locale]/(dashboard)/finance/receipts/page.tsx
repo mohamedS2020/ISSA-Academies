@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
 import { Receipt as ReceiptIcon, Download, Loader2 } from 'lucide-react';
@@ -31,7 +32,7 @@ interface Pagination {
   totalPages: number;
 }
 
-export default function ReceiptsPage() {
+function ReceiptsPageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
@@ -184,5 +185,13 @@ export default function ReceiptsPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function ReceiptsPage() {
+  return (
+    <RequireAccess access="viewReceipts">
+      <ReceiptsPageContent />
+    </RequireAccess>
   );
 }

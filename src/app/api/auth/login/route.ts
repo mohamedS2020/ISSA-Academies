@@ -40,6 +40,7 @@ import {
   errorResponse,
 } from '@/lib/api/response';
 import { UnauthorizedError } from '@/lib/api/error-handler';
+import { filterValidPrivileges } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 import type { JWTPayload } from '@/types';
 import { DEFAULT_SPORT } from '@/lib/theme/sports';
@@ -61,6 +62,11 @@ interface LoginResponse {
     tenantName?: string;
     themeKey?: string;
     language?: string;
+    /**
+     * A moderator's privileges, for the browser to show only what the server
+     * will allow (src/lib/auth/access.ts). Refreshed with every token refresh.
+     */
+    privileges?: string[];
   };
 }
 
@@ -83,6 +89,7 @@ interface TenantLoginResult {
   branchId: string;
   branchName: string;
   language: string;
+  privileges: string[];
 }
 
 interface VerifiedLogin {
@@ -133,7 +140,10 @@ async function verifyCandidate(
   return withTenantContext(candidate.tenant.id, async (tx) => {
     const user = await tx.user.findUnique({
       where: { id: candidate.userId },
-      include: { branch: { select: { id: true, name: true, isActive: true } } },
+      include: {
+        branch: { select: { id: true, name: true, isActive: true } },
+        privileges: { select: { privilege: true } },
+      },
     });
 
     if (!user || !user.isActive || !user.branch.isActive) return null;
@@ -148,6 +158,7 @@ async function verifyCandidate(
       branchId: user.branchId,
       branchName: user.branch.name,
       language: user.language,
+      privileges: filterValidPrivileges(user.privileges.map((p) => p.privilege)),
     };
   });
 }
@@ -360,6 +371,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       tenantName: phoneIndex.tenant.name,
       themeKey: phoneIndex.tenant.config?.themeKey ?? DEFAULT_SPORT,
       language: loginResult.language,
+      ...(loginResult.role === UserRole.MODERATOR && { privileges: loginResult.privileges }),
     },
   };
 

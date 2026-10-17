@@ -13,8 +13,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
-import { UserRole } from '@/types';
 import {
   User,
   Phone,
@@ -96,11 +97,12 @@ const inputClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function TraineeDetailPage() {
+function TraineeDetailPageContent() {
   const t = useTranslations('trainees');
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
   const router = useRouter();
   const params = useParams();
@@ -137,10 +139,10 @@ export default function TraineeDetailPage() {
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const canManage =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_manage_trainees'));
+  const canManage = can('manageTrainees');
+  // Enrolling and renewing are their own permission ("Create subscriptions"),
+  // so they show for someone who may enroll without editing the profile.
+  const canEnroll = can('enroll');
 
   // ─── Fetch ──────────────────────────────────────────────────
 
@@ -436,7 +438,7 @@ export default function TraineeDetailPage() {
             <p className="text-sm font-mono text-primary dark:text-primary">{trainee.systemCode}</p>
           </div>
         </div>
-        {canManage && (
+        {(canManage || canEnroll) && (
           <div className="flex items-center gap-2">
             {isEditing ? (
               <>
@@ -457,14 +459,16 @@ export default function TraineeDetailPage() {
               </>
             ) : (
               <>
-                <button
-                  onClick={startEdit}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-input text-sm text-foreground/80 hover:border-primary/60 hover:text-primary dark:hover:text-primary transition-all"
-                >
-                  <Edit2 className="w-4 h-4" />{tCommon('edit')}
-                </button>
+                {canManage && (
+                  <button
+                    onClick={startEdit}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-input text-sm text-foreground/80 hover:border-primary/60 hover:text-primary dark:hover:text-primary transition-all"
+                  >
+                    <Edit2 className="w-4 h-4" />{tCommon('edit')}
+                  </button>
+                )}
                 {/* Enroll button — show when no active sub */}
-                {!activeSubscription && (
+                {canEnroll && !activeSubscription && (
                   <button
                     onClick={openEnrollDialog}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
@@ -473,7 +477,7 @@ export default function TraineeDetailPage() {
                   </button>
                 )}
                 {/* Renew button — show when there is an expired sub */}
-                {activeSubscription && activeSubscription.status !== 'ACTIVE' && (
+                {canEnroll && activeSubscription && activeSubscription.status !== 'ACTIVE' && (
                   <button
                     onClick={openEnrollDialog}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
@@ -481,7 +485,7 @@ export default function TraineeDetailPage() {
                     <RefreshCw className="w-4 h-4" />Renew
                   </button>
                 )}
-                {trainee.isActive ? (
+                {!canManage ? null : trainee.isActive ? (
                   <button
                     onClick={() => setTraineeActive('deactivate')}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-danger/40 text-sm text-danger hover:bg-danger-soft transition-all"
@@ -548,7 +552,7 @@ export default function TraineeDetailPage() {
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </p>
               </div>
-              {canManage && Number(activeSubscription.amountDue) > 0 && (
+              {can('recordPayments') && Number(activeSubscription.amountDue) > 0 && (
                 <button
                   onClick={() => {
                     setPaymentAmount('');
@@ -952,5 +956,13 @@ export default function TraineeDetailPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TraineeDetailPage() {
+  return (
+    <RequireAccess access="viewTrainees">
+      <TraineeDetailPageContent />
+    </RequireAccess>
   );
 }

@@ -15,9 +15,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
-import { UserRole } from '@/types';
 import {
   CreditCard, Plus, CheckCircle, XCircle,
   Calendar, Layers, Clock, ChevronRight,
@@ -44,7 +45,7 @@ interface Pagination {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function SubscriptionsPage() {
+function SubscriptionsPageContent() {
   const t = useTranslations('subscriptions');
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
@@ -78,14 +79,6 @@ export default function SubscriptionsPage() {
 
   useEffect(() => { fetchPlans(1); }, [fetchPlans]);
 
-  // ─── Access guard (after hooks) ───────────────────────────
-  if (user && user.role !== UserRole.ADMIN && user.role !== UserRole.MODERATOR) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" /> Access denied.
-      </div>
-    );
-  }
 
   // ─── Deactivate plan ──────────────────────────────────────
   const handleDeactivate = async (planId: string) => {
@@ -242,5 +235,13 @@ export default function SubscriptionsPage() {
         onPageChange={fetchPlans}
       />
     </div>
+  );
+}
+
+export default function SubscriptionsPage() {
+  return (
+    <RequireAccess access="viewSubscriptions">
+      <SubscriptionsPageContent />
+    </RequireAccess>
   );
 }

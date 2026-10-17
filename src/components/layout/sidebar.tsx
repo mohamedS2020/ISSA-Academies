@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useAccess } from '@/lib/auth/use-access';
+import type { AccessKey } from '@/lib/auth/access';
 import { resolveSport, sportLabel } from '@/lib/theme/sports';
 import { UserRole } from '@/types';
 import { isRtlLocale } from '@/lib/i18n/config';
@@ -38,6 +40,12 @@ interface SidebarItem {
   href: string;
   icon: React.ComponentType<any>;
   roles?: UserRole[];
+  /**
+   * For a moderator: the item shows only with at least one of these (from the
+   * table every API route checks, src/lib/auth/access.ts). It used to show
+   * every item to every moderator, whatever the owner had switched on.
+   */
+  access?: AccessKey[];
 }
 
 export default function Sidebar({
@@ -53,6 +61,7 @@ export default function Sidebar({
   const locale = params.locale as string;
   const isRtl = isRtlLocale(locale);
   const { user } = useAuth();
+  const can = useAccess();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   if (!user) return null;
@@ -88,30 +97,35 @@ export default function Sidebar({
       href: `/${locale}/trainees`,
       icon: Users, // Using Users as a fallback for Swimmer
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewTrainees'],
     },
     {
       name: t('captains'),
       href: `/${locale}/captains`,
       icon: Award,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewCaptains'],
     },
     {
       name: t('subscriptions'),
       href: `/${locale}/subscriptions`,
       icon: CreditCard,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewSubscriptions'],
     },
     {
       name: t('groups'),
       href: `/${locale}/groups`,
       icon: Users2,
       roles: [UserRole.ADMIN, UserRole.MODERATOR, UserRole.CAPTAIN],
+      access: ['viewGroups'],
     },
     {
       name: t('schedule'),
       href: `/${locale}/schedule`,
       icon: Calendar,
       roles: [UserRole.ADMIN, UserRole.MODERATOR, UserRole.CAPTAIN],
+      access: ['viewSchedule'],
     },
     {
       name: t('attendance'),
@@ -119,18 +133,21 @@ export default function Sidebar({
       icon: UserCheck,
       // Attendance is marked by Admin/Moderator only — not captains.
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewAttendance'],
     },
     {
       name: t('finance'),
       href: `/${locale}/finance`,
       icon: DollarSign,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewFinances', 'viewExpenses', 'viewReceipts', 'managePayroll'],
     },
     {
       name: t('reports'),
       href: `/${locale}/reports`,
       icon: FileText,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
+      access: ['viewReports'],
     },
     {
       name: t('settings'),
@@ -141,8 +158,11 @@ export default function Sidebar({
   ];
 
   const filteredItems = navItems.filter((item) => {
-    if (!item.roles) return true;
-    return item.roles.includes(user.role as UserRole);
+    if (item.roles && !item.roles.includes(user.role as UserRole)) return false;
+    if (user.role === UserRole.MODERATOR && item.access) {
+      return item.access.some((access) => can(access));
+    }
+    return true;
   });
 
   return (
