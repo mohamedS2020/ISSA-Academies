@@ -8,7 +8,7 @@
 import { withErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
-import { requireRole, requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 import { createFeedbackSchema } from '@/schemas/rating-feedback.schema';
 import {
@@ -32,7 +32,7 @@ export const GET = withErrorHandler(
       return successResponse(data);
     }
 
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewTrainees');
     const data = await listCaptainFeedback(ctx.tenantId, ctx.branchId, id);
     return successResponse(data);
   })

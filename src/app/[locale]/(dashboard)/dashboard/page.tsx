@@ -65,16 +65,19 @@ interface AdminDashboard {
   newTraineesThisMonth: number;
   activeSubscriptions: number;
   newSubscriptionsThisMonth: number;
-  revenueThisMonth: number;
-  outstandingBalances: number;
-  todaySessions: SessionRow[];
-  expiringSoon: {
-    id: string;
-    traineeName: string;
-    phoneNumber: string;
-    planName: string;
-    endDate: string;
-  }[];
+  // null: a section this moderator's permissions do not cover (not "zero").
+  revenueThisMonth: number | null;
+  outstandingBalances: number | null;
+  todaySessions: SessionRow[] | null;
+  expiringSoon:
+    | {
+        id: string;
+        traineeName: string;
+        phoneNumber: string;
+        planName: string;
+        endDate: string;
+      }[]
+    | null;
   activityTrend: { date: string; checkIns: number; renewals: number }[];
 }
 
@@ -127,6 +130,9 @@ export default function DashboardPage() {
 
     if (isPending || !data) return <SkeletonDashboard />;
 
+    const todaySessions = data.todaySessions;
+    const expiringSoon = data.expiringSoon;
+
     const kpis = [
       {
         title: t('totalTrainees'),
@@ -142,20 +148,28 @@ export default function DashboardPage() {
         icon: CreditCard,
         colorClass: 'bg-accent',
       },
-      {
-        title: t('revenueThisMonth'),
-        value: data.revenueThisMonth.toFixed(2),
-        badge: t('thisMonth'),
-        icon: DollarSign,
-        colorClass: 'bg-success',
-      },
-      {
-        title: t('outstandingBalances'),
-        value: data.outstandingBalances.toFixed(2),
-        badge: t('currentBalance'),
-        icon: AlertCircle,
-        colorClass: 'bg-warning',
-      },
+      ...(data.revenueThisMonth !== null
+        ? [
+            {
+              title: t('revenueThisMonth'),
+              value: data.revenueThisMonth.toFixed(2),
+              badge: t('thisMonth'),
+              icon: DollarSign,
+              colorClass: 'bg-success',
+            },
+          ]
+        : []),
+      ...(data.outstandingBalances !== null
+        ? [
+            {
+              title: t('outstandingBalances'),
+              value: data.outstandingBalances.toFixed(2),
+              badge: t('currentBalance'),
+              icon: AlertCircle,
+              colorClass: 'bg-warning',
+            },
+          ]
+        : []),
     ];
 
     return (
@@ -191,7 +205,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl flex flex-col">
+          <div className={`${todaySessions ? 'lg:col-span-2' : 'lg:col-span-3'} rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl flex flex-col`}>
             <div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -223,6 +237,7 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {todaySessions && (
           <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl flex flex-col">
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -238,11 +253,11 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            {data.todaySessions.length === 0 ? (
+            {todaySessions.length === 0 ? (
               <p className="text-xs text-muted-foreground py-8 text-center">{tCommon('noResults')}</p>
             ) : (
               <div className="flex-1 space-y-4">
-                {data.todaySessions.map((s) => (
+                {todaySessions.map((s) => (
                   <div
                     key={s.id}
                     className="p-3 rounded-xl bg-background border border-border hover:border-primary/50 transition-colors flex flex-col gap-2 relative group"
@@ -263,8 +278,10 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+          )}
         </div>
 
+        {expiringSoon && (
         <div className="rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
@@ -276,7 +293,7 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          {data.expiringSoon.length === 0 ? (
+          {expiringSoon.length === 0 ? (
             <p className="text-xs text-muted-foreground py-4 text-center">{tCommon('noResults')}</p>
           ) : (
             <div className="overflow-x-auto">
@@ -291,7 +308,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {data.expiringSoon.map((item) => (
+                  {expiringSoon.map((item) => (
                     <tr key={item.id} className="text-foreground/80 group">
                       <td className="py-3.5 font-semibold text-foreground group-hover:text-primary dark:group-hover:text-primary transition-colors">
                         {item.traineeName}
@@ -317,6 +334,7 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+        )}
       </div>
     );
   };

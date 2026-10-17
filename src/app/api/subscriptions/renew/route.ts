@@ -13,12 +13,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { createdResponse } from '@/lib/api/response';
 import { renewSchema } from '@/schemas/subscription.schema';
 import { renewSubscription } from '@/services/subscription.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'enroll');
 
     const body = await request.json();
     const input = renewSchema.parse(body);

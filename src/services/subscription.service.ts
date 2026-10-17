@@ -103,6 +103,25 @@ async function insertActiveSubscription(
   }
 }
 
+// ─── Trainee in this branch ───────────────────────────────────
+
+/**
+ * Refuse a trainee id that is not in the caller's branch. The plan and group
+ * were always checked against the branch, the trainee never was: a moderator
+ * could enroll another branch's trainee into their own branch, given its id.
+ */
+async function assertTraineeInBranch(
+  tx: TransactionClient,
+  traineeId: string,
+  branchId: string
+): Promise<void> {
+  const trainee = await tx.traineeProfile.findFirst({
+    where: { id: traineeId, branchId },
+    select: { id: true },
+  });
+  if (!trainee) throw new NotFoundError('Trainee not found');
+}
+
 // ─── Plan CRUD ────────────────────────────────────────────────
 
 export async function createPlan(
@@ -310,6 +329,8 @@ export async function enrollTrainee(
   input: EnrollInput
 ) {
   return withTenantContext(tenantId, async (tx) => {
+    await assertTraineeInBranch(tx, input.traineeId, branchId);
+
     // ── 1. One-active-subscription check ──────────────────────
     // Gives the common sequential case a clear message. It is NOT what prevents
     // duplicates — a concurrent request can pass this check at the same moment.
@@ -446,6 +467,8 @@ export async function renewSubscription(
   input: RenewInput
 ) {
   return withTenantContext(tenantId, async (tx) => {
+    await assertTraineeInBranch(tx, input.traineeId, branchId);
+
     // Close any existing subscription for this trainee
     await tx.traineeSubscription.updateMany({
       where: { traineeId: input.traineeId, status: 'ACTIVE' },

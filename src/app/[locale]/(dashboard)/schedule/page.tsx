@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import {
   Calendar,
   ChevronLeft,
@@ -135,10 +137,10 @@ function SessionModal({
   const t = useTranslations('schedule');
   const params = useParams();
   const locale = params.locale as string;
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
   // Cancel/reschedule are Admin/Moderator actions. Captains view only.
-  const canManage =
-    user?.role === UserRole.ADMIN || user?.role === UserRole.MODERATOR;
+  // Rescheduling and cancelling are "Manage schedule" (access.ts).
+  const canManage = useAccess()('manageSchedule');
   const initialDateTime = parseLocalDateTime(session.scheduledAtLocal);
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelForm, setShowCancelForm] = useState(false);
@@ -346,7 +348,7 @@ function SessionModal({
 
 // ─── Main Page ───────────────────────────────────────────────
 
-export default function SchedulePage() {
+function SchedulePageContent() {
   const t = useTranslations('schedule');
   const { authFetch } = useAuth();
   const [weekStart, setWeekStart] = useState(() =>
@@ -489,5 +491,13 @@ export default function SchedulePage() {
         />
       )}
     </div>
+  );
+}
+
+export default function SchedulePage() {
+  return (
+    <RequireAccess access="viewSchedule" allowRoles={[UserRole.CAPTAIN]}>
+      <SchedulePageContent />
+    </RequireAccess>
   );
 }

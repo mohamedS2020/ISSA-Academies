@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
 import {
@@ -18,8 +18,7 @@ import {
   Download,
   FileSpreadsheet,
   Loader2,
-  XCircle,
-} from 'lucide-react';
+  } from 'lucide-react';
 
 type ReportType = 'financial' | 'attendance' | 'subscription' | 'captainPerformance' | 'expiringSoon' | 'levelGroupTransitions';
 
@@ -34,11 +33,11 @@ function todayIso(offsetDays = 0): string {
   return d.toISOString().slice(0, 10);
 }
 
-export default function ReportsCenterPage() {
+function ReportsCenterPageContent() {
   const t = useTranslations('reports');
   const tCommon = useTranslations('common');
   const tTrainees = useTranslations('trainees');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
   const { toast } = useToast();
 
   const [type, setType] = useState<ReportType>('financial');
@@ -79,10 +78,6 @@ export default function ReportsCenterPage() {
     [type, dateFrom, dateTo, status, captainId]
   );
 
-  const canView =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.MODERATOR &&
-      (user as any).privileges?.includes('can_view_reports'));
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -122,14 +117,6 @@ export default function ReportsCenterPage() {
     }
   };
 
-  if (user && !canView) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied.</span>
-      </div>
-    );
-  }
 
   const reportTypes: { value: ReportType; label: string }[] = [
     { value: 'financial', label: t('financial') },
@@ -385,5 +372,13 @@ export default function ReportsCenterPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function ReportsCenterPage() {
+  return (
+    <RequireAccess access="viewReports">
+      <ReportsCenterPageContent />
+    </RequireAccess>
   );
 }

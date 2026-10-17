@@ -181,6 +181,25 @@ disagrees, so it can run as a check.
 
 ---
 
+## Moderator permissions
+
+The academy owner switches each moderator's permissions on and off (Users → a
+moderator → privileges). What each switch allows is one table,
+`src/lib/auth/access.ts`; every API route and every screen reads it, so a moderator is
+shown exactly what the server lets them do.
+
+- **Admins** can do everything. **Users, branches and price plans** are admin-only;
+  there are no moderator switches for them.
+- A stronger switch includes the weaker ("Mark attendance" also lets a moderator see
+  it), and screens that need another area's data get that read too (marking attendance
+  shows today's sessions; enrolling shows plans and groups).
+- **A change takes effect** on the server within 30 seconds, and on the moderator's
+  screen at their next token refresh (about every 10 minutes) or as soon as they reload.
+- A moderator who opens a page they cannot use sees "You don't have access to this
+  page", in their language.
+
+---
+
 ## Health and monitoring
 
 `GET /api/health` — unauthenticated, cheap, uncached.

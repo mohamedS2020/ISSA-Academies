@@ -42,6 +42,18 @@ export interface AuthUser {
   /** The academy's sport branding theme (visual only). See src/lib/theme/sports.ts. */
   themeKey?: SportKey;
   language?: string;
+  /**
+   * A moderator's privileges, for showing only what the server allows
+   * (useAccess, src/lib/auth/access.ts). Display only: every API route checks
+   * them again. Updated by every token refresh.
+   */
+  privileges?: string[];
+}
+
+/** What a token refresh reports about the user now. */
+interface FreshIdentity {
+  role: string;
+  privileges?: string[];
 }
 
 interface AuthState {
@@ -124,6 +136,20 @@ function clearStoredUser(): void {
   localStorage.removeItem(STORAGE_KEY_REMEMBER);
 }
 
+/** Rewrite the stored user wherever it is kept (local or session storage). */
+function updateStoredUser(user: AuthUser): void {
+  getStorage().setItem(STORAGE_KEY_USER, JSON.stringify(user));
+}
+
+/** The user with a refresh's role and privileges applied, or the same object if nothing changed. */
+function withIdentity(user: AuthUser, fresh: FreshIdentity | null): AuthUser {
+  if (!fresh) return user;
+  const samePrivileges =
+    JSON.stringify(user.privileges ?? null) === JSON.stringify(fresh.privileges ?? null);
+  if (user.role === fresh.role && samePrivileges) return user;
+  return { ...user, role: fresh.role, privileges: fresh.privileges };
+}
+
 function loadStoredUser(): AuthUser | null {
   const raw = getStorage().getItem(STORAGE_KEY_USER);
   if (!raw) return null;
@@ -145,6 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRefreshingRef = useRef(false);
+  /** The role and privileges the latest refresh reported. */
+  const freshIdentityRef = useRef<FreshIdentity | null>(null);
   const doRefreshRef = useRef<() => Promise<RefreshResult>>(async () => 'error');
 
   const forceLoggedOut = useCallback(() => {
@@ -182,6 +210,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) return 'error';
       const data = await res.json();
       scheduleTokenRefresh(data?.data?.accessExpiresIn ?? 900);
+
+      // The server re-reads the role and a moderator's privileges on every
+      // refresh. Apply them, so menus follow a change made by the owner.
+      if (typeof data?.data?.role === 'string') {
+        const fresh: FreshIdentity = { role: data.data.role, privileges: data.data.privileges };
+        freshIdentityRef.current = fresh;
+        setState((prev) => {
+          if (!prev.user) return prev;
+          const next = withIdentity(prev.user, fresh);
+          if (next === prev.user) return prev;
+          updateStoredUser(next);
+          return { ...prev, user: next };
+        });
+      }
       return 'ok';
     } catch {
       return 'error';
@@ -207,7 +249,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void (async () => {
       const result = await doRefresh();
       if (cancelled || result === 'unauthorized') return; // forceLoggedOut set state
-      setState({ user, isAuthenticated: true, isLoading: false });
+      // The refresh ran before the user was in state, so apply what it reported
+      // here; otherwise the stored (possibly stale) privileges would win.
+      const current = withIdentity(user, freshIdentityRef.current);
+      if (current !== user) updateStoredUser(current);
+      setState({ user: current, isAuthenticated: true, isLoading: false });
     })();
     return () => {
       cancelled = true;

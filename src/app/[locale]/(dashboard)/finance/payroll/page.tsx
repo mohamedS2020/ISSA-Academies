@@ -11,10 +11,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
-import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
-import { Calculator, CheckCircle, Loader2, XCircle, AlertTriangle } from 'lucide-react';
+import { Calculator, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 
 interface CaptainOption {
   id: string;
@@ -53,10 +53,10 @@ function todayIso(offsetDays = 0): string {
   return d.toISOString().slice(0, 10);
 }
 
-export default function PayrollPage() {
+function PayrollPageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
   const { toast } = useToast();
 
   const [captains, setCaptains] = useState<CaptainOption[]>([]);
@@ -161,14 +161,6 @@ export default function PayrollPage() {
     }
   };
 
-  if (user && user.role !== UserRole.ADMIN) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied. Payroll is Admin-only.</span>
-      </div>
-    );
-  }
 
   const columns: Column<PayrollRecord>[] = [
     {
@@ -382,5 +374,13 @@ export default function PayrollPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function PayrollPage() {
+  return (
+    <RequireAccess access="managePayroll">
+      <PayrollPageContent />
+    </RequireAccess>
   );
 }

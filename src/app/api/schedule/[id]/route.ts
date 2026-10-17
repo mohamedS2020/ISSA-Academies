@@ -10,12 +10,13 @@ import { rescheduleSessionSchema } from '@/schemas/schedule.schema';
 import { getSessionById, rescheduleSession } from '@/services/schedule.service';
 import { getBranchTimezone } from '@/services/branch.service';
 import { toUTC } from '@/lib/utils/timezone';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
     requireMinRole(ctx, UserRole.CAPTAIN);
+    if (ctx.role !== UserRole.CAPTAIN) requireAccess(ctx, 'viewSchedule');
 
     const id = (await routeContext!.params).id as string;
     const session = await getSessionById(ctx.tenantId, ctx.branchId, id);
@@ -25,7 +26,7 @@ export const GET = withErrorHandler(
 
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'manageSchedule');
 
     const id = (await routeContext!.params).id as string;
     const body = await request.json();

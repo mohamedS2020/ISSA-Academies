@@ -29,10 +29,6 @@ export const PRIVILEGE_GROUPS = {
     label: 'Captain Management',
     privileges: ['can_manage_captains', 'can_view_captains'] as const,
   },
-  users: {
-    label: 'User Management',
-    privileges: ['can_manage_users'] as const,
-  },
   subscriptions: {
     label: 'Subscription Management',
     privileges: [
@@ -64,9 +60,5 @@ export const PRIVILEGE_GROUPS = {
   reports: {
     label: 'Reports',
     privileges: ['can_view_reports'] as const,
-  },
-  branches: {
-    label: 'Branch Management',
-    privileges: ['can_manage_branches'] as const,
   },
 } as const;

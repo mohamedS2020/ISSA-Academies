@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import {
   Award,
@@ -56,7 +57,7 @@ function Field({ label, required, children, error }: FieldProps) {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function NewCaptainPage() {
+function NewCaptainPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
@@ -324,5 +325,13 @@ export default function NewCaptainPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function NewCaptainPage() {
+  return (
+    <RequireAccess access="manageCaptains">
+      <NewCaptainPageContent />
+    </RequireAccess>
   );
 }

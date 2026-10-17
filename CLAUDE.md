@@ -17,6 +17,12 @@
 - **Rules that must hold under concurrency live in the database** (a constraint, a
   partial unique index, an atomic `UPDATE … RETURNING`, a row lock), not in a
   read-then-write. A transaction does not lock rows it only reads.
+- **Permissions** come from one table, `src/lib/auth/access.ts`. Every tenant staff
+  route calls `requireAccess(ctx, '<key>')`; pages wrap their content in
+  `<RequireAccess access="<key>">` and gate buttons with `useAccess()`. Add or change a
+  key there, never an inline `role === 'ADMIN'` or privilege check. Every moderator
+  privilege must be granted by some key, and every key used somewhere
+  (`access.test.ts` fails otherwise).
 - Never edit an applied migration; add a new one in the right folder
   (`prisma/platform/` or `prisma/tenant/`).
 

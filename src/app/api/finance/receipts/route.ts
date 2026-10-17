@@ -7,12 +7,11 @@ import { withErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { listReceipts } from '@/services/receipt.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewReceipts');
 
     const sp = new URL(request.url).searchParams;
 

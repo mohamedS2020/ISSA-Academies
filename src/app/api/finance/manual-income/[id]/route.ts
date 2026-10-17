@@ -8,16 +8,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse, noContentResponse } from '@/lib/api/response';
 import { updateManualIncomeSchema } from '@/schemas/finance.schema';
 import { updateManualIncome, deleteManualIncome } from '@/services/finance.service';
-import { requirePrivilege, requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_expenses');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageExpenses');
 
     const { id } = await routeContext!.params;
     const body = await request.json();
@@ -30,11 +25,7 @@ export const PATCH = withErrorHandler(
 
 export const DELETE = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    if (ctx.role === UserRole.MODERATOR) {
-      requirePrivilege(ctx, 'can_manage_expenses');
-    } else {
-      requireRole(ctx, UserRole.ADMIN);
-    }
+    requireAccess(ctx, 'manageExpenses');
 
     const { id } = await routeContext!.params;
     await deleteManualIncome(ctx.tenantId, ctx.branchId, id, ctx.userId);

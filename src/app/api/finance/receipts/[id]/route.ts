@@ -8,12 +8,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { getReceiptById } from '@/services/receipt.service';
 import { exportReceiptToPdf } from '@/services/export.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewReceipts');
     const { id } = await routeContext!.params;
     const receipt = await getReceiptById(ctx.tenantId, ctx.branchId, id);
 

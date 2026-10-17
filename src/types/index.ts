@@ -109,12 +109,17 @@ export enum AuditAction {
 }
 
 // ─── Moderator Privileges ───────────────────────────────────
+// Every entry must be checked by at least one route: a switch the owner can
+// turn on that grants nothing is a promise the permission system breaks.
+// "Manage users" and "Manage branches" were removed for that reason (2026-10-17,
+// hardening plan §35): both stay admin-only, because a moderator managing users
+// could create an admin or raise their own permissions, and branch settings
+// apply academy-wide. Stored rows carrying them are ignored (filterValidPrivileges).
 export const MODERATOR_PRIVILEGES = [
   'can_manage_trainees',
   'can_view_trainees',
   'can_manage_captains',
   'can_view_captains',
-  'can_manage_users',
   'can_manage_subscriptions',
   'can_view_subscriptions',
   'can_create_subscriptions',
@@ -127,7 +132,6 @@ export const MODERATOR_PRIVILEGES = [
   'can_view_finances',
   'can_manage_expenses',
   'can_view_reports',
-  'can_manage_branches',
   'can_manage_payroll',
 ] as const;
 

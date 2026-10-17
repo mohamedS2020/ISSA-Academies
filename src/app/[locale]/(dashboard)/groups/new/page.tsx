@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { Users2, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 
@@ -41,7 +42,7 @@ const inputClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function NewGroupPage() {
+function NewGroupPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
@@ -340,5 +341,13 @@ export default function NewGroupPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function NewGroupPage() {
+  return (
+    <RequireAccess access="manageGroups">
+      <NewGroupPageContent />
+    </RequireAccess>
   );
 }

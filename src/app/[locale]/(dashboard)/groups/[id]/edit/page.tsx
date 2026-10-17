@@ -14,9 +14,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
-import { UserRole } from '@/types';
-import { Users2, CheckCircle, Loader2, AlertTriangle, XCircle } from 'lucide-react';
+import { Users2, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 
 interface Captain { id: string; user: { name: string }; attendingDays: string[] }
 interface Plan { id: string; name: string }
@@ -43,10 +43,10 @@ const inputClass =
 const scheduleKey = (days: Day[], time: string, duration: string) =>
   `${[...days].sort().join(',')}|${time}|${duration}`;
 
-export default function EditGroupPage() {
+function EditGroupPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
-  const { user, authFetch } = useAuth();
+  const { authFetch } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const routeParams = useParams();
@@ -208,14 +208,6 @@ export default function EditGroupPage() {
     }
   };
 
-  // Only Admin can edit (PATCH /api/groups/[id] requires ADMIN).
-  if (user && user.role !== UserRole.ADMIN) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" /> Access denied.
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -399,5 +391,13 @@ export default function EditGroupPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function EditGroupPage() {
+  return (
+    <RequireAccess access="manageGroups">
+      <EditGroupPageContent />
+    </RequireAccess>
   );
 }

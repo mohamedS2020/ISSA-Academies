@@ -43,7 +43,26 @@ export async function resolveOwnCaptainId(
 
 // ─── Admin / Moderator Dashboard ────────────────────────────
 
-export async function getAdminDashboard(tenantId: string, branchId: string) {
+/**
+ * What the staff dashboard may include for the caller (src/lib/auth/access.ts).
+ * A section the caller may not see is null, and its query is not even run.
+ */
+export interface DashboardSections {
+  /** Revenue and outstanding balances: "View finances". */
+  finances: boolean;
+  /** Renewal reminders, with names and phone numbers. */
+  renewals: boolean;
+  /** Today's sessions. */
+  sessions: boolean;
+}
+
+const ALL_SECTIONS: DashboardSections = { finances: true, renewals: true, sessions: true };
+
+export async function getAdminDashboard(
+  tenantId: string,
+  branchId: string,
+  show: DashboardSections = ALL_SECTIONS
+) {
   const now = new Date();
   const monthStart = startOfMonth(now);
   const today = todayDateString();
@@ -97,9 +116,11 @@ export async function getAdminDashboard(tenantId: string, branchId: string) {
     activityTrend,
   ] = await Promise.all([
     countsAndExpiring,
-    getIncomeSummary(tenantId, branchId, monthStart, now),
-    getOutstandingBalance(tenantId, branchId),
-    listSessions(tenantId, { branchId, dateFrom: today, dateTo: today, limit: 5 }),
+    show.finances ? getIncomeSummary(tenantId, branchId, monthStart, now) : null,
+    show.finances ? getOutstandingBalance(tenantId, branchId) : null,
+    show.sessions
+      ? listSessions(tenantId, { branchId, dateFrom: today, dateTo: today, limit: 5 })
+      : null,
     getActivityTrend(tenantId, branchId),
   ]);
 
@@ -108,16 +129,18 @@ export async function getAdminDashboard(tenantId: string, branchId: string) {
     newTraineesThisMonth,
     activeSubscriptions,
     newSubscriptionsThisMonth,
-    revenueThisMonth: income.total,
+    revenueThisMonth: income ? income.total : null,
     outstandingBalances,
-    todaySessions: todaySessions.data,
-    expiringSoon: expiringSoon.map((s) => ({
-      id: s.id,
-      traineeName: s.trainee.name,
-      phoneNumber: s.trainee.user.phoneNumber,
-      planName: s.plan.name,
-      endDate: s.endDate,
-    })),
+    todaySessions: todaySessions ? todaySessions.data : null,
+    expiringSoon: show.renewals
+      ? expiringSoon.map((s) => ({
+          id: s.id,
+          traineeName: s.trainee.name,
+          phoneNumber: s.trainee.user.phoneNumber,
+          planName: s.plan.name,
+          endDate: s.endDate,
+        }))
+      : null,
     activityTrend,
   };
 }

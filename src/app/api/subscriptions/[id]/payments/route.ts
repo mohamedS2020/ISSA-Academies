@@ -10,12 +10,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { createdResponse } from '@/lib/api/response';
 import { recordPaymentSchema } from '@/schemas/finance.schema';
 import { recordPayment } from '@/services/subscription.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'recordPayments');
 
     const { id } = await routeContext!.params;
     const body = await request.json();

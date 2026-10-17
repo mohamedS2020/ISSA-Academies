@@ -10,7 +10,7 @@ import { updateGroupSchema } from '@/schemas/group.schema';
 import { getGroupById, updateGroup, redactGroupDetailForCaptain } from '@/services/group.service';
 import { generateSessionsForGroup } from '@/services/schedule.service';
 import { resolveOwnCaptainId } from '@/services/dashboard.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 import { addDays, format } from 'date-fns';
 
@@ -22,6 +22,7 @@ export const GET = withErrorHandler(
     // Captains may view their OWN group detail (FR-GR-04: view assigned groups
     // and their trainees); Admin/Moderator may view any group in the branch.
     requireMinRole(ctx, UserRole.CAPTAIN);
+    if (ctx.role !== UserRole.CAPTAIN) requireAccess(ctx, 'viewGroups');
     const { id } = await routeContext!.params;
     const group = await getGroupById(ctx.tenantId, ctx.branchId, id);
 
@@ -47,7 +48,7 @@ export const GET = withErrorHandler(
 
 export const PATCH = withErrorHandler(
   withAuth(async (request, ctx, routeContext) => {
-    requireMinRole(ctx, UserRole.ADMIN);
+    requireAccess(ctx, 'manageGroups');
     const { id } = await routeContext!.params;
     const body = await request.json();
     const input = updateGroupSchema.parse(body);

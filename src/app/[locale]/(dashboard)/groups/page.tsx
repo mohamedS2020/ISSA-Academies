@@ -14,9 +14,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
+import { UserRole } from '@/types';
+import { RequireAccess } from '@/components/auth/require-access';
+import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
-import { UserRole } from '@/types';
 import {
   Users2, Plus, XCircle, CheckCircle, ChevronRight, Filter, X, UserPlus,
 } from 'lucide-react';
@@ -52,10 +54,11 @@ const filterFieldClass =
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function GroupsPage() {
+function GroupsPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
   const router = useRouter();
   const routeParams = useParams();
@@ -120,13 +123,6 @@ export default function GroupsPage() {
     })();
   }, [canFilter, authFetch]);
 
-  if (user && user.role !== UserRole.ADMIN && user.role !== UserRole.MODERATOR && user.role !== UserRole.CAPTAIN) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <XCircle className="w-8 h-8 me-3 text-danger" /> Access denied.
-      </div>
-    );
-  }
 
   const columns: Column<Group>[] = [
     {
@@ -241,7 +237,7 @@ export default function GroupsPage() {
             </p>
           </div>
         </div>
-        {user?.role === UserRole.ADMIN && (
+        {can('manageGroups') && (
           <button
             onClick={() => router.push(`/${locale}/groups/new`)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
@@ -321,5 +317,13 @@ export default function GroupsPage() {
         onPageChange={fetchGroups}
       />
     </div>
+  );
+}
+
+export default function GroupsPage() {
+  return (
+    <RequireAccess access="viewGroups" allowRoles={[UserRole.CAPTAIN]}>
+      <GroupsPageContent />
+    </RequireAccess>
   );
 }

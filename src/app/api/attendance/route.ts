@@ -8,12 +8,11 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { submitAttendanceSchema } from '@/schemas/attendance.schema';
 import { submitAttendance, listAttendanceByTrainee } from '@/services/attendance.service';
-import { requireMinRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'markAttendance');
 
     const body = await request.json();
     const input = submitAttendanceSchema.parse(body);
@@ -32,7 +31,7 @@ export const POST = withErrorHandler(
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.MODERATOR);
+    requireAccess(ctx, 'viewAttendance');
 
     const sp = new URL(request.url).searchParams;
     const traineeId = sp.get('traineeId') ?? undefined;

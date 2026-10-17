@@ -13,12 +13,11 @@ import {
   listPayrollsQuerySchema,
 } from '@/schemas/finance.schema';
 import { recordPayroll, listPayrolls } from '@/services/payroll.service';
-import { requireRole } from '@/lib/auth/permissions';
-import { UserRole } from '@/types';
+import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireRole(ctx, UserRole.ADMIN);
+    requireAccess(ctx, 'managePayroll');
 
     const sp = new URL(request.url).searchParams;
     const query = listPayrollsQuerySchema.parse({
@@ -36,7 +35,7 @@ export const GET = withErrorHandler(
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireRole(ctx, UserRole.ADMIN);
+    requireAccess(ctx, 'managePayroll');
 
     const body = await request.json();
     const input = recordPayrollSchema.parse(body);

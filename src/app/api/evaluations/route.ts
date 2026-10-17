@@ -11,12 +11,13 @@ import {
   createEvaluation,
   listEvaluationsBySession,
 } from '@/services/attendance.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 
 export const GET = withErrorHandler(
   withAuth(async (request, ctx) => {
     requireMinRole(ctx, UserRole.CAPTAIN);
+    if (ctx.role !== UserRole.CAPTAIN) requireAccess(ctx, 'viewAttendance');
 
     const sp = new URL(request.url).searchParams;
     const sessionId = sp.get('sessionId') ?? undefined;
@@ -25,7 +26,7 @@ export const GET = withErrorHandler(
       return successResponse([]);
     }
 
-    const evaluations = await listEvaluationsBySession(ctx.tenantId, sessionId);
+    const evaluations = await listEvaluationsBySession(ctx.tenantId, ctx.branchId, sessionId);
     return successResponse(evaluations);
   })
 );
@@ -33,6 +34,7 @@ export const GET = withErrorHandler(
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
     requireMinRole(ctx, UserRole.CAPTAIN);
+    if (ctx.role !== UserRole.CAPTAIN) requireAccess(ctx, 'markAttendance');
 
     const body = await request.json();
     const input = createEvaluationSchema.parse(body);

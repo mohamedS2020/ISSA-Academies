@@ -12,7 +12,7 @@ import { createGroupSchema, listGroupsQuerySchema } from '@/schemas/group.schema
 import { createGroup, listGroups, getGroupsForPlan } from '@/services/group.service';
 import { generateSessionsForGroup } from '@/services/schedule.service';
 import { resolveOwnCaptainId } from '@/services/dashboard.service';
-import { requireMinRole } from '@/lib/auth/permissions';
+import { requireAccess, requireMinRole } from '@/lib/auth/permissions';
 import { UserRole } from '@/types';
 import { addDays, format } from 'date-fns';
 
@@ -52,6 +52,8 @@ export const GET = withErrorHandler(
       return successResponse(result.groups, result.pagination);
     }
 
+    requireAccess(ctx, 'listGroups');
+
     // If planId is provided and no page, return capacity-aware list for enrollment
     const planId = sp.get('planId') ?? undefined;
     if (planId && !sp.get('page')) {
@@ -78,7 +80,7 @@ export const GET = withErrorHandler(
 
 export const POST = withErrorHandler(
   withAuth(async (request, ctx) => {
-    requireMinRole(ctx, UserRole.ADMIN);
+    requireAccess(ctx, 'manageGroups');
 
     const body = await request.json();
     const input = createGroupSchema.parse(body);
