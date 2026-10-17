@@ -117,7 +117,7 @@ Three cron jobs run from [src/jobs/scheduler.ts](src/jobs/scheduler.ts):
 
 | Job | Schedule (UTC) | What it does |
 | --- | --- | --- |
-| `subscription-expiry` | daily 00:05 | Expires subscriptions past their end date or session count |
+| `subscription-expiry` | daily 00:05 | Expires subscriptions past their end date or session count, then frees the group seats of trainees whose retake window has passed (each release is in the audit log) |
 | `archive-records` | Sunday 01:00 | Moves old records to the archive tables |
 | `session-generation` | Monday 02:00 | Extends each group's rolling 4-week session window |
 

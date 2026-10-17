@@ -11,7 +11,10 @@
  */
 
 import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
+import { subDays } from 'date-fns';
 import { enrollTrainee, renewSubscription } from '@/services/subscription.service';
+import { getAttendanceSheet } from '@/services/attendance.service';
+import { runSubscriptionExpiryJob } from '@/jobs/subscription-expiry.job';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { platformPrisma } from '@/lib/db/platform-client';
 import {
@@ -150,4 +153,127 @@ describe('capacity and moves', () => {
     },
     60_000
   );
+});
+
+/**
+ * Lapsed trainees release their seats — hardening plan §42.
+ *
+ * Nothing removed a membership once the retake window had passed, so groups
+ * filled with people who had left and refused new enrollments. The daily expiry
+ * job now releases those seats, using the attendance sheet's own rule for "past
+ * the window". The fixture's plan has a 14-day retake window.
+ */
+describe('lapsed trainees release their seats (§42)', () => {
+  /** Enroll, then move the subscription's end `daysAgo` into the past. */
+  async function endedSubscription(
+    a: TestAcademy,
+    groupId: string,
+    opts: { daysAgo: number; status: 'ACTIVE' | 'EXPIRED' }
+  ) {
+    const trainee = await createTestTrainee(a);
+    const { subscription } = await enrollTrainee(
+      a.tenantId, a.branchId, a.adminId, input(a, trainee.id, groupId)
+    );
+    const ended = subDays(new Date(), opts.daysAgo);
+    await withTenantContext(a.tenantId, (tx) =>
+      tx.traineeSubscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: opts.status,
+          endDate: ended,
+          expiredAt: opts.status === 'EXPIRED' ? ended : null,
+        },
+      })
+    );
+    return trainee;
+  }
+
+  test('the daily job releases only seats past the retake window', async () => {
+    const a = academy!;
+    const group = await createTestGroup(a);
+
+    // Still ACTIVE on paper, but its end date was 30 days ago: the job expires
+    // it and, 30 > 14, releases the seat in the same run.
+    const longGone = await endedSubscription(a, group.id, { daysAgo: 30, status: 'ACTIVE' });
+    // Ended 5 days ago: inside the window, still allowed makeups.
+    const recent = await endedSubscription(a, group.id, { daysAgo: 5, status: 'EXPIRED' });
+    // Training now.
+    const current = await createTestTrainee(a);
+    await enrollTrainee(a.tenantId, a.branchId, a.adminId, input(a, current.id, group.id));
+    // An old expired subscription, then a renewal: the latest one decides.
+    const renewed = await endedSubscription(a, group.id, { daysAgo: 60, status: 'EXPIRED' });
+    await renewSubscription(a.tenantId, a.branchId, a.adminId, input(a, renewed.id, group.id));
+
+    await runSubscriptionExpiryJob(a.tenantId);
+
+    const members = await withTenantContext(a.tenantId, async (tx) =>
+      (await tx.groupTrainee.findMany({ where: { groupId: group.id }, select: { traineeId: true } }))
+        .map((m) => m.traineeId)
+        .sort()
+    );
+    expect(members).toEqual([recent.id, current.id, renewed.id].sort());
+
+    // Staff can see why someone left the group.
+    const audit = await withTenantContext(a.tenantId, (tx) =>
+      tx.auditLog.findFirst({ where: { entityType: 'Group', entityId: group.id }, orderBy: { createdAt: 'desc' } })
+    );
+    expect(audit?.newValues).toMatchObject({ removedTrainee: longGone.id, reason: 'retake window ended' });
+  }, 120_000);
+
+  test('a released seat can be taken by a new trainee', async () => {
+    const a = academy!;
+    const group = await createTestGroup(a, { maxTrainees: 1 });
+    await endedSubscription(a, group.id, { daysAgo: 40, status: 'EXPIRED' });
+    const newcomer = await createTestTrainee(a);
+
+    // Before the job: the lapsed trainee still holds the only seat.
+    await expect(
+      enrollTrainee(a.tenantId, a.branchId, a.adminId, input(a, newcomer.id, group.id))
+    ).rejects.toMatchObject({ statusCode: 409 });
+
+    await runSubscriptionExpiryJob(a.tenantId);
+
+    await expect(
+      enrollTrainee(a.tenantId, a.branchId, a.adminId, input(a, newcomer.id, group.id))
+    ).resolves.toBeDefined();
+  }, 120_000);
+
+  test('a released trainee still shows on the sheets of sessions they attended', async () => {
+    const a = academy!;
+    const group = await createTestGroup(a);
+    const gone = await endedSubscription(a, group.id, { daysAgo: 45, status: 'EXPIRED' });
+
+    const sessionId = await withTenantContext(a.tenantId, async (tx) => {
+      const session = await tx.session.create({
+        data: {
+          branchId: a.branchId,
+          groupId: group.id,
+          scheduledAt: subDays(new Date(), 50),
+          durationMinutes: 60,
+          status: 'COMPLETED',
+        },
+      });
+      await tx.attendanceRecord.create({
+        data: {
+          branchId: a.branchId, sessionId: session.id, traineeId: gone.id,
+          status: 'PRESENT', markedBy: a.adminId,
+        },
+      });
+      return session.id;
+    });
+
+    await runSubscriptionExpiryJob(a.tenantId);
+    expect(await groupsOf(a, gone.id)).toEqual([]);
+
+    // Rows came only from current members, so this mark used to vanish.
+    const sheet = await getAttendanceSheet(a.tenantId, a.branchId, sessionId);
+    const rows = sheet.trainees as Array<{
+      traineeId: string;
+      attendance: { status: string } | null;
+      canMark: boolean;
+    }>;
+    const row = rows.find((t) => t.traineeId === gone.id);
+    expect(row?.attendance).toMatchObject({ status: 'PRESENT' });
+    expect(row?.canMark).toBe(false);
+  }, 120_000);
 });

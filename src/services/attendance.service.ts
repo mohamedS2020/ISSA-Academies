@@ -205,6 +205,30 @@ export async function submitAttendance(
 
 // ─── Get Attendance Sheet for a Session ──────────────────────
 
+/** What a sheet row needs about a trainee, for members and former members alike. */
+const SHEET_TRAINEE_SELECT = {
+  id: true,
+  name: true,
+  systemCode: true,
+  user: { select: { name: true } },
+  subscriptions: {
+    // Latest subscription (any status) so we can compute the
+    // ended/grace state, not just the active one.
+    orderBy: { createdAt: 'desc' as const },
+    take: 1,
+    select: {
+      id: true,
+      status: true,
+      endDate: true,
+      attendedSessions: true,
+      totalSessions: true,
+      freezeUsed: true,
+      expiredAt: true,
+      plan: { select: { freezeRetakeDays: true } },
+    },
+  },
+};
+
 export async function getAttendanceSheet(
   tenantId: string,
   branchId: string,
@@ -221,32 +245,7 @@ export async function getAttendanceSheet(
         group: {
           include: {
             trainees: {
-              include: {
-                trainee: {
-                  select: {
-                    id: true,
-                    name: true,
-                    systemCode: true,
-                    user: { select: { name: true } },
-                    subscriptions: {
-                      // Latest subscription (any status) so we can compute the
-                      // ended/grace state, not just the active one.
-                      orderBy: { createdAt: 'desc' },
-                      take: 1,
-                      select: {
-                        id: true,
-                        status: true,
-                        endDate: true,
-                        attendedSessions: true,
-                        totalSessions: true,
-                        freezeUsed: true,
-                        expiredAt: true,
-                        plan: { select: { freezeRetakeDays: true } },
-                      },
-                    },
-                  },
-                },
-              },
+              include: { trainee: { select: SHEET_TRAINEE_SELECT } },
             },
           },
         },
@@ -262,11 +261,26 @@ export async function getAttendanceSheet(
       session.attendanceRecords.map((r: any) => [r.traineeId, r])
     );
 
+    // People marked in this session who are no longer in the group: removed by
+    // staff, moved to another group, or released once their retake window
+    // passed (releaseLapsedSeats). Rows came only from current members, so
+    // their marks vanished from the sheets of the sessions they attended.
+    const memberIds = new Set(session.group.trainees.map((gt) => gt.trainee.id));
+    const formerIds = session.attendanceRecords
+      .map((r) => r.traineeId)
+      .filter((id) => !memberIds.has(id));
+    const formerMembers = formerIds.length
+      ? await tx.traineeProfile.findMany({
+          where: { id: { in: formerIds } },
+          select: SHEET_TRAINEE_SELECT,
+        })
+      : [];
+
     const now = new Date();
-    const trainees = session.group.trainees
-      .map((gt: any) => {
-        const sub = gt.trainee.subscriptions[0] ?? null;
-        const existingAttendance = attendanceMap.get(gt.trainee.id) ?? null;
+    const trainees = [...session.group.trainees.map((gt) => gt.trainee), ...formerMembers]
+      .map((trainee: any) => {
+        const sub = trainee.subscriptions[0] ?? null;
+        const existingAttendance = attendanceMap.get(trainee.id) ?? null;
 
         // Compute the subscription lifecycle state (no sub → treat as past grace).
         const state = sub
@@ -284,9 +298,9 @@ export async function getAttendanceSheet(
           : { ended: true, withinGrace: false, pastGrace: true };
 
         return {
-          traineeId: gt.trainee.id,
-          systemCode: gt.trainee.systemCode,
-          name: gt.trainee.name,
+          traineeId: trainee.id,
+          systemCode: trainee.systemCode,
+          name: trainee.name,
           activeSubscription: sub
             ? {
                 id: sub.id,
