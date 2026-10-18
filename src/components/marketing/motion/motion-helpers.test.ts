@@ -1,5 +1,6 @@
 import { parseCount } from './count-format';
 import { heroTiming } from './hero-timing';
+import { restingTransform, settle } from './keyframes';
 import { splitWords, wordCount } from './split-words';
 
 describe('splitWords', () => {
@@ -60,5 +61,41 @@ describe('heroTiming', () => {
     expect(ms('--hero-actions')).toBeGreaterThan(ms('--hero-lead'));
     expect(ms('--hero-card2')).toBeGreaterThan(ms('--hero-card1'));
     expect(ms('--hero-toast') - ms('--hero-card2')).toBe(1500);
+  });
+});
+
+describe('restingTransform', () => {
+  it.each([
+    ['scale(.5)', 'scale(1)'],
+    ['scaleX(0)', 'scaleX(1)'],
+    ['translateY(10px) scale(.92)', 'translateY(0px) scale(1)'],
+    ['translateY(28px) rotate(-3deg)', 'translateY(0px) rotate(0deg)'],
+    ['translateY(.4em)', 'translateY(0px)'],
+    ['translate(4px, -2px)', 'translate(0px, 0px)'],
+  ])('%s rests at %s', (from, resting) => {
+    expect(restingTransform(from)).toBe(resting);
+  });
+
+  it("leaves a transform it can't reason about to Motion", () => {
+    expect(restingTransform('matrix(1, 0, 0, 1, 0, 0)')).toBe('none');
+    expect(restingTransform('rotate3d(1, 0, 0, 45deg)')).toBe('none');
+  });
+});
+
+describe('settle', () => {
+  // Motion reads a final 'none' as the zero of the first keyframe: the role chips
+  // animated from scale(.5) to scale(0), and the last one stayed invisible.
+  it('ends a scale on full size instead of none', () => {
+    expect(settle({ opacity: [0, 1], transform: ['scale(.5)', 'none'] })).toEqual({
+      opacity: [0, 1],
+      transform: ['scale(.5)', 'scale(1)'],
+    });
+  });
+
+  it('leaves keyframes that do not end on none alone', () => {
+    const keyframes = { transform: ['scale(.5)', 'scale(.8)'] };
+    expect(settle(keyframes)).toBe(keyframes);
+    const opacityOnly = { opacity: [0, 1] };
+    expect(settle(opacityOnly)).toBe(opacityOnly);
   });
 });

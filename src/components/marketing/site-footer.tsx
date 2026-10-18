@@ -62,7 +62,7 @@ export function SiteFooter({
               </li>
             </ul>
           </div>
-          <div>
+          <div className="footer-contact">
             <h4>{t('footer.getInTouch')}</h4>
             <ul>
               <li>

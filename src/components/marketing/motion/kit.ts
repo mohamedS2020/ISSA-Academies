@@ -10,6 +10,7 @@
 
 import {
   animate,
+  frame,
   inView,
   type AnimationOptions,
   type AnimationPlaybackControlsWithThen,
@@ -17,6 +18,7 @@ import {
   type ValueAnimationTransition,
 } from 'motion';
 import { parseCount, type CountFormat } from './count-format';
+import { settle } from './keyframes';
 
 /** The brand easing, cubic-bezier(.2, .7, .2, 1). */
 export const EASE = [0.2, 0.7, 0.2, 1] as const;
@@ -105,12 +107,18 @@ export class Scope {
     });
   }
 
-  /** Animates transform/opacity, then hands the elements back to the stylesheet. */
+  /**
+   * Animates transform/opacity, then hands the elements back to the stylesheet.
+   * A transform ending on `'none'` ends at rest (see keyframes.ts).
+   */
   tween(elements: Target | (Target | null)[] | null, keyframes: DOMKeyframesDefinition, options: AnimationOptions = {}) {
     const list = (Array.isArray(elements) ? elements : [elements]).filter((el): el is Target => Boolean(el));
     if (list.length === 0) return;
-    const controls = animate(list, keyframes, { duration: this.env.duration, ease: EASE, ...options });
-    this.track(controls, () => list.forEach((el) => this.clear(el)));
+    const controls = animate(list, settle(keyframes), { duration: this.env.duration, ease: EASE, ...options });
+    // Motion paints the final frame once more on its next render, after the
+    // promise has resolved. Clearing straight away left that frame behind as an
+    // inline style on the last element to finish, so clear after Motion renders.
+    this.track(controls, () => frame.postRender(() => list.forEach((el) => this.clear(el))));
   }
 
   /** Starting state for `rise`: transparent and lowered. */
