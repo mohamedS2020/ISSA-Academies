@@ -37,6 +37,8 @@ function ReportsCenterPageContent() {
   const t = useTranslations('reports');
   const tCommon = useTranslations('common');
   const tTrainees = useTranslations('trainees');
+  const tValues = useTranslations('reports.values');
+  const tSummary = useTranslations('reports.summary');
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -100,7 +102,7 @@ function ReportsCenterPageContent() {
     setIsExporting(true);
     try {
       const res = await authFetch(`/api/reports?${buildQuery(format)}`);
-      if (!res.ok) throw new Error('Export failed');
+      if (!res.ok) throw new Error(tCommon('exportFailed'));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -127,48 +129,54 @@ function ReportsCenterPageContent() {
     { value: 'levelGroupTransitions', label: t('transitions') },
   ];
 
+  // Enum values in the records (INCOME, PRESENT, ACTIVE …) in the page's language.
+  const valueText = (v: unknown) =>
+    typeof v === 'string' && tValues.has(v) ? tValues(v) : String(v ?? '');
+  const col = (key: string, header: string, translateValue = false): Column<Record<string, unknown>> =>
+    translateValue ? { key, header, render: (row) => valueText(row[key]) } : { key, header };
+
   const columnsByType: Record<ReportType, Column<any>[]> = {
     financial: [
-      { key: 'date', header: t('dateRange') },
-      { key: 'type', header: 'Type' },
-      { key: 'amount', header: 'Amount' },
+      col('date', t('dateRange')),
+      col('type', t('col.type'), true),
+      col('amount', t('col.amount')),
     ],
     attendance: [
-      { key: 'date', header: t('dateRange') },
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'groupName', header: 'Group' },
-      { key: 'status', header: 'Status' },
+      col('date', t('dateRange')),
+      col('traineeName', t('col.trainee')),
+      col('groupName', t('col.group')),
+      col('status', t('col.status'), true),
     ],
     subscription: [
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'planName', header: 'Plan' },
-      { key: 'levelName', header: 'Level' },
-      { key: 'status', header: 'Status' },
-      { key: 'startDate', header: 'Start' },
-      { key: 'endDate', header: 'End' },
+      col('traineeName', t('col.trainee')),
+      col('planName', t('col.plan')),
+      col('levelName', t('col.level')),
+      col('status', t('col.status'), true),
+      col('startDate', t('col.start')),
+      col('endDate', t('col.end')),
     ],
     captainPerformance: [
-      { key: 'captainName', header: 'Captain' },
-      { key: 'sessionsConducted', header: 'Sessions' },
-      { key: 'attendanceRate', header: 'Attendance %' },
-      { key: 'evaluationsCount', header: 'Evaluations' },
+      col('captainName', t('col.captain')),
+      col('sessionsConducted', t('col.sessions')),
+      col('attendanceRate', t('col.attendanceRate')),
+      col('evaluationsCount', t('col.evaluations')),
     ],
     expiringSoon: [
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'phone', header: 'Phone' },
-      { key: 'planName', header: 'Plan' },
-      { key: 'levelName', header: 'Level' },
-      { key: 'groupName', header: 'Group' },
-      { key: 'sessions', header: 'Sessions' },
-      { key: 'sessionsRemaining', header: 'Remaining' },
-      { key: 'endDate', header: 'End' },
+      col('traineeName', t('col.trainee')),
+      col('phone', t('col.phone')),
+      col('planName', t('col.plan')),
+      col('levelName', t('col.level')),
+      col('groupName', t('col.group')),
+      col('sessions', t('col.sessions')),
+      col('sessionsRemaining', t('col.remaining')),
+      col('endDate', t('col.end')),
     ],
     levelGroupTransitions: [
-      { key: 'date', header: 'Date' },
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'levelChange', header: 'Level Change' },
-      { key: 'groupChange', header: 'Group Change' },
-      { key: 'changedBy', header: 'Changed By' },
+      col('date', t('col.date')),
+      col('traineeName', t('col.trainee')),
+      col('levelChange', t('col.levelChange')),
+      col('groupChange', t('col.groupChange')),
+      col('changedBy', t('col.changedBy')),
     ],
   };
 
@@ -232,31 +240,31 @@ function ReportsCenterPageContent() {
           {type === 'subscription' && (
             <div className="space-y-1.5">
               <label htmlFor="dashboard-reports-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Status
+                {t('col.status')}
               </label>
               <select id="dashboard-reports-f3"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="">All</option>
-                <option value="ACTIVE">Active</option>
-                <option value="EXPIRED">Expired</option>
-                <option value="FROZEN">Frozen</option>
+                <option value="">{tCommon('all')}</option>
+                <option value="ACTIVE">{tValues('ACTIVE')}</option>
+                <option value="EXPIRED">{tValues('EXPIRED')}</option>
+                <option value="FROZEN">{tValues('FROZEN')}</option>
               </select>
             </div>
           )}
           {(type === 'attendance' || type === 'captainPerformance') && (
             <div className="space-y-1.5">
               <label htmlFor="dashboard-reports-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Captain
+                {t('col.captain')}
               </label>
               <select id="dashboard-reports-f4"
                 value={captainId}
                 onChange={(e) => setCaptainId(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="">All</option>
+                <option value="">{tCommon('all')}</option>
                 {captains.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.user.name}
@@ -290,7 +298,7 @@ function ReportsCenterPageContent() {
                   className="rounded-2xl border border-border bg-card/70 p-4 backdrop-blur-xl"
                 >
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
-                    {key}
+                    {tSummary.has(key) ? tSummary(key) : key}
                   </span>
                   <span className="text-xl font-extrabold text-foreground">
                     {typeof value === 'number' ? value.toFixed(2) : String(value)}
@@ -307,13 +315,13 @@ function ReportsCenterPageContent() {
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground text-xs">
-                    <th className="text-start py-2">Plan</th>
-                    <th className="text-end py-2">Trainees Paid</th>
+                    <th className="text-start py-2">{t('col.plan')}</th>
+                    <th className="text-end py-2">{t('traineesPaid')}</th>
                     <th className="text-end py-2">{tTrainees('referralNew')}</th>
                     <th className="text-end py-2">{tTrainees('referralNetwork')}</th>
                     <th className="text-end py-2">{tTrainees('referralContinuous')}</th>
                     <th className="text-end py-2">{tTrainees('referralOld')}</th>
-                    <th className="text-end py-2">Income</th>
+                    <th className="text-end py-2">{t('col.income')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -329,7 +337,7 @@ function ReportsCenterPageContent() {
                     </tr>
                   ))}
                   <tr className="font-bold text-foreground border-t border-input">
-                    <td className="py-2">GRAND TOTAL</td>
+                    <td className="py-2">{t('grandTotal')}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + p.traineeCount, 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.new ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.network ?? 0), 0)}</td>

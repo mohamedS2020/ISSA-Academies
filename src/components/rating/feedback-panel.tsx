@@ -43,7 +43,7 @@ export function FeedbackPanel({
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/trainees/${traineeId}/feedback`);
-      if (!res.ok) throw new Error('Failed to load feedback');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       setEntries((await res.json()).data ?? []);
     } catch (err: any) {
       toast.error(err.message || tCommon('somethingWentWrong'));
@@ -66,7 +66,7 @@ export function FeedbackPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed }),
       });
-      if (!res.ok) throw new Error('Failed to submit feedback');
+      if (!res.ok) throw new Error(t('submitFailed'));
       setMessage('');
       toast.success(t('added'));
       fetchFeedback();

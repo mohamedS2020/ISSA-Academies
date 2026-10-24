@@ -79,7 +79,7 @@ export default function PortalDashboardPage() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/portal/dashboard${selectedTraineeId ? `?traineeId=${selectedTraineeId}` : ''}`);
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       setData(json.data);
     } catch (err: any) {
@@ -116,7 +116,7 @@ export default function PortalDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stars }),
       });
-      if (!res.ok) throw new Error('Failed to save rating');
+      if (!res.ok) throw new Error(t('ratingFailed'));
       setRating((await res.json()).data);
       toast.success(t('ratingSaved'));
     } catch (err: any) {

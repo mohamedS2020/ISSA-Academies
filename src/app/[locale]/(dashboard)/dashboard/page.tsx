@@ -109,7 +109,7 @@ export default function DashboardPage() {
     enabled: !!user && user.role !== UserRole.TRAINEE,
     queryFn: async () => {
       const res = await authFetch('/api/dashboard');
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       return json.data;
     },

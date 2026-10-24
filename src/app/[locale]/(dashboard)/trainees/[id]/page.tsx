@@ -150,7 +150,7 @@ function TraineeDetailPageContent() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/trainees/${traineeId}`);
-      if (!res.ok) throw new Error('Failed to load trainee');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setTrainee(data.data);
     } catch (err: any) {
@@ -158,7 +158,7 @@ function TraineeDetailPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [traineeId, authFetch, toast]);
+  }, [traineeId, authFetch, toast, tCommon]);
 
   useEffect(() => { fetchTrainee(); }, [fetchTrainee]);
 
@@ -209,8 +209,8 @@ function TraineeDetailPageContent() {
           waistCircumference: editForm.waistCircumference ? Number(editForm.waistCircumference) : null,
         }),
       });
-      if (!res.ok) throw new Error('Failed to save changes');
-      toast.success('Trainee updated successfully');
+      if (!res.ok) throw new Error(tCommon('saveFailed'));
+      toast.success(t('updated'));
       setIsEditing(false);
       fetchTrainee();
     } catch (err: any) {
@@ -248,11 +248,11 @@ function TraineeDetailPageContent() {
 
     const amountNum = Number(paymentAmount);
     if (!amountNum || amountNum <= 0) {
-      setPaymentError('Amount must be a positive number');
+      setPaymentError(t('amountPositive'));
       return;
     }
     if (!paymentMethod) {
-      setPaymentError('Please select a payment method');
+      setPaymentError(t('selectPaymentMethod'));
       return;
     }
 
@@ -265,7 +265,7 @@ function TraineeDetailPageContent() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error?.message || 'Failed to record payment');
+        throw new Error(data.error?.message || t('paymentFailed'));
       }
       toast.success(tCommon('success'));
       setShowPaymentDialog(false);
@@ -309,7 +309,7 @@ function TraineeDetailPageContent() {
         body: JSON.stringify({ levelId: assignForm.levelId, groupId: assignForm.groupId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Failed to update');
+      if (!res.ok) throw new Error(data.error?.message || t('updateFailed'));
       toast.success(tCommon('success'));
       setShowAssignDialog(false);
       fetchTrainee();
@@ -351,11 +351,11 @@ function TraineeDetailPageContent() {
 
   const handleEnroll = async (isRenewal = false) => {
     if (!enrollForm.planId || !enrollForm.levelId || !enrollForm.groupId) {
-      toast.error('Please select a plan, level, and group');
+      toast.error(t('selectPlanLevelGroup'));
       return;
     }
     if (Number(enrollForm.amountPaid) > 0 && !enrollForm.paymentMethod) {
-      toast.error('Please select a payment method');
+      toast.error(t('selectPaymentMethod'));
       return;
     }
     setIsEnrolling(true);
@@ -377,9 +377,9 @@ function TraineeDetailPageContent() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Enrollment failed');
+      if (!res.ok) throw new Error(data.error?.message || t('enrollFailed'));
       setEnrollReceipt(data.data?.receipt?.receiptNumber ?? null);
-      toast.success(isRenewal ? 'Subscription renewed!' : 'Trainee enrolled!');
+      toast.success(isRenewal ? t('renewed') : t('enrolled'));
       fetchTrainee();
     } catch (err: any) {
       toast.error(err.message);
@@ -402,7 +402,7 @@ function TraineeDetailPageContent() {
     return (
       <div className="text-center py-16 text-muted-foreground">
         <XCircle className="w-12 h-12 mx-auto mb-3 text-danger" />
-        <p>Trainee not found</p>
+        <p>{t('notFound')}</p>
       </div>
     );
   }
@@ -474,7 +474,7 @@ function TraineeDetailPageContent() {
                     onClick={openEnrollDialog}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
-                    <Plus className="w-4 h-4" />Enroll
+                    <Plus className="w-4 h-4" />{t('enroll')}
                   </button>
                 )}
                 {/* Renew button — show when there is an expired sub */}
@@ -483,7 +483,7 @@ function TraineeDetailPageContent() {
                     onClick={openEnrollDialog}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
-                    <RefreshCw className="w-4 h-4" />Renew
+                    <RefreshCw className="w-4 h-4" />{t('renew')}
                   </button>
                 )}
                 {!canManage ? null : trainee.isActive ? (
@@ -529,26 +529,26 @@ function TraineeDetailPageContent() {
                     onClick={openAssignDialog}
                     className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary dark:text-primary hover:text-primary dark:hover:text-primary transition-colors"
                   >
-                    <Edit2 className="w-3 h-3" /> Edit Level &amp; Group
+                    <Edit2 className="w-3 h-3" /> {t('editLevelGroup')}
                   </button>
                 )}
               </div>
             </div>
             <div className="flex gap-6 text-sm">
               <div>
-                <p className="text-xs text-muted-foreground">Sessions</p>
+                <p className="text-xs text-muted-foreground">{t('sessions')}</p>
                 <p className="font-semibold text-foreground">
                   {activeSubscription.attendedSessions} / {activeSubscription.totalSessions}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Expires</p>
+                <p className="text-xs text-muted-foreground">{t('expires')}</p>
                 <p className="font-semibold text-foreground">
                   {new Date(activeSubscription.endDate).toLocaleDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Amount Due</p>
+                <p className="text-xs text-muted-foreground">{t('amountDue')}</p>
                 <p className={`font-semibold ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </p>
@@ -564,7 +564,7 @@ function TraineeDetailPageContent() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-soft border border-success/30 text-success hover:bg-success/15 text-xs font-bold transition-colors self-center"
                 >
                   <Wallet size={14} />
-                  Record Payment
+                  {t('recordPayment')}
                 </button>
               )}
             </div>
@@ -589,7 +589,7 @@ function TraineeDetailPageContent() {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <Wallet size={18} className="text-success" />
-                  Record Payment
+                  {t('recordPayment')}
                 </h3>
                 <button
                   onClick={() => setShowPaymentDialog(false)}
@@ -600,7 +600,7 @@ function TraineeDetailPageContent() {
               </div>
 
               <p className="text-xs text-muted-foreground mb-4">
-                Outstanding balance:{' '}
+                {t('outstandingBalance')}{' '}
                 <span className="text-warning font-semibold">
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </span>
@@ -615,7 +615,7 @@ function TraineeDetailPageContent() {
 
               <div className="space-y-1.5 mb-5">
                 <label htmlFor="dashboard-trainees-id-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Amount <span className="text-danger">*</span>
+                  {t('amount')} <span className="text-danger">*</span>
                 </label>
                 <input id="dashboard-trainees-id-f1"
                   type="number"
@@ -659,7 +659,7 @@ function TraineeDetailPageContent() {
                   className="px-4 py-2 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-semibold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {isRecordingPayment && <Loader2 size={12} className="animate-spin" />}
-                  Submit
+                  {tCommon('submit')}
                 </button>
               </div>
             </div>
@@ -673,7 +673,7 @@ function TraineeDetailPageContent() {
           <div className="w-full max-w-md p-1 rounded-3xl bg-gradient-to-b from-primary/10 via-muted/40 to-background border border-border/80 shadow-2xl backdrop-blur-xl">
             <div className="bg-card/95 rounded-[22px] p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">Edit Level &amp; Group</h2>
+                <h2 className="text-lg font-bold text-foreground">{t('editLevelGroup')}</h2>
                 <button
                   onClick={() => setShowAssignDialog(false)}
                   className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -683,11 +683,11 @@ function TraineeDetailPageContent() {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                Within plan <span className="text-foreground/80 font-semibold">{activeSubscription.plan.name}</span>
+                {t('withinPlan')} <span className="text-foreground/80 font-semibold">{activeSubscription.plan.name}</span>
               </p>
 
               <div className="space-y-1.5">
-                <label htmlFor="dashboard-trainees-id-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Level</label>
+                <label htmlFor="dashboard-trainees-id-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('level')}</label>
                 <select id="dashboard-trainees-id-f3"
                   value={assignForm.levelId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, levelId: e.target.value }))}
@@ -701,19 +701,19 @@ function TraineeDetailPageContent() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="dashboard-trainees-id-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Group</label>
+                <label htmlFor="dashboard-trainees-id-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('group')}</label>
                 <select id="dashboard-trainees-id-f4"
                   value={assignForm.groupId}
                   onChange={(e) => setAssignForm((f) => ({ ...f, groupId: e.target.value }))}
                   className={inputClass}
                 >
-                  <option value="">Select a group</option>
+                  <option value="">{t('selectGroup')}</option>
                   {assignGroups.length === 0 && trainee.groupTrainees?.[0] && (
                     <option value={assignForm.groupId}>{trainee.groupTrainees[0].group.name}</option>
                   )}
                   {assignGroups.map((g) => (
                     <option key={g.id} value={g.id} disabled={g.isFull && g.id !== assignForm.groupId}>
-                      {g.name} · {g.captain.user.name} · {g.availableSlots} slots left{g.isFull ? ' (full)' : ''}
+                      {g.name} · {g.captain.user.name} · {t('slotsLeft', { count: g.availableSlots })}{g.isFull ? ` ${t('full')}` : ''}
                     </option>
                   ))}
                 </select>
@@ -816,7 +816,7 @@ function TraineeDetailPageContent() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-primary" />
-                  {activeSubscription ? 'Renew Subscription' : 'Enroll Trainee'}
+                  {activeSubscription ? t('renewSubscription') : t('enrollTrainee')}
                 </h2>
                 <button onClick={() => setShowEnrollDialog(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
               </div>
@@ -827,16 +827,16 @@ function TraineeDetailPageContent() {
                   <div className="w-14 h-14 mx-auto rounded-full bg-success-soft border border-success/40 flex items-center justify-center">
                     <CheckCircle className="w-7 h-7 text-success" />
                   </div>
-                  <p className="font-semibold text-foreground">Enrollment complete!</p>
+                  <p className="font-semibold text-foreground">{t('enrollmentComplete')}</p>
                   <div className="bg-muted rounded-xl p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Receipt</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t('receipt')}</p>
                     <p className="font-mono font-bold text-success">{enrollReceipt}</p>
                   </div>
                   <button
                     onClick={() => setShowEnrollDialog(false)}
                     className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
                   >
-                    Done
+                    {t('done')}
                   </button>
                 </div>
               ) : (
@@ -844,7 +844,7 @@ function TraineeDetailPageContent() {
                 <div className="space-y-4">
                   {/* Plan */}
                   <div>
-                    <label htmlFor="dashboard-trainees-id-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">Subscription Plan <span className="text-danger">*</span></label>
+                    <label htmlFor="dashboard-trainees-id-f5" className="block text-xs font-semibold text-foreground/80 mb-1.5">{t('subscriptionPlan')} <span className="text-danger">*</span></label>
                     <select id="dashboard-trainees-id-f5"
                       className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       value={enrollForm.planId}
@@ -856,21 +856,21 @@ function TraineeDetailPageContent() {
                         else setEnrollGroups([]);
                       }}
                     >
-                      <option value="">Select a plan</option>
-                      {enrollPlans.map((p) => <option key={p.id} value={p.id}>{p.name} — {Number(p.amount).toLocaleString()} EGP</option>)}
+                      <option value="">{t('selectPlan')}</option>
+                      {enrollPlans.map((p) => <option key={p.id} value={p.id}>{p.name} — {tCommon('egp', { amount: Number(p.amount).toLocaleString() })}</option>)}
                     </select>
                   </div>
 
                   {/* Level */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label htmlFor="dashboard-trainees-id-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">Level <span className="text-danger">*</span></label>
+                      <label htmlFor="dashboard-trainees-id-f6" className="block text-xs font-semibold text-foreground/80 mb-1.5">{t('level')} <span className="text-danger">*</span></label>
                       <select id="dashboard-trainees-id-f6"
                         className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                         value={enrollForm.levelId}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, levelId: e.target.value }))}
                       >
-                        <option value="">Select a level</option>
+                        <option value="">{t('selectLevel')}</option>
                         {enrollSelectedPlan.levels.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                       </select>
                     </div>
@@ -879,9 +879,9 @@ function TraineeDetailPageContent() {
                   {/* Group */}
                   {enrollSelectedPlan && (
                     <div>
-                      <label htmlFor="dashboard-trainees-id-group" className="block text-xs font-semibold text-foreground/80 mb-1.5">Group <span className="text-danger">*</span></label>
+                      <label htmlFor="dashboard-trainees-id-group" className="block text-xs font-semibold text-foreground/80 mb-1.5">{t('group')} <span className="text-danger">*</span></label>
                       {isLoadingEnrollGroups ? (
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-1"><Loader2 className="w-4 h-4 animate-spin" />Loading groups...</div>
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-1"><Loader2 className="w-4 h-4 animate-spin" />{t('loadingGroups')}</div>
                       ) : (
                         <select
                           id="dashboard-trainees-id-group"
@@ -889,10 +889,10 @@ function TraineeDetailPageContent() {
                           value={enrollForm.groupId}
                           onChange={(e) => setEnrollForm((f) => ({ ...f, groupId: e.target.value }))}
                         >
-                          <option value="">Select a group</option>
+                          <option value="">{t('selectGroup')}</option>
                           {enrollGroups.map((g) => (
                             <option key={g.id} value={g.id} disabled={g.isFull}>
-                              {g.name} · {g.captain.user.name} · {g.availableSlots} slots left{g.isFull ? ' (full)' : ''}
+                              {g.name} · {g.captain.user.name} · {t('slotsLeft', { count: g.availableSlots })}{g.isFull ? ` ${t('full')}` : ''}
                             </option>
                           ))}
                         </select>
@@ -903,7 +903,7 @@ function TraineeDetailPageContent() {
                   {/* Payment */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="dashboard-trainees-id-f7" className="block text-xs font-semibold text-foreground/80 mb-1.5">Amount Paid (EGP)</label>
+                      <label htmlFor="dashboard-trainees-id-f7" className="block text-xs font-semibold text-foreground/80 mb-1.5">{t('amountPaidEgp')}</label>
                       <input id="dashboard-trainees-id-f7"
                         type="number" min={0}
                         value={enrollForm.amountPaid}
@@ -912,15 +912,15 @@ function TraineeDetailPageContent() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="dashboard-trainees-id-f8" className="block text-xs font-semibold text-foreground/80 mb-1.5">Payment Status</label>
+                      <label htmlFor="dashboard-trainees-id-f8" className="block text-xs font-semibold text-foreground/80 mb-1.5">{t('paymentStatus')}</label>
                       <select id="dashboard-trainees-id-f8"
                         value={enrollForm.paymentStatus}
                         onChange={(e) => setEnrollForm((f) => ({ ...f, paymentStatus: e.target.value as any }))}
                         className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
                       >
-                        <option value="UNPAID">Unpaid</option>
-                        <option value="PARTIAL">Partial</option>
-                        <option value="PAID">Paid</option>
+                        <option value="UNPAID">{t('statusUnpaid')}</option>
+                        <option value="PARTIAL">{t('statusPartial')}</option>
+                        <option value="PAID">{t('statusPaid')}</option>
                       </select>
                     </div>
                   </div>
@@ -949,7 +949,7 @@ function TraineeDetailPageContent() {
                     className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
                     {isEnrolling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                    {activeSubscription ? 'Renew Subscription' : 'Enroll & Generate Receipt'}
+                    {activeSubscription ? t('renewSubscription') : t('enrollAndReceipt')}
                   </button>
                 </div>
               )}

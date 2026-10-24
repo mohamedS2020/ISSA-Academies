@@ -56,16 +56,12 @@ interface Pagination {
   totalPages: number;
 }
 
-const DAY_SHORT: Record<string, string> = {
-  MONDAY: 'Mon', TUESDAY: 'Tue', WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu', FRIDAY: 'Fri', SATURDAY: 'Sat', SUNDAY: 'Sun',
-};
-
 // ─── Component ────────────────────────────────────────────────
 
 function CaptainsPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
+  const tDays = useTranslations('daysShort');
   const { authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -89,7 +85,7 @@ function CaptainsPageContent() {
       const qs = new URLSearchParams({ page: String(page), limit: '20' });
       if (searchQuery) qs.set('search', searchQuery);
       const res = await authFetch(`/api/captains?${qs}`);
-      if (!res.ok) throw new Error('Failed to load captains');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setCaptains(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -116,7 +112,7 @@ function CaptainsPageContent() {
   const columns: Column<CaptainRow>[] = [
     {
       key: 'captain',
-      header: 'Captain',
+      header: t('captain'),
       render: (row) => (
         <div>
           <div className="flex items-center gap-2">
@@ -152,7 +148,7 @@ function CaptainsPageContent() {
         <div className="flex flex-wrap gap-1">
           {row.attendingDays.map((day) => (
             <span key={day} className="px-1.5 py-0.5 bg-muted rounded text-xs text-foreground/80 border border-input/40">
-              {DAY_SHORT[day] ?? day}
+              {tDays.has(day) ? tDays(day) : day}
             </span>
           ))}
         </div>
@@ -163,7 +159,7 @@ function CaptainsPageContent() {
       header: t('assignedGroups'),
       render: (row) => (
         <span className="text-sm font-semibold text-foreground">
-          {row._count.groups} {row._count.groups === 1 ? 'group' : 'groups'}
+          {t('groupCount', { count: row._count.groups })}
         </span>
       ),
     },
@@ -191,7 +187,7 @@ function CaptainsPageContent() {
           onClick={() => router.push(`/${locale}/captains/${row.id}`)}
           className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
         >
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -210,7 +206,7 @@ function CaptainsPageContent() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {pagination.total} {pagination.total === 1 ? 'captain' : 'captains'} in this branch
+              {t('countInBranch', { count: pagination.total })}
             </p>
           </div>
         </div>
@@ -232,7 +228,7 @@ function CaptainsPageContent() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name..."
+          placeholder={t('searchPlaceholder')}
           className="w-full ps-9 pe-4 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
         />
       </div>

@@ -56,6 +56,10 @@ function todayIso(offsetDays = 0): string {
 function PayrollPageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
+  const tCaptains = useTranslations('captains');
+  // HOURS / SALARY_PERCENTAGE, as the captains page names them.
+  const payrollTypeLabel = (type: string) =>
+    type === 'HOURS' ? tCaptains('hours') : type === 'SALARY_PERCENTAGE' ? tCaptains('salaryPercentage') : type;
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -81,7 +85,7 @@ function PayrollPageContent() {
     setIsLoadingList(true);
     try {
       const res = await authFetch('/api/finance/payroll?page=1&limit=20');
-      if (!res.ok) throw new Error('Failed to load payroll records');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setPayrolls(data.data || []);
     } catch (err: any) {
@@ -97,7 +101,7 @@ function PayrollPageContent() {
 
   const handleCalculate = async () => {
     if (!captainId) {
-      toast.error('Select a captain first');
+      toast.error(t('selectCaptainFirst'));
       return;
     }
     setIsCalculating(true);
@@ -165,7 +169,7 @@ function PayrollPageContent() {
   const columns: Column<PayrollRecord>[] = [
     {
       key: 'captain',
-      header: 'Captain',
+      header: t('captain'),
       className: 'font-semibold text-foreground',
       render: (row) => row.captain.user.name,
     },
@@ -179,7 +183,7 @@ function PayrollPageContent() {
         </span>
       ),
     },
-    { key: 'payrollType', header: 'Type' },
+    { key: 'payrollType', header: t('payrollTypeColumn'), render: (row) => payrollTypeLabel(row.payrollType) },
     {
       key: 'totalAmount',
       header: t('totalAmount'),
@@ -213,14 +217,14 @@ function PayrollPageContent() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label htmlFor="dashboard-finance-payroll-f1" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Captain
+              {t('captain')}
             </label>
             <select id="dashboard-finance-payroll-f1"
               value={captainId}
               onChange={(e) => setCaptainId(e.target.value)}
               className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
             >
-              <option value="">Select...</option>
+              <option value="">{t('selectPlaceholder')}</option>
               {captains.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.user.name}
@@ -230,7 +234,7 @@ function PayrollPageContent() {
           </div>
           <div className="space-y-1.5">
             <label htmlFor="dashboard-finance-payroll-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Period Start
+              {t('periodStart')}
             </label>
             <input id="dashboard-finance-payroll-f2"
               type="date"
@@ -241,7 +245,7 @@ function PayrollPageContent() {
           </div>
           <div className="space-y-1.5">
             <label htmlFor="dashboard-finance-payroll-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Period End
+              {t('periodEnd')}
             </label>
             <input id="dashboard-finance-payroll-f3"
               type="date"
@@ -269,7 +273,7 @@ function PayrollPageContent() {
         {preview && (
           <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 space-y-3">
             <p className="text-xs text-muted-foreground">
-              {preview.captainName} · {preview.payrollType}
+              {preview.captainName} · {payrollTypeLabel(preview.payrollType)}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               {preview.payrollType === 'HOURS' ? (
@@ -296,7 +300,7 @@ function PayrollPageContent() {
                     />
                   </div>
                   <div>
-                    <span className="text-muted-foreground block">Hourly Rate</span>
+                    <span className="text-muted-foreground block">{t('hourlyRate')}</span>
                     <span className="text-foreground font-semibold">
                       {Number(preview.hourlyRate ?? 0).toFixed(2)}
                     </span>
@@ -305,13 +309,13 @@ function PayrollPageContent() {
               ) : (
                 <>
                   <div>
-                    <span className="text-muted-foreground block">Base Salary</span>
+                    <span className="text-muted-foreground block">{t('baseSalary')}</span>
                     <span className="text-foreground font-semibold">
                       {Number(preview.baseSalary ?? 0).toFixed(2)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block">Percentage Base</span>
+                    <span className="text-muted-foreground block">{t('percentageBase')}</span>
                     <input
                       type="number"
                       step="0.01"
@@ -347,7 +351,7 @@ function PayrollPageContent() {
               className="px-4 py-2 rounded-xl bg-success hover:bg-success/90 text-success-foreground font-semibold text-xs transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
             >
               {isRecording && <Loader2 size={12} className="animate-spin" />}
-              Record Payroll
+              {t('recordPayroll')}
             </button>
           </div>
         )}

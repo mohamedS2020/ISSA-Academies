@@ -204,7 +204,8 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold rounded-xl bg-muted/70 hover:bg-danger-soft border border-border hover:border-danger/50 transition-colors text-foreground/80 hover:text-danger"
-              title="Logout"
+              title={tAuth('logout')}
+              aria-label={tAuth('logout')}
             >
               <LogOut size={14} />
             </button>

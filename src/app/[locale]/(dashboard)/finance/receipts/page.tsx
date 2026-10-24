@@ -58,7 +58,7 @@ function ReceiptsPageContent() {
         if (dateFrom) qs.set('startDate', dateFrom);
         if (dateTo) qs.set('endDate', dateTo);
         const res = await authFetch(`/api/finance/receipts?${qs}`);
-        if (!res.ok) throw new Error('Failed to load receipts');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         const data = await res.json();
         setReceipts(data.data || []);
         if (data.pagination) setPagination(data.pagination);
@@ -79,7 +79,7 @@ function ReceiptsPageContent() {
     setDownloadingId(receipt.id);
     try {
       const res = await authFetch(`/api/finance/receipts/${receipt.id}?format=pdf`);
-      if (!res.ok) throw new Error('Download failed');
+      if (!res.ok) throw new Error(tCommon('downloadFailed'));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -104,7 +104,7 @@ function ReceiptsPageContent() {
     },
     {
       key: 'trainee',
-      header: 'Trainee',
+      header: t('trainee'),
       render: (row) => (
         <div>
           <div className="text-foreground">{row.trainee.name}</div>
@@ -114,7 +114,7 @@ function ReceiptsPageContent() {
     },
     {
       key: 'plan',
-      header: 'Plan / Level',
+      header: t('planLevel'),
       render: (row) => (
         <span className="text-muted-foreground text-xs">
           {row.subscription.plan.name} / {row.subscription.level.name}
