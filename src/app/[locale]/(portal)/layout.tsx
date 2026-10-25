@@ -142,8 +142,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
 
   return (
     <PortalTraineeProvider>
+    {/* overflow-x-clip: the background glows sit partly off-screen and must not
+        widen the page. Clip, not hidden, so the sticky top bar keeps working. */}
     <div
-      className="min-h-screen bg-background text-foreground font-sans relative"
+      className="min-h-screen bg-background text-foreground font-sans relative overflow-x-clip"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
