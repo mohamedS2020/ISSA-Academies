@@ -121,7 +121,7 @@ export function FeedbackPanel({
               </p>
               <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                 <span className="font-semibold">{f.captain.user.name}</span>
-                <span className="font-mono">{new Date(f.createdAt).toLocaleString()}</span>
+                <span className="font-mono" dir="ltr">{new Date(f.createdAt).toLocaleString()}</span>
               </div>
             </div>
           ))}

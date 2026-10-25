@@ -83,7 +83,7 @@ export default function PortalSchedulePage() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1.5 text-xs font-mono text-primary dark:text-primary bg-primary/10 px-3 py-1.5 rounded-full">
                     <Clock size={12} />
-                    {s.scheduledAtLocal}
+                    <span dir="ltr">{s.scheduledAtLocal}</span>
                   </span>
                   <span className="text-[10px] text-muted-foreground">
                     {s.durationMinutes} {tSchedule('duration')}

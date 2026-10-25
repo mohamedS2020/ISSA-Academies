@@ -382,7 +382,7 @@ function AttendancePageContent() {
                 <div>
                   <p className="text-sm font-bold text-foreground">{sheet.session.groupName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {sheet.session.scheduledAtLocal ?? format(parseISO(sheet.session.scheduledAt), 'dd/MM/yyyy, HH:mm')} · {tCommon('minutes', { count: sheet.session.durationMinutes })}
+                    <span dir="ltr">{sheet.session.scheduledAtLocal ?? format(parseISO(sheet.session.scheduledAt), 'dd/MM/yyyy, HH:mm')}</span> · {tCommon('minutes', { count: sheet.session.durationMinutes })}
                   </p>
                 </div>
                 <span

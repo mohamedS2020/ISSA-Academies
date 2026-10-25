@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import en from '@/messages/en.json';
@@ -103,6 +103,64 @@ function scan(file: string, code: string): string[] {
 
 const hardcodedText = (file: string) => scan(file, readFileSync(path.join(process.cwd(), file), 'utf8'));
 
+/**
+ * Phone numbers and date-times shown without dir="ltr". Inside an Arabic line
+ * their neutral characters take the line's direction: "+201000000102" shows as
+ * "201000000102+" and "27/10/2026, 17:00" as "17:00 ,27/10/2026". The element
+ * that shows one needs dir="ltr".
+ */
+function unisolatedNumbers(file: string, code: string): string[] {
+  const source = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const found: string[] = [];
+  const isDateTime = (node: ts.Node) =>
+    (ts.isPropertyAccessExpression(node) && node.name.text === 'scheduledAtLocal') ||
+    // A phone number (not a form's error message for that field).
+    (ts.isPropertyAccessExpression(node) &&
+      (node.name.text === 'phoneNumber' || node.name.text === 'whatsappNumber') &&
+      node.expression.getText() !== 'errors') ||
+    (ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'toLocaleString' &&
+      ts.isNewExpression(node.expression.expression) &&
+      node.expression.expression.expression.getText() === 'Date');
+  const hasLtr = (element: ts.JsxElement) =>
+    element.openingElement.attributes.properties.some(
+      (a) => ts.isJsxAttribute(a) && a.name.getText() === 'dir' && !!a.initializer && textOf(a.initializer) === 'ltr',
+    );
+  const passesThrough = (up: ts.Node, value: ts.Node) =>
+    ts.isParenthesizedExpression(up) ||
+    (ts.isConditionalExpression(up) && up.condition !== value) ||
+    (ts.isBinaryExpression(up) &&
+      (up.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken || up.operatorToken.kind === ts.SyntaxKind.BarBarToken));
+  const visit = (node: ts.Node) => {
+    if (isDateTime(node)) {
+      // Follow the value to the {…} that shows it. Only ?:, ?? and || pass it on
+      // unchanged; a .split() or a condition means it is worked on, not shown.
+      let value: ts.Node = node;
+      let up = node.parent;
+      while (passesThrough(up, value)) {
+        value = up;
+        up = up.parent;
+      }
+      const shownIn = ts.isJsxExpression(up) && (ts.isJsxElement(up.parent) || ts.isJsxFragment(up.parent)) ? up.parent : null;
+      if (shownIn && !(ts.isJsxElement(shownIn) && hasLtr(shownIn))) {
+        const { line } = source.getLineAndCharacterOfPosition(node.getStart());
+        found.push(`${file}:${line + 1}: ${node.getText()}`);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
+const screens = () =>
+  ['src/app', 'src/components'].flatMap((dir) =>
+    (readdirSync(path.join(process.cwd(), dir), { recursive: true }) as string[])
+      .filter((f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx'))
+      .map((f) => path.join(dir, f).split(path.sep).join('/')),
+  );
+
 /** Every leaf key, with the names of the values it takes ({name}, {count, plural …}). */
 function shape(value: Json, prefix = ''): string[] {
   if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
@@ -143,6 +201,35 @@ describe('app text', () => {
       '"Close menu"',
       '"Saved"',
       '"Paid"',
+    ]);
+  });
+
+  it('shows every phone number and date-time left to right, so Arabic lines keep their order', () => {
+    expect(screens().flatMap((file) => unisolatedNumbers(file, readFileSync(path.join(process.cwd(), file), 'utf8')))).toEqual([]);
+  });
+
+  it('finds a phone number or date-time without dir="ltr" (so the check above is not vacuous)', () => {
+    const sample = [
+      'export function Probe({ s, u, at, ok, errors }: { s: { scheduledAtLocal: string }; u: { phoneNumber: string }; at: string; ok: boolean; errors: { phoneNumber?: string } }) {',
+      "  const time = s.scheduledAtLocal.split(', ')[1];",
+      '  return (',
+      '    <div title={s.scheduledAtLocal}>',
+      '      <p>{s.scheduledAtLocal}</p>',
+      '      <span dir="ltr">{s.scheduledAtLocal}</span>',
+      '      <p>{ok ? new Date(at).toLocaleString() : time}</p>',
+      '      <p>{ok ? <span dir="ltr">{new Date(at).toLocaleString()}</span> : null}</p>',
+      '      <p>{new Date(at).toLocaleDateString()}</p>',
+      '      <td>{u.phoneNumber}</td>',
+      '      <td dir="ltr">{u.phoneNumber}</td>',
+      '      <p>{errors.phoneNumber}</p>',
+      '    </div>',
+      '  );',
+      '}',
+    ].join('\n');
+    expect(unisolatedNumbers('probe.tsx', sample).map((entry) => entry.split(': ').slice(1).join(': '))).toEqual([
+      's.scheduledAtLocal',
+      'new Date(at).toLocaleString()',
+      'u.phoneNumber',
     ]);
   });
 });

@@ -624,7 +624,7 @@ export default function CreateTenantPage() {
                   <dt className="text-xs font-medium text-warning">
                     {t('adminPhone')}
                   </dt>
-                  <dd className="font-mono text-foreground">
+                  <dd dir="ltr" className="font-mono text-foreground rtl:text-right">
                     {result.adminCredentials.phoneNumber}
                   </dd>
                 </div>

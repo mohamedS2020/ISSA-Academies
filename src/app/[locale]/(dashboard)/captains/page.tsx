@@ -119,7 +119,7 @@ function CaptainsPageContent() {
             <p className="font-semibold text-foreground">{row.user.name}</p>
             <RatingBadge average={row.rating.average} count={row.rating.count} />
           </div>
-          <p className="text-xs text-muted-foreground">{row.user.phoneNumber}</p>
+          <p dir="ltr" className="text-xs text-muted-foreground rtl:text-right">{row.user.phoneNumber}</p>
           {row.specialization && (
             <p className="text-xs text-primary dark:text-primary mt-0.5">{row.specialization}</p>
           )}

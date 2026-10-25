@@ -56,6 +56,7 @@ export default function Sidebar({
   onClose?: () => void;
 }) {
   const t = useTranslations('nav');
+  const tUsers = useTranslations('users');
   const pathname = usePathname();
   const params = useParams();
   const locale = params.locale as string;
@@ -276,8 +277,8 @@ export default function Sidebar({
               <p className="text-sm font-semibold text-foreground truncate">
                 {user.name}
               </p>
-              <p className="text-xs text-muted-foreground truncate capitalize">
-                {user.role.toLowerCase()}
+              <p className="text-xs text-muted-foreground truncate">
+                {tUsers.has(user.role.toLowerCase()) ? tUsers(user.role.toLowerCase()) : user.role.toLowerCase()}
               </p>
             </div>
           )}

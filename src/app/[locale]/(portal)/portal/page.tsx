@@ -171,7 +171,7 @@ export default function PortalDashboardPage() {
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <Clock size={11} />
-                    {s.scheduledAtLocal}
+                    <span dir="ltr">{s.scheduledAtLocal}</span>
                   </div>
                 </div>
               ))}

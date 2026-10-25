@@ -95,6 +95,9 @@ interface TraineeDetail {
 const inputClass =
   'w-full px-3 py-2 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all';
 
+// Numbers that read left to right in both languages (phones, the ID card).
+const LTR_FIELDS = new Set<string>(['phoneNumber', 'whatsappNumber', 'parentIdCard']);
+
 // ─── Component ────────────────────────────────────────────────
 
 function TraineeDetailPageContent() {
@@ -790,12 +793,13 @@ function TraineeDetailPageContent() {
                 {isEditing ? (
                   <input
                     type="text"
+                    dir={LTR_FIELDS.has(key) ? 'ltr' : undefined}
                     value={(editForm as any)[key] ?? ''}
                     onChange={ef(key)}
-                    className={inputClass}
+                    className={`${inputClass} ${LTR_FIELDS.has(key) ? 'rtl:text-right' : ''}`}
                   />
                 ) : (
-                  <p className="text-sm text-foreground">
+                  <p dir={LTR_FIELDS.has(key) ? 'ltr' : undefined} className="text-sm text-foreground rtl:text-right">
                     {value != null && value !== '' ? String(value) : (
                       <span className="text-muted-foreground">—</span>
                     )}
