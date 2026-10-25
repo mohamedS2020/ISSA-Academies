@@ -277,7 +277,7 @@ export default function PortalDashboardPage() {
             <div className="space-y-3">
               {feedback.map((f) => (
                 <div key={f.id} className="p-3.5 rounded-xl bg-background border border-border">
-                  <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                  <p dir="auto" className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                     {f.message}
                   </p>
                   <div className="flex items-center justify-between mt-2.5 text-[10px] text-muted-foreground">

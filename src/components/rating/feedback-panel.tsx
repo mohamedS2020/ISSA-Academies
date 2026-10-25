@@ -84,6 +84,7 @@ export function FeedbackPanel({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            dir="auto"
             rows={3}
             maxLength={2000}
             placeholder={t('writePlaceholder')}
@@ -116,7 +117,8 @@ export function FeedbackPanel({
         <div className="space-y-2.5">
           {entries.map((f) => (
             <div key={f.id} className="p-3 rounded-xl bg-muted/50 border border-input/40">
-              <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+              {/* A coach writes in either language: each note takes its own direction. */}
+              <p dir="auto" className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                 {f.message}
               </p>
               <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
