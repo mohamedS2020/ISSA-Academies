@@ -308,7 +308,7 @@ function CaptainDetailPageContent() {
             {isEditing ? (
               <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className={inputClass} />
             ) : (
-              <p className="text-sm text-foreground">{captain.user.phoneNumber}</p>
+              <p dir="ltr" className="text-sm text-foreground rtl:text-right">{captain.user.phoneNumber}</p>
             )}
           </div>
           {/* Specialization */}
@@ -325,7 +325,7 @@ function CaptainDetailPageContent() {
             <p className="text-xs text-muted-foreground mb-1">Last Login</p>
             <p className="text-sm text-foreground">
               {captain.user.lastLoginAt
-                ? new Date(captain.user.lastLoginAt).toLocaleString()
+                ? <span dir="ltr">{new Date(captain.user.lastLoginAt).toLocaleString()}</span>
                 : <span className="text-muted-foreground">Never</span>}
             </p>
           </div>

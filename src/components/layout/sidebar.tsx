@@ -56,6 +56,7 @@ export default function Sidebar({
   onClose?: () => void;
 }) {
   const t = useTranslations('nav');
+  const tUsers = useTranslations('users');
   const pathname = usePathname();
   const params = useParams();
   const locale = params.locale as string;
@@ -215,7 +216,7 @@ export default function Sidebar({
         <button
           onClick={onClose}
           className="md:hidden h-8 w-8 rounded-lg border border-input bg-background flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-          aria-label="Close menu"
+          aria-label={t('closeMenu')}
         >
           <X size={16} />
         </button>
@@ -276,8 +277,8 @@ export default function Sidebar({
               <p className="text-sm font-semibold text-foreground truncate">
                 {user.name}
               </p>
-              <p className="text-xs text-muted-foreground truncate capitalize">
-                {user.role.toLowerCase()}
+              <p className="text-xs text-muted-foreground truncate">
+                {tUsers.has(user.role.toLowerCase()) ? tUsers(user.role.toLowerCase()) : user.role.toLowerCase()}
               </p>
             </div>
           )}

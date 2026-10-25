@@ -84,7 +84,7 @@ function TraineesPageContent() {
       const qs = new URLSearchParams({ page: String(page), limit: '20' });
       if (searchQuery) qs.set('search', searchQuery);
       const res = await authFetch(`/api/trainees?${qs}`);
-      if (!res.ok) throw new Error('Failed to load trainees');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setTrainees(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -128,13 +128,13 @@ function TraineesPageContent() {
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
-          <p className="text-xs text-muted-foreground">{row.user.phoneNumber}</p>
+          <p dir="ltr" className="text-xs text-muted-foreground rtl:text-right">{row.user.phoneNumber}</p>
         </div>
       ),
     },
     {
       key: 'subscriptions',
-      header: 'Subscription',
+      header: t('subscription'),
       render: (row) => {
         const active = row.subscriptions?.[0];
         return active ? (
@@ -149,7 +149,7 @@ function TraineesPageContent() {
             </div>
           </div>
         ) : (
-          <span className="text-xs text-muted-foreground">No active subscription</span>
+          <span className="text-xs text-muted-foreground">{t('noActiveSubscription')}</span>
         );
       },
     },
@@ -177,7 +177,7 @@ function TraineesPageContent() {
           onClick={() => router.push(`/${locale}/trainees/${row.id}`)}
           className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
         >
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -196,7 +196,7 @@ function TraineesPageContent() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {pagination.total} {pagination.total === 1 ? 'trainee' : 'trainees'} in this branch
+              {t('countInBranch', { count: pagination.total })}
             </p>
           </div>
         </div>

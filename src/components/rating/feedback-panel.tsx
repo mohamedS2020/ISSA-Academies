@@ -43,7 +43,7 @@ export function FeedbackPanel({
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/trainees/${traineeId}/feedback`);
-      if (!res.ok) throw new Error('Failed to load feedback');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       setEntries((await res.json()).data ?? []);
     } catch (err: any) {
       toast.error(err.message || tCommon('somethingWentWrong'));
@@ -66,7 +66,7 @@ export function FeedbackPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed }),
       });
-      if (!res.ok) throw new Error('Failed to submit feedback');
+      if (!res.ok) throw new Error(t('submitFailed'));
       setMessage('');
       toast.success(t('added'));
       fetchFeedback();
@@ -84,6 +84,7 @@ export function FeedbackPanel({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            dir="auto"
             rows={3}
             maxLength={2000}
             placeholder={t('writePlaceholder')}
@@ -116,12 +117,13 @@ export function FeedbackPanel({
         <div className="space-y-2.5">
           {entries.map((f) => (
             <div key={f.id} className="p-3 rounded-xl bg-muted/50 border border-input/40">
-              <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+              {/* A coach writes in either language: each note takes its own direction. */}
+              <p dir="auto" className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                 {f.message}
               </p>
               <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                 <span className="font-semibold">{f.captain.user.name}</span>
-                <span className="font-mono">{new Date(f.createdAt).toLocaleString()}</span>
+                <span className="font-mono" dir="ltr">{new Date(f.createdAt).toLocaleString()}</span>
               </div>
             </div>
           ))}

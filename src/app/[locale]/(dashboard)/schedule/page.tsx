@@ -31,6 +31,7 @@ import {
   parseISO,
   isToday,
 } from 'date-fns';
+import { arEG } from 'date-fns/locale';
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -80,6 +81,7 @@ function SessionCard({
   session: Session;
   onClick: () => void;
 }) {
+  const tCommon = useTranslations('common');
   return (
     <button
       onClick={onClick}
@@ -99,7 +101,7 @@ function SessionCard({
           {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
             format(parseISO(session.scheduledAt), 'HH:mm')}
         </span>
-        <span className="text-[10px] text-muted-foreground ms-auto">{session.durationMinutes}m</span>
+        <span className="text-[10px] text-muted-foreground ms-auto">{tCommon('minutesShort', { count: session.durationMinutes })}</span>
       </div>
       {session.group.captain?.user?.name && (
         <p className="text-[10px] text-muted-foreground truncate mt-0.5">
@@ -135,6 +137,7 @@ function SessionModal({
   onRescheduled: () => void;
 }) {
   const t = useTranslations('schedule');
+  const tCommon = useTranslations('common');
   const params = useParams();
   const locale = params.locale as string;
   const { authFetch } = useAuth();
@@ -164,7 +167,7 @@ function SessionModal({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error?.message ?? 'Failed to cancel session');
+        throw new Error(data.error?.message ?? t('cancelFailed'));
       }
       onCancel(session.id);
       onClose();
@@ -187,7 +190,7 @@ function SessionModal({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error?.message ?? 'Failed to reschedule session');
+        throw new Error(data.error?.message ?? t('rescheduleFailed'));
       }
       onRescheduled();
       onClose();
@@ -212,7 +215,7 @@ function SessionModal({
             <h2 className="text-lg font-bold text-foreground">{session.group.name}</h2>
             <p className="text-sm text-muted-foreground">
               {session.scheduledAtLocal
-                ? format(parseISO(session.scheduledAt), 'EEEE, MMM d yyyy')
+                ? format(parseISO(session.scheduledAt), 'EEEE, MMM d yyyy', { locale: locale === 'ar' ? arEG : undefined })
                 : ''}{' '}
               ·{' '}
               {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
@@ -225,7 +228,7 @@ function SessionModal({
         <div className="space-y-2 mb-4 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t('duration')}</span>
-            <span className="text-foreground">{session.durationMinutes} min</span>
+            <span className="text-foreground">{tCommon('minutes', { count: session.durationMinutes })}</span>
           </div>
           {session.group.captain?.user?.name && (
             <div className="flex justify-between">
@@ -352,6 +355,9 @@ function SessionModal({
 
 function SchedulePageContent() {
   const t = useTranslations('schedule');
+  const routeParams = useParams();
+  // Day and month names follow the page's language.
+  const dfLocale = routeParams.locale === 'ar' ? arEG : undefined;
   const { authFetch } = useAuth();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 0 })
@@ -406,7 +412,7 @@ function SchedulePageContent() {
             {t('title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {format(weekStart, 'MMM d')} – {format(endOfWeek(weekStart, { weekStartsOn: 0 }), 'MMM d, yyyy')}
+            {format(weekStart, 'MMM d', { locale: dfLocale })} – {format(endOfWeek(weekStart, { weekStartsOn: 0 }), 'MMM d, yyyy', { locale: dfLocale })}
           </p>
         </div>
 
@@ -459,7 +465,7 @@ function SchedulePageContent() {
                   }`}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-wider">
-                    {format(day, 'EEE')}
+                    {format(day, 'EEE', { locale: dfLocale })}
                   </p>
                   <p className={`text-xl font-bold ${dayIsToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                     {format(day, 'd')}

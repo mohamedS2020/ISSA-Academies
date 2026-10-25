@@ -38,7 +38,15 @@
     "switchToLight": "التبديل إلى الوضع الفاتح",
     "switchToDark": "التبديل إلى الوضع الداكن",
     "noAccessTitle": "ليست لديك صلاحية الوصول إلى هذه الصفحة",
-    "noAccessHint": "اطلب من مسؤول الأكاديمية منحك هذه الصلاحية."
+    "noAccessHint": "اطلب من مسؤول الأكاديمية منحك هذه الصلاحية.",
+    "view": "عرض",
+    "loadFailed": "تعذّر تحميل البيانات. حاول مرة أخرى.",
+    "saveFailed": "تعذّر حفظ التغييرات. حاول مرة أخرى.",
+    "downloadFailed": "تعذّر التنزيل. حاول مرة أخرى.",
+    "exportFailed": "تعذّر التصدير. حاول مرة أخرى.",
+    "minutes": "{count} دقيقة",
+    "minutesShort": "{count} د",
+    "egp": "{amount} ج.م"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -82,7 +90,9 @@
     "settings": "الإعدادات",
     "portal": "بوابتي",
     "collapseSidebar": "طي القائمة الجانبية",
-    "expandSidebar": "توسيع القائمة الجانبية"
+    "expandSidebar": "توسيع القائمة الجانبية",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -214,7 +224,50 @@
     "deactivateConfirm": "تعطيل هذا المتدرب؟ يظل الحساب قادرًا على الدخول إلى البوابة ما دام عليه متدرب آخر نشط.",
     "deactivated": "تم تعطيل المتدرب",
     "activate": "إعادة تفعيل",
-    "activated": "تمت إعادة تفعيل المتدرب"
+    "activated": "تمت إعادة تفعيل المتدرب",
+    "subscription": "الاشتراك",
+    "noActiveSubscription": "لا يوجد اشتراك نشط",
+    "countInBranch": "{count, plural, zero {لا يوجد متدربون في هذا الفرع} one {متدرب واحد في هذا الفرع} two {متدربان في هذا الفرع} few {# متدربين في هذا الفرع} many {# متدربًا في هذا الفرع} other {# متدرب في هذا الفرع}}",
+    "notFound": "لم يتم العثور على المتدرب",
+    "updated": "تم تحديث بيانات المتدرب",
+    "amountPositive": "يجب أن يكون المبلغ أكبر من صفر",
+    "selectPaymentMethod": "اختر طريقة الدفع",
+    "paymentFailed": "تعذّر تسجيل الدفعة",
+    "updateFailed": "تعذّر حفظ التغيير",
+    "selectPlanLevelGroup": "اختر الخطة والمستوى والمجموعة",
+    "enrollFailed": "تعذّر إتمام التسجيل",
+    "renewed": "تم تجديد الاشتراك",
+    "enrolled": "تم تسجيل المتدرب",
+    "enroll": "تسجيل",
+    "renew": "تجديد",
+    "editLevelGroup": "تعديل المستوى والمجموعة",
+    "sessions": "الحصص",
+    "expires": "ينتهي في",
+    "amountDue": "المبلغ المستحق",
+    "recordPayment": "تسجيل دفعة",
+    "outstandingBalance": "الرصيد المستحق:",
+    "amount": "المبلغ",
+    "withinPlan": "ضمن خطة",
+    "level": "المستوى",
+    "group": "المجموعة",
+    "selectGroup": "اختر مجموعة",
+    "slotsLeft": "{count, plural, zero {لا أماكن متاحة} one {مكان واحد متاح} two {مكانان متاحان} few {# أماكن متاحة} many {# مكانًا متاحًا} other {# مكان متاح}}",
+    "full": "(مكتملة)",
+    "renewSubscription": "تجديد الاشتراك",
+    "enrollTrainee": "تسجيل المتدرب في خطة",
+    "enrollmentComplete": "تم التسجيل بنجاح!",
+    "receipt": "الإيصال",
+    "done": "تم",
+    "subscriptionPlan": "خطة الاشتراك",
+    "selectPlan": "اختر خطة",
+    "selectLevel": "اختر مستوى",
+    "loadingGroups": "جاري تحميل المجموعات...",
+    "amountPaidEgp": "المبلغ المدفوع (ج.م)",
+    "paymentStatus": "حالة الدفع",
+    "statusUnpaid": "غير مدفوع",
+    "statusPartial": "مدفوع جزئيًا",
+    "statusPaid": "مدفوع",
+    "enrollAndReceipt": "تسجيل وإصدار الإيصال"
   },
   "captains": {
     "title": "المدربون",
@@ -230,7 +283,11 @@
     "percentage": "النسبة (%)",
     "assignedGroups": "المجموعات المعينة",
     "yourRating": "تقييمك",
-    "rating": "التقييم"
+    "rating": "التقييم",
+    "captain": "المدرب",
+    "countInBranch": "{count, plural, zero {لا يوجد مدربون في هذا الفرع} one {مدرب واحد في هذا الفرع} two {مدربان في هذا الفرع} few {# مدربين في هذا الفرع} many {# مدربًا في هذا الفرع} other {# مدرب في هذا الفرع}}",
+    "groupCount": "{count, plural, zero {لا مجموعات} one {مجموعة واحدة} two {مجموعتان} few {# مجموعات} many {# مجموعة} other {# مجموعة}}",
+    "searchPlaceholder": "ابحث بالاسم..."
   },
   "subscriptions": {
     "title": "خطط الاشتراك",
@@ -290,7 +347,23 @@
     "ageTo": "العمر إلى",
     "clearFilters": "مسح",
     "all": "الكل",
-    "viewTrainee": "عرض المتدرب"
+    "viewTrainee": "عرض المتدرب",
+    "removeConfirm": "إزالة {name} من هذه المجموعة؟",
+    "removeFailed": "تعذّر إزالة المتدرب",
+    "traineeRemoved": "تمت إزالة المتدرب من المجموعة",
+    "headerCounts": "{trainees}/{max} متدرب · {sessions} حصة إجمالًا",
+    "sessionsCount": "{count, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} many {# حصة} other {# حصة}}",
+    "upcomingSessions": "الحصص القادمة",
+    "sessionAt": "{date} الساعة {time}",
+    "traineesOf": "المتدربون ({count}/{max})",
+    "noTrainees": "لا يوجد متدربون في هذه المجموعة بعد",
+    "colCode": "الرقم",
+    "colName": "الاسم",
+    "colPhone": "الهاتف",
+    "colSubscription": "الاشتراك",
+    "sessionsProgress": "{done}/{total} حصة",
+    "noSubscription": "لا يوجد اشتراك",
+    "countInBranch": "{count, plural, zero {لا توجد مجموعات في هذا الفرع} one {مجموعة واحدة في هذا الفرع} two {مجموعتان في هذا الفرع} few {# مجموعات في هذا الفرع} many {# مجموعة في هذا الفرع} other {# مجموعة في هذا الفرع}}"
   },
   "schedule": {
     "title": "الجدول",
@@ -314,7 +387,9 @@
     "confirmReschedule": "تأكيد إعادة الجدولة",
     "viewGroup": "عرض المجموعة",
     "previousWeek": "الأسبوع السابق",
-    "nextWeek": "الأسبوع التالي"
+    "nextWeek": "الأسبوع التالي",
+    "cancelFailed": "تعذّر إلغاء الحصة",
+    "rescheduleFailed": "تعذّر تغيير موعد الحصة"
   },
   "attendance": {
     "title": "الحضور",
@@ -341,7 +416,10 @@
     "allHours": "كل الأوقات",
     "noSessionsMatch": "لا توجد حصص مطابقة",
     "filterByCaptain": "تصفية حسب الكابتن",
-    "filterByHour": "تصفية حسب وقت البدء"
+    "filterByHour": "تصفية حسب وقت البدء",
+    "submitFailed": "تعذّر إرسال الحضور",
+    "loadingSessions": "جاري تحميل الحصص...",
+    "cancelledSession": "هذه الحصة ملغاة، لذلك لا يمكن تسجيل الحضور."
   },
   "finance": {
     "title": "المالية",
@@ -376,7 +454,19 @@
     "addIncome": "إضافة إيراد",
     "incomeCategoryPlaceholder": "منحة، إيجار، بيع...",
     "dateFrom": "من تاريخ",
-    "dateTo": "إلى تاريخ"
+    "dateTo": "إلى تاريخ",
+    "trainee": "المتدرب",
+    "planLevel": "الخطة / المستوى",
+    "selectCaptainFirst": "اختر المدرب أولًا",
+    "captain": "المدرب",
+    "payrollTypeColumn": "النوع",
+    "selectPlaceholder": "اختر...",
+    "periodStart": "بداية الفترة",
+    "periodEnd": "نهاية الفترة",
+    "hourlyRate": "أجر الساعة",
+    "baseSalary": "الراتب الأساسي",
+    "percentageBase": "أساس النسبة",
+    "recordPayroll": "تسجيل الراتب"
   },
   "reports": {
     "title": "التقارير",
@@ -393,7 +483,57 @@
     "generate": "إنشاء التقرير",
     "exportPdf": "تصدير PDF",
     "exportExcel": "تصدير Excel",
-    "noData": "لا توجد بيانات للفلاتر المحددة."
+    "noData": "لا توجد بيانات للفلاتر المحددة.",
+    "col": {
+      "type": "النوع",
+      "amount": "المبلغ",
+      "trainee": "المتدرب",
+      "group": "المجموعة",
+      "status": "الحالة",
+      "plan": "الخطة",
+      "level": "المستوى",
+      "start": "البداية",
+      "end": "النهاية",
+      "captain": "المدرب",
+      "sessions": "الحصص",
+      "attendanceRate": "نسبة الحضور %",
+      "evaluations": "التقييمات",
+      "phone": "الهاتف",
+      "remaining": "المتبقي",
+      "date": "التاريخ",
+      "levelChange": "تغيير المستوى",
+      "groupChange": "تغيير المجموعة",
+      "changedBy": "بواسطة",
+      "income": "الدخل"
+    },
+    "values": {
+      "INCOME": "دخل",
+      "EXPENSE": "مصروف",
+      "PRESENT": "حاضر",
+      "ABSENT": "غائب",
+      "EXCUSED": "معذور",
+      "ACTIVE": "نشط",
+      "EXPIRED": "منتهي",
+      "FROZEN": "مجمّد"
+    },
+    "summary": {
+      "revenue": "الإيرادات",
+      "collections": "المحصّل",
+      "expenses": "المصروفات",
+      "outstandingPayments": "المدفوعات المستحقة",
+      "profitLoss": "الربح / الخسارة",
+      "present": "حاضر",
+      "absent": "غائب",
+      "excused": "معذور",
+      "total": "الإجمالي",
+      "attendanceRate": "نسبة الحضور",
+      "active": "نشط",
+      "expired": "منتهي",
+      "frozen": "مجمّد",
+      "upcomingRenewals": "تجديدات قادمة"
+    },
+    "traineesPaid": "متدربون دفعوا",
+    "grandTotal": "الإجمالي الكلي"
   },
   "portal": {
     "title": "بوابتي",
@@ -420,7 +560,8 @@
     "captainFeedback": "ملاحظات الكابتن",
     "noFeedback": "لا توجد ملاحظات بعد",
     "ratingSaved": "تم حفظ التقييم",
-    "selectTrainee": "اختر المتدرب"
+    "selectTrainee": "اختر المتدرب",
+    "ratingFailed": "تعذّر حفظ تقييمك"
   },
   "superAdmin": {
     "slug": "المعرف في الرابط",
@@ -603,6 +744,21 @@
     "writePlaceholder": "اكتب ملاحظة عن هذا المتدرب",
     "addButton": "إضافة ملاحظة",
     "added": "تمت إضافة الملاحظة",
-    "empty": "لا توجد ملاحظات بعد"
+    "empty": "لا توجد ملاحظات بعد",
+    "submitFailed": "تعذّر إضافة الملاحظة"
+  },
+  "daysShort": {
+    "SUNDAY": "أحد",
+    "MONDAY": "إثنين",
+    "TUESDAY": "ثلاثاء",
+    "WEDNESDAY": "أربعاء",
+    "THURSDAY": "خميس",
+    "FRIDAY": "جمعة",
+    "SATURDAY": "سبت"
+  },
+  "subscriptionStatus": {
+    "ACTIVE": "نشط",
+    "EXPIRED": "منتهي",
+    "FROZEN": "مجمّد"
   }
 }

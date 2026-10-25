@@ -42,11 +42,6 @@ interface Pagination {
   page: number; limit: number; total: number; totalPages: number;
 }
 
-const DAY_SHORT: Record<string, string> = {
-  MONDAY: 'Mon', TUESDAY: 'Tue', WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu', FRIDAY: 'Fri', SATURDAY: 'Sat', SUNDAY: 'Sun',
-};
-
 const DAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const filterFieldClass =
@@ -57,6 +52,7 @@ const filterFieldClass =
 function GroupsPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
+  const tDays = useTranslations('daysShort');
   const { user, authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -89,7 +85,7 @@ function GroupsPageContent() {
       if (filters.ageMin !== '') params.set('ageMin', filters.ageMin);
       if (filters.ageMax !== '') params.set('ageMax', filters.ageMax);
       const res = await authFetch(`/api/groups?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to load groups');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setGroups(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -150,12 +146,12 @@ function GroupsPageContent() {
           <div className="flex flex-wrap gap-1 mb-1">
             {row.scheduleDays.map((day) => (
               <span key={day} className="px-1.5 py-0.5 bg-muted rounded text-xs text-foreground/80 border border-input/40">
-                {DAY_SHORT[day] ?? day}
+                {tDays.has(day) ? tDays(day) : day}
               </span>
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            {row.startTime} · {row.sessionDuration}min
+            {row.startTime} · {tCommon('minutes', { count: row.sessionDuration })}
           </p>
         </div>
       ),
@@ -215,7 +211,7 @@ function GroupsPageContent() {
             onClick={() => router.push(`/${locale}/groups/${row.id}`)}
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all flex items-center gap-1"
           >
-            View <ChevronRight className="w-3 h-3" />
+            {tCommon('view')} <ChevronRight className="w-3 h-3 rtl:-scale-x-100" aria-hidden="true" />
           </button>
         </div>
       ),
@@ -233,7 +229,7 @@ function GroupsPageContent() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {pagination.total} {pagination.total === 1 ? 'group' : 'groups'} in this branch
+              {t('countInBranch', { count: pagination.total })}
             </p>
           </div>
         </div>
@@ -275,7 +271,7 @@ function GroupsPageContent() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('filterDay')}</span>
             <select value={filters.day} onChange={(e) => setFilters((f) => ({ ...f, day: e.target.value }))} className={filterFieldClass}>
               <option value="">{t('all')}</option>
-              {DAYS.map((d) => <option key={d} value={d}>{DAY_SHORT[d]}</option>)}
+              {DAYS.map((d) => <option key={d} value={d}>{tDays(d)}</option>)}
             </select>
           </label>
 

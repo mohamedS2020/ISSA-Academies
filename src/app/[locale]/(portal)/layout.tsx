@@ -142,8 +142,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
 
   return (
     <PortalTraineeProvider>
+    {/* overflow-x-clip: the background glows sit partly off-screen and must not
+        widen the page. Clip, not hidden, so the sticky top bar keeps working. */}
     <div
-      className="min-h-screen bg-background text-foreground font-sans relative"
+      className="min-h-screen bg-background text-foreground font-sans relative overflow-x-clip"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="absolute top-[-10%] start-[-10%] h-[400px] w-[400px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
@@ -204,7 +206,8 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 px-2.5 py-2 text-xs font-semibold rounded-xl bg-muted/70 hover:bg-danger-soft border border-border hover:border-danger/50 transition-colors text-foreground/80 hover:text-danger"
-              title="Logout"
+              title={tAuth('logout')}
+              aria-label={tAuth('logout')}
             >
               <LogOut size={14} />
             </button>

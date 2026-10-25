@@ -38,7 +38,15 @@
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode",
     "noAccessTitle": "You don't have access to this page",
-    "noAccessHint": "Ask your academy's admin to give you this permission."
+    "noAccessHint": "Ask your academy's admin to give you this permission.",
+    "view": "View",
+    "loadFailed": "Couldn't load the data. Please try again.",
+    "saveFailed": "Couldn't save the changes. Please try again.",
+    "downloadFailed": "The download failed. Please try again.",
+    "exportFailed": "The export failed. Please try again.",
+    "minutes": "{count} min",
+    "minutesShort": "{count}m",
+    "egp": "{amount} EGP"
   },
   "auth": {
     "login": "Login",
@@ -82,7 +90,9 @@
     "settings": "Settings",
     "portal": "My Portal",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -214,7 +224,50 @@
     "deactivateConfirm": "Deactivate this trainee? Their account keeps portal access while any of its other trainees is still active.",
     "deactivated": "Trainee deactivated",
     "activate": "Reactivate",
-    "activated": "Trainee reactivated"
+    "activated": "Trainee reactivated",
+    "subscription": "Subscription",
+    "noActiveSubscription": "No active subscription",
+    "countInBranch": "{count, plural, one {# trainee} other {# trainees}} in this branch",
+    "notFound": "Trainee not found",
+    "updated": "Trainee updated successfully",
+    "amountPositive": "The amount must be more than zero",
+    "selectPaymentMethod": "Please choose a payment method",
+    "paymentFailed": "Couldn't record the payment",
+    "updateFailed": "Couldn't save the change",
+    "selectPlanLevelGroup": "Please choose a plan, a level and a group",
+    "enrollFailed": "Couldn't complete the enrollment",
+    "renewed": "Subscription renewed",
+    "enrolled": "Trainee enrolled",
+    "enroll": "Enroll",
+    "renew": "Renew",
+    "editLevelGroup": "Edit Level & Group",
+    "sessions": "Sessions",
+    "expires": "Expires",
+    "amountDue": "Amount Due",
+    "recordPayment": "Record Payment",
+    "outstandingBalance": "Outstanding balance:",
+    "amount": "Amount",
+    "withinPlan": "Within plan",
+    "level": "Level",
+    "group": "Group",
+    "selectGroup": "Select a group",
+    "slotsLeft": "{count, plural, one {# place left} other {# places left}}",
+    "full": "(full)",
+    "renewSubscription": "Renew Subscription",
+    "enrollTrainee": "Enroll Trainee",
+    "enrollmentComplete": "Enrollment complete!",
+    "receipt": "Receipt",
+    "done": "Done",
+    "subscriptionPlan": "Subscription Plan",
+    "selectPlan": "Select a plan",
+    "selectLevel": "Select a level",
+    "loadingGroups": "Loading groups...",
+    "amountPaidEgp": "Amount Paid (EGP)",
+    "paymentStatus": "Payment Status",
+    "statusUnpaid": "Unpaid",
+    "statusPartial": "Partial",
+    "statusPaid": "Paid",
+    "enrollAndReceipt": "Enroll & Generate Receipt"
   },
   "captains": {
     "title": "Captains",
@@ -230,7 +283,11 @@
     "percentage": "Percentage (%)",
     "assignedGroups": "Assigned Groups",
     "yourRating": "Your Rating",
-    "rating": "Rating"
+    "rating": "Rating",
+    "captain": "Captain",
+    "countInBranch": "{count, plural, one {# captain} other {# captains}} in this branch",
+    "groupCount": "{count, plural, one {# group} other {# groups}}",
+    "searchPlaceholder": "Search by name..."
   },
   "subscriptions": {
     "title": "Subscription Plans",
@@ -290,7 +347,23 @@
     "ageTo": "Age to",
     "clearFilters": "Clear",
     "all": "All",
-    "viewTrainee": "View Trainee"
+    "viewTrainee": "View Trainee",
+    "removeConfirm": "Remove {name} from this group?",
+    "removeFailed": "Couldn't remove the trainee",
+    "traineeRemoved": "Trainee removed from the group",
+    "headerCounts": "{trainees}/{max} trainees · {sessions} sessions total",
+    "sessionsCount": "{count, plural, one {# session} other {# sessions}}",
+    "upcomingSessions": "Upcoming Sessions",
+    "sessionAt": "{date} at {time}",
+    "traineesOf": "Trainees ({count}/{max})",
+    "noTrainees": "No trainees in this group yet",
+    "colCode": "Code",
+    "colName": "Name",
+    "colPhone": "Phone",
+    "colSubscription": "Subscription",
+    "sessionsProgress": "{done}/{total} sessions",
+    "noSubscription": "No subscription",
+    "countInBranch": "{count, plural, one {# group} other {# groups}} in this branch"
   },
   "schedule": {
     "title": "Schedule",
@@ -314,7 +387,9 @@
     "confirmReschedule": "Confirm Reschedule",
     "viewGroup": "View Group",
     "previousWeek": "Previous week",
-    "nextWeek": "Next week"
+    "nextWeek": "Next week",
+    "cancelFailed": "Couldn't cancel the session",
+    "rescheduleFailed": "Couldn't reschedule the session"
   },
   "attendance": {
     "title": "Attendance",
@@ -341,7 +416,10 @@
     "allHours": "All hours",
     "noSessionsMatch": "No sessions match these filters",
     "filterByCaptain": "Filter by captain",
-    "filterByHour": "Filter by start time"
+    "filterByHour": "Filter by start time",
+    "submitFailed": "Couldn't submit the attendance",
+    "loadingSessions": "Loading sessions...",
+    "cancelledSession": "This session was cancelled, so attendance can't be taken."
   },
   "finance": {
     "title": "Finance",
@@ -376,7 +454,19 @@
     "addIncome": "Add Income",
     "incomeCategoryPlaceholder": "Grant, Rental, Sale...",
     "dateFrom": "From date",
-    "dateTo": "To date"
+    "dateTo": "To date",
+    "trainee": "Trainee",
+    "planLevel": "Plan / Level",
+    "selectCaptainFirst": "Choose a captain first",
+    "captain": "Captain",
+    "payrollTypeColumn": "Type",
+    "selectPlaceholder": "Select...",
+    "periodStart": "Period Start",
+    "periodEnd": "Period End",
+    "hourlyRate": "Hourly Rate",
+    "baseSalary": "Base Salary",
+    "percentageBase": "Percentage Base",
+    "recordPayroll": "Record Payroll"
   },
   "reports": {
     "title": "Reports",
@@ -393,7 +483,57 @@
     "generate": "Generate Report",
     "exportPdf": "Export PDF",
     "exportExcel": "Export Excel",
-    "noData": "No data available for the selected filters."
+    "noData": "No data available for the selected filters.",
+    "col": {
+      "type": "Type",
+      "amount": "Amount",
+      "trainee": "Trainee",
+      "group": "Group",
+      "status": "Status",
+      "plan": "Plan",
+      "level": "Level",
+      "start": "Start",
+      "end": "End",
+      "captain": "Captain",
+      "sessions": "Sessions",
+      "attendanceRate": "Attendance %",
+      "evaluations": "Evaluations",
+      "phone": "Phone",
+      "remaining": "Remaining",
+      "date": "Date",
+      "levelChange": "Level Change",
+      "groupChange": "Group Change",
+      "changedBy": "Changed By",
+      "income": "Income"
+    },
+    "values": {
+      "INCOME": "Income",
+      "EXPENSE": "Expense",
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "EXCUSED": "Excused",
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "FROZEN": "Frozen"
+    },
+    "summary": {
+      "revenue": "Revenue",
+      "collections": "Collections",
+      "expenses": "Expenses",
+      "outstandingPayments": "Outstanding Payments",
+      "profitLoss": "Profit / Loss",
+      "present": "Present",
+      "absent": "Absent",
+      "excused": "Excused",
+      "total": "Total",
+      "attendanceRate": "Attendance Rate",
+      "active": "Active",
+      "expired": "Expired",
+      "frozen": "Frozen",
+      "upcomingRenewals": "Upcoming Renewals"
+    },
+    "traineesPaid": "Trainees Paid",
+    "grandTotal": "Grand Total"
   },
   "portal": {
     "title": "My Portal",
@@ -420,7 +560,8 @@
     "captainFeedback": "Feedback From Your Captain",
     "noFeedback": "No feedback yet",
     "ratingSaved": "Rating saved",
-    "selectTrainee": "Choose a trainee"
+    "selectTrainee": "Choose a trainee",
+    "ratingFailed": "Couldn't save your rating"
   },
   "superAdmin": {
     "title": "Platform Administration",
@@ -603,6 +744,21 @@
     "writePlaceholder": "Write feedback for this trainee",
     "addButton": "Add Feedback",
     "added": "Feedback added",
-    "empty": "No feedback yet"
+    "empty": "No feedback yet",
+    "submitFailed": "Couldn't add the feedback"
+  },
+  "daysShort": {
+    "SUNDAY": "Sun",
+    "MONDAY": "Mon",
+    "TUESDAY": "Tue",
+    "WEDNESDAY": "Wed",
+    "THURSDAY": "Thu",
+    "FRIDAY": "Fri",
+    "SATURDAY": "Sat"
+  },
+  "subscriptionStatus": {
+    "ACTIVE": "Active",
+    "EXPIRED": "Expired",
+    "FROZEN": "Frozen"
   }
 }

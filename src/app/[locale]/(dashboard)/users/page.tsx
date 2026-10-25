@@ -246,7 +246,7 @@ export default function UsersPage() {
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
-          <p className="text-xs text-muted-foreground">{row.phoneNumber}</p>
+          <p dir="ltr" className="text-xs text-muted-foreground rtl:text-right">{row.phoneNumber}</p>
         </div>
       ),
     },

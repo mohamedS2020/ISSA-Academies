@@ -99,7 +99,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
     authFetch('/api/branches?includeInactive=false')
       .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch branches');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         return res.json();
       })
       .then((data) => {
@@ -270,7 +270,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           <button
             onClick={onMenuClick}
             className="md:hidden h-9 w-9 rounded-xl bg-muted/70 border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
-            aria-label="Open menu"
+            aria-label={tNav('openMenu')}
           >
             <Menu size={18} />
           </button>

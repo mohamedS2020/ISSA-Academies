@@ -50,16 +50,13 @@ interface GroupDetail {
   _count: { trainees: number; sessions: number };
 }
 
-const DAY_SHORT: Record<string, string> = {
-  MONDAY: 'Mon', TUESDAY: 'Tue', WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu', FRIDAY: 'Fri', SATURDAY: 'Sat', SUNDAY: 'Sun',
-};
-
 // ─── Component ────────────────────────────────────────────────
 
 function GroupDetailPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
+  const tDays = useTranslations('daysShort');
+  const tStatus = useTranslations('subscriptionStatus');
   const tFeedback = useTranslations('feedback');
   const { user, authFetch } = useAuth();
   const can = useAccess();
@@ -78,7 +75,7 @@ function GroupDetailPageContent() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/groups/${groupId}`);
-      if (!res.ok) throw new Error('Failed to load group');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setGroup(data.data);
     } catch (err: any) {
@@ -86,17 +83,17 @@ function GroupDetailPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [authFetch, groupId, toast]);
+  }, [authFetch, groupId, toast, tCommon]);
 
   useEffect(() => { fetchGroup(); }, [fetchGroup]);
 
   const handleRemoveTrainee = async (traineeId: string, traineeName: string) => {
-    if (!confirm(`Remove ${traineeName} from this group?`)) return;
+    if (!confirm(t('removeConfirm', { name: traineeName }))) return;
     setRemovingId(traineeId);
     try {
       const res = await authFetch(`/api/groups/${groupId}/trainees/${traineeId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to remove trainee');
-      toast.success('Trainee removed from group');
+      if (!res.ok) throw new Error(t('removeFailed'));
+      toast.success(t('traineeRemoved'));
       fetchGroup();
     } catch (err: any) {
       toast.error(err.message);
@@ -144,7 +141,7 @@ function GroupDetailPageContent() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">{group.name}</h1>
               <p className="text-sm text-muted-foreground">
-                {group._count.trainees}/{group.maxTrainees} trainees · {group._count.sessions} sessions total
+                {t('headerCounts', { trainees: group._count.trainees, max: group.maxTrainees, sessions: group._count.sessions })}
               </p>
             </div>
           </div>
@@ -171,7 +168,7 @@ function GroupDetailPageContent() {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('captain')}</span>
           </div>
           <p className="font-semibold text-foreground">{group.captain.user.name}</p>
-          <p className="text-xs text-muted-foreground mt-1">{group.captain.user.phoneNumber}</p>
+          <p dir="ltr" className="text-xs text-muted-foreground mt-1 rtl:text-right">{group.captain.user.phoneNumber}</p>
           {group.captain.specialization && (
             <p className="text-xs text-primary dark:text-primary mt-1">{group.captain.specialization}</p>
           )}
@@ -184,9 +181,9 @@ function GroupDetailPageContent() {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('plan')}</span>
           </div>
           <p className="font-semibold text-foreground">{group.plan.name}</p>
-          <p className="text-xs text-muted-foreground mt-1">{group.plan.minSessions} sessions</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('sessionsCount', { count: group.plan.minSessions })}</p>
           {group.plan.amount != null && (
-            <p className="text-xs text-success mt-1">{Number(group.plan.amount).toLocaleString()} EGP</p>
+            <p className="text-xs text-success mt-1">{tCommon('egp', { amount: Number(group.plan.amount).toLocaleString() })}</p>
           )}
         </div>
 
@@ -199,13 +196,13 @@ function GroupDetailPageContent() {
           <div className="flex flex-wrap gap-1 mb-2">
             {group.scheduleDays.map((day) => (
               <span key={day} className="px-1.5 py-0.5 bg-warning-soft text-warning border border-warning/30 rounded text-xs">
-                {DAY_SHORT[day] ?? day}
+                {tDays.has(day) ? tDays(day) : day}
               </span>
             ))}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            {group.startTime} · {group.sessionDuration}min
+            {group.startTime} · {tCommon('minutes', { count: group.sessionDuration })}
           </div>
         </div>
       </div>
@@ -213,17 +210,17 @@ function GroupDetailPageContent() {
       {/* Upcoming sessions */}
       {group.sessions.length > 0 && (
         <div className="bg-card/80 border border-input/60 rounded-2xl p-5">
-          <h2 className="text-sm font-semibold text-foreground/80 mb-3">Upcoming Sessions</h2>
+          <h2 className="text-sm font-semibold text-foreground/80 mb-3">{t('upcomingSessions')}</h2>
           <div className="space-y-2">
             {group.sessions.map((s) => (
               <div key={s.id} className="flex items-center justify-between py-2 border-b border-input/40 last:border-0">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-sm text-foreground/80">
-                    {new Date(s.scheduledAt).toLocaleDateString()} at {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {t('sessionAt', { date: new Date(s.scheduledAt).toLocaleDateString(), time: new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">{s.durationMinutes}min</span>
+                <span className="text-xs text-muted-foreground">{tCommon('minutes', { count: s.durationMinutes })}</span>
               </div>
             ))}
           </div>
@@ -234,17 +231,17 @@ function GroupDetailPageContent() {
       <div className="bg-card/80 border border-input/60 rounded-2xl overflow-hidden">
         <div className="p-5 border-b border-input/60 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground/80">
-            Trainees ({group._count.trainees}/{group.maxTrainees})
+            {t('traineesOf', { count: group._count.trainees, max: group.maxTrainees })}
           </h2>
         </div>
         {group.trainees.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">No trainees assigned yet</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">{t('noTrainees')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-input/60">
-                  {[...(isCaptain ? [] : ['Code']), 'Name', ...(isCaptain ? [] : ['Phone']), 'Subscription', tCommon('actions')].map((h) => (
+                  {[...(isCaptain ? [] : [t('colCode')]), t('colName'), ...(isCaptain ? [] : [t('colPhone')]), t('colSubscription'), tCommon('actions')].map((h) => (
                     <th key={h} className="px-4 py-3 text-start text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -259,7 +256,7 @@ function GroupDetailPageContent() {
                       )}
                       <td className="px-4 py-3 font-medium text-foreground">{trainee.name}</td>
                       {!isCaptain && (
-                        <td className="px-4 py-3 text-muted-foreground text-xs">{trainee.user.phoneNumber}</td>
+                        <td dir="ltr" className="px-4 py-3 text-muted-foreground text-xs rtl:text-right">{trainee.user.phoneNumber}</td>
                       )}
                       <td className="px-4 py-3">
                         {sub ? (
@@ -268,14 +265,14 @@ function GroupDetailPageContent() {
                               sub.status === 'ACTIVE' ? 'bg-success-soft text-success border border-success/30' : 'bg-muted/70 text-muted-foreground border border-input/30'
                             }`}>
                               {sub.status === 'ACTIVE' ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                              {sub.status}
+                              {tStatus.has(sub.status) ? tStatus(sub.status) : sub.status}
                             </span>
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              {sub.attendedSessions}/{sub.totalSessions} sessions
+                              {t('sessionsProgress', { done: sub.attendedSessions, total: sub.totalSessions })}
                             </p>
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">No subscription</span>
+                          <span className="text-xs text-muted-foreground">{t('noSubscription')}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">

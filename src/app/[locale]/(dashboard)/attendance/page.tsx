@@ -66,20 +66,17 @@ type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'EXCUSED';
 
 // ─── Status Toggle ───────────────────────────────────────────
 
-const STATUS_CONFIG: Record<AttendanceStatus, { icon: any; label: string; class: string }> = {
+const STATUS_CONFIG: Record<AttendanceStatus, { icon: any; class: string }> = {
   PRESENT: {
     icon: CheckCircle2,
-    label: 'Present',
     class: 'bg-success-soft text-success border-success/40',
   },
   ABSENT: {
     icon: XCircle,
-    label: 'Absent',
     class: 'bg-danger-soft text-danger border-danger/40',
   },
   EXCUSED: {
     icon: MinusCircle,
-    label: 'Excused',
     class: 'bg-warning-soft text-warning border-warning/40',
   },
 };
@@ -91,6 +88,7 @@ function StatusToggle({
   value: AttendanceStatus | null;
   onChange: (s: AttendanceStatus) => void;
 }) {
+  const t = useTranslations('attendance');
   const statuses: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'EXCUSED'];
 
   return (
@@ -110,7 +108,7 @@ function StatusToggle({
             }`}
           >
             <Icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{cfg.label}</span>
+            <span className="hidden sm:inline">{t(s.toLowerCase() as 'present' | 'absent' | 'excused')}</span>
           </button>
         );
       })}
@@ -122,6 +120,11 @@ function StatusToggle({
 
 function AttendancePageContent() {
   const t = useTranslations('attendance');
+  const tCommon = useTranslations('common');
+  const tSchedule = useTranslations('schedule');
+  // Session statuses arrive as enum values (SCHEDULED, COMPLETED, CANCELLED).
+  const statusText = (status: string) =>
+    tSchedule.has(status.toLowerCase()) ? tSchedule(status.toLowerCase()) : status;
   const { authFetch } = useAuth();
   const can = useAccess();
   // "View attendance" opens the sheet read-only; marking needs "Mark attendance".
@@ -220,7 +223,7 @@ function AttendancePageContent() {
         body: JSON.stringify({ sessionId: sheet.session.id, records }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message ?? 'Failed to submit');
+      if (!res.ok) throw new Error(data.error?.message ?? t('submitFailed'));
       setSubmitSuccess(true);
     } catch (err: any) {
       setSubmitError(err.message);
@@ -293,7 +296,7 @@ function AttendancePageContent() {
         {loadingSessions ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Loading sessions...</span>
+            <span>{t('loadingSessions')}</span>
           </div>
         ) : todaySessions.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('noSessions')}</p>
@@ -352,7 +355,7 @@ function AttendancePageContent() {
                   <option key={s.id} value={s.id} className="bg-muted">
                     {/* scheduledAtLocal is branch-local "DD/MM/YYYY, HH:MM" — take the time part */}
                     {s.group.name} — {sessionTime(s)}
-                    {sessionCaptain(s) ? ` · ${sessionCaptain(s)}` : ''} [{s.status}]
+                    {sessionCaptain(s) ? ` · ${sessionCaptain(s)}` : ''} [{statusText(s.status)}]
                   </option>
                 ))}
               </select>
@@ -379,7 +382,7 @@ function AttendancePageContent() {
                 <div>
                   <p className="text-sm font-bold text-foreground">{sheet.session.groupName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {sheet.session.scheduledAtLocal ?? format(parseISO(sheet.session.scheduledAt), 'dd/MM/yyyy, HH:mm')} · {sheet.session.durationMinutes}min
+                    <span dir="ltr">{sheet.session.scheduledAtLocal ?? format(parseISO(sheet.session.scheduledAt), 'dd/MM/yyyy, HH:mm')}</span> · {tCommon('minutes', { count: sheet.session.durationMinutes })}
                   </p>
                 </div>
                 <span
@@ -391,7 +394,7 @@ function AttendancePageContent() {
                       : 'bg-primary/10 text-primary dark:text-primary'
                   }`}
                 >
-                  {sheet.session.status}
+                  {statusText(sheet.session.status)}
                 </span>
               </div>
 
@@ -429,7 +432,7 @@ function AttendancePageContent() {
               {isCancelled && (
                 <div className="mx-5 mt-4 p-3 bg-danger-soft rounded-lg border border-danger/20 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-danger shrink-0" />
-                  <p className="text-sm text-danger">Cannot mark attendance for a cancelled session.</p>
+                  <p className="text-sm text-danger">{t('cancelledSession')}</p>
                 </div>
               )}
 

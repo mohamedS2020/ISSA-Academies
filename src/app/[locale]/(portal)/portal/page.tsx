@@ -79,7 +79,7 @@ export default function PortalDashboardPage() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/portal/dashboard${selectedTraineeId ? `?traineeId=${selectedTraineeId}` : ''}`);
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       setData(json.data);
     } catch (err: any) {
@@ -116,7 +116,7 @@ export default function PortalDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stars }),
       });
-      if (!res.ok) throw new Error('Failed to save rating');
+      if (!res.ok) throw new Error(t('ratingFailed'));
       setRating((await res.json()).data);
       toast.success(t('ratingSaved'));
     } catch (err: any) {
@@ -171,7 +171,7 @@ export default function PortalDashboardPage() {
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <Clock size={11} />
-                    {s.scheduledAtLocal}
+                    <span dir="ltr">{s.scheduledAtLocal}</span>
                   </div>
                 </div>
               ))}
@@ -277,7 +277,7 @@ export default function PortalDashboardPage() {
             <div className="space-y-3">
               {feedback.map((f) => (
                 <div key={f.id} className="p-3.5 rounded-xl bg-background border border-border">
-                  <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                  <p dir="auto" className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                     {f.message}
                   </p>
                   <div className="flex items-center justify-between mt-2.5 text-[10px] text-muted-foreground">

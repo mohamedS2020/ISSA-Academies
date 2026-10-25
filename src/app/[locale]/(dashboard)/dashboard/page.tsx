@@ -91,6 +91,7 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const tSchedule = useTranslations('schedule');
+  const tUsers = useTranslations('users');
   const { user, authFetch } = useAuth();
   const { toast } = useToast();
   const params = useParams();
@@ -109,7 +110,7 @@ export default function DashboardPage() {
     enabled: !!user && user.role !== UserRole.TRAINEE,
     queryFn: async () => {
       const res = await authFetch('/api/dashboard');
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       return json.data;
     },
@@ -266,7 +267,7 @@ export default function DashboardPage() {
                       <span className="text-xs font-semibold text-foreground group-hover:text-primary dark:group-hover:text-primary transition-colors truncate max-w-[160px]">
                         {s.group.name}
                       </span>
-                      <span className="text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span dir="ltr" className="text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
                         {s.scheduledAtLocal}
                       </span>
                     </div>
@@ -317,7 +318,7 @@ export default function DashboardPage() {
                       <td className="py-3.5 text-warning font-medium font-mono">
                         {new Date(item.endDate).toLocaleDateString()}
                       </td>
-                      <td className="py-3.5 text-muted-foreground font-mono">{item.phoneNumber}</td>
+                      <td dir="ltr" className="py-3.5 text-muted-foreground font-mono rtl:text-right">{item.phoneNumber}</td>
                       <td className="py-3.5 text-end">
                         <Link
                           href={`/${locale}/subscriptions`}
@@ -430,7 +431,7 @@ export default function DashboardPage() {
                       </h4>
                       <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-medium font-mono">
                         <span className="flex items-center gap-1">
-                          <Clock size={12} /> {session.scheduledAtLocal}
+                          <Clock size={12} /> <span dir="ltr">{session.scheduledAtLocal}</span>
                         </span>
                       </div>
                     </div>
@@ -516,7 +517,7 @@ export default function DashboardPage() {
             {t('title')}
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            {user.name} — {user.role.toLowerCase()}
+            {user.name} — {tUsers.has(user.role.toLowerCase()) ? tUsers(user.role.toLowerCase()) : user.role.toLowerCase()}
           </p>
         </div>
       </div>
