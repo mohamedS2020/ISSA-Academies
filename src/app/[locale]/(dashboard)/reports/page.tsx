@@ -14,6 +14,7 @@ import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
 import {
+  Users,
   FileText,
   Download,
   FileSpreadsheet,
@@ -25,6 +26,15 @@ type ReportType = 'financial' | 'attendance' | 'subscription' | 'captainPerforma
 interface CaptainOption {
   id: string;
   user: { name: string };
+}
+
+
+/** One plan's line in the financial report's income by plan. */
+interface PlanIncome {
+  planName: string;
+  traineeCount: number;
+  income: number | string;
+  referrals?: { new?: number; network?: number; continuous?: number; old?: number };
 }
 
 function todayIso(offsetDays = 0): string {
@@ -303,7 +313,26 @@ function ReportsCenterPageContent() {
           {type === 'financial' && result.byPlan && result.byPlan.length > 0 && (
             <div className="bg-card/70 border border-border rounded-2xl p-4 backdrop-blur-xl">
               <h3 className="text-sm font-bold text-foreground mb-3">{t('incomeByPlan')}</h3>
-              <div className="overflow-x-auto">
+              {/* Phones: one row per plan, income first. The seven-column
+                  table cut off the income behind a sideways scroll. */}
+              <ul className="md:hidden divide-y divide-border/60">
+                {(result.byPlan as PlanIncome[]).map((p, i) => (
+                  <li key={i} className="py-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="min-w-0 break-words text-sm font-medium text-foreground">{p.planName}</span>
+                      <span className="flex-shrink-0 text-sm font-semibold text-success" dir="ltr">{Number(p.income).toFixed(2)}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      <Users className="inline w-3 h-3 -mt-0.5 me-1" aria-hidden="true" />{p.traineeCount} · {tTrainees('referralNew')} {p.referrals?.new ?? 0} · {tTrainees('referralNetwork')} {p.referrals?.network ?? 0} · {tTrainees('referralContinuous')} {p.referrals?.continuous ?? 0} · {tTrainees('referralOld')} {p.referrals?.old ?? 0}
+                    </p>
+                  </li>
+                ))}
+                <li className="py-3 flex items-baseline justify-between gap-3 font-bold text-foreground">
+                  <span>{tCommon('total')}</span>
+                  <span className="text-success" dir="ltr">{(result.byPlan as PlanIncome[]).reduce((sum, p) => sum + Number(p.income), 0).toFixed(2)}</span>
+                </li>
+              </ul>
+              <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground text-xs">

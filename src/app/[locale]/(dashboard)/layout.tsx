@@ -84,8 +84,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   if (!isAuthenticated) return null;
 
   return (
-    <div 
-      className="min-h-screen bg-background text-foreground flex overflow-hidden font-sans relative"
+    // The page itself scrolls (not a box inside it): on phones an inner
+    // scroll box kept the address bar from hiding, broke tap-the-status-bar to
+    // scroll to the top, and with 100vh let iOS's toolbar cover the bottom of
+    // the page. overflow-x-clip (not hidden) keeps the glow from widening the
+    // page without making a scroll container, so the header still sticks.
+    <div
+      className="min-h-dvh bg-background text-foreground flex overflow-x-clip font-sans relative"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* ─── Elegant Background Atmosphere ─── */}
@@ -96,11 +101,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar mobileOpen={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
       {/* Main Page Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen relative z-10">
+      <div className="flex-1 flex flex-col min-w-0 relative z-10">
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        
+
         {/* Page Content Container */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-8">
           {children}
         </main>
       </div>

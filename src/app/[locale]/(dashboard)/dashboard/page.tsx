@@ -139,6 +139,32 @@ export default function DashboardPage() {
     const todaySessions = data.todaySessions;
     const expiringSoon = data.expiringSoon;
 
+    // "Renewed", or Renew opening the trainee's page with the renew dialog.
+    // `large`: the phone list's 44 px button; the table keeps its compact link.
+    const renewAction = (item: NonNullable<typeof expiringSoon>[number], large: boolean) =>
+      item.renewed ? (
+        <span
+          data-testid="expiring-renewed"
+          className={`inline-flex items-center gap-1 font-bold text-success ${large ? 'text-xs' : 'text-[10px]'}`}
+        >
+          <CheckCircle size={12} aria-hidden="true" />
+          <span>{t('renewed')}</span>
+        </span>
+      ) : can('enroll') ? (
+        <Link
+          href={`/${locale}/trainees/${item.traineeId}?renew=1`}
+          data-testid="expiring-renew"
+          className={
+            large
+              ? 'inline-flex items-center justify-center gap-1 min-h-11 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold'
+              : 'inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:underline'
+          }
+        >
+          <span>{t('renew')}</span>
+          <ArrowUpRight size={large ? 14 : 12} className="rtl:-scale-x-100" aria-hidden="true" />
+        </Link>
+      ) : null;
+
     const kpis = [
       {
         title: t('totalTrainees'),
@@ -252,7 +278,7 @@ export default function DashboardPage() {
               </h3>
               <Link
                 href={`/${locale}/schedule`}
-                className="text-[10px] font-bold text-primary dark:text-primary hover:text-primary dark:hover:text-primary transition-colors uppercase flex items-center gap-0.5"
+                className="min-h-11 sm:min-h-0 px-2 -me-2 sm:px-0 sm:me-0 text-xs sm:text-[10px] font-bold text-primary hover:underline transition-colors uppercase flex items-center gap-0.5"
               >
                 <span>{tCommon('all')}</span>
                 {isRtl ? <ChevronLeft size={10} /> : <ChevronRight size={10} />}
@@ -302,7 +328,26 @@ export default function DashboardPage() {
           {expiringSoon.length === 0 ? (
             <p className="text-xs text-muted-foreground py-4 text-center">{tCommon('noResults')}</p>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one row per trainee, with a full-size Renew button. The
+                table needed sideways scrolling and cut Renew down to an "R". */}
+            <ul className="md:hidden divide-y divide-border">
+              {expiringSoon.map((item) => (
+                <li key={item.id} className="py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground break-words">{item.traineeName}</p>
+                    <p className="text-xs text-muted-foreground break-words">{item.planName}</p>
+                    <p className="mt-1 text-xs">
+                      <span className="text-warning font-medium font-mono">{new Date(item.endDate).toLocaleDateString()}</span>
+                      <span className="text-muted-foreground"> · </span>
+                      <span className="text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</span>
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">{renewAction(item, true)}</div>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-start text-xs">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground font-bold uppercase tracking-wider">
@@ -323,33 +368,16 @@ export default function DashboardPage() {
                       <td className="py-3.5 text-warning font-medium font-mono">
                         {new Date(item.endDate).toLocaleDateString()}
                       </td>
-                      <td className="py-3.5 text-muted-foreground font-mono">{item.phoneNumber}</td>
+                      <td className="py-3.5 text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</td>
                       <td className="py-3.5 text-end">
-                        {item.renewed ? (
-                          <span
-                            data-testid="expiring-renewed"
-                            className="inline-flex items-center gap-1 text-[10px] font-bold text-success"
-                          >
-                            <CheckCircle size={12} aria-hidden="true" />
-                            <span>{t('renewed')}</span>
-                          </span>
-                        ) : can('enroll') ? (
-                          // The trainee's page, with the renew dialog open.
-                          <Link
-                            href={`/${locale}/trainees/${item.traineeId}?renew=1`}
-                            data-testid="expiring-renew"
-                            className="inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
-                          >
-                            <span>{t('renew')}</span>
-                            <ArrowUpRight size={12} className="rtl:-scale-x-100" aria-hidden="true" />
-                          </Link>
-                        ) : null}
+                        {renewAction(item, false)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
         )}

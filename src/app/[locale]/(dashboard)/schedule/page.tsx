@@ -76,33 +76,37 @@ function StatusBadge({ status }: { status: Session['status'] }) {
 function SessionCard({
   session,
   onClick,
+  large = false,
 }: {
   session: Session;
   onClick: () => void;
+  /** The phone day list: full width, readable text. The week grid keeps it compact. */
+  large?: boolean;
 }) {
+  const text = large ? 'text-xs' : 'text-[10px]';
   return (
     <button
       onClick={onClick}
-      className={`w-full text-start p-2 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${
+      className={`w-full text-start ${large ? 'p-3 min-h-11' : 'p-2'} rounded-lg border cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${
         session.status === 'CANCELLED'
           ? 'bg-danger-soft border-danger/20 opacity-60'
           : 'bg-foreground/5 border-foreground/10 hover:bg-foreground/5'
       }`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[11px] font-bold text-foreground truncate">{session.group.name}</span>
+        <span className={`${large ? 'text-sm' : 'text-[11px]'} font-bold text-foreground truncate`}>{session.group.name}</span>
         <StatusBadge status={session.status} />
       </div>
       <div className="flex items-center gap-1 text-muted-foreground">
         <Clock className="w-3 h-3 shrink-0" />
-        <span className="text-[10px]">
+        <span className={text}>
           {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
             format(parseISO(session.scheduledAt), 'HH:mm')}
         </span>
-        <span className="text-[10px] text-muted-foreground ms-auto">{session.durationMinutes}m</span>
+        <span className={`${text} text-muted-foreground ms-auto`}>{session.durationMinutes}m</span>
       </div>
       {session.group.captain?.user?.name && (
-        <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+        <p className={`${text} text-muted-foreground truncate mt-0.5`}>
           {session.group.captain.user.name}
         </p>
       )}
@@ -359,11 +363,19 @@ function SchedulePageContent() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  // Phones show one day at a time: the week grid needed sideways scrolling
+  // and shrank group names to one letter.
+  const [pickedDay, setPickedDay] = useState<Date | null>(null);
 
   const weekDays = eachDayOfInterval({
     start: weekStart,
     end: endOfWeek(weekStart, { weekStartsOn: 0 }),
   });
+  // The picked day if it is in this week, else today, else the first day.
+  const phoneDay =
+    weekDays.find((d) => pickedDay && isSameDay(d, pickedDay)) ??
+    weekDays.find((d) => isToday(d)) ??
+    weekDays[0];
 
   const fetchSessions = useCallback(async () => {
     setLoading(true);
@@ -415,13 +427,13 @@ function SchedulePageContent() {
             onClick={() => setWeekStart((w) => subWeeks(w, 1))}
             aria-label={t('previousWeek')}
             title={t('previousWeek')}
-            className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
+            className="flex items-center justify-center min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
             <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
           <button
             onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }))}
-            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
+            className="min-h-11 sm:min-h-0 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition"
           >
             {t('today')}
           </button>
@@ -429,7 +441,7 @@ function SchedulePageContent() {
             onClick={() => setWeekStart((w) => addWeeks(w, 1))}
             aria-label={t('nextWeek')}
             title={t('nextWeek')}
-            className="p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
+            className="flex items-center justify-center min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 p-2 rounded-lg bg-foreground/5 border border-foreground/10 text-foreground/80 hover:bg-foreground/5 transition"
           >
             <ChevronRight className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
@@ -442,8 +454,49 @@ function SchedulePageContent() {
           <Loader2 className="w-8 h-8 text-primary dark:text-primary animate-spin" />
         </div>
       ) : (
-        <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-2">
-        <div className="grid grid-cols-7 gap-3 min-w-[720px] md:min-w-0">
+        <>
+        {/* ─── Phones: day tabs + that day's sessions ─── */}
+        <div className="md:hidden" data-testid="schedule-day-view">
+          <div role="tablist" aria-label={t('title')} className="grid grid-cols-7 gap-1 mb-4">
+            {weekDays.map((day) => {
+              const active = isSameDay(day, phoneDay);
+              const count = getSessionsForDay(day).length;
+              return (
+                <button
+                  key={day.toISOString()}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setPickedDay(day)}
+                  className={`flex flex-col items-center justify-center min-h-14 rounded-lg border text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    active
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : isToday(day)
+                        ? 'bg-primary/10 text-primary border-primary/30'
+                        : 'bg-foreground/5 text-foreground/80 border-foreground/10'
+                  }`}
+                >
+                  <span className="text-[10px] font-semibold uppercase">{format(day, 'EEE')}</span>
+                  <span className="text-base font-bold leading-tight">{format(day, 'd')}</span>
+                  <span aria-hidden="true" className={`mt-0.5 h-1 w-1 rounded-full ${count > 0 ? (active ? 'bg-primary-foreground' : 'bg-primary') : 'bg-transparent'}`} />
+                </button>
+              );
+            })}
+          </div>
+          <div role="tabpanel" className="space-y-2">
+            {getSessionsForDay(phoneDay).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-10">{t('noSessions')}</p>
+            ) : (
+              getSessionsForDay(phoneDay).map((session) => (
+                <SessionCard key={session.id} session={session} large onClick={() => setSelectedSession(session)} />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* ─── Tablet and desktop: the week grid ─── */}
+        <div className="hidden md:block pb-2">
+        <div className="grid grid-cols-7 gap-3">
           {weekDays.map((day) => {
             const daySessions = getSessionsForDay(day);
             const dayIsToday = isToday(day);
@@ -485,6 +538,7 @@ function SchedulePageContent() {
           })}
         </div>
         </div>
+        </>
       )}
 
       {/* Session Detail Modal */}

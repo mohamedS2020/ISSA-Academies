@@ -777,7 +777,7 @@ function TraineeDetailPageContent() {
                 </h3>
                 <button
                   onClick={() => setPaymentTarget(null)}
-                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-10 w-10 sm:h-7 sm:w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>
@@ -860,7 +860,7 @@ function TraineeDetailPageContent() {
                 <h2 className="text-lg font-bold text-foreground">Edit Level &amp; Group</h2>
                 <button
                   onClick={() => setShowAssignDialog(false)}
-                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-10 w-10 sm:h-7 sm:w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>

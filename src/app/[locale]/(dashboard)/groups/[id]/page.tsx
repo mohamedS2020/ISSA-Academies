@@ -125,24 +125,84 @@ function GroupDetailPageContent() {
   // the trainee's feedback (captains read their own trainees' feedback).
   const canViewTrainee = can('viewTrainees');
 
+  // One trainee's subscription badge and sessions, for the table and the phone cards.
+  const subscriptionCell = (sub: GroupDetail['trainees'][number]['trainee']['subscriptions'][number] | undefined) =>
+    sub ? (
+      <div>
+        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold ${
+          sub.status === 'ACTIVE' ? 'bg-success-soft text-success border border-success/30' : 'bg-muted/70 text-muted-foreground border border-input/30'
+        }`}>
+          {sub.status === 'ACTIVE' ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+          {sub.status}
+        </span>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {sub.attendedSessions}/{sub.totalSessions} sessions
+        </p>
+      </div>
+    ) : (
+      <span className="text-xs text-muted-foreground">No subscription</span>
+    );
+
+  // View / feedback / remove for one trainee. `large`: 44 px buttons in a
+  // full-width row for the phone cards; the table keeps its compact icons.
+  const traineeActions = (
+    trainee: GroupDetail['trainees'][number]['trainee'],
+    large: boolean
+  ) => (
+      <div className={`flex items-center gap-2 ${large ? "[&_button]:h-11 [&_button]:flex-1 [&_button]:flex [&_button]:items-center [&_button]:justify-center" : ""}`}>
+        {canViewTrainee && (
+          <button
+            onClick={() => router.push(`/${locale}/trainees/${trainee.id}`)}
+            className="p-1.5 rounded-lg text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
+            title={t('viewTrainee')}
+            aria-label={t('viewTrainee')}
+          >
+            <Eye className="w-3.5 h-3.5" />
+          </button>
+        )}
+        {(isCaptain || canViewTrainee) && (
+        <button
+          onClick={() => setFeedbackFor({ id: trainee.id, name: trainee.name })}
+          className="p-1.5 rounded-lg text-primary dark:text-primary border border-primary/20 hover:bg-primary/10 transition-all"
+          title={tFeedback('open')}
+          aria-label={tFeedback('open')}
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+        </button>
+        )}
+        {canManageGroup && (
+          <button
+            onClick={() => handleRemoveTrainee(trainee.id, trainee.name)}
+            disabled={removingId === trainee.id}
+            aria-label={tCommon('delete')}
+            title={tCommon('delete')}
+            className="p-1.5 rounded-lg text-danger border border-danger/20 hover:bg-danger-soft transition-all disabled:opacity-50"
+          >
+            {removingId === trainee.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+          </button>
+        )}
+      </div>
+  );
+
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Back + Title + Edit */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      {/* Back + Title + Edit. On phones the button moves under the title: side
+          by side it squeezed the group name into one word per line. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => router.push(`/${locale}/groups`)}
             aria-label={tCommon('back')}
-            className="p-2 rounded-lg border border-input/60 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+            className="flex-shrink-0 flex items-center justify-center h-11 w-11 sm:h-auto sm:w-auto sm:p-2 rounded-lg border border-input/60 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
           >
             <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" aria-hidden="true" />
           </button>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="hidden sm:block p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30">
               <Users2 className="w-6 h-6 text-primary" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{group.name}</h1>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">{group.name}</h1>
               <p className="text-sm text-muted-foreground">
                 {group._count.trainees}/{group.maxTrainees} trainees · {group._count.sessions} sessions total
               </p>
@@ -153,7 +213,7 @@ function GroupDetailPageContent() {
         {canManageGroup && (
           <button
             onClick={() => router.push(`/${locale}/groups/${groupId}/edit`)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all flex-shrink-0"
+            className="flex items-center justify-center gap-1.5 min-h-11 sm:min-h-0 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all flex-shrink-0 w-full sm:w-auto"
           >
             <Pencil className="w-4 h-4" />
             {t('editGroup')}
@@ -240,7 +300,26 @@ function GroupDetailPageContent() {
         {group.trainees.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground text-sm">No trainees assigned yet</div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Phones: one card per trainee. The table hid the subscription and
+              the action buttons off the screen's edge. */}
+          <ul className="md:hidden divide-y divide-input/30">
+            {group.trainees.map(({ id: gtId, trainee }) => (
+              <li key={gtId} className="p-4">
+                <p className="font-medium text-foreground break-words">{trainee.name}</p>
+                {!isCaptain && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    <span className="font-mono text-primary">{trainee.systemCode}</span>
+                    <span> · </span>
+                    <span dir="ltr">{trainee.user.phoneNumber}</span>
+                  </p>
+                )}
+                <div className="mt-2">{subscriptionCell(trainee.subscriptions[0])}</div>
+                <div className="mt-3">{traineeActions(trainee, true)}</div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-input/60">
@@ -251,7 +330,6 @@ function GroupDetailPageContent() {
               </thead>
               <tbody>
                 {group.trainees.map(({ id: gtId, trainee }) => {
-                  const sub = trainee.subscriptions[0];
                   return (
                     <tr key={gtId} className="border-b border-input/30 hover:bg-muted transition-colors">
                       {!isCaptain && (
@@ -259,55 +337,13 @@ function GroupDetailPageContent() {
                       )}
                       <td className="px-4 py-3 font-medium text-foreground">{trainee.name}</td>
                       {!isCaptain && (
-                        <td className="px-4 py-3 text-muted-foreground text-xs">{trainee.user.phoneNumber}</td>
+                        <td className="px-4 py-3 text-muted-foreground text-xs" dir="ltr">{trainee.user.phoneNumber}</td>
                       )}
                       <td className="px-4 py-3">
-                        {sub ? (
-                          <div>
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-semibold ${
-                              sub.status === 'ACTIVE' ? 'bg-success-soft text-success border border-success/30' : 'bg-muted/70 text-muted-foreground border border-input/30'
-                            }`}>
-                              {sub.status === 'ACTIVE' ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                              {sub.status}
-                            </span>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {sub.attendedSessions}/{sub.totalSessions} sessions
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">No subscription</span>
-                        )}
+                        {subscriptionCell(trainee.subscriptions[0])}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {canViewTrainee && (
-                            <button
-                              onClick={() => router.push(`/${locale}/trainees/${trainee.id}`)}
-                              className="p-1.5 rounded-lg text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
-                              title={t('viewTrainee')}
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          {(isCaptain || canViewTrainee) && (
-                          <button
-                            onClick={() => setFeedbackFor({ id: trainee.id, name: trainee.name })}
-                            className="p-1.5 rounded-lg text-primary dark:text-primary border border-primary/20 hover:bg-primary/10 transition-all"
-                            title={tFeedback('open')}
-                          >
-                            <MessageSquare className="w-3.5 h-3.5" />
-                          </button>
-                          )}
-                          {canManageGroup && (
-                            <button
-                              onClick={() => handleRemoveTrainee(trainee.id, trainee.name)}
-                              disabled={removingId === trainee.id}
-                              className="p-1.5 rounded-lg text-danger border border-danger/20 hover:bg-danger-soft transition-all disabled:opacity-50"
-                            >
-                              {removingId === trainee.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
-                        </div>
+                        {traineeActions(trainee, false)}
                       </td>
                     </tr>
                   );
@@ -315,6 +351,7 @@ function GroupDetailPageContent() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
@@ -335,7 +372,7 @@ function GroupDetailPageContent() {
               </h2>
               <button
                 onClick={() => setFeedbackFor(null)}
-                className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                className="h-10 w-10 sm:h-7 sm:w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 &times;
               </button>

@@ -7,6 +7,12 @@
  * Supports column definitions, row actions, loading states,
  * and empty states. Uses i18n for all strings.
  *
+ * On phones (below md) each row is a card instead of a table row: a wide
+ * table in a sideways-scrolling box hid most columns and every action button
+ * on a phone. The card shows the title column on top, the other columns as
+ * labelled fields, and the actions as a full-width row of 44 px buttons.
+ * `Column.mobile` tunes a column's place in the card (see below).
+ *
  * Usage:
  *   <DataTable
  *     columns={columns}
@@ -30,7 +36,29 @@ export interface Column<T> {
   sortable?: boolean;
   className?: string;
   render?: (row: T) => ReactNode;
+  /**
+   * Its place in the phone card:
+   *   - 'title'   the card's heading (default: the first column);
+   *   - 'full'    a field across the card's whole width (long text);
+   *   - 'hidden'  left out on phones (detail that the record's page shows);
+   *   - 'actions' the card's button row, without a label (default for an
+   *               `id` column, which pages use for their action buttons).
+   */
+  mobile?: 'title' | 'full' | 'hidden' | 'actions';
 }
+
+/** How a column shows in the phone card. */
+function mobileRole<T>(col: Column<T>): Column<T>['mobile'] | 'field' {
+  if (col.mobile) return col.mobile;
+  return col.key === 'id' ? 'actions' : 'field';
+}
+
+/**
+ * Buttons and links in a card's action row get a fingertip-sized target
+ * (44 px) without each page restyling its buttons.
+ */
+const CARD_ACTIONS =
+  'flex flex-wrap items-center gap-2 [&_button]:min-h-11 [&_button]:min-w-11 [&_button]:justify-center [&_a]:min-h-11 [&_a]:inline-flex [&_a]:items-center [&_a]:justify-center';
 
 export interface PaginationInfo {
   page: number;
@@ -150,8 +178,60 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border">
+      {/* Phones: one card per row */}
+      <ul className="space-y-3 md:hidden" data-testid="data-cards">
+        {sortedData.length === 0 ? (
+          <li className="flex flex-col items-center gap-2 rounded-xl border border-border px-4 py-10 text-center text-muted-foreground">
+            {emptyIcon}
+            <p className="text-sm font-medium">{emptyMessage ?? t('noResults')}</p>
+          </li>
+        ) : (
+          sortedData.map((row, idx) => {
+            const cell = (col: Column<T>) => (col.render ? col.render(row) : (row[col.key] as ReactNode));
+            const visible = columns.filter((col) => mobileRole(col) !== 'hidden');
+            const titleCol =
+              visible.find((col) => mobileRole(col) === 'title') ??
+              visible.find((col) => mobileRole(col) === 'field' || mobileRole(col) === 'full');
+            const fields = visible.filter(
+              (col) => col !== titleCol && (mobileRole(col) === 'field' || mobileRole(col) === 'full')
+            );
+            const actionCols = visible.filter((col) => mobileRole(col) === 'actions');
+            return (
+              <li
+                key={(row[keyField] as string) ?? idx}
+                className="min-w-0 rounded-xl border border-border bg-card p-4"
+              >
+                {titleCol && (
+                  <div className={`min-w-0 break-words text-base font-semibold text-foreground ${titleCol.className ?? ''}`}>
+                    {cell(titleCol)}
+                  </div>
+                )}
+                {fields.length > 0 && (
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                    {fields.map((col) => (
+                      <div key={col.key} className={`min-w-0 ${mobileRole(col) === 'full' ? 'col-span-2' : ''}`}>
+                        <dt className="text-xs text-muted-foreground">{col.header}</dt>
+                        <dd className={`mt-0.5 min-w-0 break-words text-foreground/80 ${col.className ?? ''}`}>{cell(col)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {(actionCols.length > 0 || actions) && (
+                  <div className={`mt-4 border-t border-border pt-3 ${CARD_ACTIONS}`}>
+                    {actionCols.map((col) => (
+                      <div key={col.key} className={CARD_ACTIONS}>{cell(col)}</div>
+                    ))}
+                    {actions?.(row)}
+                  </div>
+                )}
+              </li>
+            );
+          })
+        )}
+      </ul>
+
+      {/* Tablet and desktop: the table */}
+      <div className="hidden overflow-hidden rounded-xl border border-border md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-start text-sm">
             <thead>
@@ -227,7 +307,7 @@ export function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between px-1">
+        <div className="flex flex-col items-center gap-3 px-1 sm:flex-row sm:justify-between">
           <p className="text-sm text-muted-foreground">
             {t('showing', {
               from: (pagination.page - 1) * pagination.limit + 1,
@@ -240,7 +320,7 @@ export function DataTable<T extends Record<string, any>>({
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={pagination.page <= 1}
               aria-label={t('previous')}
-              className="rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
             >
               {/* Points back along the reading direction: flipped in Arabic. */}
               <span aria-hidden="true" className="inline-block rtl:-scale-x-100">←</span>
@@ -261,7 +341,8 @@ export function DataTable<T extends Record<string, any>>({
                   <button
                     key={pageNum}
                     onClick={() => onPageChange?.(pageNum)}
-                    className={`min-w-[36px] rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                    aria-current={pageNum === pagination.page ? 'page' : undefined}
+                    className={`min-h-11 min-w-11 sm:min-h-0 sm:min-w-[36px] rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                       pageNum === pagination.page
                         ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'border border-input text-muted-foreground hover:bg-muted'
@@ -276,7 +357,7 @@ export function DataTable<T extends Record<string, any>>({
               onClick={() => onPageChange?.(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
               aria-label={t('next')}
-              className="rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span aria-hidden="true" className="inline-block rtl:-scale-x-100">→</span>
             </button>

@@ -499,14 +499,14 @@ export default function UsersPage() {
                       <p className="text-xs font-medium text-foreground/80 mb-2">{group.label}</p>
                       <div className="flex flex-wrap gap-2">
                         {group.privileges.map((priv) => (
-                          <label key={priv} className="flex items-center gap-2 cursor-pointer group">
+                          <label key={priv} className="flex items-center gap-2 min-h-11 sm:min-h-0 pe-2 cursor-pointer group">
                             <input
                               type="checkbox"
                               checked={privileges.includes(priv)}
                               onChange={() => togglePrivilege(priv)}
-                              className="w-4 h-4 rounded accent-primary"
+                              className="w-5 h-5 sm:w-4 sm:h-4 rounded accent-primary"
                             />
-                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                            <span className="text-sm sm:text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                               {priv.replace('can_', '').replace(/_/g, ' ')}
                             </span>
                           </label>

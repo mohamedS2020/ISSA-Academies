@@ -7,6 +7,11 @@
  *   - The staff header keeps its menu button at 320 px.
  *   - The branch switcher opens inside the screen.
  *   - "Record payment" stays inside the trainee's subscription card.
+ *   - Lists are cards with their actions on screen (no sideways table).
+ *   - Attendance: labelled 44 px buttons, the submit bar on screen.
+ *   - The schedule shows one day at a time.
+ *   - Form fields are 16 px (iOS zooms into smaller ones), and the page
+ *     itself scrolls (not a box inside it).
  *
  * Runs at the narrowest common phone (320 px) and a common Android (412 px),
  * in English and Arabic (right to left).
@@ -99,6 +104,76 @@ for (const [phone, device] of Object.entries(PHONES)) {
 
       await menu.click();
       await expect(page.getByRole('link', { name: 'Trainees' })).toBeVisible();
+    });
+
+    test('lists are cards with their actions on screen, and the page itself scrolls', async ({ page }) => {
+      await logIn(page, 'en', state.adminPhone, state.adminPassword, 'dashboard');
+      await page.goto('/en/trainees');
+
+      const cards = page.getByTestId('data-cards');
+      await expect(cards).toBeVisible();
+      await expect(page.locator('table')).toBeHidden();
+      const card = cards.getByRole('listitem').filter({ hasText: state.expiring.name });
+      await expect(card).toBeVisible();
+      const view = card.getByRole('button', { name: 'View' });
+      await expectInsideScreen(page, view, width);
+      expect((await view.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await expectFitsScreen(page, width);
+
+      // Fields are 16 px: iOS zooms into anything smaller on focus.
+      const search = page.getByPlaceholder(/search/i).first();
+      expect(await search.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
+
+      // The document scrolls, so the browser bar can hide and a tap on the
+      // status bar returns to the top: no box around the page content scrolls
+      // on its own, and a long page (a trainee's) scrolls the window.
+      await page.goto(`/en/trainees/${state.expiring.traineeId}`);
+      await expect(page.getByTestId('record-payment')).toBeVisible();
+      const scrollBoxes = await page.locator('main').evaluate((main) => {
+        const boxes: string[] = [];
+        for (let el: Element | null = main; el && el !== document.body; el = el.parentElement) {
+          const oy = getComputedStyle(el).overflowY;
+          if (oy === 'auto' || oy === 'scroll') boxes.push(el.tagName);
+        }
+        return boxes;
+      });
+      expect(scrollBoxes).toEqual([]);
+      await page.evaluate(() => window.scrollTo(0, 400));
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    });
+
+    test('attendance has labelled 44 px buttons and the submit bar on screen', async ({ page }) => {
+      await logIn(page, 'en', state.adminPhone, state.adminPassword, 'dashboard');
+      await page.goto('/en/attendance');
+      const picker = page.locator('#attendance-session');
+      await expect(picker.locator('option')).toHaveCount(2); // the placeholder + today's session
+      await picker.selectOption({ index: 1 });
+
+      const row = page.getByRole('group', { name: state.expiring.name });
+      for (const label of ['Present', 'Absent', 'Excused']) {
+        const button = row.getByRole('button', { name: label });
+        await expect(button).toBeVisible();
+        expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        await expectInsideScreen(page, button, width);
+      }
+      await row.getByRole('button', { name: 'Absent' }).click();
+      await expect(row.getByRole('button', { name: 'Absent' })).toHaveAttribute('aria-pressed', 'true');
+
+      // The submit bar sticks to the bottom of the screen; nothing is submitted.
+      const submit = page.getByRole('button', { name: /submit attendance/i });
+      await expect(submit).toBeInViewport();
+    });
+
+    test('the schedule shows one day at a time', async ({ page }) => {
+      await logIn(page, 'en', state.adminPhone, state.adminPassword, 'dashboard');
+      await page.goto('/en/schedule');
+      const dayView = page.getByTestId('schedule-day-view');
+      await expect(dayView).toBeVisible();
+      await expect(dayView.getByRole('tab')).toHaveCount(7);
+      // Today is selected and shows today's session with its group's full name.
+      await expect(dayView.getByRole('tab', { selected: true })).toBeVisible();
+      await expect(dayView.getByRole('tabpanel')).toContainText('Dolphins');
+      await expectFitsScreen(page, width);
     });
 
     test('"Record payment" stays inside the subscription card and opens the dialog', async ({ page }) => {

@@ -106,6 +106,7 @@ export default function PortalAttendancePage() {
     {
       key: 'notes',
       header: tAttendance('notes'),
+      mobile: 'full',
       render: (row) => (
         <span className="text-muted-foreground text-xs max-w-xs truncate block">
           {row.notes || '—'}

@@ -66,35 +66,41 @@ type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'EXCUSED';
 
 // ─── Status Toggle ───────────────────────────────────────────
 
-const STATUS_CONFIG: Record<AttendanceStatus, { icon: any; label: string; class: string }> = {
+const STATUS_CONFIG: Record<AttendanceStatus, { icon: typeof CheckCircle2; class: string }> = {
   PRESENT: {
     icon: CheckCircle2,
-    label: 'Present',
     class: 'bg-success-soft text-success border-success/40',
   },
   ABSENT: {
     icon: XCircle,
-    label: 'Absent',
     class: 'bg-danger-soft text-danger border-danger/40',
   },
   EXCUSED: {
     icon: MinusCircle,
-    label: 'Excused',
     class: 'bg-warning-soft text-warning border-warning/40',
   },
 };
 
+/**
+ * Present / Absent / Excused for one trainee. On phones a full-width row of
+ * three 44 px buttons, labelled: staff mark attendance poolside on a phone,
+ * and three unlabelled 28 px icons were easy to mis-tap.
+ */
 function StatusToggle({
   value,
   onChange,
+  labels,
+  traineeName,
 }: {
   value: AttendanceStatus | null;
   onChange: (s: AttendanceStatus) => void;
+  labels: Record<AttendanceStatus, string>;
+  traineeName: string;
 }) {
   const statuses: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'EXCUSED'];
 
   return (
-    <div className="flex gap-1">
+    <div role="group" aria-label={traineeName} className="grid grid-cols-3 gap-1.5 w-full sm:flex sm:w-auto sm:gap-1">
       {statuses.map((s) => {
         const cfg = STATUS_CONFIG[s];
         const Icon = cfg.icon;
@@ -102,15 +108,17 @@ function StatusToggle({
         return (
           <button
             key={s}
+            type="button"
             onClick={() => onChange(s)}
-            className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-semibold transition-all ${
+            aria-pressed={active}
+            className={`flex items-center justify-center gap-1.5 min-h-11 sm:min-h-0 px-2 py-1 rounded-lg border text-sm sm:text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               active
                 ? cfg.class
                 : 'bg-foreground/5 border-foreground/10 text-muted-foreground hover:text-foreground/80'
             }`}
           >
-            <Icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{cfg.label}</span>
+            <Icon className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0" aria-hidden="true" />
+            <span>{labels[s]}</span>
           </button>
         );
       })}
@@ -367,7 +375,8 @@ function AttendancePageContent() {
 
       {/* Step 2 — Attendance Sheet */}
       {selectedSessionId && (
-        <div className="bg-foreground/5 border border-foreground/10 rounded-2xl overflow-hidden">
+        <div className="bg-foreground/5 border border-foreground/10 rounded-2xl overflow-clip">
+          {/* overflow-clip, not hidden: the submit bar below sticks to the screen. */}
           {loadingSheet ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -467,6 +476,8 @@ function AttendancePageContent() {
                           </span>
                         ) : tr.canMark ? (
                           <StatusToggle
+                            labels={statusLabel}
+                            traineeName={tr.name}
                             value={attendanceMap[tr.traineeId] ?? null}
                             onChange={(s) =>
                               setAttendanceMap((prev) => ({ ...prev, [tr.traineeId]: s }))
@@ -502,7 +513,9 @@ function AttendancePageContent() {
 
               {/* Submit */}
               {!isCancelled && canMarkAttendance && sheet.trainees.length > 0 && (
-                <div className="px-5 py-4 border-t border-foreground/10">
+                <div className="sticky bottom-0 z-10 px-5 py-4 border-t border-foreground/10 bg-card/95 backdrop-blur-sm pb-[max(1rem,env(safe-area-inset-bottom))]">
+                  {/* Stays at the bottom of the screen while the list scrolls, so a
+                      phone user never has to scroll down to submit. */}
                   {submitError && (
                     <div className="flex items-center gap-2 text-danger text-sm mb-3 p-2 bg-danger-soft rounded-lg">
                       <AlertCircle className="w-4 h-4 shrink-0" />
