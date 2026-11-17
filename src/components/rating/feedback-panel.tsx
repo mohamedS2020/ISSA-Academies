@@ -10,9 +10,10 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
+import { formatDateTime } from '@/lib/i18n/format';
 import { Send, Loader2 } from 'lucide-react';
 
 interface FeedbackEntry {
@@ -31,6 +32,7 @@ export function FeedbackPanel({
 }) {
   const t = useTranslations('feedback');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -43,7 +45,7 @@ export function FeedbackPanel({
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/trainees/${traineeId}/feedback`);
-      if (!res.ok) throw new Error('Failed to load feedback');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       setEntries((await res.json()).data ?? []);
     } catch (err: any) {
       toast.error(err.message || tCommon('somethingWentWrong'));
@@ -66,7 +68,7 @@ export function FeedbackPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed }),
       });
-      if (!res.ok) throw new Error('Failed to submit feedback');
+      if (!res.ok) throw new Error(tCommon('somethingWentWrong'));
       setMessage('');
       toast.success(t('added'));
       fetchFeedback();
@@ -121,7 +123,7 @@ export function FeedbackPanel({
               </p>
               <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                 <span className="font-semibold">{f.captain.user.name}</span>
-                <span className="font-mono">{new Date(f.createdAt).toLocaleString()}</span>
+                <span className="font-mono">{formatDateTime(f.createdAt, locale)}</span>
               </div>
             </div>
           ))}

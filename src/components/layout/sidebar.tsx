@@ -55,6 +55,7 @@ export default function Sidebar({
   onClose?: () => void;
 }) {
   const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
   const pathname = usePathname();
   const params = useParams();
   const locale = params.locale as string;
@@ -208,7 +209,7 @@ export default function Sidebar({
         <button
           onClick={onClose}
           className="md:hidden h-8 w-8 rounded-lg border border-input bg-background flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-          aria-label="Close menu"
+          aria-label={tCommon('closeMenu')}
         >
           <X size={16} />
         </button>

@@ -13,6 +13,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
 import { SkeletonCard } from '@/components/feedback/skeleton-loader';
+import { formatDate, intlLocale } from '@/lib/i18n/format';
 import { CreditCard, Snowflake, Calendar, Wallet, CalendarClock } from 'lucide-react';
 
 interface SubscriptionData {
@@ -52,7 +53,7 @@ export default function PortalSubscriptionPage() {
   const { authFetch } = useAuth();
   // Calendar days stored at midnight UTC: shown in UTC so no one sees the day before.
   const formatDay = (iso: string) =>
-    new Date(iso).toLocaleDateString(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+    new Date(iso).toLocaleDateString(intlLocale(locale), { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
   const { toast } = useToast();
 
   const { selectedTraineeId } = usePortalTrainee();
@@ -63,7 +64,7 @@ export default function PortalSubscriptionPage() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/portal/subscription${selectedTraineeId ? `?traineeId=${selectedTraineeId}` : ''}`);
-      if (!res.ok) throw new Error('Failed to load subscription');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       setData(json.data);
     } catch (err: any) {
@@ -134,7 +135,7 @@ export default function PortalSubscriptionPage() {
               </span>
             </div>
             <p className="text-2xl font-extrabold text-warning font-mono">
-              {new Date(data.subscription.endDate).toLocaleDateString()}
+              {formatDate(data.subscription.endDate, locale)}
             </p>
           </div>
 

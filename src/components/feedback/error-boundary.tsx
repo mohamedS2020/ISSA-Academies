@@ -8,6 +8,13 @@
  */
 
 import { Component, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
+
+/** The class can't call hooks, so its texts come from this small component. */
+function FallbackText({ part }: { part: 'title' | 'body' | 'retry' }) {
+  const t = useTranslations('common');
+  return <>{t(part === 'title' ? 'somethingWentWrong' : part === 'body' ? 'unexpectedError' : 'tryAgain')}</>;
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -63,11 +70,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             </svg>
           </div>
           <h2 className="text-lg font-semibold text-foreground">
-            Something went wrong
+            <FallbackText part="title" />
           </h2>
           <p className="max-w-md text-center text-sm text-muted-foreground">
-            An unexpected error occurred. Please try again or contact support if the
-            problem persists.
+            <FallbackText part="body" />
           </p>
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <pre className="mt-2 max-w-lg overflow-auto rounded-lg bg-muted p-4 text-xs text-danger">
@@ -80,7 +86,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             onClick={this.handleRetry}
             className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
-            Try Again
+            <FallbackText part="retry" />
           </button>
         </div>
       );

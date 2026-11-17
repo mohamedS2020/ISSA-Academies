@@ -20,6 +20,7 @@ import {
   useMemo,
   type ReactNode,
 } from 'react';
+import { useTranslations } from 'next-intl';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -138,13 +139,14 @@ function ToastContainer({
   toasts: Toast[];
   onDismiss: (id: string) => void;
 }) {
+  const tCommon = useTranslations('common');
   if (toasts.length === 0) return null;
 
   return (
     <div
       className="fixed bottom-4 end-4 z-50 flex flex-col gap-2"
       role="region"
-      aria-label="Notifications"
+      aria-label={tCommon('notifications')}
     >
       {toasts.map((t) => (
         <div
@@ -157,7 +159,7 @@ function ToastContainer({
           <button
             onClick={() => onDismiss(t.id)}
             className="ms-4 rounded-full p-1 opacity-70 transition-opacity hover:opacity-100"
-            aria-label="Dismiss"
+            aria-label={tCommon('dismiss')}
           >
             ✕
           </button>

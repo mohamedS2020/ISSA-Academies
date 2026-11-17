@@ -290,7 +290,7 @@ export default function CreateTenantPage() {
                     ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
                     : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
-                placeholder="e.g., Aqua Stars Academy"
+                placeholder={t('academyPlaceholder')}
               />
               {errors.name && <p className="text-xs text-danger">{errors.name}</p>}
             </div>
@@ -407,7 +407,7 @@ export default function CreateTenantPage() {
                     ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
                     : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
-                placeholder="e.g., Ahmed Hassan"
+                placeholder={t('adminNamePlaceholder')}
               />
               {errors.adminName && <p className="text-xs text-danger">{errors.adminName}</p>}
             </div>
@@ -453,7 +453,7 @@ export default function CreateTenantPage() {
                     ? 'border-danger/30 focus:border-danger focus:ring-danger/20'
                     : 'border-input focus:border-primary focus:ring-primary/20'
                 }`}
-                placeholder="e.g., Heliopolis Branch"
+                placeholder={t('branchPlaceholder')}
               />
               {errors.branchName && <p className="text-xs text-danger">{errors.branchName}</p>}
             </div>
@@ -619,13 +619,13 @@ export default function CreateTenantPage() {
                   <dt className="text-xs font-medium text-warning">
                     {t('adminPhone')}
                   </dt>
-                  <dd className="font-mono text-foreground">
+                  <dd className="font-mono text-foreground rtl:text-right" dir="ltr">
                     {result.adminCredentials.phoneNumber}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium text-warning">
-                    Password
+                    {t('password')}
                   </dt>
                   <dd className="flex items-center gap-2">
                     <code className="rounded bg-card px-2 py-1 font-mono text-sm text-foreground">
@@ -671,7 +671,7 @@ export default function CreateTenantPage() {
               onClick={step === 1 ? () => router.push('../admin') : handleBack}
               className="rounded-lg border border-input px-5 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
             >
-              {step === 1 ? 'Cancel' : 'Back'}
+              {step === 1 ? t('cancel') : t('back')}
             </button>
 
             {step < totalSteps ? (
@@ -679,7 +679,7 @@ export default function CreateTenantPage() {
                 onClick={handleNext}
                 className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                Next →
+                {t('next')}
               </button>
             ) : (
               <button

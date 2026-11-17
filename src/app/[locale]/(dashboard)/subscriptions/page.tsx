@@ -23,6 +23,7 @@ import {
   CreditCard, Plus, CheckCircle, XCircle,
   Calendar, Layers, Clock, ChevronRight,
 } from 'lucide-react';
+import { formatNumber } from '@/lib/i18n/format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ interface Pagination {
 function SubscriptionsPageContent() {
   const t = useTranslations('subscriptions');
   const tCommon = useTranslations('common');
+  const tRenewal = useTranslations('renewal');
   const { user, authFetch } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -66,7 +68,7 @@ function SubscriptionsPageContent() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/subscriptions/plans?page=${page}&limit=20`);
-      if (!res.ok) throw new Error('Failed to load subscription plans');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setPlans(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -82,12 +84,12 @@ function SubscriptionsPageContent() {
 
   // ─── Deactivate plan ──────────────────────────────────────
   const handleDeactivate = async (planId: string) => {
-    if (!confirm('Deactivate this plan? Existing subscriptions will not be affected.')) return;
+    if (!confirm(t('deactivateConfirm'))) return;
     setDeactivatingId(planId);
     try {
       const res = await authFetch(`/api/subscriptions/plans/${planId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to deactivate plan');
-      toast.success('Plan deactivated');
+      if (!res.ok) throw new Error(t('deactivateFailed'));
+      toast.success(t('deactivated'));
       fetchPlans(pagination.page);
     } catch (err: any) {
       toast.error(err.message);
@@ -105,7 +107,7 @@ function SubscriptionsPageContent() {
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {row._count.groups} {row._count.groups === 1 ? 'group' : 'groups'} · {row._count.levels} {row._count.levels === 1 ? 'level' : 'levels'}
+            {t('groupsLevels', { groups: row._count.groups, levels: row._count.levels })}
           </p>
         </div>
       ),
@@ -118,8 +120,8 @@ function SubscriptionsPageContent() {
           <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
           <span className="text-sm text-foreground/80">
             {row.periodType === 'FROM_SUBSCRIPTION_DATE'
-              ? `${row.periodDays} days`
-              : 'Monthly'}
+              ? t('days', { count: row.periodDays ?? 0 })
+              : t('monthly')}
           </span>
         </div>
       ),
@@ -130,7 +132,7 @@ function SubscriptionsPageContent() {
       render: (row) => (
         <div className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-sm text-foreground/80">{row.minSessions} sessions</span>
+          <span className="text-sm text-foreground/80">{tRenewal('sessions', { count: row.minSessions })}</span>
         </div>
       ),
     },
@@ -155,7 +157,7 @@ function SubscriptionsPageContent() {
       header: t('amount'),
       render: (row) => (
         <span className="font-semibold text-success">
-          {Number(row.amount).toLocaleString()} EGP
+          {formatNumber(Number(row.amount), locale)} {tRenewal('currency')}
         </span>
       ),
     },
@@ -182,7 +184,7 @@ function SubscriptionsPageContent() {
             onClick={() => router.push(`/${locale}/subscriptions/${row.id}`)}
             className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all flex items-center gap-1"
           >
-            Edit <ChevronRight className="w-3 h-3" />
+            {tCommon('edit')} <ChevronRight className="w-3 h-3 rtl:-scale-x-100" />
           </button>
           {row.isActive && user?.role === UserRole.ADMIN && (
             <button
@@ -190,7 +192,7 @@ function SubscriptionsPageContent() {
               disabled={deactivatingId === row.id}
               className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-danger border border-danger/30 hover:bg-danger-soft transition-all disabled:opacity-50"
             >
-              Deactivate
+              {t('deactivate')}
             </button>
           )}
         </div>
@@ -210,7 +212,7 @@ function SubscriptionsPageContent() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {pagination.total} {pagination.total === 1 ? 'plan' : 'plans'} in this branch
+              {t('countInBranch', { count: pagination.total })}
             </p>
           </div>
         </div>

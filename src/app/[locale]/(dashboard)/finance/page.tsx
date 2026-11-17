@@ -80,7 +80,7 @@ function FinanceDashboardPageContent() {
     queryFn: async () => {
       const qs = new URLSearchParams({ dateFrom, dateTo });
       const res = await authFetch(`/api/finance/income?${qs}`);
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       return data.data;
     },

@@ -26,6 +26,7 @@ import {
   Star,
   MessageSquare,
 } from 'lucide-react';
+import { formatDate } from '@/lib/i18n/format';
 
 interface CaptainRating {
   captain: { id: string; name: string } | null;
@@ -79,7 +80,7 @@ export default function PortalDashboardPage() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/portal/dashboard${selectedTraineeId ? `?traineeId=${selectedTraineeId}` : ''}`);
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       setData(json.data);
     } catch (err: any) {
@@ -116,7 +117,7 @@ export default function PortalDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stars }),
       });
-      if (!res.ok) throw new Error('Failed to save rating');
+      if (!res.ok) throw new Error(tCommon('somethingWentWrong'));
       setRating((await res.json()).data);
       toast.success(t('ratingSaved'));
     } catch (err: any) {
@@ -206,7 +207,7 @@ export default function PortalDashboardPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t('expiresOn')}</span>
                   <span className="font-semibold text-warning font-mono">
-                    {new Date(data.activeSubscription.endDate).toLocaleDateString()}
+                    {formatDate(data.activeSubscription.endDate, locale)}
                   </span>
                 </div>
               </div>
@@ -283,7 +284,7 @@ export default function PortalDashboardPage() {
                   <div className="flex items-center justify-between mt-2.5 text-[10px] text-muted-foreground">
                     <span className="font-semibold">{f.captain.user.name}</span>
                     <span className="font-mono">
-                      {new Date(f.createdAt).toLocaleDateString()}
+                      {formatDate(f.createdAt, locale)}
                     </span>
                   </div>
                 </div>

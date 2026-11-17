@@ -23,19 +23,7 @@ interface Plan { id: string; name: string }
 
 type Day = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 
-const ALL_DAYS: { key: Day; label: string }[] = [
-  { key: 'MONDAY', label: 'Mon' },
-  { key: 'TUESDAY', label: 'Tue' },
-  { key: 'WEDNESDAY', label: 'Wed' },
-  { key: 'THURSDAY', label: 'Thu' },
-  { key: 'FRIDAY', label: 'Fri' },
-  { key: 'SATURDAY', label: 'Sat' },
-  { key: 'SUNDAY', label: 'Sun' },
-];
-
-const DAY_LABEL: Record<string, string> = Object.fromEntries(
-  ALL_DAYS.map((d) => [d.key, d.label])
-);
+const ALL_DAYS: Day[] = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
 const inputClass =
   'w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-ring/20 transition-all';
@@ -46,6 +34,10 @@ const scheduleKey = (days: Day[], time: string, duration: string) =>
 function EditGroupPageContent() {
   const t = useTranslations('groups');
   const tCommon = useTranslations('common');
+  const tg = useTranslations('groupForm');
+  const tDay = useTranslations('daysShort');
+  const dayLabel = (d: string) => tDay(d.toLowerCase());
+  const dayList = (ds: string[]) => ds.map(dayLabel).join(locale === 'ar' ? '، ' : ', ');
   const { authFetch } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -86,7 +78,7 @@ function EditGroupPageContent() {
         if (captainsRes.ok) setCaptains((await captainsRes.json()).data || []);
         if (plansRes.ok) setPlans((await plansRes.json()).data || []);
 
-        if (!groupRes.ok) throw new Error('Failed to load group');
+        if (!groupRes.ok) throw new Error(tg('loadFailed'));
         const g = (await groupRes.json()).data;
 
         setName(g.name);
@@ -107,7 +99,7 @@ function EditGroupPageContent() {
       }
     };
     load();
-  }, [authFetch, groupId, toast, tCommon]);
+  }, [authFetch, groupId, toast, tCommon, tg]);
 
   const toggleDay = (day: Day) => {
     setScheduleDays((prev) =>
@@ -123,23 +115,23 @@ function EditGroupPageContent() {
     const max = Number(maxTrainees);
     const duration = Number(sessionDuration);
 
-    if (!name.trim()) errs.name = 'Group name is required';
-    if (!captainId) errs.captainId = 'Select a captain';
-    if (!planId) errs.planId = 'Select a plan';
+    if (!name.trim()) errs.name = tg('nameRequired');
+    if (!captainId) errs.captainId = tg('chooseCaptain');
+    if (!planId) errs.planId = tg('choosePlan');
 
-    if (!minTrainees || min < 1) errs.minTrainees = 'Min trainees required (at least 1)';
-    else if (!Number.isInteger(min)) errs.minTrainees = 'Must be a whole number';
+    if (!minTrainees || min < 1) errs.minTrainees = tg('minRequired');
+    else if (!Number.isInteger(min)) errs.minTrainees = tg('wholeNumber');
 
-    if (!maxTrainees || max < 1) errs.maxTrainees = 'Max trainees required (at least 1)';
-    else if (!Number.isInteger(max)) errs.maxTrainees = 'Must be a whole number';
-    else if (max < min) errs.maxTrainees = 'Max must be ≥ Min';
+    if (!maxTrainees || max < 1) errs.maxTrainees = tg('maxRequired');
+    else if (!Number.isInteger(max)) errs.maxTrainees = tg('wholeNumber');
+    else if (max < min) errs.maxTrainees = tg('maxBelowMin');
 
-    if (scheduleDays.length === 0) errs.scheduleDays = 'Select at least one day';
-    if (!startTime.match(/^\d{2}:\d{2}$/)) errs.startTime = 'Invalid time format';
+    if (scheduleDays.length === 0) errs.scheduleDays = tg('chooseDay');
+    if (!startTime.match(/^\d{2}:\d{2}$/)) errs.startTime = tg('invalidTime');
 
-    if (!sessionDuration || duration < 15) errs.sessionDuration = 'Min 15 minutes';
-    else if (!Number.isInteger(duration)) errs.sessionDuration = 'Must be a whole number';
-    else if (duration > 480) errs.sessionDuration = 'Max 480 minutes (8 hours)';
+    if (!sessionDuration || duration < 15) errs.sessionDuration = tg('durationMin');
+    else if (!Number.isInteger(duration)) errs.sessionDuration = tg('wholeNumber');
+    else if (duration > 480) errs.sessionDuration = tg('durationMax');
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -191,14 +183,14 @@ function EditGroupPageContent() {
           }
           setErrors(mapped);
         }
-        throw new Error(data.error?.message || 'Failed to update group');
+        throw new Error(data.error?.message || tg('updateFailed'));
       }
 
       const regenerated = data.data?.sessionsRegenerated ?? 0;
       toast.success(
         data.data?.scheduleChanged
-          ? `Group updated — ${regenerated} upcoming sessions regenerated.`
-          : 'Group updated successfully!'
+          ? tg('updatedRegenerated', { count: regenerated })
+          : tg('updated')
       );
       router.push(`/${locale}/groups/${groupId}`);
     } catch (err: any) {
@@ -226,7 +218,7 @@ function EditGroupPageContent() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">{t('editGroup')}</h1>
-          <p className="text-sm text-muted-foreground">Update group schedule and capacity</p>
+          <p className="text-sm text-muted-foreground">{tg('editSubtitle')}</p>
         </div>
       </div>
 
@@ -240,7 +232,7 @@ function EditGroupPageContent() {
             <label htmlFor="dashboard-groups-id-edit-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('groupName')} <span className="text-danger">*</span>
             </label>
-            <input id="dashboard-groups-id-edit-f1" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="e.g. Beginner Group A" />
+            <input id="dashboard-groups-id-edit-f1" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={tg('namePlaceholder')} />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
@@ -251,17 +243,15 @@ function EditGroupPageContent() {
                 {t('captain')} <span className="text-danger">*</span>
               </label>
               <select id="dashboard-groups-id-edit-f2" value={captainId} onChange={(e) => setCaptainId(e.target.value)} className={inputClass}>
-                <option value="">Select captain</option>
+                <option value="">{tg('selectCaptain')}</option>
                 {captains.map((c) => (
                   <option key={c.id} value={c.id}>{c.user.name}</option>
                 ))}
               </select>
               {selectedCaptain && (
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Attends:{' '}
-                  {captainDays.length
-                    ? captainDays.map((d) => DAY_LABEL[d] ?? d).join(', ')
-                    : '—'}
+                  {tg('attends')}{' '}
+                  {captainDays.length ? dayList(captainDays) : '—'}
                 </p>
               )}
               {errors.captainId && <p className="text-xs text-danger mt-1">{errors.captainId}</p>}
@@ -271,7 +261,7 @@ function EditGroupPageContent() {
                 {t('plan')} <span className="text-danger">*</span>
               </label>
               <select id="dashboard-groups-id-edit-f3" value={planId} onChange={(e) => setPlanId(e.target.value)} className={inputClass}>
-                <option value="">Select plan</option>
+                <option value="">{tg('selectPlan')}</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
@@ -304,7 +294,7 @@ function EditGroupPageContent() {
               {t('scheduleDays')} <span className="text-danger">*</span>
             </label>
             <div className="flex flex-wrap gap-2">
-              {ALL_DAYS.map(({ key, label }) => {
+              {ALL_DAYS.map((key) => {
                 const selected = scheduleDays.includes(key);
                 const conflict =
                   selected && captainDays.length > 0 && !captainDays.includes(key);
@@ -321,7 +311,7 @@ function EditGroupPageContent() {
                           : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                     }`}
                   >
-                    {label}
+                    {dayLabel(key)}
                   </button>
                 );
               })}
@@ -331,12 +321,11 @@ function EditGroupPageContent() {
               <div className="flex items-start gap-2.5 mt-2 p-3 rounded-xl bg-warning-soft border border-warning/40 text-warning text-xs">
                 <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
                 <span>
-                  {selectedCaptain?.user.name} doesn&apos;t attend on{' '}
-                  <span className="font-semibold">
-                    {conflictingDays.map((d) => DAY_LABEL[d] ?? d).join(', ')}
-                  </span>
-                  . Sessions will still be scheduled on those days — pick different
-                  days, or update the captain&apos;s attending days first.
+                  {tg.rich('conflict', {
+                    captain: selectedCaptain?.user.name ?? '',
+                    days: dayList(conflictingDays),
+                    b: (chunks) => <span className="font-semibold">{chunks}</span>,
+                  })}
                 </span>
               </div>
             )}
@@ -353,7 +342,7 @@ function EditGroupPageContent() {
             </div>
             <div>
               <label htmlFor="dashboard-groups-id-edit-f7" className="block text-xs font-semibold text-foreground/80 mb-1.5">
-                {t('sessionDuration')} (min) <span className="text-danger">*</span>
+                {t('sessionDuration')} <span className="text-danger">*</span>
               </label>
               <input id="dashboard-groups-id-edit-f7" type="number" min={15} max={480} step={1} value={sessionDuration} onChange={(e) => setSessionDuration(e.target.value)} className={inputClass} placeholder="60" />
               {errors.sessionDuration && <p className="text-xs text-danger mt-1">{errors.sessionDuration}</p>}
@@ -365,8 +354,7 @@ function EditGroupPageContent() {
             <div className="flex items-start gap-2.5 p-3 rounded-xl bg-warning-soft border border-warning/40 text-warning text-xs">
               <AlertTriangle size={16} className="text-warning flex-shrink-0 mt-0.5" />
               <span>
-                Changing the schedule will regenerate upcoming sessions from the new
-                days/time. Past and already-attended sessions are preserved.
+                {tg('regenerateNote')}
               </span>
             </div>
           )}

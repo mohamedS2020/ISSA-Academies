@@ -18,6 +18,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { CalendarClock, CheckCircle, ChevronDown, Loader2, RefreshCw, X, XCircle } from 'lucide-react';
+import { formatDate, formatNumber, intlLocale } from '@/lib/i18n/format';
 import { useAuth } from '@/lib/auth/auth-context';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -111,7 +112,7 @@ export function RenewDialog({ traineeId, onClose, onRenewed }: RenewDialogProps)
   const formatDate = useCallback(
     (iso: string | null | undefined) =>
       iso
-        ? new Date(iso).toLocaleDateString(locale, {
+        ? new Date(iso).toLocaleDateString(intlLocale(locale), {
             timeZone: 'UTC',
             day: 'numeric',
             month: 'short',
@@ -121,7 +122,7 @@ export function RenewDialog({ traineeId, onClose, onRenewed }: RenewDialogProps)
     [locale]
   );
   const formatMoney = useCallback(
-    (n: number) => `${n.toLocaleString(locale, { maximumFractionDigits: 2 })} ${t('currency')}`,
+    (n: number) => `${formatNumber(n, locale, { maximumFractionDigits: 2 })} ${t('currency')}`,
     [locale, t]
   );
 

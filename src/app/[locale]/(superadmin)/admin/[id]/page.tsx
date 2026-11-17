@@ -9,11 +9,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '@/components/feedback/toast-provider';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { Skeleton } from '@/components/feedback/skeleton-loader';
+import { formatDate } from '@/lib/i18n/format';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
 
 export default function TenantDetailPage() {
   const t = useTranslations('superAdmin');
+  const locale = useLocale();
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
@@ -131,11 +133,11 @@ export default function TenantDetailPage() {
         setUsage(usageData.data);
       }
     } catch {
-      toast.error('Failed to load academy details');
+      toast.error(t('loadError'));
     } finally {
       setIsLoading(false);
     }
-  }, [tenantId, toast]);
+  }, [tenantId, toast, t]);
 
   useEffect(() => {
     loadTenant();
@@ -161,7 +163,7 @@ export default function TenantDetailPage() {
       setIsEditing(false);
       toast.success(t('updateSuccess'));
     } catch {
-      toast.error('Failed to update academy');
+      toast.error(t('updateError'));
     } finally {
       setIsSaving(false);
     }
@@ -215,7 +217,7 @@ export default function TenantDetailPage() {
   if (!tenant) {
     return (
       <div className="py-20 text-center">
-        <p className="text-muted-foreground">Academy not found.</p>
+        <p className="text-muted-foreground">{t('notFound')}</p>
         <button
           onClick={() => router.push('../admin')}
           className="mt-4 text-sm text-primary hover:underline"
@@ -376,7 +378,7 @@ export default function TenantDetailPage() {
                   }}
                   className="rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -410,7 +412,7 @@ export default function TenantDetailPage() {
               <div>
                 <dt className="text-xs font-medium text-muted-foreground">{t('createdAt')}</dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {new Date(tenant.createdAt).toLocaleDateString('en-US', {
+                  {formatDate(tenant.createdAt, locale, {
                     year: 'numeric', month: 'long', day: 'numeric',
                   })}
                 </dd>

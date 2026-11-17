@@ -301,7 +301,7 @@ function AttendancePageContent() {
         {loadingSessions ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Loading sessions...</span>
+            <span>{t('loadingSessions')}</span>
           </div>
         ) : todaySessions.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t('noSessions')}</p>
@@ -355,12 +355,13 @@ function AttendancePageContent() {
                 onChange={(e) => setSelectedSessionId(e.target.value || null)}
                 className="w-full appearance-none bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring pe-10"
               >
-                <option value="">{t('selectSession')}...</option>
+                <option value="">{t('selectSession')}…</option>
                 {filteredSessions.map((s) => (
                   <option key={s.id} value={s.id} className="bg-muted">
                     {/* scheduledAtLocal is branch-local "DD/MM/YYYY, HH:MM" — take the time part */}
                     {s.group.name} — {sessionTime(s)}
-                    {sessionCaptain(s) ? ` · ${sessionCaptain(s)}` : ''} [{s.status}]
+                    {sessionCaptain(s) ? ` · ${sessionCaptain(s)}` : ''}
+                    {s.status !== 'SCHEDULED' ? ` (${t(`status.${s.status}`)})` : ''}
                   </option>
                 ))}
               </select>
@@ -400,7 +401,7 @@ function AttendancePageContent() {
                       : 'bg-primary/10 text-primary dark:text-primary'
                   }`}
                 >
-                  {sheet.session.status}
+                  {t(`status.${sheet.session.status}`)}
                 </span>
               </div>
 
@@ -438,7 +439,7 @@ function AttendancePageContent() {
               {isCancelled && (
                 <div className="mx-5 mt-4 p-3 bg-danger-soft rounded-lg border border-danger/20 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-danger shrink-0" />
-                  <p className="text-sm text-danger">Cannot mark attendance for a cancelled session.</p>
+                  <p className="text-sm text-danger">{t('cancelledSession')}</p>
                 </div>
               )}
 

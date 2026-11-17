@@ -89,7 +89,7 @@ function CaptainsPageContent() {
       const qs = new URLSearchParams({ page: String(page), limit: '20' });
       if (searchQuery) qs.set('search', searchQuery);
       const res = await authFetch(`/api/captains?${qs}`);
-      if (!res.ok) throw new Error('Failed to load captains');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       setCaptains(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -116,14 +116,14 @@ function CaptainsPageContent() {
   const columns: Column<CaptainRow>[] = [
     {
       key: 'captain',
-      header: 'Captain',
+      header: t('captain'),
       render: (row) => (
         <div>
           <div className="flex items-center gap-2">
             <p className="font-semibold text-foreground">{row.user.name}</p>
             <RatingBadge average={row.rating.average} count={row.rating.count} />
           </div>
-          <p className="text-xs text-muted-foreground">{row.user.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.user.phoneNumber}</p>
           {row.specialization && (
             <p className="text-xs text-primary dark:text-primary mt-0.5">{row.specialization}</p>
           )}
@@ -191,7 +191,7 @@ function CaptainsPageContent() {
           onClick={() => router.push(`/${locale}/captains/${row.id}`)}
           className="px-3 py-1.5 rounded-lg text-xs font-medium text-foreground/80 border border-input/60 hover:border-primary/60 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all"
         >
-          View
+          {tCommon('view')}
         </button>
       ),
     },
@@ -232,7 +232,7 @@ function CaptainsPageContent() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name..."
+          placeholder={t('searchPlaceholder')}
           className="w-full ps-9 pe-4 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
         />
       </div>

@@ -12,11 +12,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { DataTable, type Column, type PaginationInfo } from '@/components/tables/data-table';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast-provider';
+import { formatDate } from '@/lib/i18n/format';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -99,6 +100,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function TenantListPage() {
   const t = useTranslations('superAdmin');
+  const locale = useLocale();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -141,11 +143,11 @@ export default function TenantListPage() {
         }));
       }
     } catch {
-      toast.error('Failed to load academies');
+      toast.error(t('listLoadError'));
     } finally {
       setIsLoading(false);
     }
-  }, [statusFilter, search, pagination.page, pagination.limit, toast]);
+  }, [statusFilter, search, pagination.page, pagination.limit, toast, t]);
 
   useEffect(() => {
     loadTenants();
@@ -176,7 +178,7 @@ export default function TenantListPage() {
       setConfirmDialog({ isOpen: false, tenant: null, action: 'suspend' });
       loadTenants();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update status');
+      toast.error(err instanceof Error ? err.message : t('statusError'));
     } finally {
       setIsActionLoading(false);
     }
@@ -225,7 +227,7 @@ export default function TenantListPage() {
       sortable: true,
       render: (row) => (
         <span className="text-muted-foreground">
-          {new Date(row.createdAt).toLocaleDateString()}
+          {formatDate(row.createdAt, locale)}
         </span>
       ),
     },

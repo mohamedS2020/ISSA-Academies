@@ -10,13 +10,14 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useAccess } from '@/lib/auth/use-access';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
 import { Plus, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/i18n/format';
 
 interface ManualIncome {
   id: string;
@@ -36,6 +37,7 @@ interface Pagination {
 function ManualIncomePageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -62,7 +64,7 @@ function ManualIncomePageContent() {
       setIsLoading(true);
       try {
         const res = await authFetch(`/api/finance/manual-income?page=${page}&limit=20`);
-        if (!res.ok) throw new Error('Failed to load income');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         const data = await res.json();
         setIncomes(data.data || []);
         if (data.pagination) setPagination(data.pagination);
@@ -97,11 +99,11 @@ function ManualIncomePageContent() {
 
     const amountNum = Number(amount);
     if (!category.trim()) {
-      setFormError('Category is required');
+      setFormError(t('categoryRequired'));
       return;
     }
     if (!amountNum || amountNum <= 0) {
-      setFormError('Amount must be a positive number');
+      setFormError(t('amountPositive'));
       return;
     }
 
@@ -161,7 +163,7 @@ function ManualIncomePageContent() {
       key: 'date',
       header: t('date'),
       render: (row) => (
-        <span className="text-muted-foreground">{new Date(row.date).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{formatDate(row.date, locale)}</span>
       ),
     },
     {

@@ -75,7 +75,7 @@ export default function SuperAdminLayout({
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <span className="hidden rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary sm:inline-flex">
-              Super Admin
+              {t('badge')}
             </span>
             <button
               onClick={handleLogout}
