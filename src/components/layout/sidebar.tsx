@@ -29,7 +29,6 @@ import {
   Calendar, // Schedule
   DollarSign, // Finance
   FileText, // Reports
-  Settings, // Settings
   ChevronLeft,
   ChevronRight,
   X,
@@ -148,12 +147,6 @@ export default function Sidebar({
       icon: FileText,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
       access: ['viewReports'],
-    },
-    {
-      name: t('settings'),
-      href: `/${locale}/settings`,
-      icon: Settings,
-      roles: [UserRole.ADMIN],
     },
   ];
 

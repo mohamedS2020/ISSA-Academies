@@ -178,7 +178,6 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       'attendance',
       'finance',
       'reports',
-      'settings',
     ];
 
     if (validNavKeys.includes(primarySegment)) {
