@@ -26,7 +26,7 @@ import {
   Star,
   MessageSquare,
 } from 'lucide-react';
-import { formatDate } from '@/lib/i18n/format';
+import { formatBranchDateTime, formatDate } from '@/lib/i18n/format';
 
 interface CaptainRating {
   captain: { id: string; name: string } | null;
@@ -170,9 +170,9 @@ export default function PortalDashboardPage() {
                       {s.group.captain.user.name}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
+                  <div className="flex items-center gap-1.5 text-[10px] text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <Clock size={11} />
-                    {s.scheduledAtLocal}
+                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
                   </div>
                 </div>
               ))}

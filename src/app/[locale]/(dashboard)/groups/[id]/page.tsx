@@ -20,7 +20,7 @@ import {
   Users2, Award, CreditCard, Calendar, Clock,
   ChevronLeft, Trash2, Loader2, CheckCircle, XCircle, Pencil, MessageSquare, Eye,
 } from 'lucide-react';
-import { formatDate, formatTime, formatNumber } from '@/lib/i18n/format';
+import { formatBranchDateTime, formatNumber } from '@/lib/i18n/format';
 import { FeedbackPanel } from '@/components/rating/feedback-panel';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ interface GroupDetail {
       subscriptions: { status: string; endDate: string; attendedSessions: number; totalSessions: number }[];
     };
   }[];
-  sessions: { id: string; scheduledAt: string; status: string; durationMinutes: number }[];
+  sessions: { id: string; scheduledAt: string; scheduledAtLocal: string; status: string; durationMinutes: number }[];
   _count: { trainees: number; sessions: number };
 }
 
@@ -58,6 +58,7 @@ function GroupDetailPageContent() {
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const tg = useTranslations('groupPage');
+  const tSubs = useTranslations('subscriptions');
   const tRenewal = useTranslations('renewal');
   const tDay = useTranslations('daysShort');
   const { user, authFetch } = useAuth();
@@ -132,10 +133,10 @@ function GroupDetailPageContent() {
           sub.status === 'ACTIVE' ? 'bg-success-soft text-success border border-success/30' : 'bg-muted/70 text-muted-foreground border border-input/30'
         }`}>
           {sub.status === 'ACTIVE' ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-          {sub.status}
+          {sub.status === 'ACTIVE' ? tSubs('active') : sub.status === 'FROZEN' ? tSubs('frozen') : tSubs('expired')}
         </span>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {sub.attendedSessions}/{sub.totalSessions} sessions
+          {tg('attended', { attended: sub.attendedSessions, total: sub.totalSessions })}
         </p>
       </div>
     ) : (
@@ -203,7 +204,7 @@ function GroupDetailPageContent() {
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">{group.name}</h1>
               <p className="text-sm text-muted-foreground">
-                {group._count.trainees}/{group.maxTrainees} trainees · {group._count.sessions} sessions total
+                {tg('summary', { count: group._count.trainees, max: group.maxTrainees, sessions: group._count.sessions })}
               </p>
             </div>
           </div>
@@ -264,7 +265,7 @@ function GroupDetailPageContent() {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            {group.startTime} · {group.sessionDuration}min
+            <span dir="ltr">{group.startTime}</span> · {t('minutes', { count: group.sessionDuration })}
           </div>
         </div>
       </div>
@@ -279,10 +280,10 @@ function GroupDetailPageContent() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-sm text-foreground/80">
-                    {tg('sessionAt', { date: formatDate(s.scheduledAt, locale), time: formatTime(s.scheduledAt, locale, { hour: '2-digit', minute: '2-digit' }) })}
+                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">{s.durationMinutes}min</span>
+                <span className="text-xs text-muted-foreground">{t('minutes', { count: s.durationMinutes })}</span>
               </div>
             ))}
           </div>
@@ -293,7 +294,7 @@ function GroupDetailPageContent() {
       <div className="bg-card/80 border border-input/60 rounded-2xl overflow-hidden">
         <div className="p-5 border-b border-input/60 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground/80">
-            Trainees ({group._count.trainees}/{group.maxTrainees})
+            {tg('traineesTitle', { count: group._count.trainees, max: group.maxTrainees })}
           </h2>
         </div>
         {group.trainees.length === 0 ? (

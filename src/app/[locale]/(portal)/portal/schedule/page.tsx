@@ -10,7 +10,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatBranchDateTime } from '@/lib/i18n/format';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
@@ -28,6 +29,7 @@ interface SessionRow {
 export default function PortalSchedulePage() {
   const t = useTranslations('portal');
   const tSchedule = useTranslations('schedule');
+  const locale = useLocale();
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
   const { toast } = useToast();
@@ -81,12 +83,12 @@ export default function PortalSchedulePage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-xs font-mono text-primary dark:text-primary bg-primary/10 px-3 py-1.5 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs text-primary bg-primary/10 px-3 py-1.5 rounded-full">
                     <Clock size={12} />
-                    {s.scheduledAtLocal}
+                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
                   </span>
                   <span className="text-[10px] text-muted-foreground">
-                    {s.durationMinutes} {tSchedule('duration')}
+                    {tSchedule('minutes', { count: s.durationMinutes })}
                   </span>
                 </div>
               </div>
