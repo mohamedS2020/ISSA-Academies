@@ -17,6 +17,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useConfirm } from '@/components/feedback/use-confirm';
 import {
   Award,
   ArrowLeft,
@@ -78,6 +79,7 @@ function CaptainDetailPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
   const tc = useTranslations('captainPage');
+  const [ask, confirmDialog] = useConfirm();
   const tDays = useTranslations('days');
   const dayName = (day: string) => tDays(day.toLowerCase());
   const { authFetch } = useAuth();
@@ -173,7 +175,7 @@ function CaptainDetailPageContent() {
   };
 
   const handleDeactivate = async () => {
-    if (!confirm(tc('deactivateConfirm'))) return;
+    if (!(await ask({ title: tc('deactivateTitle'), message: tc('deactivateConfirm'), confirmLabel: tc('deactivate') }))) return;
     try {
       const res = await authFetch(`/api/captains/${captainId}`, {
         method: 'PATCH',
@@ -211,6 +213,7 @@ function CaptainDetailPageContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {confirmDialog}
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">

@@ -83,10 +83,11 @@ function StatusBadge({ status }: { status: string }) {
     DELETED: 'bg-danger-soft text-danger',
   };
 
+  const t = useTranslations('superAdmin');
   const labels: Record<string, string> = {
-    ACTIVE: 'Active',
-    SUSPENDED: 'Suspended',
-    DELETED: 'Deleted',
+    ACTIVE: t('statusActive'),
+    SUSPENDED: t('statusSuspended'),
+    DELETED: t('statusDeleted'),
   };
 
   return (

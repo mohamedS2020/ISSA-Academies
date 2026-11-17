@@ -62,29 +62,30 @@ export default function SuperAdminLayout({
       <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand: the logo file, at the 40px the full mark needs */}
-          <div className="flex items-center gap-3">
-            <h1 className="flex">
+          <div className="flex min-w-0 items-center gap-3">
+            <h1 className="flex shrink-0">
               <BrandLogo locale={locale} className="h-10 w-auto" />
             </h1>
-            <p className="border-s border-border ps-3 text-xs text-muted-foreground">
+            <p className="hidden border-s border-border ps-3 text-xs text-muted-foreground sm:block">
               {t('title')}
             </p>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <span className="hidden rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary sm:inline-flex">
               {t('badge')}
             </span>
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-2 rounded-lg border border-input px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+              aria-label={t('logout')}
+              className="inline-flex h-10 min-w-10 items-center justify-center gap-2 rounded-lg border border-input px-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted sm:h-auto sm:px-3 sm:py-1.5"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 rtl:-scale-x-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              {t('logout')}
+              <span className="hidden sm:inline">{t('logout')}</span>
             </button>
           </div>
         </div>

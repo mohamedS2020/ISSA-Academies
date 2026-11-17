@@ -95,6 +95,7 @@ const COMMON_TIMEZONES = [
 
 export default function CreateTenantPage() {
   const t = useTranslations('superAdmin');
+  const tCommon = useTranslations('common');
   const locale = useLocale();
   const router = useRouter();
   const { toast } = useToast();
@@ -222,7 +223,7 @@ export default function CreateTenantPage() {
         onClick={() => router.push('./admin' === './admin' ? '../admin' : './admin')}
         className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground/80"
       >
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-4 w-4 rtl:-scale-x-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         {t('backToList')}
@@ -265,6 +266,10 @@ export default function CreateTenantPage() {
               </div>
             ))}
           </div>
+          {/* Phones hide the labels under the dots, so name the current step. */}
+          <p className="mt-3 text-sm font-semibold text-foreground sm:hidden">
+            {tCommon('stepOf', { step, total: totalSteps, name: steps[step - 1].label })}
+          </p>
         </div>
       )}
 

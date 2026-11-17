@@ -51,6 +51,8 @@ export function LoginScreen({ locale, academyName }: LoginScreenProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // There is no self-service reset: the academy's admin issues a new password.
+  const [showForgotHint, setShowForgotHint] = useState(false);
   // Set when the same phone and password exist at more than one academy; the
   // user picks one and we retry with it. Empty means no choice is pending.
   const [academyChoices, setAcademyChoices] = useState<AcademyChoice[]>([]);
@@ -184,13 +186,21 @@ export function LoginScreen({ locale, academyName }: LoginScreenProps) {
                   <label htmlFor="login-password" className="text-sm font-medium">
                     {t('password')}
                   </label>
-                  <a
-                    href="#"
+                  <button
+                    type="button"
+                    aria-expanded={showForgotHint}
+                    aria-controls="forgot-password-hint"
+                    onClick={() => setShowForgotHint((v) => !v)}
                     className={`rounded-sm text-sm font-medium text-primary hover:underline ${FOCUS_RING}`}
                   >
                     {t('forgotPassword')}
-                  </a>
+                  </button>
                 </div>
+                {showForgotHint && (
+                  <p id="forgot-password-hint" role="status" className="rounded-lg bg-primary/10 px-3 py-2 text-xs text-foreground">
+                    {t('forgotPasswordHint')}
+                  </p>
+                )}
                 <input
                   id="login-password"
                   type="password"

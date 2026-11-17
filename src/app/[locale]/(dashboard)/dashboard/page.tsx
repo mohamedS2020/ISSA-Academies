@@ -207,28 +207,29 @@ export default function DashboardPage() {
 
     return (
       <div className="space-y-8 animate-fadeIn">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Phones: two by two, so all four fit on the first screen. */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {kpis.map((kpi, idx) => {
             const Icon = kpi.icon;
             return (
               <div
                 key={idx}
-                className="relative overflow-hidden rounded-2xl bg-card/70 border border-border p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 group"
+                className="relative overflow-hidden rounded-2xl bg-card/70 border border-border p-4 sm:p-6 backdrop-blur-xl shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 group"
               >
                 <div className={`absolute top-0 bottom-0 start-0 w-1 ${kpi.colorClass}`} />
                 <div className="flex justify-between items-start">
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {kpi.title}
                     </p>
-                    <h3 className="text-3xl font-extrabold text-foreground tracking-tight">
+                    <h3 className="text-xl sm:text-3xl font-extrabold text-foreground tracking-tight break-words">
                       {kpi.value}
                     </h3>
                     <span className="text-[10px] font-bold text-muted-foreground font-medium">
                       {kpi.badge}
                     </span>
                   </div>
-                  <div className="h-10 w-10 rounded-xl bg-background border border-border flex items-center justify-center text-primary dark:text-primary shadow-md group-hover:border-primary/50 transition-colors">
+                  <div className="hidden sm:flex h-10 w-10 shrink-0 rounded-xl bg-background border border-border items-center justify-center text-primary shadow-md group-hover:border-primary/50 transition-colors">
                     <Icon size={18} className="text-primary dark:text-primary" />
                   </div>
                 </div>
@@ -436,7 +437,7 @@ export default function DashboardPage() {
               >
                 <div className="absolute top-0 bottom-0 start-0 w-1 bg-gradient-to-b from-primary to-accent" />
                 <div className="flex justify-between items-start">
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{s.title}</p>
                     <h3 className="text-2xl font-extrabold text-foreground tracking-tight">{s.value}</h3>
                     <p className="text-[10px] text-muted-foreground font-medium">{s.desc}</p>

@@ -47,7 +47,8 @@
     "processing": "Processing…",
     "notifications": "Notifications",
     "dismiss": "Dismiss",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "stepOf": "Step {step} of {total}: {name}"
   },
   "auth": {
     "login": "Login",
@@ -71,7 +72,8 @@
     "error": "Something went wrong",
     "passwordMismatch": "Passwords do not match",
     "chooseAcademy": "This phone number is registered at more than one academy. Choose which one to sign in to.",
-    "poweredBy": "Powered by {name}"
+    "poweredBy": "Powered by {name}",
+    "forgotPasswordHint": "Ask your academy's admin to reset your password. They'll give you a new one to sign in with."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -934,7 +936,9 @@
     "goToCaptains": "Go to captains",
     "namePlaceholder": "Captain's full name",
     "specializationPlaceholder": "e.g. beginners, competition, technique",
-    "deactivateConfirm": "Deactivate this captain? They will lose portal access."
+    "deactivateConfirm": "Deactivate this captain? They will lose portal access.",
+    "deactivateTitle": "Deactivate captain",
+    "deactivate": "Deactivate"
   },
   "daysShort": {
     "monday": "Mon",
@@ -986,6 +990,8 @@
     "subscription": "Subscription",
     "summary": "{count}/{max} trainees · {sessions, plural, one {# session} other {# sessions}} in total",
     "traineesTitle": "Trainees ({count}/{max})",
-    "attended": "{attended}/{total} sessions"
+    "attended": "{attended}/{total} sessions",
+    "removeTitle": "Remove from group",
+    "remove": "Remove"
   }
 }
