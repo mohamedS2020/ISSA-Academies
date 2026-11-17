@@ -27,6 +27,7 @@ import { submitAttendance } from '@/services/attendance.service';
 import { releaseLapsedSeats } from '@/services/group.service';
 import { getAdminDashboard } from '@/services/dashboard.service';
 import { getTraineeById } from '@/services/trainee.service';
+import { getPortalReceipts, getPortalSubscription } from '@/services/portal.service';
 import { runSubscriptionExpiryJob } from '@/jobs/subscription-expiry.job';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { platformPrisma } from '@/lib/db/platform-client';
@@ -588,6 +589,29 @@ describe('preview, trainee page and dashboard', () => {
     expect(detail.lastSubscription?.id).toBe(current.id);
     expect(detail.upcomingSubscription?.id).toBe(subscription.id);
     expect(Number(detail.upcomingSubscription?.amountDue)).toBe(300);
+  }, 60_000);
+
+  test('the parent portal shows the queued renewal, and its receipt with the others', async () => {
+    const a = academy!;
+    const { trainee, group, current } = await enrolled(a);
+    const { subscription, receipt } = await renewSubscription(
+      a.tenantId, a.branchId, a.adminId, renewInput(a, trainee.id, group.id, { amountPaid: 200 })
+    );
+    const { userId } = await withTenantContext(a.tenantId, (tx) =>
+      tx.traineeProfile.findUniqueOrThrow({ where: { id: trainee.id }, select: { userId: true } })
+    );
+
+    const portal = await getPortalSubscription(a.tenantId, a.branchId, userId, trainee.id);
+
+    expect(portal.hasActiveSubscription).toBe(true);
+    expect(ymd(portal.subscription?.endDate)).toBe(ymd(current.endDate)); // still the current one
+    expect(portal.upcoming).toMatchObject({ planName: 'Test Monthly', levelName: 'Level 1' });
+    expect(ymd(portal.upcoming?.startDate)).toBe(ymd(subscription.startDate));
+    expect(Number(portal.upcoming?.amountDue)).toBe(300);
+
+    const { receipts } = await getPortalReceipts(a.tenantId, a.branchId, userId, {}, trainee.id);
+    expect(receipts.map((r) => r.id)).toContain(receipt!.id);
+    expect(receipts).toHaveLength(2); // enrolment + renewal
   }, 60_000);
 
   test('the dashboard links each expiring subscription to its trainee and marks the renewed', async () => {

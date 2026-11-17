@@ -68,7 +68,8 @@ Backend
 - `src/jobs/archive-records.job.ts` — copy `group_id` if it copies columns explicitly.
 - `src/services/trainee.service.ts` — trainee detail returns `upcomingSubscription` and `lastSubscription`.
 - `src/services/dashboard.service.ts` — expiring list: `traineeId`, `renewed`.
-- `src/services/portal.service.ts` — current subscription ignores UPCOMING (+ show the queued one).
+- `src/services/portal.service.ts` — current subscription ignores UPCOMING; `getPortalSubscription` returns `upcoming`.
+- `src/app/[locale]/(portal)/portal/subscription/page.tsx` — "Next subscription" card (PR #10 follow-up).
 - `src/services/report.service.ts` — check status handling (UPCOMING is its own status).
 
 Frontend

@@ -1,5 +1,6 @@
 /**
- * GET /api/portal/subscription — trainee's own active subscription status
+ * GET /api/portal/subscription — trainee's own active subscription status,
+ * and a queued renewal (`upcoming`) if one is waiting to start
  *
  * Trainee-only, self-scoped.
  */

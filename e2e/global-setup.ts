@@ -69,13 +69,25 @@ export default async function globalSetup(): Promise<void> {
     });
     return admin.phoneNumber;
   });
+  // The parent's portal login (createTestTrainee's account password).
+  const guardian = await withTenantContext(academy.tenantId, (tx) =>
+    tx.traineeProfile.findUniqueOrThrow({
+      where: { id: expiring.trainee.id },
+      select: { user: { select: { phoneNumber: true } } },
+    })
+  );
 
   const state: E2EState = {
     tenantId: academy.tenantId,
     schemaName: academy.schemaName,
     adminPhone,
     adminPassword,
-    expiring: { traineeId: expiring.trainee.id, name: 'Salma Expiring' },
+    expiring: {
+      traineeId: expiring.trainee.id,
+      name: 'Salma Expiring',
+      guardianPhone: guardian.user.phoneNumber,
+      guardianPassword: 'Test-Password-123!',
+    },
     ended: { traineeId: ended.trainee.id, name: 'Omar Ended' },
   };
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));

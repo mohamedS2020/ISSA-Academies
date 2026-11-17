@@ -477,7 +477,11 @@
     "captainFeedback": "Feedback From Your Captain",
     "noFeedback": "No feedback yet",
     "ratingSaved": "Rating saved",
-    "selectTrainee": "Choose a trainee"
+    "selectTrainee": "Choose a trainee",
+    "nextSubscription": "Next subscription",
+    "nextSubscriptionNote": "Renewed in advance: it starts by itself when the current subscription ends.",
+    "nextPeriod": "Starts {start} · ends {end}",
+    "nextSessions": "{count, plural, one {# session} other {# sessions}}"
   },
   "superAdmin": {
     "title": "Platform Administration",

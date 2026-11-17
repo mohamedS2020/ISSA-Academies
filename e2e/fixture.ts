@@ -14,7 +14,7 @@ export interface E2EState {
   adminPhone: string;
   adminPassword: string;
   /** Subscription ends in 3 days: on the dashboard's "Expiring soon" list. */
-  expiring: { traineeId: string; name: string };
+  expiring: { traineeId: string; name: string; guardianPhone: string; guardianPassword: string };
   /** Subscription has ended: renewing starts today. */
   ended: { traineeId: string; name: string };
 }

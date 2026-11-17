@@ -477,7 +477,11 @@
     "captainFeedback": "ملاحظات الكابتن",
     "noFeedback": "لا توجد ملاحظات بعد",
     "ratingSaved": "تم حفظ التقييم",
-    "selectTrainee": "اختر المتدرب"
+    "selectTrainee": "اختر المتدرب",
+    "nextSubscription": "الاشتراك القادم",
+    "nextSubscriptionNote": "تم التجديد مسبقًا: يبدأ تلقائيًا عند انتهاء الاشتراك الحالي.",
+    "nextPeriod": "يبدأ {start} · ينتهي {end}",
+    "nextSessions": "{count, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} many {# حصة} other {# حصة}}"
   },
   "superAdmin": {
     "slug": "المعرف في الرابط",

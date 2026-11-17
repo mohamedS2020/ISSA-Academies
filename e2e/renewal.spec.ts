@@ -9,12 +9,20 @@ import { readState } from './fixture';
 
 const state = readState();
 
-async function logIn(page: Page, locale: 'en' | 'ar') {
+async function logIn(
+  page: Page,
+  locale: 'en' | 'ar',
+  as: { phone: string; password: string; lands: string } = {
+    phone: state.adminPhone,
+    password: state.adminPassword,
+    lands: 'dashboard',
+  }
+) {
   await page.goto(`/${locale}/login`);
-  await page.locator('#login-phone').fill(state.adminPhone);
-  await page.locator('#login-password').fill(state.adminPassword);
+  await page.locator('#login-phone').fill(as.phone);
+  await page.locator('#login-password').fill(as.password);
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(`**/${locale}/dashboard`);
+  await page.waitForURL(`**/${locale}/${as.lands}`);
 }
 
 test('dashboard Renew opens the trainee page with the renew dialog, and queues the renewal', async ({ page }) => {
@@ -69,6 +77,27 @@ test('dashboard Renew opens the trainee page with the renew dialog, and queues t
   await expect(
     page.locator('tr', { hasText: state.expiring.name }).getByTestId('expiring-renewed')
   ).toBeVisible();
+});
+
+test('the parent sees the queued renewal and its receipt in the portal', async ({ page }) => {
+  // After the first test: Salma's renewal is queued and paid (500).
+  await logIn(page, 'en', {
+    phone: state.expiring.guardianPhone,
+    password: state.expiring.guardianPassword,
+    lands: 'portal',
+  });
+
+  await page.goto('/en/portal/subscription');
+  const next = page.getByTestId('portal-next-subscription');
+  await expect(next).toContainText('Next subscription');
+  await expect(next).toContainText('Test Monthly · Level 1 · Dolphins');
+  await expect(next).toContainText('Starts');
+  // The current subscription is still the one shown above it.
+  await expect(page.getByText('Expires On')).toBeVisible();
+
+  // Both payments have receipts: the enrolment and the renewal.
+  await page.goto('/en/portal/receipts');
+  await expect(page.locator('tbody tr')).toHaveCount(2);
 });
 
 test('an ended subscription: the banner offers Renew, and it starts today (Arabic)', async ({ page }) => {

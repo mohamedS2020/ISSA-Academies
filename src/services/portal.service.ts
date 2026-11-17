@@ -255,12 +255,28 @@ export async function getPortalSubscription(
   const trainee = await getTraineeById(tenantId, branchId, traineeId);
 
   const subscription = trainee.subscriptions[0];
+
+  // A renewal paid for and waiting to start when the current one ends.
+  const queued = trainee.upcomingSubscription;
+  const upcoming = queued && {
+    planName: queued.plan.name,
+    levelName: queued.level.name,
+    groupName: queued.group?.name ?? null,
+    startDate: queued.startDate,
+    endDate: queued.endDate,
+    totalSessions: queued.totalSessions,
+    paymentStatus: queued.paymentStatus,
+    amountPaid: queued.amountPaid,
+    amountDue: queued.amountDue,
+  };
+
   if (!subscription) {
-    return { hasActiveSubscription: false as const, subscription: null };
+    return { hasActiveSubscription: false as const, subscription: null, upcoming };
   }
 
   return {
     hasActiveSubscription: true as const,
+    upcoming,
     subscription: {
       planName: subscription.plan.name,
       levelName: subscription.level.name,
