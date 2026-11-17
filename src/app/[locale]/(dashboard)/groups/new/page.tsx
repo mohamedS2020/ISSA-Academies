@@ -277,7 +277,7 @@ function NewGroupPageContent() {
                     key={key}
                     type="button"
                     onClick={() => toggleDay(key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                    className={`min-h-11 min-w-12 sm:min-h-0 sm:min-w-0 px-3 py-1.5 rounded-lg text-sm sm:text-xs font-semibold border transition-all ${
                       conflict
                         ? 'bg-warning-soft border-warning/60 text-warning'
                         : selected

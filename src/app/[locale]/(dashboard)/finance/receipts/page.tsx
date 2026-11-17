@@ -105,6 +105,7 @@ function ReceiptsPageContent() {
     {
       key: 'trainee',
       header: 'Trainee',
+      mobile: 'title',
       render: (row) => (
         <div>
           <div className="text-foreground">{row.trainee.name}</div>
@@ -143,13 +144,14 @@ function ReceiptsPageContent() {
           {t('receipt')}
         </h2>
 
-        <div className="flex items-center gap-3">
+        {/* Phones: both dates share one full-width row. */}
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <input
             type="date"
             value={dateFrom}
             aria-label={t('dateFrom')}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
+            className="min-w-0 flex-1 sm:flex-none rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
           <span className="text-muted-foreground text-xs">—</span>
           <input
@@ -157,7 +159,7 @@ function ReceiptsPageContent() {
             value={dateTo}
             aria-label={t('dateTo')}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
+            className="min-w-0 flex-1 sm:flex-none rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
         </div>
       </div>

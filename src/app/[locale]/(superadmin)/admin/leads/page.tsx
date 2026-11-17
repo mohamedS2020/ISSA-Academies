@@ -125,6 +125,7 @@ export default function LeadsPage() {
     {
       key: 'name',
       header: t('columns.name'),
+      mobile: 'title',
       render: (lead) => <span className="font-medium text-foreground">{lead.name}</span>,
     },
     { key: 'academyName', header: t('columns.academy') },

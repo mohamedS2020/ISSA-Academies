@@ -72,7 +72,7 @@ export function StarRating({
           onMouseEnter={() => interactive && setHover(n)}
           onMouseLeave={() => interactive && setHover(null)}
           aria-label={`${n}`}
-          className={`transition-transform ${
+          className={`p-1.5 sm:p-0 transition-transform ${
             interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'
           } disabled:cursor-default`}
         >

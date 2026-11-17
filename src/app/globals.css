@@ -284,6 +284,18 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Phones: form fields at 16 px. iOS Safari zooms into a field whose text is
+   smaller when it is focused, and does not zoom back out, which happened on
+   nearly every form (12-15 px fields). Unlayered, so it wins over the text-xs
+   and text-sm utilities without !important; desktop keeps the compact sizes. */
+@media (max-width: 639.98px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 /* Arabic is a joined script: letter-spacing pulls its letters apart. Labels
    tracked out for English (tracking-wider …) stay unspaced in Arabic, as on
    the landing page. */

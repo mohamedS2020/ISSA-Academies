@@ -170,7 +170,7 @@ export default function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 start-0 z-50 w-64 md:relative md:inset-auto md:z-30 flex flex-col bg-card border-e border-border text-foreground/80 h-screen transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed inset-y-0 start-0 z-50 w-64 md:sticky md:top-0 md:self-start md:inset-auto md:z-30 flex flex-col bg-card border-e border-border text-foreground/80 h-dvh transition-transform duration-300 md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : hiddenTransform
         } ${isCollapsed ? 'md:w-20' : 'md:w-64'}`}
       >

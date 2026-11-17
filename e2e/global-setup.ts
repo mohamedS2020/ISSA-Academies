@@ -60,6 +60,16 @@ export default async function globalSetup(): Promise<void> {
         paymentStatus: 'PARTIAL',
       },
     });
+    // A session today, so the attendance sheet and the schedule have one
+    // (mobile.spec.ts; it marks nothing). Midday UTC is today in Cairo too.
+    await tx.session.create({
+      data: {
+        branchId: academy.branchId,
+        groupId: group.id,
+        scheduledAt: new Date(utcToday + 12 * 60 * 60 * 1000),
+        durationMinutes: 60,
+      },
+    });
     // A second branch, so admins get the branch switcher (mobile.spec.ts).
     await tx.branch.create({ data: { name: 'Second Branch', code: 'E2E2' } });
     await tx.traineeSubscription.update({

@@ -441,7 +441,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                     setPasswordError(null);
                     setPasswordSuccess(null);
                   }}
-                  className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="h-10 w-10 sm:h-7 sm:w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
                 </button>

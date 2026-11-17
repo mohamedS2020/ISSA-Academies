@@ -125,6 +125,7 @@ function TraineesPageContent() {
     {
       key: 'user',
       header: t('name'),
+      mobile: 'title',
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>

@@ -172,13 +172,15 @@ function FinanceDashboardPageContent() {
           </Link>
           )}
           {canViewFinances && (
-          <>
+          // Phones: both dates share one full-width row (the "to" date used to
+          // wrap onto a line of its own).
+          <div className="flex items-center gap-2 w-full sm:w-auto">
           <input
             type="date"
             value={dateFrom}
             aria-label={t('dateFrom')}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
+            className="min-w-0 flex-1 sm:flex-none rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
           <span className="text-muted-foreground text-xs">—</span>
           <input
@@ -186,9 +188,9 @@ function FinanceDashboardPageContent() {
             value={dateTo}
             aria-label={t('dateTo')}
             onChange={(e) => setDateTo(e.target.value)}
-            className="rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
+            className="min-w-0 flex-1 sm:flex-none rounded-xl border border-border bg-muted/70 px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           />
-          </>
+          </div>
           )}
         </div>
       </div>

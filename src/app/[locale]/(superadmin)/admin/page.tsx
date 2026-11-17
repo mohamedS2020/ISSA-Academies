@@ -212,6 +212,7 @@ export default function TenantListPage() {
     {
       key: 'contactEmail',
       header: t('contactEmail'),
+      mobile: 'full',
       render: (row) => (
         <span className="text-muted-foreground">
           {row.contactEmail || '—'}
