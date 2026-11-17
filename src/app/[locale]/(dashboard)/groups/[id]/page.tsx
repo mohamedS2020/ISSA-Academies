@@ -16,6 +16,7 @@ import { UserRole } from '@/types';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useConfirm } from '@/components/feedback/use-confirm';
 import {
   Users2, Award, CreditCard, Calendar, Clock,
   ChevronLeft, Trash2, Loader2, CheckCircle, XCircle, Pencil, MessageSquare, Eye,
@@ -58,6 +59,7 @@ function GroupDetailPageContent() {
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const tg = useTranslations('groupPage');
+  const [ask, confirmDialog] = useConfirm();
   const tSubs = useTranslations('subscriptions');
   const tRenewal = useTranslations('renewal');
   const tDay = useTranslations('daysShort');
@@ -91,7 +93,7 @@ function GroupDetailPageContent() {
   useEffect(() => { fetchGroup(); }, [fetchGroup]);
 
   const handleRemoveTrainee = async (traineeId: string, traineeName: string) => {
-    if (!confirm(tg('removeConfirm', { name: traineeName }))) return;
+    if (!(await ask({ title: tg('removeTitle'), message: tg('removeConfirm', { name: traineeName }), confirmLabel: tg('remove') }))) return;
     setRemovingId(traineeId);
     try {
       const res = await authFetch(`/api/groups/${groupId}/trainees/${traineeId}`, { method: 'DELETE' });
@@ -186,6 +188,7 @@ function GroupDetailPageContent() {
 
   return (
     <div className="space-y-6 max-w-5xl">
+      {confirmDialog}
       {/* Back + Title + Edit. On phones the button moves under the title: side
           by side it squeezed the group name into one word per line. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

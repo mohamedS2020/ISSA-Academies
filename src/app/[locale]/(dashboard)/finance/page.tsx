@@ -199,21 +199,21 @@ function FinanceDashboardPageContent() {
         <SkeletonDashboard />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {kpis.map((kpi) => {
               const Icon = kpi.icon;
               return (
                 <div
                   key={kpi.label}
-                  className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur-xl"
+                  className="rounded-2xl border border-border bg-card/70 p-4 sm:p-5 backdrop-blur-xl min-w-0"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       {kpi.label}
                     </span>
-                    <Icon size={16} className={kpi.colorClass} />
+                    <Icon size={16} className={`${kpi.colorClass} shrink-0`} />
                   </div>
-                  <p className="text-2xl font-extrabold text-foreground">
+                  <p className="text-lg sm:text-2xl font-extrabold text-foreground break-words rtl:text-right" dir="ltr">
                     {kpi.value.toFixed(2)}
                   </p>
                 </div>

@@ -18,6 +18,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { UserRole } from '@/types';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useConfirm } from '@/components/feedback/use-confirm';
 import { DataTable, Column } from '@/components/tables/data-table';
 import {
   CreditCard, Plus, CheckCircle, XCircle,
@@ -48,6 +49,7 @@ interface Pagination {
 
 function SubscriptionsPageContent() {
   const t = useTranslations('subscriptions');
+  const [ask, confirmDialog] = useConfirm();
   const tCommon = useTranslations('common');
   const tRenewal = useTranslations('renewal');
   const { user, authFetch } = useAuth();
@@ -84,7 +86,7 @@ function SubscriptionsPageContent() {
 
   // ─── Deactivate plan ──────────────────────────────────────
   const handleDeactivate = async (planId: string) => {
-    if (!confirm(t('deactivateConfirm'))) return;
+    if (!(await ask({ title: t('deactivate'), message: t('deactivateConfirm'), confirmLabel: t('deactivate') }))) return;
     setDeactivatingId(planId);
     try {
       const res = await authFetch(`/api/subscriptions/plans/${planId}`, { method: 'DELETE' });
@@ -203,6 +205,7 @@ function SubscriptionsPageContent() {
   // ─── Render ───────────────────────────────────────────────
   return (
     <div className="space-y-6">
+      {confirmDialog}
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">

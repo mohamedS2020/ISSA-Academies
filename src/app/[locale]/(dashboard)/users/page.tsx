@@ -18,6 +18,7 @@ import { UserRole, MODERATOR_PRIVILEGES } from '@/types';
 import { PRIVILEGE_GROUPS } from '@/lib/auth/privilege-groups';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useConfirm } from '@/components/feedback/use-confirm';
 import {
   Users,
   Plus,
@@ -57,6 +58,7 @@ interface Pagination {
 
 export default function UsersPage() {
   const t = useTranslations('users');
+  const [ask, confirmDialog] = useConfirm();
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
   const { toast } = useToast();
@@ -206,7 +208,7 @@ export default function UsersPage() {
   };
 
   const handleDeactivate = async (u: UserRow) => {
-    if (!confirm(t('deactivateConfirm', { name: u.name }))) return;
+    if (!(await ask({ title: t('deactivate'), message: t('deactivateConfirm', { name: u.name }), confirmLabel: t('deactivate') }))) return;
     try {
       const res = await authFetch(`/api/users/${u.id}`, {
         method: 'PATCH',
@@ -222,7 +224,7 @@ export default function UsersPage() {
   };
 
   const handlePasswordReset = async (u: UserRow) => {
-    if (!confirm(t('resetConfirm', { name: u.name }))) return;
+    if (!(await ask({ title: t('resetPassword'), message: t('resetConfirm', { name: u.name }), confirmLabel: t('resetPassword'), variant: 'info' }))) return;
     try {
       const res = await authFetch(`/api/users/${u.id}`, {
         method: 'PATCH',
@@ -334,6 +336,7 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
       {/* ─── Page Header ─── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">

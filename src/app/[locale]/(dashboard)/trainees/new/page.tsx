@@ -705,6 +705,10 @@ function NewTraineePageContent() {
           );
         })}
       </div>
+      {/* Phones show only icons above, so say where we are. */}
+      <p className="sm:hidden -mt-3 text-xs font-semibold text-muted-foreground">
+        {tCommon('stepOf', { step: step + 1, total: STEPS.length, name: t(`step${step + 1}Title`) })}
+      </p>
 
       {/* ─── Step Card ─── */}
       <div className="bg-card/80 border border-input/60 rounded-2xl backdrop-blur-xl overflow-hidden">

@@ -20,6 +20,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useAccess } from '@/lib/auth/use-access';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useConfirm } from '@/components/feedback/use-confirm';
 import {
   User,
   Phone,
@@ -137,6 +138,7 @@ function TraineeDetailPageContent() {
   const tFeedback = useTranslations('feedback');
   const tRenewal = useTranslations('renewal');
   const tp = useTranslations('traineePage');
+  const [ask, confirmDialog] = useConfirm();
   const tSubscriptions = useTranslations('subscriptions');
   const { authFetch } = useAuth();
   const can = useAccess();
@@ -313,7 +315,7 @@ function TraineeDetailPageContent() {
   };
 
   const setTraineeActive = async (action: 'activate' | 'deactivate') => {
-    if (action === 'deactivate' && !confirm(t('deactivateConfirm'))) return;
+    if (action === 'deactivate' && !(await ask({ title: t('deactivate'), message: t('deactivateConfirm'), confirmLabel: t('deactivate') }))) return;
     try {
       const res = await authFetch(`/api/trainees/${traineeId}`, {
         method: 'PATCH',
@@ -525,6 +527,7 @@ function TraineeDetailPageContent() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {confirmDialog}
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">

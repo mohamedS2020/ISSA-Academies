@@ -47,7 +47,8 @@
     "processing": "جارٍ التنفيذ…",
     "notifications": "الإشعارات",
     "dismiss": "إغلاق",
-    "openMenu": "فتح القائمة"
+    "openMenu": "فتح القائمة",
+    "stepOf": "الخطوة {step} من {total}: {name}"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -71,7 +72,8 @@
     "error": "حدث خطأ ما",
     "passwordMismatch": "كلمتا المرور غير متطابقتين",
     "chooseAcademy": "رقم الهاتف هذا مسجل في أكثر من أكاديمية. اختر الأكاديمية التي تريد تسجيل الدخول إليها.",
-    "poweredBy": "بدعم من {name}"
+    "poweredBy": "بدعم من {name}",
+    "forgotPasswordHint": "اطلب من مدير أكاديميتك إعادة تعيين كلمة المرور، وسيعطيك كلمة جديدة لتسجيل الدخول."
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -934,7 +936,9 @@
     "goToCaptains": "الذهاب إلى الكباتن",
     "namePlaceholder": "الاسم الكامل للكابتن",
     "specializationPlaceholder": "مثال: المبتدئون، المنافسات، الأداء الفني",
-    "deactivateConfirm": "إيقاف هذا الكابتن؟ سيفقد الدخول إلى البوابة."
+    "deactivateConfirm": "إيقاف هذا الكابتن؟ سيفقد الدخول إلى البوابة.",
+    "deactivateTitle": "إيقاف الكابتن",
+    "deactivate": "إيقاف"
   },
   "daysShort": {
     "monday": "الإثنين",
@@ -986,6 +990,8 @@
     "subscription": "الاشتراك",
     "summary": "{count}/{max} متدرب · {sessions, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} other {# حصة}} إجمالًا",
     "traineesTitle": "المتدربون ({count}/{max})",
-    "attended": "{attended}/{total} حصة"
+    "attended": "{attended}/{total} حصة",
+    "removeTitle": "إزالة من المجموعة",
+    "remove": "إزالة"
   }
 }

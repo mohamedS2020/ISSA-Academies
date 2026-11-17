@@ -68,7 +68,7 @@ const variantStyles = {
     ),
     confirmClass:
       'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary shadow-sm',
-    bgClass: 'bg-primary dark:bg-primary/20',
+    bgClass: 'bg-primary/10',
   },
 };
 

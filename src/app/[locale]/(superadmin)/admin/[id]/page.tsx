@@ -59,7 +59,8 @@ function StatusBadge({ status }: { status: string }) {
     SUSPENDED: 'bg-warning-soft text-warning',
     DELETED: 'bg-danger-soft text-danger',
   };
-  const labels: Record<string, string> = { ACTIVE: 'Active', SUSPENDED: 'Suspended', DELETED: 'Deleted' };
+  const t = useTranslations('superAdmin');
+  const labels: Record<string, string> = { ACTIVE: t('statusActive'), SUSPENDED: t('statusSuspended'), DELETED: t('statusDeleted') };
   return (
     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${styles[status] ?? styles.ACTIVE}`}>
       {labels[status] ?? status}
@@ -71,9 +72,9 @@ function StatusBadge({ status }: { status: string }) {
 
 function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 min-w-0">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           {icon}
         </div>
         <div>
@@ -204,7 +205,7 @@ export default function TenantDetailPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
@@ -237,7 +238,7 @@ export default function TenantDetailPage() {
         onClick={() => router.push('../admin')}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground/80"
       >
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-4 w-4 rtl:-scale-x-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         {t('backToList')}
