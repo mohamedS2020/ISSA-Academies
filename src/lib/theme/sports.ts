@@ -44,6 +44,13 @@ export const SPORTS = {
     logo: '/sports/football/logo.svg',
     favicon: '/sports/football/favicon.svg',
   },
+  gymnastics: {
+    key: 'gymnastics',
+    label: 'Gymnastics',
+    labelAr: 'جمباز',
+    logo: '/sports/gymnastics/logo.svg',
+    favicon: '/sports/gymnastics/favicon.svg',
+  },
   padel: {
     key: 'padel',
     label: 'Padel',

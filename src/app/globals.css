@@ -234,6 +234,17 @@
   --ring: hsl(142 72% 29%);
 }
 
+/* ─── Gymnastics: carmine + suede ───
+   A competition leotard and the balance beam's cover. Values and contrast
+   in brand-tokens.css (--ya-gym-*). */
+:root[data-sport="gymnastics"] {
+  --primary: var(--ya-gym-carmine);
+  --primary-foreground: var(--ya-white);
+  --accent: var(--ya-gym-suede);
+  --accent-foreground: var(--ya-gym-suede-ink);
+  --ring: var(--ya-gym-carmine);
+}
+
 /* ─── Padel: violet + emerald ─── */
 :root[data-sport="padel"] {
   --primary: hsl(265 84% 58%);
@@ -249,6 +260,14 @@
   --accent: hsl(45 96% 56%);
   --accent-foreground: hsl(30 60% 10%);
   --ring: hsl(142 68% 46%);
+}
+
+.dark:root[data-sport="gymnastics"] {
+  --primary: var(--ya-gym-carmine-light);
+  --primary-foreground: var(--ya-gym-carmine-ink);
+  --accent: var(--ya-gym-suede-light);
+  --accent-foreground: var(--ya-gym-suede-ink);
+  --ring: var(--ya-gym-carmine-light);
 }
 
 .dark:root[data-sport="padel"] {

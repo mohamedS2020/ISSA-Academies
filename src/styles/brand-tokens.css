@@ -76,6 +76,22 @@
   --ya-chart-2: #EB6834; /* series 2: orange on light */
   --ya-chart-2-dark: #D95926; /* series 2: orange on dark */
 
+  /* ─── Sport theme: gymnastics ───
+     An academy's own accents (primary, accent, ring), not Yallacademy's.
+     Carmine, a competition leotard; suede, the balance beam's cover. The
+     -ink colours are text on them. Contrast (checked): white on carmine
+     7.7:1; carmine text on Mist 6.9:1, on white 7.7:1; ink on suede 6.6:1.
+     Dark: light carmine on Midnight 7.5:1, on Midnight-2 6.5:1, on its own
+     10% tint 5.7:1 (20%: 4.7:1); ink on light carmine 7.2:1, on light suede
+     9.4:1. Light carmine is a muted rose, not a candy pink: hue 352, 64%
+     saturation. The mark in public/sports/gymnastics/ uses the same values. */
+  --ya-gym-carmine: #A3153F;
+  --ya-gym-carmine-light: #E58894; /* dark mode */
+  --ya-gym-carmine-ink: #2B0712; /* text on light carmine */
+  --ya-gym-suede: #C79A5B;
+  --ya-gym-suede-light: #E0BC8A; /* dark mode; the beam in the mark */
+  --ya-gym-suede-ink: #2A1A08; /* text on suede, both modes */
+
   --ya-whatsapp: #128C4A; /* WhatsApp's own green: their brand, not ours */
   --ya-whatsapp-light: #5BD38F; /* WhatsApp icon on dark backgrounds */
 }
