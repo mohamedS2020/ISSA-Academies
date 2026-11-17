@@ -276,18 +276,18 @@ const archiveSubscriptions: ArchiveStep = {
     const ids = rows.map((r) => r.id);
     if (ids.length === 0) return 0;
 
-    // trainee_subscriptions has no branch_id/group_id column — branch is
-    // reached via trainee_id → trainee_profiles.branch_id, and group
-    // membership lives in the separate group_trainees join table.
+    // trainee_subscriptions has no branch_id column — branch is reached via
+    // trainee_id → trainee_profiles.branch_id. Its group_id is only the group a
+    // renewal placed the trainee in; membership lives in group_trainees.
     await tx.$executeRaw`
       INSERT INTO archived_trainee_subscriptions
         (id, trainee_id, plan_id, level_id, status, start_date, end_date,
          total_sessions, attended_sessions, freeze_used, amount_paid, amount_due,
-         payment_status, expired_at, created_at, updated_at, archived_at)
+         payment_status, expired_at, group_id, created_at, updated_at, archived_at)
       SELECT
         id, trainee_id, plan_id, level_id, status, start_date, end_date,
         total_sessions, attended_sessions, freeze_used, amount_paid, amount_due,
-        payment_status, expired_at, created_at, updated_at, NOW()
+        payment_status, expired_at, group_id, created_at, updated_at, NOW()
       FROM trainee_subscriptions
       WHERE id = ANY(${ids}::uuid[])
       ON CONFLICT (id) DO NOTHING

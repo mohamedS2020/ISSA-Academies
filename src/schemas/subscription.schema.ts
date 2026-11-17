@@ -136,7 +136,9 @@ export const renewSchema = z.object({
   levelId: z.string().uuid(),
   groupId: z.string().uuid(),
   amountPaid: z.number().min(0).default(0),
-  paymentStatus: PaymentStatusEnum.default('UNPAID'),
+  // Payment status is NOT accepted: the server works it out from amountPaid and
+  // the plan price, so a client cannot mark an unpaid renewal PAID. (Zod drops
+  // the unknown key if an older client still sends it.)
   // Required only when actual money changes hands (amountPaid > 0).
   paymentMethod: PaymentMethodEnum.optional(),
 }).superRefine((data, ctx) => {
@@ -150,3 +152,12 @@ export const renewSchema = z.object({
 });
 
 export type RenewInput = z.infer<typeof renewSchema>;
+
+/** GET /api/subscriptions/renew — what a renewal would cost and when it would run. */
+export const renewPreviewQuerySchema = z.object({
+  traineeId: z.string().uuid(),
+  // Omitted: the trainee's last plan, when it is still offered.
+  planId: z.string().uuid().optional(),
+});
+
+export type RenewPreviewQuery = z.infer<typeof renewPreviewQuerySchema>;

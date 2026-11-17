@@ -51,6 +51,7 @@ enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   FROZEN
+  UPCOMING // a paid-in-advance renewal, queued to start when the current one ends
 }
 
 enum AttendanceStatus {
@@ -363,12 +364,16 @@ model TraineeSubscription {
   // Moment the subscription actually ended (date reached OR all sessions used),
   // anchoring the post-expiry grace window (plan.freezeRetakeDays). Null while active.
   expiredAt       DateTime?          @map("expired_at") @db.Timestamptz
+  // An UPCOMING renewal's group: the trainee moves there when it starts.
+  // Kept on the row afterwards as a record of where the renewal placed them.
+  groupId         String?            @map("group_id") @db.Uuid
   createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz
 
   trainee  TraineeProfile      @relation(fields: [traineeId], references: [id])
   plan     SubscriptionPlan    @relation(fields: [planId], references: [id])
   level    SubscriptionPlanLevel @relation(fields: [levelId], references: [id])
+  group    Group?              @relation(fields: [groupId], references: [id], onDelete: SetNull)
   receipts Receipt[]
 
   @@index([traineeId, status])
@@ -402,6 +407,7 @@ model Group {
   plan      SubscriptionPlan @relation(fields: [planId], references: [id])
   trainees  GroupTrainee[]
   sessions  Session[]
+  renewals  TraineeSubscription[]
 
   @@index([branchId])
   @@index([captainId])
@@ -710,6 +716,7 @@ model ArchivedTraineeSubscription {
   amountDue        Decimal            @map("amount_due") @db.Decimal(10, 2)
   paymentStatus    PaymentStatus      @map("payment_status")
   expiredAt        DateTime?          @map("expired_at") @db.Timestamptz
+  groupId          String?            @map("group_id") @db.Uuid
   createdAt        DateTime           @map("created_at") @db.Timestamptz
   updatedAt        DateTime           @map("updated_at") @db.Timestamptz
   archivedAt       DateTime           @default(now()) @map("archived_at") @db.Timestamptz

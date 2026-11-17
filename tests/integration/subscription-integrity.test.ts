@@ -134,18 +134,27 @@ describe('one active subscription per trainee', () => {
     60_000
   );
 
-  test('concurrent renewals never produce two ACTIVE subscriptions', async () => {
+  test('concurrent renewals queue exactly one renewal and keep one ACTIVE', async () => {
     const a = academy!;
     const group = await createTestGroup(a);
     const trainee = await createTestTrainee(a);
     await enrollTrainee(a.tenantId, a.branchId, a.adminId, input(a, trainee.id, group.id));
 
+    // The current subscription is running, so each renewal would be queued
+    // behind it; one queued renewal per trainee is a database rule.
     const outcomes = await Promise.allSettled([
       renewSubscription(a.tenantId, a.branchId, a.adminId, input(a, trainee.id, group.id)),
       renewSubscription(a.tenantId, a.branchId, a.adminId, input(a, trainee.id, group.id)),
     ]);
+    const rejected = outcomes.filter((o): o is PromiseRejectedResult => o.status === 'rejected');
 
     expect(await activeCount(a, trainee.id)).toBe(1);
-    expect(outcomes.filter((o) => o.status === 'fulfilled').length).toBeGreaterThanOrEqual(1);
+    expect(
+      await withTenantContext(a.tenantId, (tx) =>
+        tx.traineeSubscription.count({ where: { traineeId: trainee.id, status: 'UPCOMING' } })
+      )
+    ).toBe(1);
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0].reason).toMatchObject({ statusCode: 409 });
   }, 60_000);
 });

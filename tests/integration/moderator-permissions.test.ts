@@ -44,6 +44,7 @@ import * as groupTraineeRoute from '@/app/api/groups/[id]/trainees/[traineeId]/r
 import * as enrollRoute from '@/app/api/subscriptions/enroll/route';
 import * as renewRoute from '@/app/api/subscriptions/renew/route';
 import * as paymentsRoute from '@/app/api/subscriptions/[id]/payments/route';
+import * as subscriptionRoute from '@/app/api/subscriptions/[id]/route';
 import * as plansRoute from '@/app/api/subscriptions/plans/route';
 import * as planRoute from '@/app/api/subscriptions/plans/[id]/route';
 import * as receiptsRoute from '@/app/api/finance/receipts/route';
@@ -161,6 +162,8 @@ const ROUTES: { name: string; access: AccessKey | 'adminOnly'; run: (token: stri
   // Subscriptions
   { name: 'POST /subscriptions/enroll', access: 'enroll', run: (t) => call(enrollRoute.POST, t, { method: 'POST', body: {} }) },
   { name: 'POST /subscriptions/renew', access: 'enroll', run: (t) => call(renewRoute.POST, t, { method: 'POST', body: {} }) },
+  { name: 'GET /subscriptions/renew', access: 'enroll', run: (t) => call(renewRoute.GET, t, { url: `/api/subscriptions/renew?traineeId=${id()}` }) },
+  { name: 'DELETE /subscriptions/[id]', access: 'cancelRenewal', run: (t) => call(subscriptionRoute.DELETE, t, { method: 'DELETE', params: { id: id() } }) },
   { name: 'POST /subscriptions/[id]/payments', access: 'recordPayments', run: (t) => call(paymentsRoute.POST, t, { method: 'POST', body: {}, params: { id: id() } }) },
   { name: 'GET /subscriptions/plans', access: 'viewPlans', run: (t) => call(plansRoute.GET, t) },
   { name: 'GET /subscriptions/plans/[id]', access: 'viewPlans', run: (t) => call(planRoute.GET, t, { params: { id: id() } }) },

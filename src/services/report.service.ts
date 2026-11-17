@@ -360,9 +360,10 @@ export async function getSubscriptionReport(
       tx.traineeSubscription.count({ where: { trainee: { branchId }, status: 'FROZEN' } }),
     ]);
 
+    // Running out within 30 days and not renewed yet.
     const upcomingRenewals = await tx.traineeSubscription.count({
       where: {
-        trainee: { branchId },
+        trainee: { branchId, subscriptions: { none: { status: 'UPCOMING' } } },
         status: 'ACTIVE',
         endDate: { gte: new Date(), lte: addDays(new Date(), 30) },
       },
@@ -559,7 +560,11 @@ export async function getExpiringSoonReport(
 ): Promise<ExpiringSoonReport> {
   return withTenantContext(tenantId, async (tx) => {
     const subs = await tx.traineeSubscription.findMany({
-      where: { status: 'ACTIVE', trainee: { branchId } },
+      // Trainees who already renewed (a renewal queued) need no nudge.
+      where: {
+        status: 'ACTIVE',
+        trainee: { branchId, subscriptions: { none: { status: 'UPCOMING' } } },
+      },
       select: {
         attendedSessions: true,
         totalSessions: true,

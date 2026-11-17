@@ -440,7 +440,28 @@ export async function getTraineeById(
       throw new NotFoundError('Trainee not found');
     }
 
-    return trainee;
+    // For renewal: the latest subscription that has started (any status, so an
+    // ended one still offers "Renew"), and a queued renewal if there is one.
+    const [lastSubscription, upcomingSubscription] = await Promise.all([
+      tx.traineeSubscription.findFirst({
+        where: { traineeId, status: { not: 'UPCOMING' } },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          plan: { select: { id: true, name: true } },
+          level: { select: { id: true, name: true } },
+        },
+      }),
+      tx.traineeSubscription.findFirst({
+        where: { traineeId, status: 'UPCOMING' },
+        include: {
+          plan: { select: { id: true, name: true } },
+          level: { select: { id: true, name: true } },
+          group: { select: { id: true, name: true } },
+        },
+      }),
+    ]);
+
+    return { ...trainee, lastSubscription, upcomingSubscription };
   });
 }
 

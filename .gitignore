@@ -56,3 +56,8 @@ next-env.d.ts
 
 # Local-only dev docs (plans, walkthroughs, PRD, ad-hoc scripts) — not for the production repo
 _local-docs/
+
+# Playwright end-to-end
+/test-results/
+/playwright-report/
+/e2e/.e2e-state.json

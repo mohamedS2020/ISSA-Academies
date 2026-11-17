@@ -100,3 +100,80 @@ jobs:
       # Fails if any page/route fails to compile, even if types pass.
       - name: Next.js production build
         run: npm run build
+
+  # ── End-to-end (Playwright) ────────────────────────────────
+  # Builds the app, serves it and drives it in Chromium: the renewal flow from
+  # the dashboard to the trainee page and the parent portal. Global setup
+  # provisions its own disposable academy and tears it down.
+  #
+  # Pinned to ubuntu-24.04: Playwright 1.56 cannot install its browser on the
+  # newer image ubuntu-latest points at ("does not support chromium on
+  # ubuntu26.04"). Move with the Playwright version, not ahead of it.
+  e2e:
+    name: End-to-end (Playwright)
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: platform
+          POSTGRES_USER: platform_admin
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U platform_admin -d platform"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://platform_admin:ci_password@localhost:5432/platform
+      DIRECT_DATABASE_URL: postgresql://platform_admin:ci_password@localhost:5432/platform
+      JWT_ACCESS_SECRET: ci-access-secret-not-for-production
+      JWT_REFRESH_SECRET: ci-refresh-secret-not-for-production
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      JWT_REMEMBER_ME_EXPIRY: 30d
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma clients
+        run: |
+          npx prisma generate --schema=prisma/platform/schema.prisma
+          npx prisma generate --schema=prisma/tenant/schema.prisma
+
+      - name: Apply platform migrations
+        run: npx prisma migrate deploy --schema=prisma/platform/schema.prisma
+
+      - name: Next.js production build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
+        env:
+          E2E_SERVER_COMMAND: npx next start -p 3100
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

@@ -16,6 +16,7 @@
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { writeAuditLog } from './audit.service';
 import { getBranchTimezone } from './branch.service';
+import { activateUpcomingSubscription } from './subscription.service';
 import { toLocalDisplay } from '@/lib/utils/timezone';
 import { getSubscriptionState } from '@/lib/utils/subscription';
 import { NotFoundError, BadRequestError, ForbiddenError } from '@/lib/api/error-handler';
@@ -29,6 +30,18 @@ interface AttendanceEntry {
   status: 'PRESENT' | 'ABSENT' | 'EXCUSED';
   notes?: string;
 }
+
+const SUBMIT_SUBSCRIPTION_SELECT = {
+  id: true,
+  status: true,
+  endDate: true,
+  attendedSessions: true,
+  totalSessions: true,
+  freezeUsed: true,
+  expiredAt: true,
+  createdAt: true,
+  plan: { select: { freezeRetakeDays: true } },
+} as const;
 
 // ─── Submit Attendance ───────────────────────────────────────
 //
@@ -72,34 +85,27 @@ export async function submitAttendance(
       });
       const oldStatus = prior?.status ?? null;
 
-      // The trainee's CURRENT subscription (latest, any status) + its plan's
-      // grace window — needed to block ended trainees and to flip status.
-      const subscription = await tx.traineeSubscription.findFirst({
-        where: { traineeId: record.traineeId },
+      // The trainee's CURRENT subscription (latest, any status but a queued
+      // renewal, which has not started) + its plan's grace window — needed to
+      // block ended trainees and to flip status.
+      const current = await tx.traineeSubscription.findFirst({
+        where: { traineeId: record.traineeId, status: { not: 'UPCOMING' } },
         orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          status: true,
-          endDate: true,
-          attendedSessions: true,
-          totalSessions: true,
-          expiredAt: true,
-          plan: { select: { freezeRetakeDays: true } },
-        },
+        select: SUBMIT_SUBSCRIPTION_SELECT,
       });
 
       // ⛔ Block NEW marks only once the grace window has fully elapsed. During
       //    the grace window (freezeRetakeDays after expiry) marking is still
       //    allowed for makeups/retakes. A CORRECTION of an existing mark is
       //    always allowed (so mistakes can be reversed).
-      if (subscription && !prior) {
+      if (current && !prior) {
         const stateBefore = getSubscriptionState({
-          status: subscription.status,
-          endDate: subscription.endDate,
-          attendedSessions: subscription.attendedSessions,
-          totalSessions: subscription.totalSessions,
-          expiredAt: subscription.expiredAt,
-          freezeRetakeDays: subscription.plan.freezeRetakeDays,
+          status: current.status,
+          endDate: current.endDate,
+          attendedSessions: current.attendedSessions,
+          totalSessions: current.totalSessions,
+          expiredAt: current.expiredAt,
+          freezeRetakeDays: current.plan.freezeRetakeDays,
         });
         if (stateBefore.pastGrace) {
           skippedTraineeIds.push(record.traineeId);
@@ -131,14 +137,34 @@ export async function submitAttendance(
         },
       });
 
+      // PRESENT contributes to attendedSessions; ABSENT to freezeUsed.
+      // Delta = (new contributes ? +1 : 0) − (old contributed ? +1 : 0).
+      // Prisma `increment` accepts negatives, so corrections reverse cleanly.
+      const attendedDelta =
+        (record.status === 'PRESENT' ? 1 : 0) - (oldStatus === 'PRESENT' ? 1 : 0);
+      const freezeDelta =
+        (record.status === 'ABSENT' ? 1 : 0) - (oldStatus === 'ABSENT' ? 1 : 0);
+
+      // A correction that takes back more than the current subscription has
+      // counted belongs to the one before it: the mark being corrected used
+      // that one's last session, and a renewal took over since.
+      let subscription = current;
+      if (
+        current &&
+        (current.attendedSessions + attendedDelta < 0 || current.freezeUsed + freezeDelta < 0)
+      ) {
+        subscription = await tx.traineeSubscription.findFirst({
+          where: {
+            traineeId: record.traineeId,
+            status: { not: 'UPCOMING' },
+            createdAt: { lt: current.createdAt },
+          },
+          orderBy: { createdAt: 'desc' },
+          select: SUBMIT_SUBSCRIPTION_SELECT,
+        });
+      }
+
       if (subscription) {
-        // PRESENT contributes to attendedSessions; ABSENT to freezeUsed.
-        // Delta = (new contributes ? +1 : 0) − (old contributed ? +1 : 0).
-        // Prisma `increment` accepts negatives, so corrections reverse cleanly.
-        const attendedDelta =
-          (record.status === 'PRESENT' ? 1 : 0) - (oldStatus === 'PRESENT' ? 1 : 0);
-        const freezeDelta =
-          (record.status === 'ABSENT' ? 1 : 0) - (oldStatus === 'ABSENT' ? 1 : 0);
 
         // Recompute whether the subscription is now over, so we can flip its
         // status the moment the last credit is used (or revive it if a
@@ -154,8 +180,17 @@ export async function submitAttendance(
         if (shouldBeExpired && subscription.status === 'ACTIVE') {
           statusData.status = 'EXPIRED';
           statusData.expiredAt = subscription.expiredAt ?? new Date();
-        } else if (!shouldBeExpired && subscription.status === 'EXPIRED') {
-          // A correction reversed the overage and the date is still valid.
+        } else if (
+          !shouldBeExpired &&
+          subscription.status === 'EXPIRED' &&
+          !(await tx.traineeSubscription.findFirst({
+            where: { traineeId: record.traineeId, status: 'ACTIVE' },
+            select: { id: true },
+          }))
+        ) {
+          // A correction reversed the overage and the date is still valid —
+          // unless a renewal has started since: it stays the running one (the
+          // returned session is not carried over).
           statusData.status = 'ACTIVE';
           statusData.expiredAt = null;
         }
@@ -177,6 +212,12 @@ export async function submitAttendance(
               ...statusData,
             },
           });
+        }
+
+        // The last session is used (or the date has passed): a queued renewal
+        // starts now rather than at its planned date (decision 1).
+        if (statusData.status === 'EXPIRED') {
+          await activateUpcomingSubscription(tx, record.traineeId, new Date(), userId);
         }
       }
 
@@ -212,8 +253,9 @@ const SHEET_TRAINEE_SELECT = {
   systemCode: true,
   user: { select: { name: true } },
   subscriptions: {
-    // Latest subscription (any status) so we can compute the
-    // ended/grace state, not just the active one.
+    // Latest subscription (any status but a queued renewal) so we can compute
+    // the ended/grace state, not just the active one.
+    where: { status: { not: 'UPCOMING' as const } },
     orderBy: { createdAt: 'desc' as const },
     take: 1,
     select: {
@@ -397,6 +439,10 @@ export async function scheduleRetake(
     });
 
     if (!subscription) throw new NotFoundError('Subscription not found');
+    if (subscription.status === 'UPCOMING') {
+      // A queued renewal has no missed sessions to make up yet.
+      throw new BadRequestError('This renewal has not started yet');
+    }
 
     const retakeSession = await tx.session.findFirst({
       where: { id: retakeSessionId, branchId },
