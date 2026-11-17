@@ -263,38 +263,51 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 w-full bg-card/80 border-b border-border/80 backdrop-blur-lg flex items-center justify-between px-4 md:px-6 py-4">
+      {/* Phones: the controls are compact (branch and language as short
+          buttons) and the page title gives way, so the menu button always fits:
+          at 320 px the controls used to push it out of the header. The page
+          shows its own title in the content. */}
+      <header className="sticky top-0 z-20 w-full bg-card/80 border-b border-border/80 backdrop-blur-lg flex items-center justify-between gap-2 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
         {/* ─── Hamburger (mobile) + Page Title ─── */}
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onMenuClick}
-            className="md:hidden h-9 w-9 rounded-xl bg-muted/70 border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+            className="md:hidden h-10 w-10 rounded-xl bg-muted/70 border border-border flex items-center justify-center text-foreground/80 hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
             aria-label="Open menu"
           >
             <Menu size={18} />
           </button>
-          <h1 className="text-lg md:text-xl font-bold tracking-wide text-foreground uppercase truncate">
+          <h1 className="hidden sm:block text-lg md:text-xl font-bold tracking-wide text-foreground uppercase truncate">
             {getPageTitle()}
           </h1>
         </div>
 
         {/* ─── Controls & Menus ─── */}
-        <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 min-w-0">
           
-          {/* Branch Switcher (Admin only, and only when there is more than one branch) */}
+          {/* Branch Switcher (Admin only, and only when there is more than one branch).
+              On phones the list opens as a full-width panel under the header (the
+              wrapper is not positioned there, so the sticky header is its anchor):
+              anchored to the button it ran off the screen edge. */}
           {user.role === UserRole.ADMIN && branches.length > 1 && (
-            <div className="relative" ref={branchMenuRef}>
+            <div className="sm:relative min-w-0 max-w-[9rem] sm:max-w-none" ref={branchMenuRef}>
               <button
                 onClick={() => setIsBranchMenuOpen(!isBranchMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-muted/70 hover:bg-muted border border-border transition-all duration-300 backdrop-blur-md text-foreground/80 hover:text-foreground"
+                aria-expanded={isBranchMenuOpen}
+                aria-haspopup="true"
+                data-testid="branch-switcher"
+                className="flex items-center gap-2 h-10 sm:h-auto px-2.5 sm:px-3 sm:py-2 max-w-full text-xs font-semibold rounded-xl bg-muted/70 hover:bg-muted border border-border transition-all duration-300 backdrop-blur-md text-foreground/80 hover:text-foreground"
               >
-                <Building size={14} className="text-primary dark:text-primary" />
-                <span>{user.branchName || tBranches('title')}</span>
-                <ChevronDown size={12} className="text-muted-foreground" />
+                <Building size={14} className="text-primary dark:text-primary flex-shrink-0" aria-hidden="true" />
+                <span className="truncate">{user.branchName || tBranches('title')}</span>
+                <ChevronDown size={12} className="text-muted-foreground flex-shrink-0" aria-hidden="true" />
               </button>
 
               {isBranchMenuOpen && (
-                <div className="absolute end-0 mt-2 w-56 rounded-2xl bg-background border border-border shadow-2xl p-1.5 backdrop-blur-xl z-50 animate-fadeIn">
+                <div
+                  data-testid="branch-menu"
+                  className="absolute inset-x-3 top-full mt-1 sm:inset-x-auto sm:top-auto sm:end-0 sm:mt-2 sm:w-56 rounded-2xl bg-background border border-border shadow-2xl p-1.5 backdrop-blur-xl z-50 animate-fadeIn"
+                >
                   <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                     {tCommon('filter')} {tBranches('title')}
                   </div>
@@ -307,7 +320,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                           key={b.id}
                           onClick={() => handleBranchSelect(b)}
                           disabled={!!switchingId}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 disabled:opacity-60 ${
+                          className={`w-full flex items-center justify-between px-3 py-3 sm:py-2 rounded-xl text-sm sm:text-xs font-medium transition-all duration-200 disabled:opacity-60 ${
                             isActiveBranch
                               ? 'bg-primary/10 text-primary dark:text-primary font-semibold'
                               : 'text-muted-foreground hover:bg-card hover:text-foreground'
@@ -334,9 +347,9 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           {/* Language Toggle */}
           <button
             onClick={handleLanguageToggle}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-muted/70 hover:bg-muted border border-border transition-all duration-300 backdrop-blur-md text-foreground/80 hover:text-foreground"
+            className="flex-shrink-0 flex items-center gap-1.5 h-10 sm:h-auto px-2.5 sm:px-3 sm:py-2 text-xs font-semibold rounded-xl bg-muted/70 hover:bg-muted border border-border transition-all duration-300 backdrop-blur-md text-foreground/80 hover:text-foreground"
           >
-            <Globe size={14} className="text-primary dark:text-primary" />
+            <Globe size={14} className="hidden sm:block text-primary dark:text-primary" aria-hidden="true" />
             <span>{currentLocale === 'en' ? 'AR' : 'EN'}</span>
           </button>
 
@@ -351,9 +364,11 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           )}
 
           {/* User Dropdown */}
-          <div className="relative" ref={userMenuRef}>
+          <div className="relative flex-shrink-0" ref={userMenuRef}>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              aria-label={user.name}
+              aria-expanded={isUserMenuOpen}
               className="flex items-center gap-2.5 p-1 rounded-full md:rounded-xl md:px-3 md:py-1.5 bg-muted/70 hover:bg-muted border border-border transition-all duration-300 backdrop-blur-md text-foreground/80 hover:text-foreground group"
             >
               <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center font-bold text-xs text-primary-foreground shadow-md">

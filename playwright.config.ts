@@ -41,6 +41,8 @@ export default defineConfig({
     url: `${baseURL}/en/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
-    env: { RUN_SCHEDULER: 'false' },
+    // Several specs sign in as the same user within a minute; the per-user API
+    // limit (100 a minute) is for production, not for a test run.
+    env: { RUN_SCHEDULER: 'false', RATE_LIMIT_API_MAX: '1000' },
   },
 });

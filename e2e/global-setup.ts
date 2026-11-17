@@ -1,7 +1,7 @@
 /**
  * Provision a disposable academy for the end-to-end specs: an admin with a
- * known password, and two trainees, one whose subscription ends in three days
- * and one whose subscription has ended.
+ * known password, two branches, and two trainees, one whose (part-paid)
+ * subscription ends in three days and one whose subscription has ended.
  */
 
 import { writeFileSync } from 'node:fs';
@@ -50,10 +50,18 @@ export default async function globalSetup(): Promise<void> {
   const today = new Date();
   const utcToday = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
   const adminPhone = await withTenantContext(academy.tenantId, async (tx) => {
+    // Part paid, so the trainee page offers "Record payment" (mobile.spec.ts).
     await tx.traineeSubscription.update({
       where: { id: expiring.subscription.id },
-      data: { endDate: new Date(utcToday + 3 * DAY_MS) },
+      data: {
+        endDate: new Date(utcToday + 3 * DAY_MS),
+        amountPaid: 300,
+        amountDue: 200,
+        paymentStatus: 'PARTIAL',
+      },
     });
+    // A second branch, so admins get the branch switcher (mobile.spec.ts).
+    await tx.branch.create({ data: { name: 'Second Branch', code: 'E2E2' } });
     await tx.traineeSubscription.update({
       where: { id: ended.subscription.id },
       data: {
