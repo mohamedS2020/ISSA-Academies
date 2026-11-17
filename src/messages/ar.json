@@ -480,7 +480,12 @@
     "nextSubscription": "الاشتراك القادم",
     "nextSubscriptionNote": "تم التجديد مسبقًا: يبدأ تلقائيًا عند انتهاء الاشتراك الحالي.",
     "nextPeriod": "يبدأ {start} · ينتهي {end}",
-    "nextSessions": "{count, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} many {# حصة} other {# حصة}}"
+    "nextSessions": "{count, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} many {# حصة} other {# حصة}}",
+    "tabHome": "الرئيسية",
+    "tabSchedule": "الجدول",
+    "tabAttendance": "الحضور",
+    "tabSubscription": "اشتراكي",
+    "tabReceipts": "الإيصالات"
   },
   "superAdmin": {
     "slug": "المعرف في الرابط",

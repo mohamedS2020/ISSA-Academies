@@ -68,13 +68,14 @@ export function TraineeSwitcher() {
   if (trainees.length <= 1) return null;
 
   return (
-    <div className="relative flex items-center gap-1.5 rounded-xl bg-muted/70 border border-border ps-2.5 pe-1.5 py-1.5">
-      <Users size={14} className="text-primary dark:text-primary flex-shrink-0" />
+    <div className="relative flex items-center gap-1.5 rounded-xl bg-muted/70 border border-border ps-2.5 pe-1.5 py-1.5 min-w-0 w-full sm:w-auto">
+      <Users size={14} className="text-primary dark:text-primary flex-shrink-0" aria-hidden="true" />
+      {/* 16 px on phones: iOS zooms into smaller fields on focus. */}
       <select
         aria-label={t('selectTrainee')}
         value={selectedTraineeId ?? ''}
         onChange={(e) => setSelectedTraineeId(e.target.value)}
-        className="appearance-none bg-transparent text-xs font-semibold text-foreground focus:outline-none pe-4 cursor-pointer"
+        className="appearance-none bg-transparent min-w-0 flex-1 truncate text-base sm:text-xs font-semibold text-foreground focus:outline-none pe-5 cursor-pointer"
       >
         {trainees.map((t) => (
           <option key={t.id} value={t.id} className="bg-card text-foreground">

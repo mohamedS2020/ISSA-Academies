@@ -132,6 +132,7 @@ function TraineeDetailPageContent() {
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const tRenewal = useTranslations('renewal');
+  const tSubscriptions = useTranslations('subscriptions');
   const { authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -719,32 +720,35 @@ function TraineeDetailPageContent() {
                 )}
               </div>
             </div>
-            <div className="flex gap-6 text-sm">
+            {/* Wraps on phones: the payment button gets its own full-width line
+                instead of running off the card's edge. */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm w-full sm:w-auto">
               <div>
-                <p className="text-xs text-muted-foreground">Sessions</p>
+                <p className="text-xs text-muted-foreground">{tSubscriptions('sessions')}</p>
                 <p className="font-semibold text-foreground">
                   {activeSubscription.attendedSessions} / {activeSubscription.totalSessions}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Expires</p>
+                <p className="text-xs text-muted-foreground">{tSubscriptions('expiresOn')}</p>
                 <p className="font-semibold text-foreground">
                   {new Date(activeSubscription.endDate).toLocaleDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Amount Due</p>
-                <p className={`font-semibold ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
+                <p className="text-xs text-muted-foreground">{tRenewal('amountDue')}</p>
+                <p dir="ltr" className={`font-semibold rtl:text-right ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
                   {Number(activeSubscription.amountDue).toFixed(2)}
                 </p>
               </div>
               {can('recordPayments') && Number(activeSubscription.amountDue) > 0 && (
                 <button
                   onClick={() => openPayment(activeSubscription)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-soft border border-success/30 text-success hover:bg-success/15 text-xs font-bold transition-colors self-center"
+                  data-testid="record-payment"
+                  className="w-full sm:w-auto min-h-11 sm:min-h-0 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-sm sm:text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  <Wallet size={14} />
-                  Record Payment
+                  <Wallet size={14} aria-hidden="true" />
+                  {tRenewal('recordPayment')}
                 </button>
               )}
             </div>
