@@ -976,7 +976,7 @@ function TraineeDetailPageContent() {
             {fields.map(({ key, label, value }) => (
               <div key={key}>
                 <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                {isEditing ? (
+                {isEditing && key !== 'guardian' ? (
                   <input
                     type={key === 'phoneNumber' || key === 'whatsappNumber' ? 'tel' : 'text'}
                     dir={LTR_FIELDS.has(key) ? 'ltr' : undefined}
@@ -988,6 +988,9 @@ function TraineeDetailPageContent() {
                   <p className="text-sm text-foreground rtl:text-right" dir={LTR_FIELDS.has(key) ? 'ltr' : undefined}>
                     {value != null && value !== '' ? String(value) : (
                       <span className="text-muted-foreground">—</span>
+                    )}
+                    {isEditing && key === 'guardian' && (
+                      <span className="block text-xs text-muted-foreground mt-1">{tp('guardianShared')}</span>
                     )}
                   </p>
                 )}

@@ -11,6 +11,7 @@ import { writeAuditLog } from './audit.service';
 import { getSubscriptionState } from '@/lib/utils/subscription';
 import { BadRequestError, ConflictError, NotFoundError } from '@/lib/api/error-handler';
 import { AuditAction } from '@/types';
+import { toLocalDisplay } from '@/lib/utils/timezone';
 import type {
   CreateGroupInput,
   UpdateGroupInput,
@@ -340,7 +341,14 @@ export async function getGroupById(
     });
 
     if (!group) throw new NotFoundError('Group not found');
-    return group;
+
+    // Session times in the branch's zone, as the schedule shows them.
+    const branch = await tx.branch.findUnique({ where: { id: branchId }, select: { timezone: true } });
+    const timezone = branch?.timezone ?? 'Africa/Cairo';
+    return {
+      ...group,
+      sessions: group.sessions.map((s) => ({ ...s, scheduledAtLocal: toLocalDisplay(s.scheduledAt, timezone) })),
+    };
   });
 }
 

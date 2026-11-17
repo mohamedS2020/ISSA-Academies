@@ -125,9 +125,9 @@
     "totalTraineesAcrossGroups": "Total trainees across all groups",
     "scheduledForToday": "Sessions scheduled for today",
     "coachGuidelines": "Coach Guidelines",
-    "coachGuidelinesDesc": "Ensure all trainees wear the proper equipment. Mark attendance within the first 15 minutes.",
-    "coachGuideline1": "Log absences as excused/unexcused for makeup slots.",
-    "coachGuideline2": "Update skills milestone checkmarks at month end.",
+    "coachGuidelinesDesc": "Arrive a few minutes before each session. The academy's staff take attendance.",
+    "coachGuideline1": "After a session, leave a note on a trainee from your group's page.",
+    "coachGuideline2": "Check the weekly schedule for changes before each day.",
     "viewWeeklySchedule": "View Weekly Schedule Calendar",
     "invalidRoleTitle": "Invalid Account Role",
     "invalidRoleContact": "Please contact your academy administrator to configure your portal access.",
@@ -471,7 +471,8 @@
     "confirmReschedule": "Confirm Reschedule",
     "viewGroup": "View Group",
     "previousWeek": "Previous week",
-    "nextWeek": "Next week"
+    "nextWeek": "Next week",
+    "minutes": "{count} min"
   },
   "attendance": {
     "title": "Attendance",
@@ -885,7 +886,8 @@
     "paid": "Paid",
     "enrollSubmit": "Enroll and issue receipt",
     "enrolled": "Trainee enrolled",
-    "renewed": "Subscription renewed"
+    "renewed": "Subscription renewed",
+    "guardianShared": "Shared by siblings on this account, so it isn't edited here."
   },
   "traineeNew": {
     "registrationFailed": "Registration failed",
@@ -981,6 +983,9 @@
     "code": "Code",
     "name": "Name",
     "phone": "Phone",
-    "subscription": "Subscription"
+    "subscription": "Subscription",
+    "summary": "{count}/{max} trainees · {sessions, plural, one {# session} other {# sessions}} in total",
+    "traineesTitle": "Trainees ({count}/{max})",
+    "attended": "{attended}/{total} sessions"
   }
 }

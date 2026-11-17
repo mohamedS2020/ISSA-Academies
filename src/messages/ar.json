@@ -125,9 +125,9 @@
     "totalTraineesAcrossGroups": "إجمالي المتدربين عبر جميع المجموعات",
     "scheduledForToday": "حصص مجدولة اليوم",
     "coachGuidelines": "إرشادات المدرب",
-    "coachGuidelinesDesc": "تأكد من ارتداء جميع المتدربين المعدات المناسبة. سجّل الحضور خلال أول 15 دقيقة من بدء الحصة.",
-    "coachGuideline1": "سجّل الغيابات كمبررة أو غير مبررة لحصص التعويض.",
-    "coachGuideline2": "حدّث مراحل المهارات في نهاية كل شهر.",
+    "coachGuidelinesDesc": "احضر قبل موعد الحصة ببضع دقائق. يسجّل فريق الأكاديمية الحضور.",
+    "coachGuideline1": "بعد الحصة، اترك ملاحظة لأي متدرب من صفحة مجموعتك.",
+    "coachGuideline2": "راجع الجدول الأسبوعي كل يوم لمعرفة أي تغيير.",
     "viewWeeklySchedule": "عرض جدول الأسبوع",
     "invalidRoleTitle": "دور الحساب غير صالح",
     "invalidRoleContact": "يرجى التواصل مع مسؤول الأكاديمية لضبط صلاحيات الوصول لحسابك.",
@@ -471,7 +471,8 @@
     "confirmReschedule": "تأكيد إعادة الجدولة",
     "viewGroup": "عرض المجموعة",
     "previousWeek": "الأسبوع السابق",
-    "nextWeek": "الأسبوع التالي"
+    "nextWeek": "الأسبوع التالي",
+    "minutes": "{count} دقيقة"
   },
   "attendance": {
     "title": "الحضور",
@@ -885,7 +886,8 @@
     "paid": "مدفوع",
     "enrollSubmit": "سجّل وأصدر الإيصال",
     "enrolled": "تم تسجيل المتدرب",
-    "renewed": "تم تجديد الاشتراك"
+    "renewed": "تم تجديد الاشتراك",
+    "guardianShared": "مشترك بين الإخوة على هذا الحساب، لذلك لا يُعدَّل من هنا."
   },
   "traineeNew": {
     "registrationFailed": "تعذّر التسجيل",
@@ -981,6 +983,9 @@
     "code": "الكود",
     "name": "الاسم",
     "phone": "الهاتف",
-    "subscription": "الاشتراك"
+    "subscription": "الاشتراك",
+    "summary": "{count}/{max} متدرب · {sessions, plural, zero {لا حصص} one {حصة واحدة} two {حصتان} few {# حصص} other {# حصة}} إجمالًا",
+    "traineesTitle": "المتدربون ({count}/{max})",
+    "attended": "{attended}/{total} حصة"
   }
 }

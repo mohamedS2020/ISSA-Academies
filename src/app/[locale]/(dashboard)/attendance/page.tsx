@@ -19,7 +19,8 @@ import {
   Clock,
   Award,
 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { branchTime } from '@/lib/i18n/format';
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -130,6 +131,7 @@ function StatusToggle({
 
 function AttendancePageContent() {
   const t = useTranslations('attendance');
+  const tSchedule = useTranslations('schedule');
   const { authFetch } = useAuth();
   const can = useAccess();
   // "View attendance" opens the sheet read-only; marking needs "Mark attendance".
@@ -242,7 +244,7 @@ function AttendancePageContent() {
 
   // ── Session filters (by captain + hour) ─────────────────
   const sessionTime = (s: TodaySession) =>
-    s.scheduledAtLocal?.split(', ')[1] ?? format(parseISO(s.scheduledAt), 'HH:mm');
+    branchTime(s.scheduledAtLocal);
   const sessionCaptain = (s: TodaySession) => s.group.captain?.user?.name ?? '';
 
   const captainOptions = Array.from(
@@ -389,7 +391,7 @@ function AttendancePageContent() {
                 <div>
                   <p className="text-sm font-bold text-foreground">{sheet.session.groupName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {sheet.session.scheduledAtLocal ?? format(parseISO(sheet.session.scheduledAt), 'dd/MM/yyyy, HH:mm')} · {sheet.session.durationMinutes}min
+                    <span dir="ltr">{branchTime(sheet.session.scheduledAtLocal)}</span> · {tSchedule('minutes', { count: sheet.session.durationMinutes })}
                   </p>
                 </div>
                 <span

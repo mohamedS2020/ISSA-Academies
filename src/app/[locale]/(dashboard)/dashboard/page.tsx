@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { formatDate } from '@/lib/i18n/format';
+import { branchTime, formatDate } from '@/lib/i18n/format';
 import dynamic from 'next/dynamic';
 
 // recharts is heavy — load it only when the chart renders (keeps it out of the
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                         {s.group.name}
                       </span>
                       <span className="text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
-                        {s.scheduledAtLocal}
+                        <span dir="ltr">{branchTime(s.scheduledAtLocal)}</span>
                       </span>
                     </div>
                     <div className="text-[10px] text-muted-foreground font-medium">
@@ -477,7 +477,7 @@ export default function DashboardPage() {
                       </h4>
                       <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-medium font-mono">
                         <span className="flex items-center gap-1">
-                          <Clock size={12} /> {session.scheduledAtLocal}
+                          <Clock size={12} /> <span dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
                         </span>
                       </div>
                     </div>

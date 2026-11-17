@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useId } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { branchDay, branchTime, formatBranchDate, formatDate } from '@/lib/i18n/format';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -28,7 +29,6 @@ import {
   addWeeks,
   subWeeks,
   isSameDay,
-  parseISO,
   isToday,
 } from 'date-fns';
 
@@ -83,6 +83,7 @@ function SessionCard({
   /** The phone day list: full width, readable text. The week grid keeps it compact. */
   large?: boolean;
 }) {
+  const t = useTranslations('schedule');
   const text = large ? 'text-xs' : 'text-[10px]';
   return (
     <button
@@ -99,11 +100,8 @@ function SessionCard({
       </div>
       <div className="flex items-center gap-1 text-muted-foreground">
         <Clock className="w-3 h-3 shrink-0" />
-        <span className={text}>
-          {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
-            format(parseISO(session.scheduledAt), 'HH:mm')}
-        </span>
-        <span className={`${text} text-muted-foreground ms-auto`}>{session.durationMinutes}m</span>
+        <span className={text} dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
+        <span className={`${text} text-muted-foreground ms-auto`}>{t('minutes', { count: session.durationMinutes })}</span>
       </div>
       {session.group.captain?.user?.name && (
         <p className={`${text} text-muted-foreground truncate mt-0.5`}>
@@ -215,12 +213,9 @@ function SessionModal({
           <div>
             <h2 className="text-lg font-bold text-foreground">{session.group.name}</h2>
             <p className="text-sm text-muted-foreground">
-              {session.scheduledAtLocal
-                ? format(parseISO(session.scheduledAt), 'EEEE, MMM d yyyy')
-                : ''}{' '}
-              ·{' '}
-              {session.scheduledAtLocal?.split('T')[1]?.slice(0, 5) ??
-                format(parseISO(session.scheduledAt), 'HH:mm')}
+              {formatBranchDate(session.scheduledAtLocal, locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {' · '}
+              <span dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
             </p>
           </div>
           <StatusBadge status={session.status} />
@@ -356,6 +351,7 @@ function SessionModal({
 
 function SchedulePageContent() {
   const t = useTranslations('schedule');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 0 })
@@ -397,7 +393,9 @@ function SchedulePageContent() {
   }, [fetchSessions]);
 
   function getSessionsForDay(day: Date) {
-    return sessions.filter((s) => isSameDay(parseISO(s.scheduledAt), day));
+    // Bucket by the BRANCH's calendar day, not the device's.
+    const key = format(day, 'yyyy-MM-dd');
+    return sessions.filter((s) => branchDay(s.scheduledAtLocal) === key);
   }
 
   function handleCancelled(sessionId: string) {
@@ -418,7 +416,7 @@ function SchedulePageContent() {
             {t('title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {format(weekStart, 'MMM d')} – {format(endOfWeek(weekStart, { weekStartsOn: 0 }), 'MMM d, yyyy')}
+            {formatDate(weekStart, locale, { day: 'numeric', month: 'short' })} – {formatDate(endOfWeek(weekStart, { weekStartsOn: 0 }), locale, { day: 'numeric', month: 'short', year: 'numeric' })}
           </p>
         </div>
 
@@ -476,7 +474,7 @@ function SchedulePageContent() {
                         : 'bg-foreground/5 text-foreground/80 border-foreground/10'
                   }`}
                 >
-                  <span className="text-[10px] font-semibold uppercase">{format(day, 'EEE')}</span>
+                  <span className="text-[10px] font-semibold uppercase">{formatDate(day, locale, { weekday: 'short' })}</span>
                   <span className="text-base font-bold leading-tight">{format(day, 'd')}</span>
                   <span aria-hidden="true" className={`mt-0.5 h-1 w-1 rounded-full ${count > 0 ? (active ? 'bg-primary-foreground' : 'bg-primary') : 'bg-transparent'}`} />
                 </button>
@@ -512,7 +510,7 @@ function SchedulePageContent() {
                   }`}
                 >
                   <p className="text-[10px] font-semibold uppercase tracking-wider">
-                    {format(day, 'EEE')}
+                    {formatDate(day, locale, { weekday: 'short' })}
                   </p>
                   <p className={`text-xl font-bold ${dayIsToday ? 'text-primary-foreground' : 'text-foreground'}`}>
                     {format(day, 'd')}

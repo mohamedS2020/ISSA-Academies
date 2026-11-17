@@ -73,7 +73,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary dark:bg-primary/30 dark:text-primary">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
           {icon}
         </div>
         <div>
