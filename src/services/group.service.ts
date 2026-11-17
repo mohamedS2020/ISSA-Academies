@@ -98,7 +98,8 @@ export async function releaseLapsedSeats(
   now: Date = new Date()
 ): Promise<number> {
   const candidates = await tx.groupTrainee.findMany({
-    where: { trainee: { subscriptions: { none: { status: 'ACTIVE' } } } },
+    // A queued renewal keeps the seat: the trainee is coming back.
+    where: { trainee: { subscriptions: { none: { status: { in: ['ACTIVE', 'UPCOMING'] } } } } },
     select: {
       id: true,
       trainee: {
@@ -148,7 +149,7 @@ export async function releaseLapsedSeats(
       AND g.id = gt.group_id
       AND NOT EXISTS (
         SELECT 1 FROM trainee_subscriptions s
-        WHERE s.trainee_id = gt.trainee_id AND s.status = 'ACTIVE'
+        WHERE s.trainee_id = gt.trainee_id AND s.status IN ('ACTIVE', 'UPCOMING')
       )
     RETURNING gt.group_id::text AS group_id, gt.trainee_id::text AS trainee_id,
               g.branch_id::text AS branch_id

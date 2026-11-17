@@ -71,8 +71,11 @@ export const ACCESS = {
     'can_create_subscriptions',
     'can_manage_subscriptions',
   ],
+  // Enrolling and renewing (a renewal is a new subscription, paid like one).
   enroll: ['can_create_subscriptions', 'can_manage_subscriptions'],
   recordPayments: ['can_manage_subscriptions'],
+  // Cancelling a queued renewal that nothing has been paid on: admin only.
+  cancelRenewal: [],
   viewReceipts: [
     'can_view_finances',
     'can_view_subscriptions',

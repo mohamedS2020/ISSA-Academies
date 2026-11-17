@@ -16,6 +16,7 @@ import { listSessions } from './schedule.service';
 import { getIncomeSummary, getOutstandingBalance } from './finance.service';
 import { NotFoundError } from '@/lib/api/error-handler';
 import { startOfMonth, startOfDay, endOfDay, subDays, format } from 'date-fns';
+import { utcDay } from '@/lib/utils/renewal';
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -86,12 +87,22 @@ export async function getAdminDashboard(
         where: {
           status: 'ACTIVE',
           trainee: { branchId },
-          endDate: { gte: now, lte: sevenDaysOut },
+          // From today: a subscription is valid THROUGH its end date (stored at
+          // midnight), so one ending today still belongs on the list.
+          endDate: { gte: utcDay(now), lte: sevenDaysOut },
         },
         select: {
           id: true,
+          traineeId: true,
           endDate: true,
-          trainee: { select: { name: true, user: { select: { name: true, phoneNumber: true } } } },
+          trainee: {
+            select: {
+              name: true,
+              user: { select: { name: true, phoneNumber: true } },
+              // A queued renewal means they already renewed.
+              subscriptions: { where: { status: 'UPCOMING' }, select: { id: true }, take: 1 },
+            },
+          },
           plan: { select: { name: true } },
         },
         orderBy: { endDate: 'asc' },
@@ -135,6 +146,8 @@ export async function getAdminDashboard(
     expiringSoon: show.renewals
       ? expiringSoon.map((s) => ({
           id: s.id,
+          traineeId: s.traineeId,
+          renewed: s.trainee.subscriptions.length > 0,
           traineeName: s.trainee.name,
           phoneNumber: s.trainee.user.phoneNumber,
           planName: s.plan.name,

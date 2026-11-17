@@ -91,11 +91,20 @@ describe('returning trainees', () => {
     await enrollTrainee(a.tenantId, a.branchId, a.adminId, input(a, two.id, group.id));
 
     // Two members in two seats; renewing one of them used to say "Group is at
-    // maximum capacity" while they already held one of the two.
+    // maximum capacity" while they already held one of the two. Renewed while
+    // the current one runs, it is queued behind it.
     const renewed = await renewSubscription(
       a.tenantId, a.branchId, a.adminId, input(a, one.id, group.id)
     );
-    expect(renewed.subscription.status).toBe('ACTIVE');
+    expect(renewed.subscription.status).toBe('UPCOMING');
+    expect(await memberCount(a, group.id)).toBe(2);
+
+    // And once the current one has ended, renewing starts at once, in the same seat.
+    await expire(a, two.id);
+    const restarted = await renewSubscription(
+      a.tenantId, a.branchId, a.adminId, input(a, two.id, group.id)
+    );
+    expect(restarted.subscription.status).toBe('ACTIVE');
     expect(await memberCount(a, group.id)).toBe(2);
   }, 60_000);
 

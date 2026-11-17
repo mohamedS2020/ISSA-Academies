@@ -25,6 +25,8 @@ export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
   EXPIRED = 'EXPIRED',
   FROZEN = 'FROZEN',
+  /** A renewal paid in advance, queued to start when the current subscription ends. */
+  UPCOMING = 'UPCOMING',
 }
 
 // ─── Attendance ─────────────────────────────────────────────

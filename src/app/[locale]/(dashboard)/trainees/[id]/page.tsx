@@ -6,12 +6,16 @@
  * Full trainee profile view with organized sections.
  * Edit mode toggles inline editing for each section.
  * Shows active subscription summary and quick stats.
+ * Renewal: "Renew" whenever the trainee has had a subscription and none is
+ * queued; a banner when the current one is near its end (≤ 7 days or ≤ 2
+ * sessions) or has ended; a card for a queued renewal. `?renew=1` (the
+ * dashboard's Renew link) opens the renew dialog on arrival.
  * Full RTL support via logical CSS properties.
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useAccess } from '@/lib/auth/use-access';
@@ -37,8 +41,12 @@ import {
   Wallet,
   Users2,
   MessageSquare,
+  CalendarClock,
+  AlertTriangle,
 } from 'lucide-react';
 import { FeedbackPanel } from '@/components/rating/feedback-panel';
+import { RenewDialog } from '@/components/subscriptions/renew-dialog';
+import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -90,6 +98,28 @@ interface TraineeDetail {
     level: { id: string; name: string };
   }>;
   groupTrainees: Array<{ group: { id: string; name: string } }>;
+  /** The latest subscription that has started, any status (for "Renew"). */
+  lastSubscription: { id: string; status: string; endDate: string } | null;
+  /** A renewal queued to start when the current subscription ends. */
+  upcomingSubscription: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    amountPaid: number | string;
+    amountDue: number | string;
+    plan: { id: string; name: string };
+    level: { id: string; name: string };
+    group: { id: string; name: string } | null;
+  } | null;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Whole days from today (UTC) to a date stored at midnight UTC: 0 = ends today. */
+function daysUntil(isoDate: string): number {
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return Math.round((new Date(isoDate).getTime() - today) / DAY_MS);
 }
 
 const inputClass =
@@ -101,6 +131,7 @@ function TraineeDetailPageContent() {
   const t = useTranslations('trainees');
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
+  const tRenewal = useTranslations('renewal');
   const { authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -132,8 +163,15 @@ function TraineeDetailPageContent() {
   const [assignGroups, setAssignGroups] = useState<Array<{ id: string; name: string; captain: { user: { name: string } }; availableSlots: number; isFull: boolean }>>([]);
   const [isSavingAssign, setIsSavingAssign] = useState(false);
 
+  // ── Renewal ────────────────────────────────────────────
+  const [showRenewDialog, setShowRenewDialog] = useState(false);
+  const [showCancelRenewal, setShowCancelRenewal] = useState(false);
+  const [isCancellingRenewal, setIsCancellingRenewal] = useState(false);
+
   // ── Record payment dialog state (FR-FN-07) ─────────────
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  // The subscription being paid: the current one, or a queued renewal.
+  const [paymentTarget, setPaymentTarget] = useState<{ id: string; amountDue: number } | null>(null);
+  const showPaymentDialog = paymentTarget !== null;
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'' | 'INSTAPAY' | 'CASH' | 'EWALLET'>('');
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
@@ -146,8 +184,10 @@ function TraineeDetailPageContent() {
 
   // ─── Fetch ──────────────────────────────────────────────────
 
-  const fetchTrainee = useCallback(async () => {
-    setIsLoading(true);
+  // `silent`: refresh in place (after a renewal or payment) without swapping
+  // the page for the loading spinner, which would close an open dialog.
+  const fetchTrainee = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
       const res = await authFetch(`/api/trainees/${traineeId}`);
       if (!res.ok) throw new Error('Failed to load trainee');
@@ -161,6 +201,52 @@ function TraineeDetailPageContent() {
   }, [traineeId, authFetch, toast]);
 
   useEffect(() => { fetchTrainee(); }, [fetchTrainee]);
+
+  // The dashboard's Renew link lands here with ?renew=1: the dialog opens once
+  // the trainee has loaded (if they can be renewed). Closing it drops the flag
+  // from the address, so going back or reloading does not reopen it.
+  const renewRequested = useSearchParams().get('renew') === '1';
+  const renewOpen =
+    showRenewDialog ||
+    (renewRequested &&
+      canEnroll &&
+      !!trainee?.lastSubscription &&
+      !trainee.upcomingSubscription);
+  const closeRenew = useCallback(() => {
+    setShowRenewDialog(false);
+    if (renewRequested) router.replace(`/${locale}/trainees/${traineeId}`, { scroll: false });
+  }, [renewRequested, router, locale, traineeId]);
+  const afterRenewed = useCallback(() => {
+    // Keep the dialog open on its receipt, even though the trainee now has a
+    // queued renewal (which ends the ?renew=1 condition).
+    setShowRenewDialog(true);
+    fetchTrainee(true);
+  }, [fetchTrainee]);
+
+  const openPayment = (target: { id: string; amountDue: number | string }) => {
+    setPaymentAmount('');
+    setPaymentMethod('');
+    setPaymentError(null);
+    setPaymentTarget({ id: target.id, amountDue: Number(target.amountDue) });
+  };
+
+  const cancelRenewal = async () => {
+    const upcoming = trainee?.upcomingSubscription;
+    if (!upcoming) return;
+    setIsCancellingRenewal(true);
+    try {
+      const res = await authFetch(`/api/subscriptions/${upcoming.id}`, { method: 'DELETE' });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.error?.message ?? tCommon('error'));
+      toast.success(tRenewal('cancelled'));
+      setShowCancelRenewal(false);
+      fetchTrainee(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : tCommon('error'));
+    } finally {
+      setIsCancellingRenewal(false);
+    }
+  };
 
   // ─── Edit Handlers ──────────────────────────────────────────
 
@@ -243,7 +329,7 @@ function TraineeDetailPageContent() {
   // ── Record payment (FR-FN-07) ──────────────────────────
 
   const handleRecordPayment = async () => {
-    if (!activeSubscription) return;
+    if (!paymentTarget) return;
     setPaymentError(null);
 
     const amountNum = Number(paymentAmount);
@@ -258,7 +344,7 @@ function TraineeDetailPageContent() {
 
     setIsRecordingPayment(true);
     try {
-      const res = await authFetch(`/api/subscriptions/${activeSubscription.id}/payments`, {
+      const res = await authFetch(`/api/subscriptions/${paymentTarget.id}/payments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: amountNum, paymentMethod }),
@@ -268,10 +354,10 @@ function TraineeDetailPageContent() {
         throw new Error(data.error?.message || 'Failed to record payment');
       }
       toast.success(tCommon('success'));
-      setShowPaymentDialog(false);
+      setPaymentTarget(null);
       setPaymentAmount('');
       setPaymentMethod('');
-      fetchTrainee();
+      fetchTrainee(true);
     } catch (err: any) {
       setPaymentError(err.message);
     } finally {
@@ -349,6 +435,7 @@ function TraineeDetailPageContent() {
     }
   };
 
+  // Enrolment only: renewing has its own dialog (RenewDialog).
   const handleEnroll = async (isRenewal = false) => {
     if (!enrollForm.planId || !enrollForm.levelId || !enrollForm.groupId) {
       toast.error('Please select a plan, level, and group');
@@ -408,6 +495,25 @@ function TraineeDetailPageContent() {
   }
 
   const activeSubscription = trainee.subscriptions?.[0];
+  const lastSubscription = trainee.lastSubscription;
+  const upcoming = trainee.upcomingSubscription;
+  const formatDay = (iso: string) =>
+    new Date(iso).toLocaleDateString(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+
+  // Renewal banner: the current one is near its end, or there is none any more.
+  const daysLeft = activeSubscription ? daysUntil(activeSubscription.endDate) : null;
+  const sessionsLeft = activeSubscription
+    ? activeSubscription.totalSessions - activeSubscription.attendedSessions
+    : null;
+  const renewalBanner: 'nearEnd' | 'ended' | null = upcoming
+    ? null
+    : activeSubscription
+      ? (daysLeft !== null && daysLeft <= 7) || (sessionsLeft !== null && sessionsLeft <= 2)
+        ? 'nearEnd'
+        : null
+      : lastSubscription
+        ? 'ended'
+        : null;
 
   // ─── Render ──────────────────────────────────────────────────
 
@@ -468,8 +574,8 @@ function TraineeDetailPageContent() {
                     <Edit2 className="w-4 h-4" />{tCommon('edit')}
                   </button>
                 )}
-                {/* Enroll button — show when no active sub */}
-                {canEnroll && !activeSubscription && (
+                {/* Enroll — a trainee who has never had a subscription */}
+                {canEnroll && !lastSubscription && (
                   <button
                     onClick={openEnrollDialog}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
@@ -477,13 +583,14 @@ function TraineeDetailPageContent() {
                     <Plus className="w-4 h-4" />Enroll
                   </button>
                 )}
-                {/* Renew button — show when there is an expired sub */}
-                {canEnroll && activeSubscription && activeSubscription.status !== 'ACTIVE' && (
+                {/* Renew — any time once they have had one, unless one is queued */}
+                {canEnroll && lastSubscription && !upcoming && (
                   <button
-                    onClick={openEnrollDialog}
+                    onClick={() => setShowRenewDialog(true)}
+                    data-testid="renew-button"
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
-                    <RefreshCw className="w-4 h-4" />Renew
+                    <RefreshCw className="w-4 h-4" aria-hidden="true" />{tRenewal('renew')}
                   </button>
                 )}
                 {!canManage ? null : trainee.isActive ? (
@@ -506,6 +613,84 @@ function TraineeDetailPageContent() {
           </div>
         )}
       </div>
+
+      {/* ─── Renewal banner ─── */}
+      {renewalBanner && (
+        <div
+          role="status"
+          data-testid="renewal-banner"
+          className="flex items-center justify-between gap-3 flex-wrap rounded-2xl border border-warning/40 bg-warning-soft p-4"
+        >
+          <p className="flex items-start gap-2 text-sm text-foreground">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+            {renewalBanner === 'nearEnd' && activeSubscription
+              ? tRenewal('bannerNearEnd', {
+                  date: formatDay(activeSubscription.endDate),
+                  count: Math.max(0, sessionsLeft ?? 0),
+                })
+              : tRenewal('bannerEnded')}
+          </p>
+          {canEnroll && (
+            <button
+              onClick={() => setShowRenewDialog(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />{tRenewal('renew')}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ─── Queued renewal ─── */}
+      {upcoming && (
+        <div data-testid="upcoming-subscription" className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <CalendarClock className="w-5 h-5 text-primary" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">{tRenewal('upcomingTitle')}</p>
+                <p className="font-semibold text-foreground">
+                  {[upcoming.plan.name, upcoming.level.name, upcoming.group?.name].filter(Boolean).join(' · ')}
+                </p>
+                <p className="text-sm text-foreground/80">
+                  {tRenewal('upcomingStarts', { start: formatDay(upcoming.startDate), end: formatDay(upcoming.endDate) })}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">{tRenewal('amountDue')}</p>
+                <p
+                  dir="ltr"
+                  className={`font-semibold rtl:text-right ${Number(upcoming.amountDue) > 0 ? 'text-warning' : 'text-success'}`}
+                >
+                  {Number(upcoming.amountDue).toFixed(2)}
+                </p>
+              </div>
+              {can('recordPayments') && Number(upcoming.amountDue) > 0 && (
+                <button
+                  onClick={() => openPayment(upcoming)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold"
+                >
+                  <Wallet size={14} aria-hidden="true" />
+                  {tRenewal('recordPayment')}
+                </button>
+              )}
+              {can('cancelRenewal') && Number(upcoming.amountPaid) === 0 && (
+                <button
+                  onClick={() => setShowCancelRenewal(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-danger/40 text-danger text-xs font-semibold hover:bg-danger-soft"
+                >
+                  <X size={14} aria-hidden="true" />
+                  {tRenewal('cancelRenewal')}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── Active Subscription Card ─── */}
       {activeSubscription && (
@@ -555,12 +740,7 @@ function TraineeDetailPageContent() {
               </div>
               {can('recordPayments') && Number(activeSubscription.amountDue) > 0 && (
                 <button
-                  onClick={() => {
-                    setPaymentAmount('');
-                    setPaymentMethod('');
-                    setPaymentError(null);
-                    setShowPaymentDialog(true);
-                  }}
+                  onClick={() => openPayment(activeSubscription)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-success-soft border border-success/30 text-success hover:bg-success/15 text-xs font-bold transition-colors self-center"
                 >
                   <Wallet size={14} />
@@ -582,7 +762,7 @@ function TraineeDetailPageContent() {
       </div>
 
       {/* ─── Record Payment Dialog ─── */}
-      {showPaymentDialog && activeSubscription && (
+      {showPaymentDialog && paymentTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/70 backdrop-blur-md px-4">
           <div className="w-full max-w-sm p-1 rounded-3xl bg-gradient-to-b from-success/10 via-muted/40 to-background border border-border/80 shadow-2xl backdrop-blur-xl">
             <div className="bg-card/95 rounded-[22px] p-6">
@@ -592,7 +772,7 @@ function TraineeDetailPageContent() {
                   Record Payment
                 </h3>
                 <button
-                  onClick={() => setShowPaymentDialog(false)}
+                  onClick={() => setPaymentTarget(null)}
                   className="h-7 w-7 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 >
                   &times;
@@ -602,7 +782,7 @@ function TraineeDetailPageContent() {
               <p className="text-xs text-muted-foreground mb-4">
                 Outstanding balance:{' '}
                 <span className="text-warning font-semibold">
-                  {Number(activeSubscription.amountDue).toFixed(2)}
+                  {paymentTarget.amountDue.toFixed(2)}
                 </span>
               </p>
 
@@ -647,7 +827,7 @@ function TraineeDetailPageContent() {
 
               <div className="flex justify-end gap-3">
                 <button
-                  onClick={() => setShowPaymentDialog(false)}
+                  onClick={() => setPaymentTarget(null)}
                   className="px-4 py-2 rounded-xl text-xs font-semibold border border-border hover:bg-card text-muted-foreground hover:text-foreground transition-all duration-200"
                   disabled={isRecordingPayment}
                 >
@@ -816,7 +996,7 @@ function TraineeDetailPageContent() {
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-primary" />
-                  {activeSubscription ? 'Renew Subscription' : 'Enroll Trainee'}
+                  Enroll Trainee
                 </h2>
                 <button onClick={() => setShowEnrollDialog(false)} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
               </div>
@@ -944,12 +1124,12 @@ function TraineeDetailPageContent() {
                   )}
 
                   <button
-                    onClick={() => handleEnroll(!!activeSubscription)}
+                    onClick={() => handleEnroll(false)}
                     disabled={isEnrolling || !enrollForm.planId || !enrollForm.levelId || !enrollForm.groupId}
                     className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all"
                   >
                     {isEnrolling ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                    {activeSubscription ? 'Renew Subscription' : 'Enroll & Generate Receipt'}
+                    Enroll &amp; Generate Receipt
                   </button>
                 </div>
               )}
@@ -957,6 +1137,23 @@ function TraineeDetailPageContent() {
           </div>
         </div>
       )}
+
+      {/* ─── Renew dialog ─── */}
+      {renewOpen && (
+        <RenewDialog traineeId={trainee.id} onClose={closeRenew} onRenewed={afterRenewed} />
+      )}
+
+      <ConfirmDialog
+        isOpen={showCancelRenewal}
+        title={tRenewal('cancelConfirmTitle')}
+        message={tRenewal('cancelConfirm')}
+        confirmLabel={tRenewal('cancelRenewal')}
+        cancelLabel={tCommon('back')}
+        variant="danger"
+        isLoading={isCancellingRenewal}
+        onConfirm={cancelRenewal}
+        onCancel={() => setShowCancelRenewal(false)}
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useAccess } from '@/lib/auth/use-access';
 import { UserRole } from '@/types';
 import { useToast } from '@/components/feedback/toast-provider';
 import { SkeletonDashboard } from '@/components/feedback/skeleton-loader';
@@ -33,6 +34,7 @@ import {
   UserCheck,
   ChevronRight,
   ChevronLeft,
+  CheckCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -72,6 +74,9 @@ interface AdminDashboard {
   expiringSoon:
     | {
         id: string;
+        traineeId: string;
+        /** A renewal is already queued for this trainee. */
+        renewed: boolean;
         traineeName: string;
         phoneNumber: string;
         planName: string;
@@ -92,6 +97,7 @@ export default function DashboardPage() {
   const tCommon = useTranslations('common');
   const tSchedule = useTranslations('schedule');
   const { user, authFetch } = useAuth();
+  const can = useAccess();
   const { toast } = useToast();
   const params = useParams();
   const locale = params.locale as string;
@@ -319,13 +325,25 @@ export default function DashboardPage() {
                       </td>
                       <td className="py-3.5 text-muted-foreground font-mono">{item.phoneNumber}</td>
                       <td className="py-3.5 text-end">
-                        <Link
-                          href={`/${locale}/subscriptions`}
-                          className="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-primary hover:underline uppercase"
-                        >
-                          <span>{t('renew')}</span>
-                          <ArrowUpRight size={12} />
-                        </Link>
+                        {item.renewed ? (
+                          <span
+                            data-testid="expiring-renewed"
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-success"
+                          >
+                            <CheckCircle size={12} aria-hidden="true" />
+                            <span>{t('renewed')}</span>
+                          </span>
+                        ) : can('enroll') ? (
+                          // The trainee's page, with the renew dialog open.
+                          <Link
+                            href={`/${locale}/trainees/${item.traineeId}?renew=1`}
+                            data-testid="expiring-renew"
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-primary hover:underline"
+                          >
+                            <span>{t('renew')}</span>
+                            <ArrowUpRight size={12} className="rtl:-scale-x-100" aria-hidden="true" />
+                          </Link>
+                        ) : null}
                       </td>
                     </tr>
                   ))}

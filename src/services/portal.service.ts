@@ -117,7 +117,8 @@ async function getScheduleWindow(
 ): Promise<{ ended: boolean; endDate?: string }> {
   const sub = await withTenantContext(tenantId, (tx) =>
     tx.traineeSubscription.findFirst({
-      where: { traineeId },
+      // A queued renewal has not started; the schedule follows the current one.
+      where: { traineeId, status: { not: 'UPCOMING' } },
       orderBy: { createdAt: 'desc' },
       select: {
         status: true,

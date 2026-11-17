@@ -1,7 +1,8 @@
 /**
  * Subscription Service
  *
- * Handles subscription plan CRUD, trainee enrollment, and renewal.
+ * Handles subscription plan CRUD, trainee enrollment, and renewal (queued
+ * renewals and their activation: see the Renewal section).
  *
  * Critical invariants:
  *   1. periodDays must be non-null before addDays() when periodType = FROM_SUBSCRIPTION_DATE
@@ -42,12 +43,21 @@ import {
   NotFoundError,
 } from '@/lib/api/error-handler';
 import { AuditAction } from '@/types';
+import {
+  activationWindow,
+  addUtcDays,
+  isStillRunning,
+  paymentStatusFor,
+  renewalWindow,
+  utcDay,
+} from '@/lib/utils/renewal';
 import type {
   CreatePlanInput,
   UpdatePlanInput,
   ListPlansQuery,
   EnrollInput,
   RenewInput,
+  RenewPreviewQuery,
 } from '@/schemas/subscription.schema';
 import type { RecordPaymentInput } from '@/schemas/finance.schema';
 
@@ -456,9 +466,204 @@ export async function enrollTrainee(
 // ─── Renewal ──────────────────────────────────────────────────
 
 /**
- * Manually renew a trainee's subscription.
- * Closes the current subscription (any status) → creates a new one → generates receipt.
- * All in one atomic tx.
+ * Renewals may be bought at any time.
+ *
+ *   - While the current subscription is still running, the renewal is QUEUED:
+ *     stored at once with status UPCOMING, starting the day after the current
+ *     one's end date. Its money is recorded the day it is paid.
+ *   - Once the current one has ended (date passed or every session used), the
+ *     renewal starts today and the old one is closed.
+ *
+ * A queued renewal becomes ACTIVE when the current one ends — by the nightly
+ * expiry job, or by attendance the moment the last session is used
+ * (activateUpcomingSubscription). Its group change, if any, waits until then.
+ *
+ * Guarantees live in the database: one ACTIVE and one UPCOMING subscription per
+ * trainee (partial unique indexes). Renewal and activation also lock the
+ * trainee's row first, so the two never interleave for the same trainee; the
+ * checks below give the common case its clear message.
+ */
+
+/** Audit entries written by a background job, not by a person. */
+const SYSTEM_USER_ID = '00000000-0000-0000-0000-000000000000';
+
+const CONCURRENT_UPCOMING_SUBSCRIPTION =
+  'A renewal is already queued for this trainee — another request may have just ' +
+  'created it. Refresh to see it.';
+
+/** Serialise renewal and activation for one trainee (the row lock is held to commit). */
+async function lockTrainee(tx: TransactionClient, traineeId: string): Promise<void> {
+  await tx.$queryRaw`SELECT 1 FROM "trainee_profiles" WHERE "id" = ${traineeId}::uuid FOR UPDATE`;
+}
+
+/**
+ * Insert a queued renewal, translating the one-UPCOMING-per-trainee index into
+ * the clear 409 (the only unique rule an UPCOMING insert can hit).
+ */
+async function insertUpcomingSubscription(
+  tx: TransactionClient,
+  data: Omit<Prisma.TraineeSubscriptionUncheckedCreateInput, 'status'>
+) {
+  try {
+    return await tx.traineeSubscription.create({ data: { ...data, status: 'UPCOMING' } });
+  } catch (err) {
+    if (isDuplicateActiveSubscription(err)) {
+      throw new ConflictError(CONCURRENT_UPCOMING_SUBSCRIPTION);
+    }
+    throw err;
+  }
+}
+
+/**
+ * A queued renewal moving the trainee into another group must find a seat
+ * there: members plus renewals already queued into it, under the group's lock.
+ * The move itself happens at activation (placeTraineeInGroup checks again).
+ */
+async function assertSeatForQueuedMove(
+  tx: TransactionClient,
+  group: { id: string; maxTrainees: number },
+  traineeId: string
+): Promise<void> {
+  await tx.$queryRaw`SELECT 1 FROM "groups" WHERE "id" = ${group.id}::uuid FOR UPDATE`;
+  const alreadyMember = await tx.groupTrainee.findFirst({
+    where: { groupId: group.id, traineeId },
+    select: { id: true },
+  });
+  if (alreadyMember) return;
+
+  const [members, queuedIn] = await Promise.all([
+    tx.groupTrainee.count({ where: { groupId: group.id } }),
+    tx.traineeSubscription.count({
+      where: {
+        status: 'UPCOMING',
+        groupId: group.id,
+        traineeId: { not: traineeId },
+        trainee: { groupTrainees: { none: { groupId: group.id } } },
+      },
+    }),
+  ]);
+  if (members + queuedIn >= group.maxTrainees) {
+    throw new ConflictError(
+      `Group is at maximum capacity (${group.maxTrainees} trainees, counting renewals already queued into it)`
+    );
+  }
+}
+
+const RENEWAL_PLAN_SELECT = {
+  id: true,
+  name: true,
+  amount: true,
+  minSessions: true,
+  periodType: true,
+  periodDays: true,
+} as const;
+
+/**
+ * Everything the renewal dialog needs: the current and any queued subscription,
+ * the defaults to prefill (last plan, level and group), and — for the plan given
+ * or the default one — its price and the new subscription's dates.
+ */
+export async function getRenewalPreview(
+  tenantId: string,
+  branchId: string,
+  query: RenewPreviewQuery
+) {
+  const now = new Date();
+  return withTenantContext(tenantId, async (tx) => {
+    const trainee = await tx.traineeProfile.findFirst({
+      where: { id: query.traineeId, branchId },
+      select: {
+        id: true,
+        name: true,
+        groupTrainees: { orderBy: { joinedAt: 'desc' }, take: 1, select: { groupId: true } },
+      },
+    });
+    if (!trainee) throw new NotFoundError('Trainee not found');
+
+    const [current, upcoming, last] = await Promise.all([
+      tx.traineeSubscription.findFirst({
+        where: { traineeId: trainee.id, status: 'ACTIVE' },
+        include: { plan: { select: { name: true } }, level: { select: { name: true } } },
+      }),
+      tx.traineeSubscription.findFirst({
+        where: { traineeId: trainee.id, status: 'UPCOMING' },
+        include: {
+          plan: { select: { name: true } },
+          level: { select: { name: true } },
+          group: { select: { id: true, name: true } },
+        },
+      }),
+      tx.traineeSubscription.findFirst({
+        where: { traineeId: trainee.id, status: { not: 'UPCOMING' } },
+        orderBy: { createdAt: 'desc' },
+        select: { planId: true, levelId: true, plan: { select: { isActive: true } } },
+      }),
+    ]);
+
+    const defaultPlanId = last?.plan.isActive ? last.planId : null;
+    const planId = query.planId ?? defaultPlanId;
+    const plan = planId
+      ? await tx.subscriptionPlan.findFirst({
+          where: { id: planId, branchId, isActive: true },
+          select: RENEWAL_PLAN_SELECT,
+        })
+      : null;
+    if (query.planId && !plan) throw new NotFoundError('Subscription plan not found or inactive');
+
+    const window = plan ? renewalWindow(plan, current, now) : null;
+
+    return {
+      trainee: { id: trainee.id, name: trainee.name },
+      current: current && {
+        id: current.id,
+        planName: current.plan.name,
+        levelName: current.level.name,
+        startDate: current.startDate,
+        endDate: current.endDate,
+        attendedSessions: current.attendedSessions,
+        totalSessions: current.totalSessions,
+        running: isStillRunning(current, now),
+      },
+      upcoming: upcoming && {
+        id: upcoming.id,
+        planName: upcoming.plan.name,
+        levelName: upcoming.level.name,
+        groupName: upcoming.group?.name ?? null,
+        startDate: upcoming.startDate,
+        endDate: upcoming.endDate,
+        amountPaid: Number(upcoming.amountPaid),
+        amountDue: Number(upcoming.amountDue),
+      },
+      defaults: {
+        planId: defaultPlanId,
+        levelId: defaultPlanId ? last!.levelId : null,
+        groupId: trainee.groupTrainees[0]?.groupId ?? null,
+      },
+      plan: plan && {
+        id: plan.id,
+        name: plan.name,
+        amount: Number(plan.amount),
+        minSessions: plan.minSessions,
+      },
+      startDate: window?.startDate ?? null,
+      endDate: window?.endDate ?? null,
+      queued: window?.queued ?? null,
+    };
+  });
+}
+
+/**
+ * Renew a trainee's subscription. In one transaction:
+ *   1. lock the trainee; refuse if a renewal is already queued;
+ *   2. validate plan, level (of the plan), group (of the plan), amount ≤ price;
+ *   3. work out the dates: queued after the running subscription, or from today
+ *      (closing a current one that has already ended);
+ *   4. seat: a queued move is checked now and made at activation; an immediate
+ *      renewal is placed in its group now;
+ *   5. the subscription (UPCOMING or ACTIVE), with amounts and payment status
+ *      computed here, never taken from the client;
+ *   6. receipt + ledger INCOME — only when money was paid;
+ *   7. audit.
  */
 export async function renewSubscription(
   tenantId: string,
@@ -466,36 +671,29 @@ export async function renewSubscription(
   executorId: string,
   input: RenewInput
 ) {
+  const now = new Date();
   return withTenantContext(tenantId, async (tx) => {
     await assertTraineeInBranch(tx, input.traineeId, branchId);
+    await lockTrainee(tx, input.traineeId);
 
-    // Close any existing subscription for this trainee
-    await tx.traineeSubscription.updateMany({
-      where: { traineeId: input.traineeId, status: 'ACTIVE' },
-      data: { status: 'EXPIRED' },
+    const queuedAlready = await tx.traineeSubscription.findFirst({
+      where: { traineeId: input.traineeId, status: 'UPCOMING' },
+      select: { id: true },
     });
+    if (queuedAlready) {
+      throw new ConflictError(
+        'A renewal is already queued for this trainee. Cancel it or wait until it starts before renewing again.'
+      );
+    }
 
-    // Reuse enrollTrainee logic via direct tx operations
     const plan = await tx.subscriptionPlan.findFirst({
       where: { id: input.planId, branchId, isActive: true },
-      include: { levels: true },
+      select: { ...RENEWAL_PLAN_SELECT, levels: { select: { id: true, name: true } } },
     });
     if (!plan) throw new NotFoundError('Subscription plan not found or inactive');
 
     const level = plan.levels.find((l) => l.id === input.levelId);
     if (!level) throw new BadRequestError('Selected level does not belong to this plan');
-
-    const startDate = new Date();
-    let endDate: Date;
-
-    if (plan.periodType === 'FROM_SUBSCRIPTION_DATE') {
-      if (plan.periodDays == null) {
-        throw new Error(`Plan ${plan.id} missing periodDays`);
-      }
-      endDate = addDays(startDate, plan.periodDays);
-    } else {
-      endDate = endOfMonth(startOfMonth(startDate));
-    }
 
     const group = await tx.group.findFirst({
       where: { id: input.groupId, branchId, isActive: true },
@@ -503,69 +701,252 @@ export async function renewSubscription(
     });
     if (!group) throw new NotFoundError('Group not found or inactive');
     if (group.planId !== plan.id) {
-      throw new BadRequestError('Group belongs to a different plan');
+      throw new BadRequestError('This group belongs to a different subscription plan');
     }
 
-    // Concurrent renewals both expire the old subscription and both reach this
-    // insert; the partial unique index lets exactly one through, and the other
-    // gets a clear 409 rather than creating a second ACTIVE subscription.
-    const subscription = await insertActiveSubscription(tx, {
+    const price = Number(plan.amount);
+    if (input.amountPaid > price) {
+      throw new BadRequestError(`Amount paid (${input.amountPaid}) is more than the plan price (${price})`);
+    }
+
+    const current = await tx.traineeSubscription.findFirst({
+      where: { traineeId: input.traineeId, status: 'ACTIVE' },
+      select: { id: true, status: true, endDate: true, attendedSessions: true, totalSessions: true },
+    });
+    const window = renewalWindow(plan, current, now);
+
+    if (window.queued) {
+      await assertSeatForQueuedMove(tx, group, input.traineeId);
+    } else if (current) {
+      // Ended but not yet closed (the nightly job has not run, or sessions ran
+      // out): close it the way the expiry job would, so the new one can be ACTIVE.
+      const endedByDate = now.getTime() >= addUtcDays(current.endDate, 1).getTime();
+      await tx.traineeSubscription.update({
+        where: { id: current.id },
+        data: { status: 'EXPIRED', expiredAt: endedByDate ? utcDay(current.endDate) : now },
+      });
+    }
+
+    const data = {
       traineeId: input.traineeId,
       planId: plan.id,
       levelId: level.id,
-      startDate,
-      endDate,
+      groupId: group.id,
+      startDate: window.startDate,
+      endDate: window.endDate,
       totalSessions: plan.minSessions,
       amountPaid: input.amountPaid,
-      amountDue: Number(plan.amount) - input.amountPaid,
-      paymentStatus: input.paymentStatus,
-    });
+      amountDue: price - input.amountPaid,
+      paymentStatus: paymentStatusFor(input.amountPaid, price),
+    };
+    const subscription = window.queued
+      ? await insertUpcomingSubscription(tx, data)
+      : await insertActiveSubscription(tx, data);
 
-    // Usually their own group: their seat is not a new one, so a member of a
-    // full group can still renew into it (§27).
-    await placeTraineeInGroup(tx, group, input.traineeId);
+    if (!window.queued) {
+      // Usually their own group: their seat is not a new one, so a member of a
+      // full group can still renew into it (§27).
+      await placeTraineeInGroup(tx, group, input.traineeId);
+      await tx.traineeProfile.update({ where: { id: input.traineeId }, data: { levelId: level.id } });
+    }
 
-    const branch = await tx.branch.findUnique({
-      where: { id: branchId },
-      select: { code: true },
-    });
-    if (!branch) throw new NotFoundError('Branch not found');
-
-    const { receiptNumber, seq } = await generateReceiptNumber(branchId, branch.code, tx);
-
-    const receipt = await tx.receipt.create({
-      data: {
+    let receipt = null;
+    if (input.amountPaid > 0) {
+      const branch = await tx.branch.findUnique({ where: { id: branchId }, select: { code: true } });
+      if (!branch) throw new NotFoundError('Branch not found');
+      const { receiptNumber, seq } = await generateReceiptNumber(branchId, branch.code, tx);
+      receipt = await tx.receipt.create({
+        data: {
+          branchId,
+          traineeId: input.traineeId,
+          subscriptionId: subscription.id,
+          receiptNumber,
+          seq,
+          amount: input.amountPaid,
+          paymentMethod: input.paymentMethod ?? null,
+          description: `Renewal — ${plan.name} / ${level.name}`,
+        },
+      });
+      await recordLedgerEntry(tx, {
         branchId,
-        traineeId: input.traineeId,
-        subscriptionId: subscription.id,
-        receiptNumber,
-        seq,
+        type: 'INCOME',
+        referenceId: receipt.id,
         amount: input.amountPaid,
-        paymentMethod: input.paymentMethod ?? null,
-        description: `Renewal — ${plan.name} / ${level.name}`,
-      },
-    });
-
-    await recordLedgerEntry(tx, {
-      branchId,
-      type: 'INCOME',
-      referenceId: receipt.id,
-      amount: input.amountPaid,
-      date: startDate,
-      description: `Renewal: ${plan.name}`,
-      createdBy: executorId,
-    });
+        date: now,
+        description: `Renewal: ${plan.name}`,
+        createdBy: executorId,
+      });
+    }
 
     await writeAuditLog(tx, {
       userId: executorId,
       branchId,
-      action: AuditAction.UPDATE,
+      action: AuditAction.CREATE,
       entityType: 'TraineeSubscription',
       entityId: subscription.id,
-      newValues: { renewal: true, planId: plan.id, receiptNumber },
+      newValues: {
+        renewal: true,
+        queued: window.queued,
+        planId: plan.id,
+        levelId: level.id,
+        groupId: group.id,
+        startDate: window.startDate,
+        endDate: window.endDate,
+        amountPaid: input.amountPaid,
+        receiptNumber: receipt?.receiptNumber ?? null,
+      },
     });
 
-    return { subscription, receipt };
+    return { subscription, receipt, queued: window.queued };
+  });
+}
+
+/**
+ * Start a trainee's queued renewal, inside the caller's transaction, once the
+ * current subscription has ended. Returns the activated subscription, or null
+ * when there is nothing to start (no renewal queued, or one is ACTIVE already).
+ *
+ * The caller must already have closed the old subscription. Called by:
+ *   - submitAttendance, when a mark uses the last session (early start);
+ *   - the nightly expiry job, for every trainee with a renewal queued and no
+ *     ACTIVE subscription (activateDueRenewals).
+ *
+ * The renewal's level becomes the trainee's level; its group, if different, is
+ * where the trainee moves. A group that filled up or was deactivated meanwhile
+ * keeps the trainee where they are, and the audit entry says so.
+ */
+export async function activateUpcomingSubscription(
+  tx: TransactionClient,
+  traineeId: string,
+  now: Date = new Date(),
+  executorId: string = SYSTEM_USER_ID
+) {
+  await lockTrainee(tx, traineeId);
+
+  const [active, upcoming] = await Promise.all([
+    tx.traineeSubscription.findFirst({ where: { traineeId, status: 'ACTIVE' }, select: { id: true } }),
+    tx.traineeSubscription.findFirst({
+      where: { traineeId, status: 'UPCOMING' },
+      include: {
+        plan: { select: { periodType: true, periodDays: true } },
+        trainee: { select: { branchId: true } },
+      },
+    }),
+  ]);
+  if (active || !upcoming) return null;
+
+  const window = activationWindow(upcoming.plan, upcoming, now);
+  const { count } = await tx.traineeSubscription.updateMany({
+    where: { id: upcoming.id, status: 'UPCOMING' },
+    data: { status: 'ACTIVE', startDate: window.startDate, endDate: window.endDate },
+  });
+  if (count !== 1) return null;
+
+  await tx.traineeProfile.update({ where: { id: traineeId }, data: { levelId: upcoming.levelId } });
+
+  let groupNote: string | null = null;
+  if (upcoming.groupId) {
+    const group = await tx.group.findFirst({
+      where: { id: upcoming.groupId, isActive: true },
+      select: { id: true, maxTrainees: true },
+    });
+    if (!group) {
+      groupNote = 'renewal group is no longer active; trainee kept in their current group';
+    } else {
+      try {
+        await placeTraineeInGroup(tx, group, traineeId);
+      } catch (err) {
+        // A ConflictError is thrown before any SQL fails, so the transaction is intact.
+        if (!(err instanceof ConflictError)) throw err;
+        groupNote = 'renewal group is full; trainee kept in their current group';
+      }
+    }
+  }
+
+  await writeAuditLog(tx, {
+    userId: executorId,
+    branchId: upcoming.trainee.branchId,
+    action: AuditAction.STATUS_CHANGE,
+    entityType: 'TraineeSubscription',
+    entityId: upcoming.id,
+    oldValues: { status: 'UPCOMING', startDate: upcoming.startDate, endDate: upcoming.endDate },
+    newValues: {
+      status: 'ACTIVE',
+      startDate: window.startDate,
+      endDate: window.endDate,
+      ...(groupNote ? { note: groupNote } : {}),
+    },
+  });
+
+  return tx.traineeSubscription.findUnique({ where: { id: upcoming.id } });
+}
+
+/**
+ * Nightly: start every queued renewal whose trainee has no ACTIVE subscription
+ * (the expiry job has just closed the ones that ended). Also heals a renewal
+ * left queued by a race with attendance. Returns how many were started.
+ */
+export async function activateDueRenewals(tx: TransactionClient, now: Date = new Date()): Promise<number> {
+  const due = await tx.traineeSubscription.findMany({
+    where: {
+      status: 'UPCOMING',
+      trainee: { subscriptions: { none: { status: 'ACTIVE' } } },
+    },
+    select: { traineeId: true },
+  });
+  let started = 0;
+  for (const { traineeId } of due) {
+    if (await activateUpcomingSubscription(tx, traineeId, now)) started++;
+  }
+  return started;
+}
+
+/**
+ * Cancel a queued renewal that nothing has been paid on. Admin only (route).
+ * Money already paid stays recorded: a renewal with receipts cannot be
+ * cancelled here — refunding it is a separate, deliberate step.
+ */
+export async function cancelUpcomingRenewal(
+  tenantId: string,
+  branchId: string,
+  executorId: string,
+  subscriptionId: string
+) {
+  return withTenantContext(tenantId, async (tx) => {
+    const sub = await tx.traineeSubscription.findFirst({
+      where: { id: subscriptionId, trainee: { branchId } },
+      select: {
+        id: true,
+        traineeId: true,
+        status: true,
+        planId: true,
+        startDate: true,
+        amountPaid: true,
+        _count: { select: { receipts: true } },
+      },
+    });
+    if (!sub) throw new NotFoundError('Subscription not found');
+    await lockTrainee(tx, sub.traineeId);
+
+    if (sub.status !== 'UPCOMING') {
+      throw new ConflictError('Only a queued renewal that has not started yet can be cancelled');
+    }
+    if (Number(sub.amountPaid) > 0 || sub._count.receipts > 0) {
+      throw new ConflictError(
+        'Money has already been paid on this renewal, so it cannot be cancelled here'
+      );
+    }
+
+    await tx.traineeSubscription.delete({ where: { id: sub.id } });
+    await writeAuditLog(tx, {
+      userId: executorId,
+      branchId,
+      action: AuditAction.DELETE,
+      entityType: 'TraineeSubscription',
+      entityId: sub.id,
+      oldValues: { status: 'UPCOMING', planId: sub.planId, startDate: sub.startDate },
+    });
+    return { cancelled: true };
   });
 }
 
