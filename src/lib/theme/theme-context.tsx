@@ -24,6 +24,7 @@ import {
 // Defined in a plain shared module because the inline theme-init script in
 // [locale]/layout.tsx must read the SAME key before React hydrates.
 import { THEME_STORAGE_KEY } from '@/lib/config/storage-keys';
+import { BRAND_COLORS } from '@/lib/config/brand-colors';
 
 type Theme = 'light' | 'dark' | 'system';
 type Resolved = 'light' | 'dark';
@@ -51,6 +52,11 @@ function resolve(theme: Theme): Resolved {
 function applyClass(resolved: Resolved): void {
   if (typeof document === 'undefined') return;
   document.documentElement.classList.toggle('dark', resolved === 'dark');
+  // The browser bar (and the installed app's status bar) follow the header
+  // colour of the theme chosen here, not only the phone's setting: the layout's
+  // theme-color tags are one per system scheme, so set them all.
+  const bar = resolved === 'dark' ? BRAND_COLORS['midnight-2'] : BRAND_COLORS.white;
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', bar));
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

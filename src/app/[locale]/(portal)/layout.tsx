@@ -231,7 +231,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       </header>
 
       {/* ─── Page Content ─── (room at the bottom for the phone tab bar) */}
-      <main className="max-w-5xl mx-auto p-4 pb-28 md:p-6 relative z-10">{children}</main>
+      <main className="max-w-5xl mx-auto p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] md:p-6 relative z-10">{children}</main>
 
       {/* ─── Phone tab bar ─── */}
       <nav

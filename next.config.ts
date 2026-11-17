@@ -54,6 +54,8 @@ const nextConfig: NextConfig = {
       // ingest.sentry.io directly — which also stops ad blockers swallowing
       // client-side error reports. Keep it that way when this CSP is enforced.
       "connect-src 'self'",
+      "worker-src 'self'",
+      "manifest-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
       "frame-ancestors 'self'",
@@ -80,7 +82,12 @@ const nextConfig: NextConfig = {
       });
     }
 
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The service worker must be re-checked on every visit, or a fixed
+      // worker could take a day to reach phones (public/sw.js).
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
+    ];
   },
 };
 

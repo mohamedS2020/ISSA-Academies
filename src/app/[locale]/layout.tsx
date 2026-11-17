@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { Geist_Mono, Readex_Pro } from "next/font/google";
@@ -11,6 +11,8 @@ import { QueryProvider } from "@/lib/query/query-provider";
 import { getAcademyHostContext } from "@/lib/tenant/host-context";
 import { SPORTS } from "@/lib/theme/sports";
 import { appName } from "@/lib/config/brand";
+import { BRAND_COLORS } from "@/lib/config/brand-colors";
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
 import { THEME_STORAGE_KEY, USER_STORAGE_KEY } from "@/lib/config/storage-keys";
 import "../globals.css";
 
@@ -46,15 +48,41 @@ export async function generateMetadata({
   // marketing site is meant to be found.
   const robots = { index: false, follow: false };
   const academy = await getAcademyHostContext();
-  if (!academy) return { robots, title: name };
+  // Installable: the manifest is per host and language (src/lib/pwa/manifest.ts).
+  // iOS ignores the manifest's icons and name, so it gets its own.
+  const installable = {
+    manifest: `/app.webmanifest?locale=${locale}`,
+    appleWebApp: { capable: true, title: academy?.name ?? name, statusBarStyle: "default" as const },
+  };
+  if (!academy) {
+    return { robots, title: name, ...installable, icons: { apple: "/apple-touch-icon.png" } };
+  }
   return {
     robots,
     // Academy first: browser tabs truncate from the right, so the specific part
     // should survive a narrow tab and the platform name can be the one cut off.
     title: `${academy.name} · ${name}`,
-    icons: { icon: SPORTS[academy.sport].favicon },
+    ...installable,
+    icons: {
+      icon: SPORTS[academy.sport].favicon,
+      apple: `/sports/${academy.sport}/apple-touch-icon.png`,
+    },
   };
 }
+
+// The browser bar and, once installed, the status bar take the header's
+// colour (bg-card) in each theme. viewport-fit=cover lets the app draw under
+// a phone's notch and home bar; the fixed bars pad themselves with
+// env(safe-area-inset-*).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BRAND_COLORS.white },
+    { media: "(prefers-color-scheme: dark)", color: BRAND_COLORS["midnight-2"] },
+  ],
+};
 
 // The brand typeface: one variable font for Arabic and Latin, as on the
 // marketing site, self-hosted by next/font.
@@ -124,6 +152,7 @@ export default async function LocaleLayout({
               <QueryProvider>
                 <ToastProvider>
                   <ErrorBoundary>{children}</ErrorBoundary>
+                  <ServiceWorkerRegistration />
                 </ToastProvider>
               </QueryProvider>
             </AuthProvider>

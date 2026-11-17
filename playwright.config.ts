@@ -17,6 +17,11 @@ import { loadEnvConfig } from '@next/env';
 loadEnvConfig(process.cwd());
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
+
+// Lets a test route the service worker's own requests (Chromium), which
+// e2e/pwa.spec.ts needs to take the app offline. Set here so every worker
+// process inherits it before its browser starts.
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({

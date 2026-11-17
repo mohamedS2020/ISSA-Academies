@@ -15,7 +15,7 @@
  * spare (hardening plan §36).
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -33,6 +33,13 @@ interface LoginScreenProps {
   academyName: string | null;
 }
 
+/** Where each role lands after signing in. */
+function homeFor(role: string, locale: string): string {
+  if (role === 'SUPER_ADMIN') return `/${locale}/admin`;
+  if (role === 'TRAINEE') return `/${locale}/portal`;
+  return `/${locale}/dashboard`;
+}
+
 const FOCUS_RING =
   'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring';
 
@@ -44,7 +51,14 @@ export function LoginScreen({ locale, academyName }: LoginScreenProps) {
   const tCommon = useTranslations('common');
   const router = useRouter();
   const currentLocale = locale;
-  const { login } = useAuth();
+  const { login, user: signedIn, isAuthenticated } = useAuth();
+
+  // Already signed in (the installed app opens here on every launch): go
+  // straight to the right home instead of showing the form again. The auth
+  // context sets isAuthenticated only once the session has been confirmed.
+  useEffect(() => {
+    if (isAuthenticated && signedIn) router.replace(homeFor(signedIn.role, currentLocale));
+  }, [isAuthenticated, signedIn, router, currentLocale]);
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -67,12 +81,7 @@ export function LoginScreen({ locale, academyName }: LoginScreenProps) {
       // Determine redirection based on the role returned by login()
       // (super admins go to the admin panel, trainees go to their portal,
       // everyone else to the staff dashboard).
-      const destination =
-        user.role === 'SUPER_ADMIN'
-          ? `/${currentLocale}/admin`
-          : user.role === 'TRAINEE'
-            ? `/${currentLocale}/portal`
-            : `/${currentLocale}/dashboard`;
+      const destination = homeFor(user.role, currentLocale);
 
       router.replace(destination);
       // Ensure server components on the destination re-render with the new

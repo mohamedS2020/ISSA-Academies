@@ -144,7 +144,7 @@ function ToastContainer({
 
   return (
     <div
-      className="fixed bottom-4 end-4 z-50 flex flex-col gap-2"
+      className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] end-4 z-50 flex flex-col gap-2"
       role="region"
       aria-label={tCommon('notifications')}
     >
