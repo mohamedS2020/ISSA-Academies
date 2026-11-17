@@ -129,7 +129,8 @@ function TraineesPageContent() {
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
-          <p className="text-xs text-muted-foreground">{row.user.phoneNumber}</p>
+          {/* Phone numbers read left to right, also in Arabic (it showed "…109+"). */}
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.user.phoneNumber}</p>
         </div>
       ),
     },

@@ -125,8 +125,19 @@ for (const [phone, device] of Object.entries(PHONES)) {
       expect(await search.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
 
       // The document scrolls, so the browser bar can hide and a tap on the
-      // status bar returns to the top.
-      await page.goto('/en/finance/receipts');
+      // status bar returns to the top: no box around the page content scrolls
+      // on its own, and a long page (a trainee's) scrolls the window.
+      await page.goto(`/en/trainees/${state.expiring.traineeId}`);
+      await expect(page.getByTestId('record-payment')).toBeVisible();
+      const scrollBoxes = await page.locator('main').evaluate((main) => {
+        const boxes: string[] = [];
+        for (let el: Element | null = main; el && el !== document.body; el = el.parentElement) {
+          const oy = getComputedStyle(el).overflowY;
+          if (oy === 'auto' || oy === 'scroll') boxes.push(el.tagName);
+        }
+        return boxes;
+      });
+      expect(scrollBoxes).toEqual([]);
       await page.evaluate(() => window.scrollTo(0, 400));
       expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
     });

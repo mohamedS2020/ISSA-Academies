@@ -28,6 +28,15 @@ interface CaptainOption {
   user: { name: string };
 }
 
+
+/** One plan's line in the financial report's income by plan. */
+interface PlanIncome {
+  planName: string;
+  traineeCount: number;
+  income: number | string;
+  referrals?: { new?: number; network?: number; continuous?: number; old?: number };
+}
+
 function todayIso(offsetDays = 0): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
@@ -307,7 +316,7 @@ function ReportsCenterPageContent() {
               {/* Phones: one row per plan, income first. The seven-column
                   table cut off the income behind a sideways scroll. */}
               <ul className="md:hidden divide-y divide-border/60">
-                {result.byPlan.map((p: any, i: number) => (
+                {(result.byPlan as PlanIncome[]).map((p, i) => (
                   <li key={i} className="py-3">
                     <div className="flex items-baseline justify-between gap-3">
                       <span className="min-w-0 break-words text-sm font-medium text-foreground">{p.planName}</span>
@@ -320,7 +329,7 @@ function ReportsCenterPageContent() {
                 ))}
                 <li className="py-3 flex items-baseline justify-between gap-3 font-bold text-foreground">
                   <span>{tCommon('total')}</span>
-                  <span className="text-success" dir="ltr">{result.byPlan.reduce((sum: number, p: any) => sum + Number(p.income), 0).toFixed(2)}</span>
+                  <span className="text-success" dir="ltr">{(result.byPlan as PlanIncome[]).reduce((sum, p) => sum + Number(p.income), 0).toFixed(2)}</span>
                 </li>
               </ul>
               <div className="hidden md:block overflow-x-auto">

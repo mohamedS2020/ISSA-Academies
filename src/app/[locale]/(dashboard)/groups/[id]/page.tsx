@@ -330,7 +330,6 @@ function GroupDetailPageContent() {
               </thead>
               <tbody>
                 {group.trainees.map(({ id: gtId, trainee }) => {
-                  const sub = trainee.subscriptions[0];
                   return (
                     <tr key={gtId} className="border-b border-input/30 hover:bg-muted transition-colors">
                       {!isCaptain && (
