@@ -19,6 +19,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { generateSlug } from '@/schemas/tenant.schema';
 import { isValidPhone } from '@/lib/phone';
 import {
+  SPORTS,
   SPORT_KEYS,
   DEFAULT_SPORT,
   sportLabel,
@@ -87,13 +88,6 @@ const COMMON_TIMEZONES = [
   'Pacific/Auckland',
 ];
 
-// Representative gradient swatch per sport for the picker preview only — the
-// live theme is driven by the data-sport blocks in globals.css.
-const SPORT_SWATCH: Record<SportKey, string> = {
-  swimming: 'from-primary to-accent',
-  football: 'from-success to-success',
-  padel: 'from-primary to-accent',
-};
 
 // ─── API Helper ─────────────────────────────────────────────
 
@@ -323,7 +317,7 @@ export default function CreateTenantPage() {
               <label className="block text-sm font-medium text-foreground/80">
                 {t('sportTheme')}
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {SPORT_KEYS.map((key) => (
                   <button
                     type="button"
@@ -336,9 +330,10 @@ export default function CreateTenantPage() {
                         : 'border-input hover:border-primary/50'
                     }`}
                   >
-                    <span
-                      className={`h-8 w-8 rounded-full bg-gradient-to-tr shadow-inner ${SPORT_SWATCH[key]}`}
-                    />
+                    {/* The sport's own mark: the swatch used to be drawn in this
+                        page's colours, so it never showed the sport's. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- a small static SVG */}
+                    <img src={SPORTS[key].favicon} alt="" width={32} height={32} className="h-8 w-8 rounded-lg" />
                     <span className="text-foreground">
                       {sportLabel(key, locale)}
                     </span>

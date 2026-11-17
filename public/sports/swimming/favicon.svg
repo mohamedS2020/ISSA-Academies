@@ -1,14 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#06b6d4"/>
-      <stop offset="1" stop-color="#2563eb"/>
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="url(#g)"/>
-  <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
-    <path d="M4 12 q3 -3 6 0 t6 0 t6 0 t6 0"/>
-    <path d="M4 18 q3 -3 6 0 t6 0 t6 0 t6 0"/>
-    <path d="M4 24 q3 -3 6 0 t6 0 t6 0 t6 0"/>
+  <title>Swimming</title>
+  <!-- The swimming mark at half scale, for 16 to 32 px. Generated: flat colours, tapered limbs, no gradients. -->
+  <defs><clipPath id="tile"><rect width="32" height="32" rx="7"/></clipPath></defs>
+  <g clip-path="url(#tile)">
+    <rect width="32" height="32" fill="#005F73"/>
+    
+    <g fill="#FFFFFF"><polygon points="11.28,19.34 19.81,20.14 20.19,16.86 11.72,15.66"/><circle cx="11.50" cy="17.50" r="1.85"/><circle cx="20.00" cy="18.50" r="1.65"/><polygon points="20.16,19.89 28.57,18.10 28.43,16.90 19.84,17.11"/><circle cx="20.00" cy="18.50" r="1.40"/><circle cx="28.50" cy="17.50" r="0.60"/><polygon points="12.71,17.55 17.55,10.93 16.45,10.07 11.29,16.45"/><circle cx="12.00" cy="17.00" r="0.90"/><circle cx="17.00" cy="10.50" r="0.70"/><polygon points="16.79,11.17 23.35,12.98 23.65,12.02 17.21,9.83"/><circle cx="17.00" cy="10.50" r="0.70"/><circle cx="23.50" cy="12.50" r="0.50"/><polygon points="10.88,17.16 3.93,18.51 4.07,19.49 11.12,18.84"/><circle cx="11.00" cy="18.00" r="0.85"/><circle cx="4.00" cy="19.00" r="0.50"/><circle cx="8.50" cy="15.00" r="2.20"/></g>
+    <path d="M0 20.0 q4.0 -2.5 8.0 0 t8.0 0 t8.0 0 t8.0 0 V32.0 H0 Z" fill="#84C9CA"/>
   </g>
 </svg>

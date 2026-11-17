@@ -14,7 +14,8 @@
  * as before.
  *
  * Adding a new sport = one entry here + one pair of CSS blocks in globals.css
- * + assets under `public/sports/<key>/`.
+ * + its mark under `public/sports/<key>/`, drawn by scripts/sport-marks.py so
+ * it matches the others (sports.test.ts checks the blocks and the files).
  */
 
 export interface SportTheme {
@@ -43,6 +44,13 @@ export const SPORTS = {
     labelAr: 'كرة القدم',
     logo: '/sports/football/logo.svg',
     favicon: '/sports/football/favicon.svg',
+  },
+  gymnastics: {
+    key: 'gymnastics',
+    label: 'Gymnastics',
+    labelAr: 'جمباز',
+    logo: '/sports/gymnastics/logo.svg',
+    favicon: '/sports/gymnastics/favicon.svg',
   },
   padel: {
     key: 'padel',

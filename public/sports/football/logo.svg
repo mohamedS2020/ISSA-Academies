@@ -1,18 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22c55e"/>
-      <stop offset="1" stop-color="#15803d"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#g)"/>
-  <circle cx="32" cy="32" r="17" fill="#fff"/>
-  <path d="M32 23 L40 28.8 L37 38 L27 38 L24 28.8 Z" fill="#15803d"/>
-  <g stroke="#15803d" stroke-width="2" stroke-linecap="round">
-    <path d="M32 23 L32 17"/>
-    <path d="M40 28.8 L45 26"/>
-    <path d="M37 38 L40 43"/>
-    <path d="M27 38 L24 43"/>
-    <path d="M24 28.8 L19 26"/>
+  <title>Football</title>
+  <!-- Football mark: a kick through the ball on the pitch line. The football theme's green and gold (globals.css). Generated: flat colours, tapered limbs, no gradients. -->
+  <defs><clipPath id="tile"><rect width="64" height="64" rx="14"/></clipPath></defs>
+  <g clip-path="url(#tile)">
+    <rect width="64" height="64" fill="#157F3C"/>
+    <rect x="6.0" y="53.0" width="52.0" height="3.0" rx="1.5" fill="#E7B008"/>
+    <g fill="#FFFFFF"><polygon points="26.93,33.08 24.80,43.34 29.20,44.66 33.07,34.92"/><circle cx="30.00" cy="34.00" r="3.20"/><circle cx="27.00" cy="44.00" r="2.30"/><polygon points="24.99,42.88 20.78,52.32 23.22,53.68 29.01,45.12"/><circle cx="27.00" cy="44.00" r="2.30"/><circle cx="22.00" cy="53.00" r="1.40"/><polygon points="28.41,36.66 38.92,41.80 41.08,38.20 31.59,31.34"/><circle cx="30.00" cy="34.00" r="3.10"/><circle cx="40.00" cy="40.00" r="2.10"/><polygon points="38.32,41.26 44.96,48.78 47.04,47.22 41.68,38.74"/><circle cx="40.00" cy="40.00" r="2.10"/><circle cx="46.00" cy="48.00" r="1.30"/><polygon points="33.35,32.97 29.63,19.88 22.37,22.12 26.65,35.03"/><circle cx="30.00" cy="34.00" r="3.50"/><circle cx="26.00" cy="21.00" r="3.80"/><polygon points="27.38,23.66 40.22,19.97 39.78,18.03 26.62,20.34"/><circle cx="27.00" cy="22.00" r="1.70"/><circle cx="40.00" cy="19.00" r="1.00"/><polygon points="24.35,21.43 12.62,27.08 13.38,28.92 25.65,24.57"/><circle cx="25.00" cy="23.00" r="1.70"/><circle cx="13.00" cy="28.00" r="1.00"/><circle cx="24.50" cy="13.00" r="4.40"/></g>
+    <circle cx="52.50" cy="48.50" r="5.20" fill="#FFFFFF"/><circle cx="52.50" cy="48.50" r="1.90" fill="#157F3C"/>
   </g>
 </svg>
