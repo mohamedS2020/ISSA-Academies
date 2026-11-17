@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { formatDate } from '@/lib/i18n/format';
 import dynamic from 'next/dynamic';
 
 // recharts is heavy — load it only when the chart renders (keeps it out of the
@@ -115,7 +116,7 @@ export default function DashboardPage() {
     enabled: !!user && user.role !== UserRole.TRAINEE,
     queryFn: async () => {
       const res = await authFetch('/api/dashboard');
-      if (!res.ok) throw new Error('Failed to load dashboard');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       return json.data;
     },
@@ -338,7 +339,7 @@ export default function DashboardPage() {
                     <p className="text-sm font-semibold text-foreground break-words">{item.traineeName}</p>
                     <p className="text-xs text-muted-foreground break-words">{item.planName}</p>
                     <p className="mt-1 text-xs">
-                      <span className="text-warning font-medium font-mono">{new Date(item.endDate).toLocaleDateString()}</span>
+                      <span className="text-warning font-medium font-mono">{formatDate(item.endDate, locale)}</span>
                       <span className="text-muted-foreground"> · </span>
                       <span className="text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</span>
                     </p>
@@ -366,7 +367,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="py-3.5 text-muted-foreground">{item.planName}</td>
                       <td className="py-3.5 text-warning font-medium font-mono">
-                        {new Date(item.endDate).toLocaleDateString()}
+                        {formatDate(item.endDate, locale)}
                       </td>
                       <td className="py-3.5 text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</td>
                       <td className="py-3.5 text-end">

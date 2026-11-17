@@ -96,7 +96,7 @@ export default function UsersPage() {
       if (searchQuery) qs.set('search', searchQuery);
       if (roleQuery) qs.set('role', roleQuery);
       const res = await authFetch(`/api/users?${qs}`);
-      if (!res.ok) throw new Error('Failed to load users');
+      if (!res.ok) throw new Error(t('loadFailed'));
       const data = await res.json();
       setUsers(data.data || []);
       if (data.pagination) setPagination(data.pagination);
@@ -105,7 +105,7 @@ export default function UsersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [authFetch, toast, tCommon]); // search/roleFilter passed as args — not in deps
+  }, [authFetch, toast, tCommon, t]); // search/roleFilter passed as args — not in deps
 
   useEffect(() => {
     fetchUsers(1, '', '');
@@ -121,7 +121,7 @@ export default function UsersPage() {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
         <Shield className="w-8 h-8 me-3 text-danger" />
-        <span>Access denied. Admin only.</span>
+        <span>{t('adminOnly')}</span>
       </div>
     );
   }
@@ -155,7 +155,7 @@ export default function UsersPage() {
 
   const handleCreate = async () => {
     if (!name.trim() || !phoneNumber.trim() || !password.trim()) {
-      setFormError('Name, phone, and password are required');
+      setFormError(t('fieldsRequired'));
       return;
     }
     setIsSubmitting(true); setFormError(null);
@@ -166,8 +166,8 @@ export default function UsersPage() {
         body: JSON.stringify({ name, phoneNumber, password, role, privileges }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Failed to create user');
-      toast.success(`User "${name}" created successfully`);
+      if (!res.ok) throw new Error(data.error?.message || t('createFailed'));
+      toast.success(t('created', { name }));
       closeDialogs();
       fetchUsers(1, search, roleFilter);
     } catch (err: any) {
@@ -195,7 +195,7 @@ export default function UsersPage() {
           body: JSON.stringify({ privileges }),
         });
       }
-      toast.success(`User "${name}" updated`);
+      toast.success(t('updated', { name }));
       closeDialogs();
       fetchUsers(pagination.page, search, roleFilter);
     } catch (err: any) {
@@ -206,15 +206,15 @@ export default function UsersPage() {
   };
 
   const handleDeactivate = async (u: UserRow) => {
-    if (!confirm(`Deactivate user "${u.name}"? They will lose access.`)) return;
+    if (!confirm(t('deactivateConfirm', { name: u.name }))) return;
     try {
       const res = await authFetch(`/api/users/${u.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'deactivate' }),
       });
-      if (!res.ok) throw new Error('Failed to deactivate user');
-      toast.success(`User "${u.name}" deactivated`);
+      if (!res.ok) throw new Error(t('deactivateFailed'));
+      toast.success(t('deactivated', { name: u.name }));
       fetchUsers(pagination.page, search, roleFilter);
     } catch (err: any) {
       toast.error(err.message);
@@ -222,7 +222,7 @@ export default function UsersPage() {
   };
 
   const handlePasswordReset = async (u: UserRow) => {
-    if (!confirm(`Reset password for "${u.name}"? A new password will be generated.`)) return;
+    if (!confirm(t('resetConfirm', { name: u.name }))) return;
     try {
       const res = await authFetch(`/api/users/${u.id}`, {
         method: 'PATCH',
@@ -230,7 +230,7 @@ export default function UsersPage() {
         body: JSON.stringify({ action: 'reset_password' }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Failed to reset password');
+      if (!res.ok) throw new Error(data.error?.message || t('resetFailed'));
       setCreatedPassword(data.data.newPassword);
     } catch (err: any) {
       toast.error(err.message);
@@ -246,7 +246,7 @@ export default function UsersPage() {
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
-          <p className="text-xs text-muted-foreground">{row.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.phoneNumber}</p>
         </div>
       ),
     },
@@ -277,7 +277,7 @@ export default function UsersPage() {
             {row.privileges.length} / {MODERATOR_PRIVILEGES.length}
           </span>
         ) : (
-          <span className="text-xs text-primary dark:text-primary font-medium">Full access</span>
+          <span className="text-xs text-primary dark:text-primary font-medium">{t('fullAccess')}</span>
         ),
     },
     {
@@ -308,7 +308,7 @@ export default function UsersPage() {
           <button
             onClick={() => handlePasswordReset(row)}
             className="p-1.5 rounded-lg text-muted-foreground hover:text-warning hover:bg-warning-soft transition-colors"
-            title="Reset Password"
+            title={t('resetPassword')}
           >
             <KeyRound className="w-4 h-4" />
           </button>
@@ -316,7 +316,7 @@ export default function UsersPage() {
             <button
               onClick={() => handleDeactivate(row)}
               className="p-1.5 rounded-lg text-muted-foreground hover:text-danger hover:bg-danger-soft transition-colors"
-              title="Deactivate"
+              title={t('deactivate')}
             >
               <PowerOff className="w-4 h-4" />
             </button>
@@ -343,7 +343,7 @@ export default function UsersPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {pagination.total} {pagination.total === 1 ? 'user' : 'users'} in this branch
+              {t('countInBranch', { count: pagination.total })}
             </p>
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function UsersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or phone..."
+            placeholder={t('searchPlaceholder')}
             className="w-full ps-9 pe-4 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-all"
           />
         </div>
@@ -374,7 +374,7 @@ export default function UsersPage() {
           onChange={(e) => setRoleFilter(e.target.value)}
           className="px-3 py-2.5 bg-card/80 border border-input/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/60 transition-all"
         >
-          <option value="">{tCommon('all')} roles</option>
+          <option value="">{t('allRoles')}</option>
           <option value="ADMIN">{t('admin')}</option>
           <option value="MODERATOR">{t('moderator')}</option>
         </select>
@@ -419,7 +419,7 @@ export default function UsersPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all"
-                  placeholder="Full name"
+                  placeholder={t('fullName')}
                 />
               </div>
 
@@ -441,7 +441,7 @@ export default function UsersPage() {
               {isCreateOpen && (
                 <div>
                   <label className="block text-xs font-semibold text-foreground/80 mb-1.5">
-                    Password <span className="text-danger">*</span>
+                    {t('password')} <span className="text-danger">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -449,7 +449,7 @@ export default function UsersPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-3 pe-10 py-2.5 bg-muted/60 border border-input/60 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 transition-all"
-                      placeholder="Min 8 characters"
+                      placeholder={t('passwordPlaceholder')}
                     />
                     <button
                       type="button"
@@ -496,7 +496,7 @@ export default function UsersPage() {
                   </p>
                   {Object.entries(PRIVILEGE_GROUPS).map(([groupKey, group]) => (
                     <div key={groupKey}>
-                      <p className="text-xs font-medium text-foreground/80 mb-2">{group.label}</p>
+                      <p className="text-xs font-medium text-foreground/80 mb-2">{t(`privilegeGroup.${groupKey}`)}</p>
                       <div className="flex flex-wrap gap-2">
                         {group.privileges.map((priv) => (
                           <label key={priv} className="flex items-center gap-2 min-h-11 sm:min-h-0 pe-2 cursor-pointer group">
@@ -507,7 +507,7 @@ export default function UsersPage() {
                               className="w-5 h-5 sm:w-4 sm:h-4 rounded accent-primary"
                             />
                             <span className="text-sm sm:text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                              {priv.replace('can_', '').replace(/_/g, ' ')}
+                              {t(`privilege.${priv}`)}
                             </span>
                           </label>
                         ))}
@@ -554,24 +554,24 @@ export default function UsersPage() {
               <div className="w-14 h-14 mx-auto rounded-full bg-warning-soft border border-warning/40 flex items-center justify-center">
                 <KeyRound className="w-7 h-7 text-warning" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">New Password Generated</h3>
+              <h3 className="text-lg font-bold text-foreground">{t('newPassword')}</h3>
               <p className="text-sm text-muted-foreground">
-                Share this password with the user. It will <strong className="text-warning">not be shown again</strong>.
+                {t.rich('passwordNote', { b: (c) => <strong className="text-warning">{c}</strong> })}
               </p>
               <div className="bg-muted border border-input rounded-xl px-4 py-3 font-mono text-lg text-primary dark:text-primary tracking-wider select-all">
                 {createdPassword}
               </div>
               <button
-                onClick={() => { navigator.clipboard.writeText(createdPassword); toast.success('Copied!'); }}
+                onClick={() => { navigator.clipboard.writeText(createdPassword); toast.success(t('copied')); }}
                 className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
               >
-                Copy to Clipboard
+                {t('copy')}
               </button>
               <button
                 onClick={() => setCreatedPassword(null)}
                 className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
               >
-                I've saved it — Close
+                {t('savedClose')}
               </button>
             </div>
           </div>

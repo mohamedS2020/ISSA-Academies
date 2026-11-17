@@ -13,6 +13,7 @@
  */
 
 import { type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 // ─── Base Skeleton ──────────────────────────────────────────
 
@@ -22,14 +23,15 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className = '', children }: SkeletonProps) {
+  const tCommon = useTranslations('common');
   return (
     <div
       className={`animate-pulse rounded-md bg-muted ${className}`}
       role="status"
-      aria-label="Loading..."
+      aria-label={tCommon('loading')}
     >
       {children}
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only">{tCommon('loading')}</span>
     </div>
   );
 }

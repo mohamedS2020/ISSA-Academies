@@ -7,11 +7,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
 import { DataTable, Column } from '@/components/tables/data-table';
+import { formatDate } from '@/lib/i18n/format';
 import { Receipt as ReceiptIcon, Download, Loader2 } from 'lucide-react';
 
 interface ReceiptRow {
@@ -33,6 +34,7 @@ export default function PortalReceiptsPage() {
   const t = useTranslations('portal');
   const tFinance = useTranslations('finance');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -53,7 +55,7 @@ export default function PortalReceiptsPage() {
       setIsLoading(true);
       try {
         const res = await authFetch(`/api/portal/receipts?page=${page}&limit=20${selectedTraineeId ? `&traineeId=${selectedTraineeId}` : ''}`);
-        if (!res.ok) throw new Error('Failed to load receipts');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         const json = await res.json();
         setReceipts(json.data || []);
         if (json.pagination) setPagination(json.pagination);
@@ -74,7 +76,7 @@ export default function PortalReceiptsPage() {
     setDownloadingId(receipt.id);
     try {
       const res = await authFetch(`/api/portal/receipts/${receipt.id}/pdf`);
-      if (!res.ok) throw new Error('Download failed');
+      if (!res.ok) throw new Error(tCommon('downloadFailed'));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -115,7 +117,7 @@ export default function PortalReceiptsPage() {
       key: 'issuedAt',
       header: tFinance('date'),
       render: (row) => (
-        <span className="text-muted-foreground">{new Date(row.issuedAt).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{formatDate(row.issuedAt, locale)}</span>
       ),
     },
   ];

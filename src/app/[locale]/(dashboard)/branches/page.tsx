@@ -96,7 +96,7 @@ export default function BranchesPage() {
       const res = await authFetch(
         `/api/branches?includeInactive=${includeInactive}`
       );
-      if (!res.ok) throw new Error('Failed to load branches');
+      if (!res.ok) throw new Error(tBranches('loadFailed'));
       const data = await res.json();
       setBranches(data.data || []);
     } catch (err: any) {
@@ -104,7 +104,7 @@ export default function BranchesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [includeInactive, toast, tCommon, authFetch]);
+  }, [includeInactive, toast, tCommon, authFetch, tBranches]);
 
   useEffect(() => {
     fetchBranches();
@@ -210,7 +210,7 @@ export default function BranchesPage() {
       return;
     }
     if (payrollFrequency === 'CUSTOM' && (!payrollCustomDays || Number(payrollCustomDays) < 1)) {
-      setFormError('Custom payroll days is required when frequency is Custom');
+      setFormError(tBranches('customDaysRequired'));
       return;
     }
 
@@ -248,7 +248,6 @@ export default function BranchesPage() {
 
   // Toggle Branch Status (Deactivate / Reactivate)
   const handleToggleStatus = async (branch: Branch) => {
-    const actionName = branch.isActive ? 'deactivate' : 'reactivate';
     const nextStatus = !branch.isActive;
 
     try {
@@ -265,7 +264,7 @@ export default function BranchesPage() {
         throw new Error(data.error?.message || tCommon('somethingWentWrong'));
       }
 
-      toast.success(`${branch.name} has been ${actionName}d successfully.`);
+      toast.success(tBranches(branch.isActive ? 'deactivated' : 'reactivated', { name: branch.name }));
 
       fetchBranches();
     } catch (err: any) {
@@ -278,9 +277,9 @@ export default function BranchesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertTriangle size={48} className="text-warning mb-4 animate-bounce" />
-        <h2 className="text-xl font-bold text-foreground">Access Denied</h2>
+        <h2 className="text-xl font-bold text-foreground">{tBranches('accessDenied')}</h2>
         <p className="text-sm text-muted-foreground mt-2">
-          Only administrators can access the Branch Management settings.
+          {tBranches('adminOnly')}
         </p>
       </div>
     );
@@ -364,7 +363,7 @@ export default function BranchesPage() {
             {tBranches('title')}
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Create, view, edit and suspend swimming academy branches.
+            {tBranches('subtitle')}
           </p>
         </div>
 
@@ -377,11 +376,11 @@ export default function BranchesPage() {
               onChange={(e) => setIncludeInactive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="h-4 w-8 rounded-full bg-card border border-border peer-checked:bg-primary peer-checked:border-primary flex items-center p-0.5 transition-all duration-200">
-              <div className="h-2.5 w-2.5 rounded-full bg-muted peer-checked:translate-x-full peer-checked:bg-background transition-all duration-200" />
+            <div className="h-4 w-8 rounded-full bg-card border border-border peer-checked:bg-primary peer-checked:border-primary flex items-center p-0.5 transition-all duration-200 peer-checked:[&>div]:translate-x-4 rtl:peer-checked:[&>div]:-translate-x-4 peer-checked:[&>div]:bg-background">
+              <div className="h-2.5 w-2.5 rounded-full bg-muted transition-all duration-200" />
             </div>
             <span className="ms-2 text-xs">
-              Show Inactive
+              {tBranches('showInactive')}
             </span>
           </label>
 
@@ -467,7 +466,7 @@ export default function BranchesPage() {
                     <input id="dashboard-branches-f1"
                       type="text"
                       required
-                      placeholder="New Cairo Branch"
+                      placeholder={tBranches('namePlaceholder')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
@@ -542,7 +541,7 @@ export default function BranchesPage() {
                 <div className="p-3.5 rounded-2xl bg-warning-soft border border-warning/40 text-warning text-xs flex gap-3">
                   <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold block mb-1">Timezone Notice</span>
+                    <span className="font-bold block mb-1">{tBranches('timezoneNotice')}</span>
                     <p className="text-muted-foreground leading-relaxed text-[11px]">
                       {tBranches('timezoneWarning')}
                     </p>
@@ -610,7 +609,7 @@ export default function BranchesPage() {
                     <input id="dashboard-branches-f6"
                       type="text"
                       required
-                      placeholder="New Cairo Branch"
+                      placeholder={tBranches('namePlaceholder')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
@@ -719,7 +718,7 @@ export default function BranchesPage() {
                 <div className="p-3.5 rounded-2xl bg-warning-soft border border-warning/40 text-warning text-xs flex gap-3">
                   <AlertTriangle size={18} className="text-warning flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold block mb-1">Timezone Notice</span>
+                    <span className="font-bold block mb-1">{tBranches('timezoneNotice')}</span>
                     <p className="text-muted-foreground leading-relaxed text-[11px]">
                       {tBranches('timezoneWarning')}
                     </p>

@@ -102,16 +102,16 @@ function NewSubscriptionPageContent() {
   // ─── Validation ──────────────────────────────────────────
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = 'Plan name is required';
-    if (!form.minSessions || Number(form.minSessions) < 1) errs.minSessions = 'At least 1 session';
+    if (!form.name.trim()) errs.name = t('nameRequired');
+    if (!form.minSessions || Number(form.minSessions) < 1) errs.minSessions = t('sessionsMin');
     if (form.periodType === 'FROM_SUBSCRIPTION_DATE' && (!form.periodDays || Number(form.periodDays) < 1)) {
-      errs.periodDays = 'Period days is required';
+      errs.periodDays = t('periodDaysRequired');
     }
     if (form.freezeSessions === '') errs.freezeSessions = 'Required (0 if no freeze)';
     if (form.freezeRetakeDays === '') errs.freezeRetakeDays = 'Required (0 if no retake)';
-    if (!form.amount || Number(form.amount) <= 0) errs.amount = 'Amount must be positive';
-    if (levels.some((l) => !l.name.trim())) errs.levels = 'All levels must have a name';
-    if (levels.length === 0) errs.levels = 'At least one level required';
+    if (!form.amount || Number(form.amount) <= 0) errs.amount = t('amountPositive');
+    if (levels.some((l) => !l.name.trim())) errs.levels = t('levelsNamed');
+    if (levels.length === 0) errs.levels = t('levelsRequired');
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -138,9 +138,9 @@ function NewSubscriptionPageContent() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Failed to create plan');
+      if (!res.ok) throw new Error(data.error?.message || t('createFailed'));
 
-      toast.success('Subscription plan created!');
+      toast.success(t('created'));
       router.push(`/${locale}/subscriptions`);
     } catch (err: any) {
       toast.error(err.message);
@@ -159,7 +159,7 @@ function NewSubscriptionPageContent() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">{t('createPlan')}</h1>
-          <p className="text-sm text-muted-foreground">Define the plan details and levels</p>
+          <p className="text-sm text-muted-foreground">{t('createSubtitle')}</p>
         </div>
       </div>
 
@@ -173,7 +173,7 @@ function NewSubscriptionPageContent() {
             <label htmlFor="dashboard-subscriptions-new-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('planName')} <span className="text-danger">*</span>
             </label>
-            <input id="dashboard-subscriptions-new-f1" value={form.name} onChange={set('name')} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
+            <input id="dashboard-subscriptions-new-f1" value={form.name} onChange={set('name')} className={inputClass} placeholder={t('namePlaceholder')} />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
@@ -288,7 +288,7 @@ function NewSubscriptionPageContent() {
                     value={level.name}
                     onChange={(e) => setLevelName(level.id, e.target.value)}
                     className={inputClass + ' flex-1'}
-                    placeholder={`Level name (e.g. Beginner)`}
+                    placeholder={t('levelPlaceholder')}
                   />
                   <button
                     type="button"

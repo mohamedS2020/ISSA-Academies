@@ -40,7 +40,7 @@ export default function PortalSchedulePage() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/portal/schedule?limit=50${selectedTraineeId ? `&traineeId=${selectedTraineeId}` : ''}`);
-      if (!res.ok) throw new Error('Failed to load schedule');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const json = await res.json();
       setSessions(json.data || []);
     } catch (err: any) {

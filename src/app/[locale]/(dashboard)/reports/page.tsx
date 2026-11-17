@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/i18n/format';
 import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
@@ -45,6 +46,7 @@ function todayIso(offsetDays = 0): string {
 
 function ReportsCenterPageContent() {
   const t = useTranslations('reports');
+  const locale = useLocale();
   const tCommon = useTranslations('common');
   const tTrainees = useTranslations('trainees');
   const { authFetch } = useAuth();
@@ -110,7 +112,7 @@ function ReportsCenterPageContent() {
     setIsExporting(true);
     try {
       const res = await authFetch(`/api/reports?${buildQuery(format)}`);
-      if (!res.ok) throw new Error('Export failed');
+      if (!res.ok) throw new Error(t('exportFailed'));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -137,48 +139,64 @@ function ReportsCenterPageContent() {
     { value: 'levelGroupTransitions', label: t('transitions') },
   ];
 
+  // Codes from the report data (INCOME, PRESENT, ACTIVE…) in the page language.
+  const valueLabel = (v: unknown) =>
+    typeof v === 'string' && t.has(`value.${v}`) ? t(`value.${v}`) : String(v ?? '—');
+
+  // Summary figures: labels from the messages (they used to be the data's
+  // field names, uppercased: "OUTSTANDINGPAYMENTS"), money with 2 decimals,
+  // counts as whole numbers, the attendance rate as a percentage.
+  const MONEY = new Set(['revenue', 'collections', 'expenses', 'outstandingPayments', 'profitLoss']);
+  const summaryLabel = (key: string) => (t.has(`summary.${key}`) ? t(`summary.${key}`) : key);
+  const summaryValue = (key: string, value: unknown) => {
+    if (typeof value !== 'number') return String(value);
+    if (key === 'attendanceRate') return `${formatNumber(value, locale, { maximumFractionDigits: 1 })}%`;
+    if (MONEY.has(key)) return formatNumber(value, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return formatNumber(value, locale, { maximumFractionDigits: 0 });
+  };
+
   const columnsByType: Record<ReportType, Column<any>[]> = {
     financial: [
       { key: 'date', header: t('dateRange') },
-      { key: 'type', header: 'Type' },
-      { key: 'amount', header: 'Amount' },
+      { key: 'type', header: t('col.type'), render: (r) => valueLabel(r.type) },
+      { key: 'amount', header: t('col.amount') },
     ],
     attendance: [
       { key: 'date', header: t('dateRange') },
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'groupName', header: 'Group' },
-      { key: 'status', header: 'Status' },
+      { key: 'traineeName', header: t('col.trainee') },
+      { key: 'groupName', header: t('col.group') },
+      { key: 'status', header: t('col.status'), render: (r) => valueLabel(r.status) },
     ],
     subscription: [
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'planName', header: 'Plan' },
-      { key: 'levelName', header: 'Level' },
-      { key: 'status', header: 'Status' },
-      { key: 'startDate', header: 'Start' },
-      { key: 'endDate', header: 'End' },
+      { key: 'traineeName', header: t('col.trainee') },
+      { key: 'planName', header: t('col.plan') },
+      { key: 'levelName', header: t('col.level') },
+      { key: 'status', header: t('col.status'), render: (r) => valueLabel(r.status) },
+      { key: 'startDate', header: t('col.start') },
+      { key: 'endDate', header: t('col.end') },
     ],
     captainPerformance: [
-      { key: 'captainName', header: 'Captain' },
-      { key: 'sessionsConducted', header: 'Sessions' },
-      { key: 'attendanceRate', header: 'Attendance %' },
-      { key: 'evaluationsCount', header: 'Evaluations' },
+      { key: 'captainName', header: t('col.captain') },
+      { key: 'sessionsConducted', header: t('col.sessions') },
+      { key: 'attendanceRate', header: t('col.attendanceRate'), render: (r) => (typeof r.attendanceRate === 'number' ? `${r.attendanceRate.toFixed(1)}%` : r.attendanceRate) },
+      { key: 'evaluationsCount', header: t('col.evaluations') },
     ],
     expiringSoon: [
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'phone', header: 'Phone' },
-      { key: 'planName', header: 'Plan' },
-      { key: 'levelName', header: 'Level' },
-      { key: 'groupName', header: 'Group' },
-      { key: 'sessions', header: 'Sessions' },
-      { key: 'sessionsRemaining', header: 'Remaining' },
-      { key: 'endDate', header: 'End' },
+      { key: 'traineeName', header: t('col.trainee') },
+      { key: 'phone', header: t('col.phone'), render: (r) => <span dir="ltr">{r.phone}</span> },
+      { key: 'planName', header: t('col.plan') },
+      { key: 'levelName', header: t('col.level') },
+      { key: 'groupName', header: t('col.group') },
+      { key: 'sessions', header: t('col.sessions') },
+      { key: 'sessionsRemaining', header: t('col.remaining') },
+      { key: 'endDate', header: t('col.end') },
     ],
     levelGroupTransitions: [
-      { key: 'date', header: 'Date' },
-      { key: 'traineeName', header: 'Trainee' },
-      { key: 'levelChange', header: 'Level Change' },
-      { key: 'groupChange', header: 'Group Change' },
-      { key: 'changedBy', header: 'Changed By' },
+      { key: 'date', header: t('col.date') },
+      { key: 'traineeName', header: t('col.trainee') },
+      { key: 'levelChange', header: t('col.levelChange') },
+      { key: 'groupChange', header: t('col.groupChange') },
+      { key: 'changedBy', header: t('col.changedBy') },
     ],
   };
 
@@ -242,31 +260,31 @@ function ReportsCenterPageContent() {
           {type === 'subscription' && (
             <div className="space-y-1.5">
               <label htmlFor="dashboard-reports-f3" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Status
+                {t('col.status')}
               </label>
               <select id="dashboard-reports-f3"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="">All</option>
-                <option value="ACTIVE">Active</option>
-                <option value="EXPIRED">Expired</option>
-                <option value="FROZEN">Frozen</option>
+                <option value="">{t('all')}</option>
+                <option value="ACTIVE">{t('value.ACTIVE')}</option>
+                <option value="EXPIRED">{t('value.EXPIRED')}</option>
+                <option value="FROZEN">{t('value.FROZEN')}</option>
               </select>
             </div>
           )}
           {(type === 'attendance' || type === 'captainPerformance') && (
             <div className="space-y-1.5">
               <label htmlFor="dashboard-reports-f4" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Captain
+                {t('col.captain')}
               </label>
               <select id="dashboard-reports-f4"
                 value={captainId}
                 onChange={(e) => setCaptainId(e.target.value)}
                 className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="">All</option>
+                <option value="">{t('all')}</option>
                 {captains.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.user.name}
@@ -300,10 +318,10 @@ function ReportsCenterPageContent() {
                   className="rounded-2xl border border-border bg-card/70 p-4 backdrop-blur-xl"
                 >
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1">
-                    {key}
+                    {summaryLabel(key)}
                   </span>
-                  <span className="text-xl font-extrabold text-foreground">
-                    {typeof value === 'number' ? value.toFixed(2) : String(value)}
+                  <span className="text-xl font-extrabold text-foreground" dir="ltr">
+                    {summaryValue(key, value)}
                   </span>
                 </div>
               ))}
@@ -328,7 +346,7 @@ function ReportsCenterPageContent() {
                   </li>
                 ))}
                 <li className="py-3 flex items-baseline justify-between gap-3 font-bold text-foreground">
-                  <span>{tCommon('total')}</span>
+                  <span>{t('grandTotal')}</span>
                   <span className="text-success" dir="ltr">{(result.byPlan as PlanIncome[]).reduce((sum, p) => sum + Number(p.income), 0).toFixed(2)}</span>
                 </li>
               </ul>
@@ -336,13 +354,13 @@ function ReportsCenterPageContent() {
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border text-muted-foreground text-xs">
-                    <th className="text-start py-2">Plan</th>
-                    <th className="text-end py-2">Trainees Paid</th>
+                    <th className="text-start py-2">{t('col.plan')}</th>
+                    <th className="text-end py-2">{t('traineesPaid')}</th>
                     <th className="text-end py-2">{tTrainees('referralNew')}</th>
                     <th className="text-end py-2">{tTrainees('referralNetwork')}</th>
                     <th className="text-end py-2">{tTrainees('referralContinuous')}</th>
                     <th className="text-end py-2">{tTrainees('referralOld')}</th>
-                    <th className="text-end py-2">Income</th>
+                    <th className="text-end py-2">{t('income')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -358,7 +376,7 @@ function ReportsCenterPageContent() {
                     </tr>
                   ))}
                   <tr className="font-bold text-foreground border-t border-input">
-                    <td className="py-2">GRAND TOTAL</td>
+                    <td className="py-2">{t('grandTotal')}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + p.traineeCount, 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.new ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.network ?? 0), 0)}</td>

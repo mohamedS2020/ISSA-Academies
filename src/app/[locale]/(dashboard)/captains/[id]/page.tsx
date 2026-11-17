@@ -32,6 +32,7 @@ import {
   Users,
   Calendar,
 } from 'lucide-react';
+import { formatDateTime } from '@/lib/i18n/format';
 import { RatingBadge } from '@/components/rating/star-rating';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -65,13 +66,7 @@ interface CaptainDetail {
 }
 
 const DAYS_OF_WEEK = [
-  { key: 'MONDAY', label: 'Mon' },
-  { key: 'TUESDAY', label: 'Tue' },
-  { key: 'WEDNESDAY', label: 'Wed' },
-  { key: 'THURSDAY', label: 'Thu' },
-  { key: 'FRIDAY', label: 'Fri' },
-  { key: 'SATURDAY', label: 'Sat' },
-  { key: 'SUNDAY', label: 'Sun' },
+  'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY',
 ] as const;
 
 const inputClass =
@@ -82,6 +77,9 @@ const inputClass =
 function CaptainDetailPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
+  const tc = useTranslations('captainPage');
+  const tDays = useTranslations('days');
+  const dayName = (day: string) => tDays(day.toLowerCase());
   const { authFetch } = useAuth();
   const can = useAccess();
   const { toast } = useToast();
@@ -113,7 +111,7 @@ function CaptainDetailPageContent() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/captains/${captainId}`);
-      if (!res.ok) throw new Error('Failed to load captain');
+      if (!res.ok) throw new Error(tc('loadFailed'));
       const data = await res.json();
       setCaptain(data.data);
     } catch (err: any) {
@@ -121,7 +119,7 @@ function CaptainDetailPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [captainId, authFetch, toast]);
+  }, [captainId, authFetch, toast, tc]);
 
   useEffect(() => { fetchCaptain(); }, [fetchCaptain]);
 
@@ -163,8 +161,8 @@ function CaptainDetailPageContent() {
           percentage: editPayrollType === 'SALARY_PERCENTAGE' && editPercentage ? Number(editPercentage) : null,
         }),
       });
-      if (!res.ok) throw new Error('Failed to save changes');
-      toast.success('Captain updated successfully');
+      if (!res.ok) throw new Error(tc('saveFailed'));
+      toast.success(tc('updated'));
       setIsEditing(false);
       fetchCaptain();
     } catch (err: any) {
@@ -175,15 +173,15 @@ function CaptainDetailPageContent() {
   };
 
   const handleDeactivate = async () => {
-    if (!confirm('Deactivate this captain? They will lose portal access.')) return;
+    if (!confirm(tc('deactivateConfirm'))) return;
     try {
       const res = await authFetch(`/api/captains/${captainId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'deactivate' }),
       });
-      if (!res.ok) throw new Error('Failed to deactivate');
-      toast.success('Captain deactivated');
+      if (!res.ok) throw new Error(tc('deactivateFailed'));
+      toast.success(tc('deactivated'));
       fetchCaptain();
     } catch (err: any) {
       toast.error(err.message);
@@ -204,7 +202,7 @@ function CaptainDetailPageContent() {
     return (
       <div className="text-center py-16 text-muted-foreground">
         <XCircle className="w-12 h-12 mx-auto mb-3 text-danger" />
-        <p>Captain not found</p>
+        <p>{tc('notFound')}</p>
       </div>
     );
   }
@@ -291,11 +289,11 @@ function CaptainDetailPageContent() {
 
       {/* ─── Profile Card ─── */}
       <div className="bg-card/80 border border-input/60 rounded-2xl p-6 backdrop-blur-xl space-y-5">
-        <h2 className="text-sm font-bold text-foreground/80">Profile Information</h2>
+        <h2 className="text-sm font-bold text-foreground/80">{tc('profile')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Name */}
           <div>
-            <p className="text-xs text-muted-foreground mb-1">Full Name</p>
+            <p className="text-xs text-muted-foreground mb-1">{tc('fullName')}</p>
             {isEditing ? (
               <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} />
             ) : (
@@ -304,29 +302,29 @@ function CaptainDetailPageContent() {
           </div>
           {/* Phone */}
           <div>
-            <p className="text-xs text-muted-foreground mb-1">Phone</p>
+            <p className="text-xs text-muted-foreground mb-1">{tc('phone')}</p>
             {isEditing ? (
               <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className={inputClass} />
             ) : (
-              <p className="text-sm text-foreground">{captain.user.phoneNumber}</p>
+              <p className="text-sm text-foreground rtl:text-right" dir="ltr">{captain.user.phoneNumber}</p>
             )}
           </div>
           {/* Specialization */}
           <div className="sm:col-span-2">
             <p className="text-xs text-muted-foreground mb-1">{t('specialization')}</p>
             {isEditing ? (
-              <input type="text" value={editSpec} onChange={(e) => setEditSpec(e.target.value)} className={inputClass} placeholder="e.g., Freestyle, Diving..." />
+              <input type="text" value={editSpec} onChange={(e) => setEditSpec(e.target.value)} className={inputClass} placeholder={tc('specializationPlaceholder')} />
             ) : (
               <p className="text-sm text-foreground">{captain.specialization ?? <span className="text-muted-foreground">—</span>}</p>
             )}
           </div>
           {/* Last Login */}
           <div>
-            <p className="text-xs text-muted-foreground mb-1">Last Login</p>
+            <p className="text-xs text-muted-foreground mb-1">{tc('lastLogin')}</p>
             <p className="text-sm text-foreground">
               {captain.user.lastLoginAt
-                ? new Date(captain.user.lastLoginAt).toLocaleString()
-                : <span className="text-muted-foreground">Never</span>}
+                ? formatDateTime(captain.user.lastLoginAt, locale)
+                : <span className="text-muted-foreground">{tc('never')}</span>}
             </p>
           </div>
         </div>
@@ -336,7 +334,7 @@ function CaptainDetailPageContent() {
           <p className="text-xs text-muted-foreground mb-2">{t('attendingDays')}</p>
           {isEditing ? (
             <div className="flex flex-wrap gap-2">
-              {DAYS_OF_WEEK.map(({ key, label }) => (
+              {DAYS_OF_WEEK.map((key) => (
                 <button
                   key={key}
                   type="button"
@@ -347,7 +345,7 @@ function CaptainDetailPageContent() {
                       : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50'
                   }`}
                 >
-                  {label}
+                  {dayName(key)}
                 </button>
               ))}
             </div>
@@ -355,7 +353,7 @@ function CaptainDetailPageContent() {
             <div className="flex flex-wrap gap-1.5">
               {captain.attendingDays.map((day) => (
                 <span key={day} className="px-2.5 py-1 bg-primary/10 border border-primary/30 rounded-lg text-xs font-medium text-primary dark:text-primary">
-                  {DAYS_OF_WEEK.find((d) => d.key === day)?.label ?? day}
+                  {dayName(day)}
                 </span>
               ))}
             </div>
@@ -413,7 +411,7 @@ function CaptainDetailPageContent() {
                   : <Percent className="w-5 h-5 text-primary" />}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Type</p>
+                <p className="text-xs text-muted-foreground">{tc('type')}</p>
                 <p className="text-sm font-semibold text-foreground">
                   {captain.payrollType === 'HOURS' ? t('hours') : t('salaryPercentage')}
                 </p>
@@ -455,7 +453,7 @@ function CaptainDetailPageContent() {
           </span>
         </h2>
         {captain.groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">No groups assigned yet.</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{tc('noGroups')}</p>
         ) : (
           <div className="space-y-3">
             {captain.groups.map((group) => (
@@ -468,9 +466,7 @@ function CaptainDetailPageContent() {
                   <div className="flex items-center gap-3 mt-1">
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="w-3 h-3" />
-                      {group.scheduleDays.map((d) =>
-                        DAYS_OF_WEEK.find((x) => x.key === d)?.label ?? d
-                      ).join(', ')}
+                      {group.scheduleDays.map(dayName).join(locale === 'ar' ? '، ' : ', ')}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />

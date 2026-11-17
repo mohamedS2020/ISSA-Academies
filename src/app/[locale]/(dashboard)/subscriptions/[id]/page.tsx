@@ -81,7 +81,7 @@ function EditSubscriptionPlanPageContent() {
     setIsLoading(true);
     try {
       const res = await authFetch(`/api/subscriptions/plans/${planId}`);
-      if (!res.ok) throw new Error('Failed to load plan');
+      if (!res.ok) throw new Error(tCommon('loadFailed'));
       const data = await res.json();
       const p: PlanDetail = data.data;
       setPlan(p);
@@ -123,14 +123,14 @@ function EditSubscriptionPlanPageContent() {
   const validate = () => {
     if (!form) return false;
     const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = 'Plan name is required';
-    if (!form.minSessions || Number(form.minSessions) < 1) errs.minSessions = 'At least 1 session';
+    if (!form.name.trim()) errs.name = t('nameRequired');
+    if (!form.minSessions || Number(form.minSessions) < 1) errs.minSessions = t('sessionsMin');
     if (form.periodType === 'FROM_SUBSCRIPTION_DATE' && (!form.periodDays || Number(form.periodDays) < 1)) {
-      errs.periodDays = 'Period days is required';
+      errs.periodDays = t('periodDaysRequired');
     }
     if (form.freezeSessions === '') errs.freezeSessions = 'Required (0 if no freeze)';
     if (form.freezeRetakeDays === '') errs.freezeRetakeDays = 'Required (0 if no retake)';
-    if (!form.amount || Number(form.amount) <= 0) errs.amount = 'Amount must be positive';
+    if (!form.amount || Number(form.amount) <= 0) errs.amount = t('amountPositive');
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -155,7 +155,7 @@ function EditSubscriptionPlanPageContent() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Failed to update plan');
+      if (!res.ok) throw new Error(data.error?.message || t('updateFailed'));
       toast.success(tCommon('success'));
       router.push(`/${locale}/subscriptions`);
     } catch (err: any) {
@@ -181,7 +181,7 @@ function EditSubscriptionPlanPageContent() {
           onClick={() => router.push(`/${locale}/subscriptions`)}
           className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary"
         >
-          <ArrowLeft className="w-4 h-4" /> {t('title')}
+          <ArrowLeft className="w-4 h-4 rtl:-scale-x-100" /> {t('title')}
         </button>
       </div>
     );
@@ -240,7 +240,7 @@ function EditSubscriptionPlanPageContent() {
             <label htmlFor="dashboard-subscriptions-id-f1" className="block text-xs font-semibold text-foreground/80 mb-1.5">
               {t('planName')} <span className="text-danger">*</span>
             </label>
-            <input id="dashboard-subscriptions-id-f1" value={form.name} onChange={set('name')} disabled={!isAdmin} className={inputClass} placeholder="e.g. Beginner Monthly Plan" />
+            <input id="dashboard-subscriptions-id-f1" value={form.name} onChange={set('name')} disabled={!isAdmin} className={inputClass} placeholder={t('namePlaceholder')} />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name}</p>}
           </div>
 
@@ -335,7 +335,7 @@ function EditSubscriptionPlanPageContent() {
               ))}
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              Levels are locked here because trainees are linked to them. Ask to enable safe level editing if you need it.
+              {t('levelsLocked')}
             </p>
           </div>
         </div>

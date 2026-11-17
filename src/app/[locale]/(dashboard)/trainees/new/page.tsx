@@ -31,6 +31,7 @@ import {
   KeyRound,
   UserCheck,
 } from 'lucide-react';
+import { formatNumber } from '@/lib/i18n/format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -103,10 +104,10 @@ const INITIAL_FORM: FormData = {
 };
 
 const STEPS = [
-  { label: 'Personal Info', icon: User },
-  { label: 'Skills & Level', icon: Star },
-  { label: 'Family Info', icon: Heart },
-  { label: 'Physical & Psych', icon: Activity },
+  { icon: User },
+  { icon: Star },
+  { icon: Heart },
+  { icon: Activity },
 ];
 
 // ─── Field Component ──────────────────────────────────────────
@@ -156,6 +157,9 @@ const textareaClass = inputClass + ' resize-none h-24';
 function NewTraineePageContent() {
   const t = useTranslations('trainees');
   const tCommon = useTranslations('common');
+  const tn = useTranslations('traineeNew');
+  const tp = useTranslations('traineePage');
+  const tRenewal = useTranslations('renewal');
   const { authFetch } = useAuth();
   const can = useAccess();
   // Enrolling at registration is the "Create subscriptions" permission.
@@ -276,7 +280,7 @@ function NewTraineePageContent() {
     // Enrolling with a payment requires a method (server enforces this too).
     // Guard here so we don't create the trainee and then fail the enroll.
     if (form.groupId && Number(form.amountPaid) > 0 && !form.paymentMethod) {
-      toast.error('Please select a payment method');
+      toast.error(tp('chooseMethod'));
       setStep(1);
       return;
     }
@@ -317,7 +321,7 @@ function NewTraineePageContent() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Registration failed');
+      if (!res.ok) throw new Error(data.error?.message || tn('registrationFailed'));
 
       const traineeId = data.data.trainee.id;
       let receiptNumber: string | undefined;
@@ -341,7 +345,7 @@ function NewTraineePageContent() {
         });
         const enrollData = await enrollRes.json();
         if (!enrollRes.ok) {
-          toast.error(`Trainee registered but enrollment failed: ${enrollData.error?.message}`);
+          toast.error(tn('enrollFailedAfter', { reason: enrollData.error?.message ?? '' }));
         } else {
           receiptNumber = enrollData.data?.receipt?.receiptNumber;
         }
@@ -390,15 +394,17 @@ function NewTraineePageContent() {
         {errors.dateOfBirth && <p className="text-xs text-danger mt-1">{errors.dateOfBirth}</p>}
       </Field>
       <Field label={t('phoneNumber')} required>
-        <input type="tel" value={form.phoneNumber} onChange={set('phoneNumber')} className={inputClass} placeholder="+201234567890" />
+        <input type="tel"
+                  dir="ltr" value={form.phoneNumber} onChange={set('phoneNumber')} className={inputClass} placeholder="+201234567890" />
         {errors.phoneNumber && <p className="text-xs text-danger mt-1">{errors.phoneNumber}</p>}
       </Field>
       <Field label={t('whatsappNumber')} required>
-        <input type="tel" value={form.whatsappNumber} onChange={set('whatsappNumber')} className={inputClass} placeholder="+201234567890" />
+        <input type="tel"
+                  dir="ltr" value={form.whatsappNumber} onChange={set('whatsappNumber')} className={inputClass} placeholder="+201234567890" />
         {errors.whatsappNumber && <p className="text-xs text-danger mt-1">{errors.whatsappNumber}</p>}
       </Field>
       <Field label={t('parentIdCard')} required>
-        <input type="text" value={form.parentIdCard} onChange={set('parentIdCard')} className={inputClass} placeholder="National ID number" />
+        <input type="text" dir="ltr" value={form.parentIdCard} onChange={set('parentIdCard')} className={inputClass} placeholder={tn('nationalIdPlaceholder')} />
         {errors.parentIdCard && <p className="text-xs text-danger mt-1">{errors.parentIdCard}</p>}
       </Field>
       <Field label={t('medicalCondition')} required>
@@ -428,18 +434,18 @@ function NewTraineePageContent() {
   const renderStep1 = () => (
     <div className="space-y-4">
       <Field label={t('pastExperience')}>
-        <textarea value={form.pastExperience} onChange={set('pastExperience')} className={textareaClass} placeholder="Describe any prior swimming experience..." />
+        <textarea value={form.pastExperience} onChange={set('pastExperience')} className={textareaClass} placeholder={tn('pastExperiencePlaceholder')} />
       </Field>
       <Field label={t('otherAcademies')}>
-        <textarea value={form.otherAcademies} onChange={set('otherAcademies')} className={textareaClass} placeholder="Is the trainee enrolled in other academies?" />
+        <textarea value={form.otherAcademies} onChange={set('otherAcademies')} className={textareaClass} placeholder={tn('otherAcademiesPlaceholder')} />
       </Field>
 
       {/* ── Enrollment section (needs the enroll permission) ── */}
       {canEnroll && (
       <div className="pt-2 border-t border-input/60">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Enrollment (optional)</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{tn('enrollmentOptional')}</p>
         {plans.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-2">No active subscription plans. You can enroll the trainee later from their profile.</p>
+          <p className="text-sm text-muted-foreground py-2">{tn('noPlans')}</p>
         ) : (
           <div className="space-y-3">
             {/* Plan selector */}
@@ -455,18 +461,18 @@ function NewTraineePageContent() {
                   else setGroups([]);
                 }}
               >
-                <option value="">Select a subscription plan</option>
+                <option value="">{tRenewal('selectPlan')}</option>
                 {plans.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} — {Number(p.amount).toLocaleString()} EGP</option>
+                  <option key={p.id} value={p.id}>{p.name} — {formatNumber(Number(p.amount), locale)} {tRenewal('currency')}</option>
                 ))}
               </select>
             </Field>
 
             {/* Level selector */}
             {selectedPlan && (
-              <Field label="Starting Level">
+              <Field label={t('startingLevel')}>
                 <select value={form.levelId} onChange={set('levelId')} className={inputClass}>
-                  <option value="">Select a level</option>
+                  <option value="">{tRenewal('selectLevel')}</option>
                   {selectedPlan.levels.map((l) => (
                     <option key={l.id} value={l.id}>{l.name}</option>
                   ))}
@@ -476,16 +482,16 @@ function NewTraineePageContent() {
 
             {/* Group selector */}
             {selectedPlan && (
-              <Field label="Assign to Group">
+              <Field label={tn('assignGroup')}>
                 {isLoadingGroups ? (
                   <div className="flex items-center gap-2 py-2 text-muted-foreground text-sm">
                     <Loader2 className="w-4 h-4 animate-spin" /> Loading groups...
                   </div>
                 ) : groups.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-1">No available groups for this plan.</p>
+                  <p className="text-sm text-muted-foreground py-1">{tn('noGroups')}</p>
                 ) : (
                   <select value={form.groupId} onChange={set('groupId')} className={inputClass}>
-                    <option value="">Select a group</option>
+                    <option value="">{tRenewal('selectGroup')}</option>
                     {groups.map((g) => (
                       <option key={g.id} value={g.id} disabled={g.isFull}>
                         {g.name} · {g.captain.user.name} · {g.availableSlots} slots left{g.isFull ? ' (full)' : ''}
@@ -500,18 +506,18 @@ function NewTraineePageContent() {
             {form.groupId && (
               <>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Amount Paid (EGP)">
+                <Field label={tp('amountPaid')}>
                   <input type="number" min={0} value={form.amountPaid} onChange={set('amountPaid')} className={inputClass} placeholder="0" />
                 </Field>
-                <Field label="Payment Status">
+                <Field label={tp('paymentStatus')}>
                   <select
                     value={form.paymentStatus}
                     onChange={(e) => setForm((p) => ({ ...p, paymentStatus: e.target.value as any }))}
                     className={inputClass}
                   >
-                    <option value="UNPAID">Unpaid</option>
-                    <option value="PARTIAL">Partial</option>
-                    <option value="PAID">Paid</option>
+                    <option value="UNPAID">{tp('unpaid')}</option>
+                    <option value="PARTIAL">{tp('partial')}</option>
+                    <option value="PAID">{tp('paid')}</option>
                   </select>
                 </Field>
               </div>
@@ -545,10 +551,10 @@ function NewTraineePageContent() {
   const renderStep2 = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Field label={t('maritalStatus')}>
-        <input type="text" value={form.maritalStatus} onChange={set('maritalStatus')} className={inputClass} placeholder="e.g., Single, Married" />
+        <input type="text" value={form.maritalStatus} onChange={set('maritalStatus')} className={inputClass} placeholder={tn('maritalPlaceholder')} />
       </Field>
       <Field label={t('birthOrder')}>
-        <input type="number" min={1} max={20} value={form.birthOrder} onChange={set('birthOrder')} className={inputClass} placeholder="e.g., 1, 2, 3..." />
+        <input type="number" min={1} max={20} value={form.birthOrder} onChange={set('birthOrder')} className={inputClass} placeholder={tn('birthOrderPlaceholder')} />
       </Field>
       <Field label={t('fatherJob')}>
         <input type="text" value={form.fatherJob} onChange={set('fatherJob')} className={inputClass} />
@@ -568,7 +574,7 @@ function NewTraineePageContent() {
   const renderStep3 = () => (
     <div className="space-y-4">
       <Field label={t('personalityTraits')}>
-        <textarea value={form.personalityTraits} onChange={set('personalityTraits')} className={textareaClass} placeholder="Describe personality traits..." />
+        <textarea value={form.personalityTraits} onChange={set('personalityTraits')} className={textareaClass} placeholder={tn('personalityPlaceholder')} />
       </Field>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {(['height','weight','armLength','footLength','chestCircumference','waistCircumference'] as const).map((field) => (
@@ -600,8 +606,8 @@ function NewTraineePageContent() {
             <UserCheck className="w-8 h-8 text-success" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground mb-1">Trainee Registered!</h2>
-            <p className="text-sm text-muted-foreground">Registration complete. Save the details below.</p>
+            <h2 className="text-xl font-bold text-foreground mb-1">{tn('registered')}</h2>
+            <p className="text-sm text-muted-foreground">{tn('registeredNote')}</p>
           </div>
           <div className="bg-muted border border-input rounded-xl p-4 text-start space-y-3">
             <div>
@@ -625,7 +631,7 @@ function NewTraineePageContent() {
               <>
                 <hr className="border-input" />
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Receipt Number</p>
+                  <p className="text-xs text-muted-foreground mb-1">{tn('receiptNumber')}</p>
                   <p className="font-mono text-base font-bold text-success">{success.receiptNumber}</p>
                 </div>
               </>
@@ -633,10 +639,10 @@ function NewTraineePageContent() {
           </div>
           {success.password && (
             <button
-              onClick={() => { navigator.clipboard.writeText(success.password!); toast.success('Copied!'); }}
+              onClick={() => { navigator.clipboard.writeText(success.password!); toast.success(tn('copied')); }}
               className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
             >
-              Copy Password
+              {tn('copyPassword')}
             </button>
           )}
           <div className="flex gap-3">
@@ -644,13 +650,13 @@ function NewTraineePageContent() {
               onClick={() => { setSuccess(null); setForm(INITIAL_FORM); setStep(0); setSelectedPlan(null); setGroups([]); }}
               className="flex-1 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
             >
-              Register Another
+              {tn('registerAnother')}
             </button>
             <button
               onClick={() => router.push(`/${locale}/trainees`)}
               className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
             >
-              Go to Trainees
+              {tn('goToTrainees')}
             </button>
           </div>
         </div>
@@ -690,7 +696,7 @@ function NewTraineePageContent() {
                 ) : (
                   <Icon className="w-4 h-4 shrink-0" />
                 )}
-                <span className="text-xs font-semibold hidden sm:block">{s.label}</span>
+                <span className="text-xs font-semibold hidden sm:block">{t(`step${i + 1}Title`)}</span>
               </div>
               {i < STEPS.length - 1 && (
                 <div className={`flex-1 h-px mx-1 ${isDone ? 'bg-success/50' : 'bg-muted'}`} />
@@ -719,7 +725,7 @@ function NewTraineePageContent() {
           disabled={step === 0}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" />
           {tCommon('previous')}
         </button>
         {step < STEPS.length - 1 ? (
@@ -728,7 +734,7 @@ function NewTraineePageContent() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5"
           >
             {tCommon('next')}
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
           </button>
         ) : (
           <button

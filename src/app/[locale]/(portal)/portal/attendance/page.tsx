@@ -7,11 +7,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
 import { DataTable, Column } from '@/components/tables/data-table';
+import { formatDate } from '@/lib/i18n/format';
 import { UserCheck } from 'lucide-react';
 
 interface AttendanceRow {
@@ -39,6 +40,7 @@ export default function PortalAttendancePage() {
   const t = useTranslations('portal');
   const tAttendance = useTranslations('attendance');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -58,7 +60,7 @@ export default function PortalAttendancePage() {
       setIsLoading(true);
       try {
         const res = await authFetch(`/api/portal/attendance?page=${page}&limit=20${selectedTraineeId ? `&traineeId=${selectedTraineeId}` : ''}`);
-        if (!res.ok) throw new Error('Failed to load attendance');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         const json = await res.json();
         setRecords(json.data || []);
         if (json.pagination) setPagination(json.pagination);
@@ -81,7 +83,7 @@ export default function PortalAttendancePage() {
       header: t('date'),
       render: (row) => (
         <span className="text-foreground/80">
-          {new Date(row.session.scheduledAt).toLocaleDateString()}
+          {formatDate(row.session.scheduledAt, locale)}
         </span>
       ),
     },

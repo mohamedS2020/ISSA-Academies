@@ -30,13 +30,7 @@ import {
 // ─── Constants ────────────────────────────────────────────────
 
 const DAYS_OF_WEEK = [
-  { key: 'MONDAY', label: 'Monday' },
-  { key: 'TUESDAY', label: 'Tuesday' },
-  { key: 'WEDNESDAY', label: 'Wednesday' },
-  { key: 'THURSDAY', label: 'Thursday' },
-  { key: 'FRIDAY', label: 'Friday' },
-  { key: 'SATURDAY', label: 'Saturday' },
-  { key: 'SUNDAY', label: 'Sunday' },
+  'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY',
 ] as const;
 
 const inputClass =
@@ -78,6 +72,8 @@ function Field({ label, required, children, error }: FieldProps) {
 function NewCaptainPageContent() {
   const t = useTranslations('captains');
   const tCommon = useTranslations('common');
+  const tc = useTranslations('captainPage');
+  const tDays = useTranslations('days');
   const { authFetch } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -139,7 +135,7 @@ function NewCaptainPageContent() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Registration failed');
+      if (!res.ok) throw new Error(data.error?.message || tc('registrationFailed'));
       setSuccess(data.data.portalPassword);
     } catch (err: any) {
       toast.error(err.message);
@@ -158,23 +154,23 @@ function NewCaptainPageContent() {
             <UserCheck className="w-8 h-8 text-success" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground mb-1">Captain Registered!</h2>
-            <p className="text-sm text-muted-foreground">Share the portal password below. It will not be shown again.</p>
+            <h2 className="text-xl font-bold text-foreground mb-1">{tc('registered')}</h2>
+            <p className="text-sm text-muted-foreground">{tc('passwordNote')}</p>
           </div>
           <div className="bg-muted border border-input rounded-xl px-4 py-4 space-y-2">
             <div className="flex items-center gap-2">
               <KeyRound className="w-4 h-4 text-warning shrink-0" />
-              <p className="text-xs text-muted-foreground">Portal Password</p>
+              <p className="text-xs text-muted-foreground">{tc('portalPassword')}</p>
             </div>
             <p className="font-mono text-xl font-bold text-warning tracking-wider select-all">
               {success}
             </p>
           </div>
           <button
-            onClick={() => { navigator.clipboard.writeText(success); toast.success('Copied!'); }}
+            onClick={() => { navigator.clipboard.writeText(success); toast.success(tc('copied')); }}
             className="w-full py-2 rounded-xl bg-muted text-sm text-foreground hover:bg-border transition-colors"
           >
-            Copy to Clipboard
+            {tc('copy')}
           </button>
           <div className="flex gap-3">
             <button
@@ -186,13 +182,13 @@ function NewCaptainPageContent() {
               }}
               className="flex-1 py-2.5 rounded-xl border border-input text-sm text-foreground/80 hover:bg-muted transition-colors"
             >
-              Register Another
+              {tc('registerAnother')}
             </button>
             <button
               onClick={() => router.push(`/${locale}/captains`)}
               className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
             >
-              Go to Captains
+              {tc('goToCaptains')}
             </button>
           </div>
         </div>
@@ -223,17 +219,17 @@ function NewCaptainPageContent() {
       <div className="bg-card/80 border border-input/60 rounded-2xl p-6 md:p-8 backdrop-blur-xl space-y-6">
         {/* Basic Info */}
         <div>
-          <h2 className="text-sm font-bold text-foreground/80 mb-4">Personal Information</h2>
+          <h2 className="text-sm font-bold text-foreground/80 mb-4">{tc('profile')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label={tCommon('active') === 'Active' ? 'Full Name' : 'Name'} required error={errors.name}>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="Captain's full name" />
+            <Field label={tc('fullName')} required error={errors.name}>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={tc('namePlaceholder')} />
             </Field>
-            <Field label="Phone Number" required error={errors.phoneNumber}>
-              <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className={inputClass} placeholder="+201234567890" />
+            <Field label={tc('phone')} required error={errors.phoneNumber}>
+              <input type="tel" dir="ltr" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className={inputClass} placeholder="+201234567890" />
             </Field>
             <div className="md:col-span-2">
               <Field label={t('specialization')}>
-                <input type="text" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className={inputClass} placeholder="e.g., Butterfly, Freestyle, Diving..." />
+                <input type="text" value={specialization} onChange={(e) => setSpecialization(e.target.value)} className={inputClass} placeholder={tc('specializationPlaceholder')} />
               </Field>
             </div>
           </div>
@@ -244,7 +240,7 @@ function NewCaptainPageContent() {
           <h2 className="text-sm font-bold text-foreground/80 mb-4">{t('attendingDays')}</h2>
           {errors.attendingDays && <p className="text-xs text-danger mb-2">{errors.attendingDays}</p>}
           <div className="flex flex-wrap gap-2">
-            {DAYS_OF_WEEK.map(({ key, label }) => (
+            {DAYS_OF_WEEK.map((key) => (
               <button
                 key={key}
                 type="button"
@@ -255,7 +251,7 @@ function NewCaptainPageContent() {
                     : 'bg-muted/60 border-input/60 text-muted-foreground hover:border-primary/50 hover:text-foreground'
                 }`}
               >
-                {label}
+                {tDays(key.toLowerCase())}
               </button>
             ))}
           </div>

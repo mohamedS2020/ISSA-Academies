@@ -8,11 +8,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
+import { formatDate } from '@/lib/i18n/format';
 import { Receipt as ReceiptIcon, Download, Loader2 } from 'lucide-react';
 
 interface ReceiptRow {
@@ -35,6 +36,7 @@ interface Pagination {
 function ReceiptsPageContent() {
   const t = useTranslations('finance');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -58,7 +60,7 @@ function ReceiptsPageContent() {
         if (dateFrom) qs.set('startDate', dateFrom);
         if (dateTo) qs.set('endDate', dateTo);
         const res = await authFetch(`/api/finance/receipts?${qs}`);
-        if (!res.ok) throw new Error('Failed to load receipts');
+        if (!res.ok) throw new Error(tCommon('loadFailed'));
         const data = await res.json();
         setReceipts(data.data || []);
         if (data.pagination) setPagination(data.pagination);
@@ -79,7 +81,7 @@ function ReceiptsPageContent() {
     setDownloadingId(receipt.id);
     try {
       const res = await authFetch(`/api/finance/receipts/${receipt.id}?format=pdf`);
-      if (!res.ok) throw new Error('Download failed');
+      if (!res.ok) throw new Error(tCommon('downloadFailed'));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -104,7 +106,7 @@ function ReceiptsPageContent() {
     },
     {
       key: 'trainee',
-      header: 'Trainee',
+      header: t('trainee'),
       mobile: 'title',
       render: (row) => (
         <div>
@@ -115,7 +117,7 @@ function ReceiptsPageContent() {
     },
     {
       key: 'plan',
-      header: 'Plan / Level',
+      header: t('planLevel'),
       render: (row) => (
         <span className="text-muted-foreground text-xs">
           {row.subscription.plan.name} / {row.subscription.level.name}
@@ -131,7 +133,7 @@ function ReceiptsPageContent() {
       key: 'issuedAt',
       header: t('date'),
       render: (row) => (
-        <span className="text-muted-foreground">{new Date(row.issuedAt).toLocaleDateString()}</span>
+        <span className="text-muted-foreground">{formatDate(row.issuedAt, locale)}</span>
       ),
     },
   ];
