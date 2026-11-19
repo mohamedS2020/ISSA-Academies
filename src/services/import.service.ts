@@ -31,6 +31,7 @@ import { syncLoginIndex, withPhoneGuard } from './login-index';
 import { formatSystemCode } from './trainee.service';
 import { generateSessionsForGroup } from './schedule.service';
 import { getTenantById } from './tenant.service';
+import { getAcademyCurrency } from './display-settings.service';
 import { readWorkbook } from '@/lib/import/read';
 import { validateImport, summarize, type ImportPlan, type ImportSummary } from '@/lib/import/validate';
 import { buildCredentials, markUpErrors, type Credential } from '@/lib/import/workbooks';
@@ -82,7 +83,7 @@ export async function getImportContext(tenantId: string) {
       const v = (l.newValues ?? {}) as { fileName?: string; summary?: ImportSummary };
       return { id: l.entityId, at: l.createdAt, branchId: l.branchId, fileName: v.fileName ?? null, summary: v.summary ?? null };
     });
-    return { branches: withState, history };
+    return { branches: withState, history, currency: await getAcademyCurrency(tenantId) };
   });
 }
 

@@ -26,7 +26,8 @@ import {
   Star,
   MessageSquare,
 } from 'lucide-react';
-import { formatBranchDateTime, formatDate } from '@/lib/i18n/format';
+import { formatDate } from '@/lib/i18n/format';
+import { useFormat } from '@/lib/format/use-format';
 
 interface CaptainRating {
   captain: { id: string; name: string } | null;
@@ -62,6 +63,7 @@ interface DashboardData {
 
 export default function PortalDashboardPage() {
   const t = useTranslations('portal');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
   const { toast } = useToast();
@@ -172,7 +174,7 @@ export default function PortalDashboardPage() {
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-primary bg-primary/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <Clock size={11} />
-                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
+                    {fmt.sessionDateTime(s.scheduledAtLocal)}
                   </div>
                 </div>
               ))}

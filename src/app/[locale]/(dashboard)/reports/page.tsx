@@ -8,8 +8,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { formatNumber } from '@/lib/i18n/format';
+import { useTranslations } from 'next-intl';
+import { useFormat } from '@/lib/format/use-format';
 import { useAuth } from '@/lib/auth/auth-context';
 import { RequireAccess } from '@/components/auth/require-access';
 import { useToast } from '@/components/feedback/toast-provider';
@@ -46,7 +46,7 @@ function todayIso(offsetDays = 0): string {
 
 function ReportsCenterPageContent() {
   const t = useTranslations('reports');
-  const locale = useLocale();
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tTrainees = useTranslations('trainees');
   const { authFetch } = useAuth();
@@ -150,19 +150,19 @@ function ReportsCenterPageContent() {
   const summaryLabel = (key: string) => (t.has(`summary.${key}`) ? t(`summary.${key}`) : key);
   const summaryValue = (key: string, value: unknown) => {
     if (typeof value !== 'number') return String(value);
-    if (key === 'attendanceRate') return `${formatNumber(value, locale, { maximumFractionDigits: 1 })}%`;
-    if (MONEY.has(key)) return formatNumber(value, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return formatNumber(value, locale, { maximumFractionDigits: 0 });
+    if (key === 'attendanceRate') return fmt.percent(value);
+    if (MONEY.has(key)) return fmt.money(value);
+    return fmt.count(value);
   };
 
   const columnsByType: Record<ReportType, Column<any>[]> = {
     financial: [
-      { key: 'date', header: t('dateRange') },
+      { key: 'date', header: t('dateRange'), render: (r) => fmt.date(r.date) },
       { key: 'type', header: t('col.type'), render: (r) => valueLabel(r.type) },
-      { key: 'amount', header: t('col.amount') },
+      { key: 'amount', header: t('col.amount'), render: (r) => fmt.money(r.amount) },
     ],
     attendance: [
-      { key: 'date', header: t('dateRange') },
+      { key: 'date', header: t('dateRange'), render: (r) => fmt.date(r.date) },
       { key: 'traineeName', header: t('col.trainee') },
       { key: 'groupName', header: t('col.group') },
       { key: 'status', header: t('col.status'), render: (r) => valueLabel(r.status) },
@@ -172,14 +172,14 @@ function ReportsCenterPageContent() {
       { key: 'planName', header: t('col.plan') },
       { key: 'levelName', header: t('col.level') },
       { key: 'status', header: t('col.status'), render: (r) => valueLabel(r.status) },
-      { key: 'startDate', header: t('col.start') },
-      { key: 'endDate', header: t('col.end') },
+      { key: 'startDate', header: t('col.start'), render: (r) => fmt.date(r.startDate) },
+      { key: 'endDate', header: t('col.end'), render: (r) => fmt.date(r.endDate) },
     ],
     captainPerformance: [
       { key: 'captainName', header: t('col.captain') },
-      { key: 'sessionsConducted', header: t('col.sessions') },
-      { key: 'attendanceRate', header: t('col.attendanceRate'), render: (r) => (typeof r.attendanceRate === 'number' ? `${r.attendanceRate.toFixed(1)}%` : r.attendanceRate) },
-      { key: 'evaluationsCount', header: t('col.evaluations') },
+      { key: 'sessionsConducted', header: t('col.sessions'), render: (r) => fmt.count(r.sessionsConducted) },
+      { key: 'attendanceRate', header: t('col.attendanceRate'), render: (r) => fmt.percent(Number(r.attendanceRate)) },
+      { key: 'evaluationsCount', header: t('col.evaluations'), render: (r) => fmt.count(r.evaluationsCount) },
     ],
     expiringSoon: [
       { key: 'traineeName', header: t('col.trainee') },
@@ -189,10 +189,10 @@ function ReportsCenterPageContent() {
       { key: 'groupName', header: t('col.group') },
       { key: 'sessions', header: t('col.sessions') },
       { key: 'sessionsRemaining', header: t('col.remaining') },
-      { key: 'endDate', header: t('col.end') },
+      { key: 'endDate', header: t('col.end'), render: (r) => fmt.date(r.endDate) },
     ],
     levelGroupTransitions: [
-      { key: 'date', header: t('col.date') },
+      { key: 'date', header: t('col.date'), render: (r) => fmt.date(r.date) },
       { key: 'traineeName', header: t('col.trainee') },
       { key: 'levelChange', header: t('col.levelChange') },
       { key: 'groupChange', header: t('col.groupChange') },
@@ -338,7 +338,7 @@ function ReportsCenterPageContent() {
                   <li key={i} className="py-3">
                     <div className="flex items-baseline justify-between gap-3">
                       <span className="min-w-0 break-words text-sm font-medium text-foreground">{p.planName}</span>
-                      <span className="flex-shrink-0 text-sm font-semibold text-success" dir="ltr">{Number(p.income).toFixed(2)}</span>
+                      <span className="flex-shrink-0 text-sm font-semibold text-success">{fmt.money(p.income)}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       <Users className="inline w-3 h-3 -mt-0.5 me-1" aria-hidden="true" />{p.traineeCount} · {tTrainees('referralNew')} {p.referrals?.new ?? 0} · {tTrainees('referralNetwork')} {p.referrals?.network ?? 0} · {tTrainees('referralContinuous')} {p.referrals?.continuous ?? 0} · {tTrainees('referralOld')} {p.referrals?.old ?? 0}
@@ -347,7 +347,7 @@ function ReportsCenterPageContent() {
                 ))}
                 <li className="py-3 flex items-baseline justify-between gap-3 font-bold text-foreground">
                   <span>{t('grandTotal')}</span>
-                  <span className="text-success" dir="ltr">{(result.byPlan as PlanIncome[]).reduce((sum, p) => sum + Number(p.income), 0).toFixed(2)}</span>
+                  <span className="text-success">{fmt.money((result.byPlan as PlanIncome[]).reduce((sum, p) => sum + Number(p.income), 0))}</span>
                 </li>
               </ul>
               <div className="hidden md:block overflow-x-auto">
@@ -372,7 +372,7 @@ function ReportsCenterPageContent() {
                       <td className="py-2 text-end text-muted-foreground">{p.referrals?.network ?? 0}</td>
                       <td className="py-2 text-end text-muted-foreground">{p.referrals?.continuous ?? 0}</td>
                       <td className="py-2 text-end text-muted-foreground">{p.referrals?.old ?? 0}</td>
-                      <td className="py-2 text-end text-success">{Number(p.income).toFixed(2)}</td>
+                      <td className="py-2 text-end text-success">{fmt.money(p.income)}</td>
                     </tr>
                   ))}
                   <tr className="font-bold text-foreground border-t border-input">
@@ -382,7 +382,7 @@ function ReportsCenterPageContent() {
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.network ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.continuous ?? 0), 0)}</td>
                     <td className="py-2 text-end">{result.byPlan.reduce((s: number, p: any) => s + (p.referrals?.old ?? 0), 0)}</td>
-                    <td className="py-2 text-end text-success">{result.byPlan.reduce((s: number, p: any) => s + Number(p.income), 0).toFixed(2)}</td>
+                    <td className="py-2 text-end text-success">{fmt.money(result.byPlan.reduce((s: number, p: any) => s + Number(p.income), 0))}</td>
                   </tr>
                 </tbody>
               </table>

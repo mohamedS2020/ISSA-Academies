@@ -21,8 +21,9 @@ import {
   Users2, Award, CreditCard, Calendar, Clock,
   ChevronLeft, Trash2, Loader2, CheckCircle, XCircle, Pencil, MessageSquare, Eye,
 } from 'lucide-react';
-import { formatBranchDateTime, formatNumber } from '@/lib/i18n/format';
+
 import { FeedbackPanel } from '@/components/rating/feedback-panel';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -56,6 +57,7 @@ interface GroupDetail {
 
 function GroupDetailPageContent() {
   const t = useTranslations('groups');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const tg = useTranslations('groupPage');
@@ -249,7 +251,7 @@ function GroupDetailPageContent() {
           <p className="font-semibold text-foreground">{group.plan.name}</p>
           <p className="text-xs text-muted-foreground mt-1">{tRenewal('sessions', { count: group.plan.minSessions })}</p>
           {group.plan.amount != null && (
-            <p className="text-xs text-success mt-1">{formatNumber(Number(group.plan.amount), locale)} {tRenewal('currency')}</p>
+            <p className="text-xs text-success mt-1">{fmt.money(group.plan.amount)}</p>
           )}
         </div>
 
@@ -268,7 +270,7 @@ function GroupDetailPageContent() {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            <span dir="ltr">{group.startTime}</span> · {t('minutes', { count: group.sessionDuration })}
+            {fmt.clock(group.startTime)} · {fmt.duration(group.sessionDuration)}
           </div>
         </div>
       </div>
@@ -283,7 +285,7 @@ function GroupDetailPageContent() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-sm text-foreground/80">
-                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
+                    {fmt.sessionDateTime(s.scheduledAtLocal)}
                   </span>
                 </div>
                 <span className="text-xs text-muted-foreground">{t('minutes', { count: s.durationMinutes })}</span>

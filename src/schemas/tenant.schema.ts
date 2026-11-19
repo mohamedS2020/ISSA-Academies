@@ -8,6 +8,7 @@
 import { z } from 'zod';
 import { phoneNumberField } from './phone.schema';
 import { SPORT_KEYS, DEFAULT_SPORT, type SportKey } from '@/lib/theme/sports';
+import { CURRENCY_CODES } from '@/lib/format/currency';
 
 // ─── Create Tenant ──────────────────────────────────────────
 
@@ -22,6 +23,8 @@ export const createTenantSchema = z.object({
   themeKey: z
     .enum(SPORT_KEYS as [SportKey, ...SportKey[]])
     .default(DEFAULT_SPORT),
+  // The academy's currency: chosen once, never changed (src/lib/format/currency.ts).
+  currency: z.enum(CURRENCY_CODES).optional(),
   slug: z
     .string()
     .min(2, 'Slug must be at least 2 characters')

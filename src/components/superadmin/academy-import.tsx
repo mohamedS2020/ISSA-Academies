@@ -16,9 +16,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 import { Download, FileSpreadsheet, Loader2, Upload, CheckCircle2, AlertTriangle, KeyRound, X } from 'lucide-react';
 import { useToast } from '@/components/feedback/toast-provider';
-import { formatDateTime, formatNumber } from '@/lib/i18n/format';
+import { formatDateTime, formatMoney, formatNumber } from '@/lib/i18n/format';
 import { issueText, type ImportIssue } from '@/lib/import/messages';
 import { SHEETS } from '@/lib/import/template';
+import { DEFAULT_CURRENCY } from '@/lib/format/currency';
 import type { ImportSummary } from '@/lib/import/validate';
 
 interface Branch {
@@ -79,7 +80,7 @@ export function AcademyImport({ tenantId, academyName }: { tenantId: string; aca
   const base = `/api/superadmin/tenants/${tenantId}/import`;
   const context = useQuery({
     queryKey: ['superadmin', 'import', tenantId],
-    queryFn: async (): Promise<{ branches: Branch[]; history: HistoryEntry[] }> => {
+    queryFn: async (): Promise<{ branches: Branch[]; history: HistoryEntry[]; currency: string }> => {
       const res = await fetch(base);
       if (!res.ok) throw new Error(t('failed'));
       return (await res.json()).data;
@@ -87,6 +88,8 @@ export function AcademyImport({ tenantId, academyName }: { tenantId: string; aca
   });
   const branches = context.data?.branches ?? null;
   const history = context.data?.history ?? [];
+  // Amounts in the academy's own currency (the super admin has none).
+  const money = (n: number) => formatMoney(n, context.data?.currency ?? DEFAULT_CURRENCY, locale);
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>('file');
@@ -184,7 +187,7 @@ export function AcademyImport({ tenantId, academyName }: { tenantId: string; aca
     [t('sumGroups'), formatNumber(s.groups, locale)],
     [t('sumTrainees'), t('sumTraineesValue', { trainees: s.trainees, parents: s.parentAccounts })],
     [t('sumSubscriptions'), t('sumSubscriptionsValue', { active: s.activeSubscriptions, ended: s.endedSubscriptions, none: s.withoutSubscription })],
-    [t('sumPaid'), `${formatNumber(s.amountPaid, locale, { minimumFractionDigits: 2 })} · ${t('sumDue', { amount: formatNumber(s.amountDue, locale, { minimumFractionDigits: 2 }) })}`],
+    [t('sumPaid'), `${money(s.amountPaid)} · ${t('sumDue', { amount: money(s.amountDue) })}`],
   ];
 
   return (
@@ -218,7 +221,7 @@ export function AcademyImport({ tenantId, academyName }: { tenantId: string; aca
                     {t('historyLine', { branch: branchName(h.branchId) || '—', trainees: h.summary?.trainees ?? 0, captains: h.summary?.captains ?? 0, groups: h.summary?.groups ?? 0 })}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {formatDateTime(h.at, locale, { dateStyle: 'medium', timeStyle: 'short' })}
+                    {formatDateTime(h.at, locale)}
                     {h.fileName ? ` · ${h.fileName}` : ''}
                   </span>
                 </li>

@@ -164,7 +164,10 @@
     "subtitle": "Create, edit and suspend your academy's branches.",
     "showInactive": "Show inactive",
     "namePlaceholder": "e.g. New Cairo",
-    "timezoneNotice": "Time zone"
+    "timezoneNotice": "Time zone",
+    "timeFormat": "Time format",
+    "timeFormat12": "12-hour (5:00 PM)",
+    "timeFormat24": "24-hour (17:00)"
   },
   "users": {
     "title": "User Management",
@@ -557,7 +560,9 @@
     "amountPositive": "Enter an amount above 0",
     "expenseCategoryPlaceholder": "Maintenance, supplies, utilities…",
     "trainee": "Trainee",
-    "planLevel": "Plan / level"
+    "planLevel": "Plan / level",
+    "hours": "Hours",
+    "minutes": "Minutes"
   },
   "reports": {
     "title": "Reports",
@@ -881,7 +886,8 @@
       "row": "row {row}",
       "credentialsFileName": "logins-{branch}.xlsx",
       "markedFileName": "{name}-to-fix.xlsx"
-    }
+    },
+    "currencyHint": "Every amount in this academy is in this currency. It can't be changed after the academy is created."
   },
   "days": {
     "monday": "Monday",

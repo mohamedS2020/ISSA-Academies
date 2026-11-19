@@ -18,6 +18,7 @@ import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
 import { Plus, Loader2, AlertTriangle, Trash2 } from 'lucide-react';
 import { formatDate } from '@/lib/i18n/format';
+import { useFormat } from '@/lib/format/use-format';
 
 interface ManualIncome {
   id: string;
@@ -36,6 +37,7 @@ interface Pagination {
 
 function ManualIncomePageContent() {
   const t = useTranslations('finance');
+  const f = useFormat();
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const { authFetch } = useAuth();
@@ -157,7 +159,7 @@ function ManualIncomePageContent() {
     {
       key: 'amount',
       header: t('amount'),
-      render: (row) => <span className="text-success">{Number(row.amount).toFixed(2)}</span>,
+      render: (row) => <span className="text-success">{f.money(row.amount)}</span>,
     },
     {
       key: 'date',
@@ -257,11 +259,11 @@ function ManualIncomePageContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label htmlFor="dashboard-finance-manualincome-f2" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      {t('amount')} <span className="text-danger">*</span>
+                      {t('amount')} ({f.currencyLabel}) <span className="text-danger">*</span>
                     </label>
                     <input id="dashboard-finance-manualincome-f2"
                       type="number"
-                      step="0.01"
+                      step={f.moneyStep}
                       min="0"
                       required
                       value={amount}

@@ -15,11 +15,12 @@
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { CalendarClock, CheckCircle, ChevronDown, Loader2, RefreshCw, X, XCircle } from 'lucide-react';
-import { formatDate, formatNumber, intlLocale } from '@/lib/i18n/format';
+
 import { useAuth } from '@/lib/auth/auth-context';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -81,9 +82,9 @@ const labelClass = 'block text-xs font-semibold text-foreground/80 mb-1.5';
 
 export function RenewDialog({ traineeId, onClose, onRenewed }: RenewDialogProps) {
   const t = useTranslations('renewal');
+  const fmt = useFormat();
   const tTrainees = useTranslations('trainees');
   const tCommon = useTranslations('common');
-  const locale = useLocale();
   const { authFetch } = useAuth();
   const queryClient = useQueryClient();
   const ids = useId();
@@ -109,22 +110,11 @@ export function RenewDialog({ traineeId, onClose, onRenewed }: RenewDialogProps)
 
   // Dates are calendar days stored at midnight UTC: show them in UTC, or a
   // viewer west of Greenwich sees the day before.
-  const formatDate = useCallback(
-    (iso: string | null | undefined) =>
-      iso
-        ? new Date(iso).toLocaleDateString(intlLocale(locale), {
-            timeZone: 'UTC',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })
-        : '—',
-    [locale]
-  );
-  const formatMoney = useCallback(
-    (n: number) => `${formatNumber(n, locale, { maximumFractionDigits: 2 })} ${t('currency')}`,
-    [locale, t]
-  );
+  // Calendar days stored at midnight UTC: printed in UTC (format.ts), so no one
+  // west of Greenwich sees the day before.
+  const formatDate = (iso: string | null | undefined) => (iso ? fmt.date(iso) : '—');
+
+  const formatMoney = fmt.money;
 
   const loadPreview = useCallback(
     async (planId?: string) => {
@@ -467,8 +457,8 @@ export function RenewDialog({ traineeId, onClose, onRenewed }: RenewDialogProps)
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <p className={labelClass}>{t('price')}</p>
-                  <p className="px-1 py-2.5 text-sm font-semibold text-foreground" dir="ltr" data-testid="renew-price">
-                    <span className="block rtl:text-right">{formatMoney(price)}</span>
+                  <p className="px-1 py-2.5 text-sm font-semibold text-foreground" data-testid="renew-price">
+                    {formatMoney(price)}
                   </p>
                 </div>
                 <div>

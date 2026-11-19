@@ -35,6 +35,8 @@ export interface PayrollPreview {
   periodStart: string;
   periodEnd: string;
   hoursWorked?: number;
+  /** The exact time worked, for display ("12 h 50 min") and pay. */
+  minutesWorked?: number;
   hourlyRate?: number;
   baseSalary?: number;
   percentage?: number;
@@ -101,7 +103,9 @@ export async function calculatePayrollPreview(
       const totalMinutes = sessions.reduce((sum, s) => sum + s.durationMinutes, 0);
       const hoursWorked = round2(totalMinutes / 60);
       const hourlyRate = Number(captain.hourlyRate ?? 0);
-      const totalAmount = round2(hoursWorked * hourlyRate);
+      // Pay from the exact minutes: 12 h 50 min is 12.8333… hours, and paying
+      // the rounded 12.83 shorted the captain (1,924.50 instead of 1,925).
+      const totalAmount = round2((totalMinutes / 60) * hourlyRate);
 
       return {
         captainId: captain.id,
@@ -110,6 +114,7 @@ export async function calculatePayrollPreview(
         periodStart,
         periodEnd,
         hoursWorked,
+        minutesWorked: totalMinutes,
         hourlyRate,
         totalAmount,
       };

@@ -16,6 +16,7 @@ import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { Skeleton } from '@/components/feedback/skeleton-loader';
 import { formatDate } from '@/lib/i18n/format';
 import { AcademyImport } from '@/components/superadmin/academy-import';
+import { resolveCurrency } from '@/lib/format/currency';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -423,7 +424,7 @@ export default function TenantDetailPage() {
                 <>
                   <div>
                     <dt className="text-xs font-medium text-muted-foreground">{t('currency')}</dt>
-                    <dd className="mt-1 text-sm text-foreground">{tenant.config.currency}</dd>
+                    <dd className="mt-1 text-sm text-foreground">{locale === 'ar' ? resolveCurrency(tenant.config.currency).nameAr : `${resolveCurrency(tenant.config.currency).nameEn} (${tenant.config.currency})`}</dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-muted-foreground">{t('defaultTimezone')}</dt>

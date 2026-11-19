@@ -16,6 +16,7 @@ import { useToast } from '@/components/feedback/toast-provider';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { formatDate } from '@/lib/i18n/format';
 import { Calculator, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface CaptainOption {
   id: string;
@@ -29,6 +30,8 @@ interface PayrollPreview {
   periodStart: string;
   periodEnd: string;
   hoursWorked?: number;
+  /** Exact time worked; pay is worked out from it, not from rounded hours. */
+  minutesWorked?: number;
   hourlyRate?: number;
   baseSalary?: number;
   percentage?: number;
@@ -56,6 +59,7 @@ function todayIso(offsetDays = 0): string {
 
 function PayrollPageContent() {
   const t = useTranslations('finance');
+  const f = useFormat();
   const tCommon = useTranslations('common');
   const tCaptains = useTranslations('captains');
   const locale = useLocale();
@@ -131,7 +135,7 @@ function PayrollPageContent() {
           captainId: preview.captainId,
           periodStart: preview.periodStart,
           periodEnd: preview.periodEnd,
-          hoursWorked: preview.hoursWorked,
+          hoursWorked: preview.minutesWorked != null ? preview.minutesWorked / 60 : preview.hoursWorked,
           percentageBase: preview.percentageBase,
           totalAmount: preview.totalAmount,
         }),
@@ -190,7 +194,7 @@ function PayrollPageContent() {
     {
       key: 'totalAmount',
       header: t('totalAmount'),
-      render: (row) => Number(row.totalAmount).toFixed(2),
+      render: (row) => f.money(row.totalAmount),
     },
     {
       key: 'isPaid',
@@ -276,36 +280,54 @@ function PayrollPageContent() {
         {preview && (
           <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 space-y-3">
             <p className="text-xs text-muted-foreground">
-              {preview.captainName} · {preview.payrollType}
+              {preview.captainName} · {preview.payrollType === 'HOURS' ? tCaptains('hours') : tCaptains('salaryPercentage')}
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               {preview.payrollType === 'HOURS' ? (
                 <>
-                  <div>
-                    <span className="text-muted-foreground block">{t('hoursWorked')}</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={preview.hoursWorked ?? 0}
-                      onChange={(e) =>
-                        setPreview((p) =>
-                          p
-                            ? {
-                                ...p,
-                                hoursWorked: Number(e.target.value),
-                                totalAmount:
-                                  Number(e.target.value) * Number(p.hourlyRate ?? 0),
+                  <div className="col-span-2">
+                    {/* Hours and minutes, never 12.83: pay comes from the exact minutes. */}
+                    <span className="text-muted-foreground block">
+                      {t('hoursWorked')} · {f.duration(preview.minutesWorked ?? 0)}
+                    </span>
+                    <div className="mt-1 flex gap-2">
+                      {(['h', 'm'] as const).map((part) => {
+                        const total = preview.minutesWorked ?? 0;
+                        const value = part === 'h' ? Math.floor(total / 60) : total % 60;
+                        return (
+                          <label key={part} className="flex-1">
+                            <span className="sr-only">{part === 'h' ? t('hours') : t('minutes')}</span>
+                            <input
+                              type="number"
+                              min={0}
+                              max={part === 'm' ? 59 : undefined}
+                              step={1}
+                              value={value}
+                              onChange={(e) =>
+                                setPreview((p) => {
+                                  if (!p) return p;
+                                  const n = Math.max(0, Math.floor(Number(e.target.value) || 0));
+                                  const before = p.minutesWorked ?? 0;
+                                  const minutes = part === 'h' ? n * 60 + (before % 60) : Math.floor(before / 60) * 60 + Math.min(n, 59);
+                                  return {
+                                    ...p,
+                                    minutesWorked: minutes,
+                                    totalAmount: Math.round((minutes / 60) * Number(p.hourlyRate ?? 0) * 100) / 100,
+                                  };
+                                })
                               }
-                            : p
-                        )
-                      }
-                      className="w-full mt-1 rounded-lg border border-border bg-muted/70 px-2 py-1.5 text-foreground"
-                    />
+                              className="w-full rounded-lg border border-border bg-muted/70 px-2 py-1.5 text-foreground"
+                            />
+                            <span className="mt-0.5 block text-[10px] text-muted-foreground">{part === 'h' ? t('hours') : t('minutes')}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground block">{tCaptains('hourlyRate')}</span>
                     <span className="text-foreground font-semibold">
-                      {Number(preview.hourlyRate ?? 0).toFixed(2)}
+                      {f.money(preview.hourlyRate ?? 0)}
                     </span>
                   </div>
                 </>
@@ -314,14 +336,14 @@ function PayrollPageContent() {
                   <div>
                     <span className="text-muted-foreground block">{tCaptains('baseSalary')}</span>
                     <span className="text-foreground font-semibold">
-                      {Number(preview.baseSalary ?? 0).toFixed(2)}
+                      {f.money(preview.baseSalary ?? 0)}
                     </span>
                   </div>
                   <div>
                     <span className="text-muted-foreground block">{t('percentageBase')}</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={f.moneyStep}
                       value={preview.percentageBase ?? 0}
                       onChange={(e) =>
                         setPreview((p) =>
@@ -344,7 +366,7 @@ function PayrollPageContent() {
               <div>
                 <span className="text-muted-foreground block">{t('totalAmount')}</span>
                 <span className="text-primary dark:text-primary font-bold text-base">
-                  {preview.totalAmount.toFixed(2)}
+                  {f.money(preview.totalAmount)}
                 </span>
               </div>
             </div>

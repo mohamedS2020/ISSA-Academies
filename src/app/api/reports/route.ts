@@ -21,6 +21,8 @@ import {
   getExpiringSoonReport,
   getTransitionsReport,
 } from '@/services/report.service';
+import { getAcademyCurrency } from '@/services/display-settings.service';
+import { formatDate } from '@/lib/i18n/format';
 import {
   exportReportToPdf,
   exportReportToExcel,
@@ -93,11 +95,11 @@ export const GET = withErrorHandler(
         exportMeta = {
           title: REPORT_TITLES.financial,
           summary: [
-            { label: 'Revenue', value: data.summary.revenue },
-            { label: 'Collections', value: data.summary.collections },
-            { label: 'Expenses', value: data.summary.expenses },
-            { label: 'Outstanding', value: data.summary.outstandingPayments },
-            { label: 'Profit/Loss', value: data.summary.profitLoss },
+            { label: 'Revenue', value: data.summary.revenue, kind: 'money' },
+            { label: 'Collections', value: data.summary.collections, kind: 'money' },
+            { label: 'Expenses', value: data.summary.expenses, kind: 'money' },
+            { label: 'Outstanding', value: data.summary.outstandingPayments, kind: 'money' },
+            { label: 'Profit/Loss', value: data.summary.profitLoss, kind: 'money' },
           ],
           sections: [
             {
@@ -109,7 +111,7 @@ export const GET = withErrorHandler(
                 { key: 'refNetwork', label: 'Network' },
                 { key: 'refContinuous', label: 'Continuous' },
                 { key: 'refOld', label: 'Old' },
-                { key: 'income', label: 'Income' },
+                { key: 'income', label: 'Income', kind: 'money' },
               ],
               rows: [
                 ...planRows,
@@ -126,9 +128,9 @@ export const GET = withErrorHandler(
             },
           ],
           columns: [
-            { key: 'date', label: 'Date' },
+            { key: 'date', label: 'Date', kind: 'date' },
             { key: 'type', label: 'Type' },
-            { key: 'amount', label: 'Amount' },
+            { key: 'amount', label: 'Amount', kind: 'money' },
           ],
           rows: data.records,
         };
@@ -149,10 +151,10 @@ export const GET = withErrorHandler(
             { label: 'Present', value: data.summary.present },
             { label: 'Absent', value: data.summary.absent },
             { label: 'Excused', value: data.summary.excused },
-            { label: 'Attendance Rate', value: `${data.summary.attendanceRate}%` },
+            { label: 'Attendance Rate', value: data.summary.attendanceRate, kind: 'percent' },
           ],
           columns: [
-            { key: 'date', label: 'Date' },
+            { key: 'date', label: 'Date', kind: 'date' },
             { key: 'traineeName', label: 'Trainee' },
             { key: 'groupName', label: 'Group' },
             { key: 'status', label: 'Status' },
@@ -182,8 +184,8 @@ export const GET = withErrorHandler(
             { key: 'planName', label: 'Plan' },
             { key: 'levelName', label: 'Level' },
             { key: 'status', label: 'Status' },
-            { key: 'startDate', label: 'Start Date' },
-            { key: 'endDate', label: 'End Date' },
+            { key: 'startDate', label: 'Start Date', kind: 'date' },
+            { key: 'endDate', label: 'End Date', kind: 'date' },
           ],
           rows: data.records,
         };
@@ -201,7 +203,7 @@ export const GET = withErrorHandler(
           columns: [
             { key: 'captainName', label: 'Captain' },
             { key: 'sessionsConducted', label: 'Sessions Conducted' },
-            { key: 'attendanceRate', label: 'Attendance Rate (%)' },
+            { key: 'attendanceRate', label: 'Attendance Rate', kind: 'percent' },
             { key: 'evaluationsCount', label: 'Evaluations' },
           ],
           rows: data.records,
@@ -222,7 +224,7 @@ export const GET = withErrorHandler(
             { key: 'groupName', label: 'Group' },
             { key: 'sessions', label: 'Sessions' },
             { key: 'sessionsRemaining', label: 'Remaining' },
-            { key: 'endDate', label: 'End Date' },
+            { key: 'endDate', label: 'End Date', kind: 'date' },
           ],
           rows: data.records,
         };
@@ -235,7 +237,7 @@ export const GET = withErrorHandler(
           title: REPORT_TITLES.levelGroupTransitions,
           summary: [{ label: 'Transitions', value: data.summary.total }],
           columns: [
-            { key: 'date', label: 'Date' },
+            { key: 'date', label: 'Date', kind: 'date' },
             { key: 'traineeName', label: 'Trainee' },
             { key: 'levelChange', label: 'Level Change' },
             { key: 'groupChange', label: 'Group Change' },
@@ -253,9 +255,8 @@ export const GET = withErrorHandler(
 
     const branch = await getBranchById(ctx.tenantId, ctx.branchId);
     exportMeta.branchName = branch?.name;
-    exportMeta.dateRangeLabel = `${query.dateFrom ?? dateFrom.toISOString().slice(0, 10)} to ${
-      query.dateTo ?? dateTo.toISOString().slice(0, 10)
-    }`;
+    exportMeta.currency = await getAcademyCurrency(ctx.tenantId);
+    exportMeta.dateRangeLabel = `${formatDate(query.dateFrom ?? dateFrom, 'en')} to ${formatDate(query.dateTo ?? dateTo, 'en')}`;
 
     const fileBaseName = `${query.type}-report-${new Date().toISOString().slice(0, 10)}`;
 

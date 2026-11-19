@@ -27,7 +27,7 @@ import {
   CreditCard, // Subscriptions
   UserCheck, // Attendance
   Calendar, // Schedule
-  DollarSign, // Finance
+  Wallet, // Finance
   FileText, // Reports
   ChevronLeft,
   ChevronRight,
@@ -138,7 +138,7 @@ export default function Sidebar({
     {
       name: t('finance'),
       href: `/${locale}/finance`,
-      icon: DollarSign,
+      icon: Wallet,
       roles: [UserRole.ADMIN, UserRole.MODERATOR],
       access: ['viewFinances', 'viewExpenses', 'viewReceipts', 'managePayroll'],
     },

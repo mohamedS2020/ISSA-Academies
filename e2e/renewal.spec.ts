@@ -125,5 +125,5 @@ test('an ended subscription: the banner offers Renew, and it starts today (Arabi
 
   // Active again, with the full price still due.
   await expect(page.getByTestId('renewal-banner')).toHaveCount(0);
-  await expect(page.getByText('500.00')).toBeVisible();
+  await expect(page.getByText('500 ج.م', { exact: true })).toBeVisible();
 });

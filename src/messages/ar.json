@@ -164,7 +164,10 @@
     "subtitle": "أنشئ فروع أكاديميتك وعدّلها وأوقفها.",
     "showInactive": "عرض الموقوفة",
     "namePlaceholder": "مثال: القاهرة الجديدة",
-    "timezoneNotice": "المنطقة الزمنية"
+    "timezoneNotice": "المنطقة الزمنية",
+    "timeFormat": "صيغة الوقت",
+    "timeFormat12": "12 ساعة (5:00 م)",
+    "timeFormat24": "24 ساعة (17:00)"
   },
   "users": {
     "title": "إدارة المستخدمين",
@@ -557,7 +560,9 @@
     "amountPositive": "أدخل مبلغًا أكبر من صفر",
     "expenseCategoryPlaceholder": "صيانة، مستلزمات، مرافق…",
     "trainee": "المتدرب",
-    "planLevel": "الباقة / المستوى"
+    "planLevel": "الباقة / المستوى",
+    "hours": "ساعات",
+    "minutes": "دقائق"
   },
   "reports": {
     "title": "التقارير",
@@ -881,7 +886,8 @@
       "row": "الصف {row}",
       "credentialsFileName": "بيانات-الدخول-{branch}.xlsx",
       "markedFileName": "{name}-للتصحيح.xlsx"
-    }
+    },
+    "currencyHint": "كل المبالغ في هذه الأكاديمية بهذه العملة. لا يمكن تغييرها بعد إنشاء الأكاديمية."
   },
   "days": {
     "monday": "الإثنين",

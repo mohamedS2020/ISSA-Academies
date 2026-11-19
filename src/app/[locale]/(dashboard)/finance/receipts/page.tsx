@@ -15,6 +15,7 @@ import { DataTable, Column } from '@/components/tables/data-table';
 import { useToast } from '@/components/feedback/toast-provider';
 import { formatDate } from '@/lib/i18n/format';
 import { Receipt as ReceiptIcon, Download, Loader2 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface ReceiptRow {
   id: string;
@@ -35,6 +36,7 @@ interface Pagination {
 
 function ReceiptsPageContent() {
   const t = useTranslations('finance');
+  const f = useFormat();
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const { authFetch } = useAuth();
@@ -127,7 +129,7 @@ function ReceiptsPageContent() {
     {
       key: 'amount',
       header: t('amount'),
-      render: (row) => Number(row.amount).toFixed(2),
+      render: (row) => f.money(row.amount),
     },
     {
       key: 'issuedAt',

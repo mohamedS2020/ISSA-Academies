@@ -22,6 +22,7 @@ import { DataTable, Column } from '@/components/tables/data-table';
 import {
   Users2, Plus, XCircle, CheckCircle, ChevronRight, Filter, X, UserPlus,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -51,6 +52,7 @@ const filterFieldClass =
 
 function GroupsPageContent() {
   const t = useTranslations('groups');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tDay = useTranslations('daysShort');
   const { user, authFetch } = useAuth();
@@ -151,7 +153,7 @@ function GroupsPageContent() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            <span dir="ltr">{row.startTime}</span> · {t('minutes', { count: row.sessionDuration })}
+            {fmt.clock(row.startTime)} · {fmt.duration(row.sessionDuration)}
           </p>
         </div>
       ),
@@ -279,7 +281,7 @@ function GroupsPageContent() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('filterHour')}</span>
             <select value={filters.hour} onChange={(e) => setFilters((f) => ({ ...f, hour: e.target.value }))} className={filterFieldClass}>
               <option value="">{t('all')}</option>
-              {HOURS.map((h) => <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>)}
+              {HOURS.map((h) => <option key={h} value={h}>{fmt.clock(`${h}:00`)}</option>)}
             </select>
           </label>
 

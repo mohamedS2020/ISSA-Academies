@@ -11,7 +11,7 @@
 import ExcelJS from 'exceljs';
 import { brandArgb } from '@/lib/config/brand-colors';
 import { issueText, type ImportIssue } from './messages';
-import { SHEETS, headerLabel, sheetName, type SheetKey } from './template';
+import { SHEETS, headerLabel, headerNames, sheetName, type SheetKey } from './template';
 
 const norm = (s: string) => s.replace(/\*/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
 
@@ -35,7 +35,7 @@ export async function markUpErrors(original: Buffer | ArrayBuffer, issues: Impor
     const columnOf = new Map<string, number>();
     ws.getRow(1).eachCell((cell, n) => {
       const label = norm(String(cell.text ?? ''));
-      const c = def.columns.find((c) => [headerLabel(c), `${c.en} / ${c.ar}`, c.en, c.ar].map(norm).includes(label));
+      const c = def.columns.find((c) => headerNames(c).map(norm).includes(label));
       if (c && !columnOf.has(c.key)) columnOf.set(c.key, n);
     });
     located.set(def.key, { ws, columnOf });

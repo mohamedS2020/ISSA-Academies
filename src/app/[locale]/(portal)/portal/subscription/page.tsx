@@ -13,8 +13,9 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
 import { SkeletonCard } from '@/components/feedback/skeleton-loader';
-import { formatDate, intlLocale } from '@/lib/i18n/format';
+import { formatDate } from '@/lib/i18n/format';
 import { CreditCard, Snowflake, Calendar, Wallet, CalendarClock } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface SubscriptionData {
   hasActiveSubscription: boolean;
@@ -47,13 +48,13 @@ interface SubscriptionData {
 
 export default function PortalSubscriptionPage() {
   const t = useTranslations('portal');
+  const fmt = useFormat();
   const tFinance = useTranslations('finance');
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const { authFetch } = useAuth();
   // Calendar days stored at midnight UTC: shown in UTC so no one sees the day before.
-  const formatDay = (iso: string) =>
-    new Date(iso).toLocaleDateString(intlLocale(locale), { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+  const formatDay = (iso: string) => fmt.date(iso);
   const { toast } = useToast();
 
   const { selectedTraineeId } = usePortalTrainee();
@@ -167,7 +168,7 @@ export default function PortalSubscriptionPage() {
                 Number(data.subscription.amountDue) > 0 ? 'text-warning' : 'text-success'
               }`}
             >
-              {Number(data.subscription.amountDue).toFixed(2)}
+              {fmt.money(data.subscription.amountDue)}
             </p>
           </div>
         </div>
@@ -203,8 +204,8 @@ export default function PortalSubscriptionPage() {
             {Number(data.upcoming.amountDue) > 0 && (
               <div>
                 <p className="text-xs text-muted-foreground">{tFinance('outstandingBalance')}</p>
-                <p dir="ltr" className="text-xl font-extrabold text-warning rtl:text-right">
-                  {Number(data.upcoming.amountDue).toFixed(2)}
+                <p className="text-xl font-extrabold text-warning">
+                  {fmt.money(data.upcoming.amountDue)}
                 </p>
               </div>
             )}

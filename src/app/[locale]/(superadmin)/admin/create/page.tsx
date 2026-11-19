@@ -18,6 +18,7 @@ import { useToast } from '@/components/feedback/toast-provider';
 import { useAuth } from '@/lib/auth/auth-context';
 import { generateSlug } from '@/schemas/tenant.schema';
 import { isValidPhone } from '@/lib/phone';
+import { CURRENCIES, CURRENCY_CODES, DEFAULT_CURRENCY, type CurrencyCode } from '@/lib/format/currency';
 import {
   SPORTS,
   SPORT_KEYS,
@@ -33,6 +34,7 @@ interface WizardData {
   name: string;
   slug: string;
   themeKey: SportKey;
+  currency: CurrencyCode;
   contactName: string;
   contactPhone: string;
   contactEmail: string;
@@ -55,6 +57,7 @@ const INITIAL_DATA: WizardData = {
   name: '',
   slug: '',
   themeKey: DEFAULT_SPORT,
+  currency: DEFAULT_CURRENCY,
   contactName: '',
   contactPhone: '',
   contactEmail: '',
@@ -78,6 +81,10 @@ const COMMON_TIMEZONES = [
   'America/Sao_Paulo',
   'Asia/Dubai',
   'Asia/Riyadh',
+  'Asia/Kuwait',
+  'Asia/Qatar',
+  'Asia/Bahrain',
+  'Asia/Muscat',
   'Asia/Kolkata',
   'Asia/Shanghai',
   'Asia/Tokyo',
@@ -116,6 +123,10 @@ export default function CreateTenantPage() {
       // Auto-generate slug from name
       if (key === 'name') {
         next.slug = generateSlug(value);
+      }
+      // The currency suggests the time zone (SAR → Riyadh); the branch step can still change it.
+      if (key === 'currency') {
+        next.branchTimezone = CURRENCIES[value as CurrencyCode].timezone;
       }
       return next;
     });
@@ -348,6 +359,25 @@ export default function CreateTenantPage() {
               <p className="text-xs text-muted-foreground">{t('sportThemeHint')}</p>
             </div>
 
+            <div className="space-y-1.5">
+              <label htmlFor="superadmin-admin-create-currency" className="block text-sm font-medium text-foreground/80">
+                {t('currency')}
+              </label>
+              <select
+                id="superadmin-admin-create-currency"
+                value={data.currency}
+                onChange={(e) => updateField('currency', e.target.value as CurrencyCode)}
+                className="w-full rounded-lg border border-input px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {CURRENCY_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {locale === 'ar' ? `${CURRENCIES[code].nameAr} (${CURRENCIES[code].symbolAr})` : `${CURRENCIES[code].nameEn} (${code})`}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">{t('currencyHint')}</p>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <label htmlFor="superadmin-admin-create-f3" className="block text-sm font-medium text-foreground/80">
@@ -533,6 +563,12 @@ export default function CreateTenantPage() {
                   <dt className="text-muted-foreground">{t('sportTheme')}</dt>
                   <dd className="font-medium text-foreground">
                     {sportLabel(data.themeKey, locale)}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">{t('currency')}</dt>
+                  <dd className="font-medium text-foreground">
+                    {locale === 'ar' ? CURRENCIES[data.currency].nameAr : `${CURRENCIES[data.currency].nameEn} (${data.currency})`}
                   </dd>
                 </div>
                 {data.contactEmail && (

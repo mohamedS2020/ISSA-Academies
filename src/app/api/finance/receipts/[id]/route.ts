@@ -8,6 +8,7 @@ import { withAuth } from '@/lib/auth/middleware';
 import { successResponse } from '@/lib/api/response';
 import { getReceiptById } from '@/services/receipt.service';
 import { exportReceiptToPdf } from '@/services/export.service';
+import { getAcademyCurrency } from '@/services/display-settings.service';
 import { requireAccess } from '@/lib/auth/permissions';
 
 export const GET = withErrorHandler(
@@ -33,7 +34,7 @@ export const GET = withErrorHandler(
           amountPaid: Number(receipt.subscription.amountPaid),
           amountDue: Number(receipt.subscription.amountDue),
         },
-      });
+      }, await getAcademyCurrency(ctx.tenantId));
       return new Response(new Uint8Array(buffer), {
         status: 200,
         headers: {

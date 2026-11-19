@@ -11,6 +11,8 @@
 
 import { useState } from 'react';
 import { Star } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { formatNumber } from '@/lib/i18n/format';
 
 export function RatingBadge({
   average,
@@ -23,6 +25,7 @@ export function RatingBadge({
   size?: number;
   className?: string;
 }) {
+  const locale = useLocale();
   if (average === null) {
     return (
       <span
@@ -38,7 +41,7 @@ export function RatingBadge({
       className={`inline-flex items-center gap-1 text-[11px] font-bold text-warning ${className}`}
     >
       <Star size={size} className="fill-warning text-warning" />
-      <span>{average.toFixed(1)}</span>
+      <span>{formatNumber(average, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
       {count !== undefined && count > 0 && (
         <span className="text-muted-foreground font-medium">({count})</span>
       )}

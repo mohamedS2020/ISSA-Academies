@@ -26,6 +26,7 @@ import {
   Clock,
   Percent,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Constants ────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ function Field({ label, required, children, error }: FieldProps) {
 
 function NewCaptainPageContent() {
   const t = useTranslations('captains');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tc = useTranslations('captainPage');
   const tDays = useTranslations('days');
@@ -283,7 +285,7 @@ function NewCaptainPageContent() {
               <input
                 type="number"
                 min={0}
-                step="0.01"
+                step={fmt.moneyStep}
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(e.target.value)}
                 className={inputClass}
@@ -298,7 +300,7 @@ function NewCaptainPageContent() {
                 <input
                   type="number"
                   min={0}
-                  step="0.01"
+                  step={fmt.moneyStep}
                   value={baseSalary}
                   onChange={(e) => setBaseSalary(e.target.value)}
                   className={inputClass}

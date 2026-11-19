@@ -31,7 +31,8 @@ import {
   KeyRound,
   UserCheck,
 } from 'lucide-react';
-import { formatNumber } from '@/lib/i18n/format';
+
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -156,6 +157,7 @@ const textareaClass = inputClass + ' resize-none h-24';
 
 function NewTraineePageContent() {
   const t = useTranslations('trainees');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tn = useTranslations('traineeNew');
   const tp = useTranslations('traineePage');
@@ -463,7 +465,7 @@ function NewTraineePageContent() {
               >
                 <option value="">{tRenewal('selectPlan')}</option>
                 {plans.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} — {formatNumber(Number(p.amount), locale)} {tRenewal('currency')}</option>
+                  <option key={p.id} value={p.id}>{p.name} — {fmt.money(p.amount)}</option>
                 ))}
               </select>
             </Field>
