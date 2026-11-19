@@ -24,6 +24,7 @@ import {
   buildRequestContext,
 } from '@/lib/db/tenant-resolver';
 import { withTenantContext } from '@/lib/db/tenant-client';
+import { academyPhoneCountry, withPhoneCountry } from '@/lib/phone-context';
 import {
   UserRole,
   type RequestContext,
@@ -219,7 +220,10 @@ export function withAuth(
       // Admin always passes privilege checks — they have all privileges
     }
 
-    return handler(request, ctx, routeContext);
+    // Phone numbers typed the local way are read in this academy's country
+    // (src/lib/phone-context.ts): 05… is Saudi in a Saudi academy.
+    const country = await academyPhoneCountry(ctx.tenantId);
+    return withPhoneCountry(country, () => handler(request, ctx, routeContext));
   };
 }
 

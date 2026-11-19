@@ -311,7 +311,7 @@ function CaptainDetailPageContent() {
             {isEditing ? (
               <input type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className={inputClass} />
             ) : (
-              <p className="text-sm text-foreground rtl:text-right" dir="ltr">{captain.user.phoneNumber}</p>
+              <p className="text-sm text-foreground rtl:text-right" dir="ltr">{fmt.phone(captain.user.phoneNumber)}</p>
             )}
           </div>
           {/* Specialization */}

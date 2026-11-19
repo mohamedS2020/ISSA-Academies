@@ -19,7 +19,7 @@ export const demoRequestSchema = z.object({
   // E.164 allows at most 15 digits; 7 is the shortest plausible local number.
   // The same normalization as every login phone (src/lib/phone.ts), so a lead's
   // WhatsApp link always carries the country code.
-  phone: z.string().transform(normalizePhone).pipe(z.string().regex(PHONE_PATTERN)),
+  phone: z.string().transform((value) => normalizePhone(value)).pipe(z.string().regex(PHONE_PATTERN)),
   branches: z.enum(LEAD_BRANCHES),
   sport: z.enum(LEAD_SPORTS),
   locale: z.enum(['en', 'ar']),

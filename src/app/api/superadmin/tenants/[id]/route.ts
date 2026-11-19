@@ -9,6 +9,7 @@
 
 import { withErrorHandler, NotFoundError } from '@/lib/api/error-handler';
 import { withSuperAdminAuth } from '@/lib/auth/middleware';
+import { academyPhoneCountry, withPhoneCountry } from '@/lib/phone-context';
 import { successResponse } from '@/lib/api/response';
 import { updateTenantSchema } from '@/schemas/tenant.schema';
 import { getTenantById, updateTenant } from '@/services/tenant.service';
@@ -41,7 +42,8 @@ export const PATCH = withErrorHandler(
     }
 
     const body = await request.json();
-    const input = updateTenantSchema.parse(body);
+    const country = await academyPhoneCountry(id);
+    const input = withPhoneCountry(country, () => updateTenantSchema.parse(body));
 
     const updated = await updateTenant(id, input);
 

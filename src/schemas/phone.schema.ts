@@ -21,6 +21,6 @@ export function phoneNumberField(messages: PhoneMessages = {}) {
   return z
     .string()
     .min(1, messages.required ?? 'Phone number is required')
-    .transform(normalizePhone)
+    .transform((value) => normalizePhone(value))
     .pipe(z.string().regex(PHONE_PATTERN, messages.invalid ?? 'Invalid phone number format'));
 }

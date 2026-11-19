@@ -987,7 +987,7 @@ function TraineeDetailPageContent() {
                   />
                 ) : (
                   <p className="text-sm text-foreground rtl:text-right" dir={LTR_FIELDS.has(key) ? 'ltr' : undefined}>
-                    {value != null && value !== '' ? String(value) : (
+                    {value != null && value !== '' ? (key === 'phoneNumber' || key === 'whatsappNumber' ? fmt.phone(String(value)) : String(value)) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                     {isEditing && key === 'guardian' && (

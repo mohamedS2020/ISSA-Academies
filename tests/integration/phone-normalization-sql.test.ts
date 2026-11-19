@@ -85,7 +85,7 @@ describe('pg_temp.normalize_phone matches normalizePhone', () => {
       return rows;
     });
 
-    expect(fromSql).toEqual(SAMPLES.map(normalizePhone));
+    expect(fromSql).toEqual(SAMPLES.map((p) => normalizePhone(p)));
   }, 60_000);
 
   test('both migrations carry the same function', () => {

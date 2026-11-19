@@ -345,7 +345,7 @@ export default function DashboardPage() {
                     <p className="mt-1 text-xs">
                       <span className="text-warning font-medium font-mono">{f.date(item.endDate)}</span>
                       <span className="text-muted-foreground"> · </span>
-                      <span className="text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</span>
+                      <span className="text-muted-foreground font-mono" dir="ltr">{f.phone(item.phoneNumber)}</span>
                     </p>
                   </div>
                   <div className="flex-shrink-0">{renewAction(item, true)}</div>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
                       <td className="py-3.5 text-warning font-medium font-mono">
                         {f.date(item.endDate)}
                       </td>
-                      <td className="py-3.5 text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</td>
+                      <td className="py-3.5 text-muted-foreground font-mono" dir="ltr">{f.phone(item.phoneNumber)}</td>
                       <td className="py-3.5 text-end">
                         {renewAction(item, false)}
                       </td>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { normalizePhone, isValidPhone, explainInvalidPhone, phoneSearchFragment } from './phone';
+import { normalizePhone, isValidPhone, explainInvalidPhone, phoneSearchFragment, phoneCandidates, formatPhone } from './phone';
 import { loginSchema } from '@/schemas/auth.schema';
 import { createUserSchema } from '@/schemas/user.schema';
 
@@ -117,5 +117,46 @@ describe('every phone field stores the canonical form', () => {
     expect(loginSchema.safeParse({ phoneNumber: '0100-ABC', password: 'secret1' }).success).toBe(
       false
     );
+  });
+});
+
+describe('Gulf numbers', () => {
+  it('reads a local number in the academy country', () => {
+    expect(normalizePhone('0501234567', 'SA')).toBe('+966501234567');
+    expect(normalizePhone('501234567', 'SA')).toBe('+966501234567');
+    expect(normalizePhone('0501234567', 'AE')).toBe('+971501234567');
+    expect(normalizePhone('50012345', 'KW')).toBe('+96550012345');
+    expect(normalizePhone('33123456', 'QA')).toBe('+97433123456');
+    expect(normalizePhone('36123456', 'BH')).toBe('+97336123456');
+    expect(normalizePhone('92123456', 'OM')).toBe('+96892123456');
+    expect(normalizePhone('٠٥٠ ١٢٣ ٤٥٦٧', 'SA')).toBe('+966501234567');
+  });
+
+  it('keeps Egyptian numbers Egyptian in every academy, and anything with a country code as it is', () => {
+    expect(normalizePhone('01012345678', 'SA')).toBe('+201012345678');
+    expect(normalizePhone('+201012345678', 'KW')).toBe('+201012345678');
+    expect(normalizePhone('966501234567', 'EG')).toBe('+966501234567');
+    expect(normalizePhone('+966 050 123 4567', 'EG')).toBe('+966501234567');
+    expect(normalizePhone('00971501234567', 'EG')).toBe('+971501234567');
+  });
+
+  it('does not guess a country for a bare local number in another academy', () => {
+    expect(normalizePhone('50012345', 'EG')).toBe('50012345');
+    expect(normalizePhone('0501234567', 'EG')).toBe('0501234567');
+  });
+
+  it('gives login every reading of an ambiguous number', () => {
+    expect(phoneCandidates('0501234567')).toEqual(expect.arrayContaining(['+966501234567', '+971501234567']));
+    expect(phoneCandidates('01012345678')).toEqual(['+201012345678']);
+  });
+
+  it('shows numbers the local way in their own country, internationally elsewhere', () => {
+    expect(formatPhone('+201009000102', 'EG')).toBe('0100 900 0102');
+    expect(formatPhone('+966501234567', 'SA')).toBe('050 123 4567');
+    expect(formatPhone('+966501234567', 'EG')).toBe('+966 50 123 4567');
+    expect(formatPhone('+96550012345', 'KW')).toBe('5001 2345');
+    expect(formatPhone('+201009000102', 'KW')).toBe('+20 100 900 0102');
+    expect(formatPhone('+12025550123', 'EG')).toBe('+12025550123');
+    expect(formatPhone(null, 'EG')).toBe('');
   });
 });

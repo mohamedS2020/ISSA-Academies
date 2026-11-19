@@ -32,6 +32,7 @@ import { formatSystemCode } from './trainee.service';
 import { generateSessionsForGroup } from './schedule.service';
 import { getTenantById } from './tenant.service';
 import { getAcademyCurrency } from './display-settings.service';
+import { academyPhoneCountry, withPhoneCountry } from '@/lib/phone-context';
 import { readWorkbook } from '@/lib/import/read';
 import { validateImport, summarize, type ImportPlan, type ImportSummary } from '@/lib/import/validate';
 import { buildCredentials, markUpErrors, type Credential } from '@/lib/import/workbooks';
@@ -118,7 +119,9 @@ async function checkFile(tenantId: string, branchId: string, file: Buffer): Prom
   const read = await readWorkbook(file);
   if (read.issues.length) return { plan: empty, issues: read.issues, branch };
 
-  const { plan, issues } = validateImport(read.sheets, todayIn(branch.timezone));
+  // Phones written the local way are read in the academy's country.
+  const country = await academyPhoneCountry(tenantId);
+  const { plan, issues } = withPhoneCountry(country, () => validateImport(read.sheets, todayIn(branch.timezone)));
 
   // Academy-wide: the branch is empty, and no new login's phone is taken.
   await withTenantContext(tenantId, async (tx) => {

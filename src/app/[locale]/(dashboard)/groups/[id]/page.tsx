@@ -236,7 +236,7 @@ function GroupDetailPageContent() {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('captain')}</span>
           </div>
           <p className="font-semibold text-foreground">{group.captain.user.name}</p>
-          <p className="text-xs text-muted-foreground mt-1 rtl:text-right" dir="ltr">{group.captain.user.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground mt-1 rtl:text-right" dir="ltr">{fmt.phone(group.captain.user.phoneNumber)}</p>
           {group.captain.specialization && (
             <p className="text-xs text-primary dark:text-primary mt-1">{group.captain.specialization}</p>
           )}
@@ -316,7 +316,7 @@ function GroupDetailPageContent() {
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     <span className="font-mono text-primary">{trainee.systemCode}</span>
                     <span> · </span>
-                    <span dir="ltr">{trainee.user.phoneNumber}</span>
+                    <span dir="ltr">{fmt.phone(trainee.user.phoneNumber)}</span>
                   </p>
                 )}
                 <div className="mt-2">{subscriptionCell(trainee.subscriptions[0])}</div>
@@ -342,7 +342,7 @@ function GroupDetailPageContent() {
                       )}
                       <td className="px-4 py-3 font-medium text-foreground">{trainee.name}</td>
                       {!isCaptain && (
-                        <td className="px-4 py-3 text-muted-foreground text-xs" dir="ltr">{trainee.user.phoneNumber}</td>
+                        <td className="px-4 py-3 text-muted-foreground text-xs" dir="ltr">{fmt.phone(trainee.user.phoneNumber)}</td>
                       )}
                       <td className="px-4 py-3">
                         {subscriptionCell(trainee.subscriptions[0])}

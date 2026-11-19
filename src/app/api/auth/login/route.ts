@@ -19,6 +19,7 @@
  */
 
 import { loginSchema } from '@/schemas/auth.schema';
+import { phoneCandidates } from '@/lib/phone';
 import { hashPassword, comparePassword } from '@/lib/auth/password';
 import {
   generateTokenPair,
@@ -102,10 +103,10 @@ interface VerifiedLogin {
  * Ordered so repeated logins behave identically — the old `findFirst` had no
  * ordering at all.
  */
-async function findPhoneCandidates(phoneNumber: string, academySlug?: string) {
+async function findPhoneCandidates(phoneNumbers: string[], academySlug?: string) {
   return platformPrisma.userPhoneIndex.findMany({
     where: {
-      phoneNumber,
+      phoneNumber: { in: phoneNumbers },
       ...(academySlug ? { tenant: { slug: academySlug } } : {}),
     },
     include: {
@@ -171,10 +172,10 @@ async function verifyCandidate(
  * already prove the password.
  */
 async function belongsToAnotherAcademy(input: {
-  phoneNumber: string;
+  phoneNumbers: string[];
   password: string;
 }): Promise<boolean> {
-  const elsewhere = await findPhoneCandidates(input.phoneNumber);
+  const elsewhere = await findPhoneCandidates(input.phoneNumbers);
 
   for (const candidate of elsewhere) {
     if (candidate.tenant.status !== 'ACTIVE') continue;
@@ -214,6 +215,11 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // 1. Validate input
   const input = loginSchema.parse(body);
+  // Every stored form the typed number could have (src/lib/phone.ts): a local
+  // 0501234567 is Saudi or Emirati, and on the main site we don't know the
+  // academy yet. All are looked up; only an account whose password matches
+  // signs in, so the extra readings reveal nothing.
+  const phoneNumbers = [...new Set([input.phoneNumber, ...phoneCandidates(String(body?.phoneNumber ?? ''))])];
 
   // 2. Rate limit check
   const rateLimitKey = getRateLimitKey(request, input.phoneNumber);
@@ -226,8 +232,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   // 3a. Try super admin login first
-  const superAdmin = await platformPrisma.superAdmin.findUnique({
-    where: { phoneNumber: input.phoneNumber },
+  const superAdmin = await platformPrisma.superAdmin.findFirst({
+    where: { phoneNumber: { in: phoneNumbers } },
   });
 
   if (superAdmin) {
@@ -289,7 +295,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   // password instead — see below.
   const academySlug = request.headers.get('x-academy-slug') ?? input.academySlug;
 
-  const candidates = await findPhoneCandidates(input.phoneNumber, academySlug);
+  const candidates = await findPhoneCandidates(phoneNumbers, academySlug);
 
   // Verify the password against every candidate before deciding anything.
   //
@@ -321,7 +327,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     // On a subdomain, the account may simply live at a different academy.
     // Checking costs an extra lookup only on the failure path, and still only
     // tells someone who holds the password.
-    if (academySlug && (await belongsToAnotherAcademy(input))) {
+    if (academySlug && (await belongsToAnotherAcademy({ phoneNumbers, password: input.password }))) {
       throw new UnauthorizedError('This account belongs to a different academy');
     }
 
