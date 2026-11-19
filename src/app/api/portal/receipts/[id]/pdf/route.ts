@@ -9,6 +9,7 @@ import { withErrorHandler } from '@/lib/api/error-handler';
 import { withTraineeAuth } from '@/lib/auth/middleware';
 import { getOwnReceiptForDownload } from '@/services/portal.service';
 import { exportReceiptToPdf } from '@/services/export.service';
+import { getAcademyCurrency } from '@/services/display-settings.service';
 
 export const GET = withErrorHandler(
   withTraineeAuth(async (request, ctx, routeContext) => {
@@ -35,7 +36,7 @@ export const GET = withErrorHandler(
         amountPaid: Number(receipt.subscription.amountPaid),
         amountDue: Number(receipt.subscription.amountDue),
       },
-    });
+    }, await getAcademyCurrency(ctx.tenantId));
 
     return new Response(new Uint8Array(buffer), {
       status: 200,

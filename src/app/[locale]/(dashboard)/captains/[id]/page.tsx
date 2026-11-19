@@ -33,8 +33,9 @@ import {
   Users,
   Calendar,
 } from 'lucide-react';
-import { formatDateTime } from '@/lib/i18n/format';
+
 import { RatingBadge } from '@/components/rating/star-rating';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -77,6 +78,7 @@ const inputClass =
 
 function CaptainDetailPageContent() {
   const t = useTranslations('captains');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tc = useTranslations('captainPage');
   const [ask, confirmDialog] = useConfirm();
@@ -326,7 +328,7 @@ function CaptainDetailPageContent() {
             <p className="text-xs text-muted-foreground mb-1">{tc('lastLogin')}</p>
             <p className="text-sm text-foreground">
               {captain.user.lastLoginAt
-                ? formatDateTime(captain.user.lastLoginAt, locale)
+                ? fmt.dateTime(captain.user.lastLoginAt)
                 : <span className="text-muted-foreground">{tc('never')}</span>}
             </p>
           </div>
@@ -389,14 +391,14 @@ function CaptainDetailPageContent() {
             {editPayrollType === 'HOURS' && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1.5">{t('hourlyRate')}</p>
-                <input type="number" min={0} step="0.01" value={editHourlyRate} onChange={(e) => setEditHourlyRate(e.target.value)} className={inputClass} />
+                <input type="number" min={0} step={fmt.moneyStep} value={editHourlyRate} onChange={(e) => setEditHourlyRate(e.target.value)} className={inputClass} />
               </div>
             )}
             {editPayrollType === 'SALARY_PERCENTAGE' && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5">{t('baseSalary')}</p>
-                  <input type="number" min={0} step="0.01" value={editBaseSalary} onChange={(e) => setEditBaseSalary(e.target.value)} className={inputClass} />
+                  <input type="number" min={0} step={fmt.moneyStep} value={editBaseSalary} onChange={(e) => setEditBaseSalary(e.target.value)} className={inputClass} />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1.5">{t('percentage')}</p>
@@ -423,7 +425,7 @@ function CaptainDetailPageContent() {
             {captain.payrollType === 'HOURS' && captain.hourlyRate != null && (
               <div>
                 <p className="text-xs text-muted-foreground">{t('hourlyRate')}</p>
-                <p className="text-sm font-semibold text-foreground">{Number(captain.hourlyRate).toFixed(2)}</p>
+                <p className="text-sm font-semibold text-foreground">{fmt.money(captain.hourlyRate)}</p>
               </div>
             )}
             {captain.payrollType === 'SALARY_PERCENTAGE' && (
@@ -431,13 +433,13 @@ function CaptainDetailPageContent() {
                 {captain.baseSalary != null && (
                   <div>
                     <p className="text-xs text-muted-foreground">{t('baseSalary')}</p>
-                    <p className="text-sm font-semibold text-foreground">{Number(captain.baseSalary).toFixed(2)}</p>
+                    <p className="text-sm font-semibold text-foreground">{fmt.money(captain.baseSalary)}</p>
                   </div>
                 )}
                 {captain.percentage != null && (
                   <div>
                     <p className="text-xs text-muted-foreground">{t('percentage')}</p>
-                    <p className="text-sm font-semibold text-foreground">{Number(captain.percentage).toFixed(1)}%</p>
+                    <p className="text-sm font-semibold text-foreground">{fmt.percent(Number(captain.percentage))}</p>
                   </div>
                 )}
               </>
@@ -479,7 +481,7 @@ function CaptainDetailPageContent() {
                     </span>
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      {group.startTime}
+                      {fmt.clock(group.startTime)}
                     </span>
                   </div>
                 </div>

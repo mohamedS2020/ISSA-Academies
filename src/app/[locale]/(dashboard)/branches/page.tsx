@@ -33,6 +33,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useToast } from '@/components/feedback/toast-provider';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Branch {
   id: string;
@@ -44,6 +45,7 @@ interface Branch {
   isActive: boolean;
   payrollFrequency: string;
   payrollCustomDays: number | null;
+  timeFormat?: '12h' | '24h';
 }
 
 const PAYROLL_FREQUENCIES = ['WEEKLY', 'BI_WEEKLY', 'MONTHLY', 'CUSTOM'];
@@ -86,6 +88,8 @@ export default function BranchesPage() {
   const [timezone, setTimezone] = useState('Africa/Cairo');
   const [payrollFrequency, setPayrollFrequency] = useState('MONTHLY');
   const [payrollCustomDays, setPayrollCustomDays] = useState('');
+  const [timeFormat, setTimeFormat] = useState<'12h' | '24h'>('12h');
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -138,6 +142,7 @@ export default function BranchesPage() {
     setTimezone(branch.timezone);
     setPayrollFrequency(branch.payrollFrequency || 'MONTHLY');
     setPayrollCustomDays(branch.payrollCustomDays ? String(branch.payrollCustomDays) : '');
+    setTimeFormat(branch.timeFormat ?? '12h');
     setFormError(null);
   };
 
@@ -189,6 +194,8 @@ export default function BranchesPage() {
       }
 
       toast.success(tCommon('success'));
+      // The time format shows on every screen of this branch.
+      void queryClient.invalidateQueries({ queryKey: ['settings', 'display'] });
 
       resetForm();
       fetchBranches();
@@ -227,6 +234,7 @@ export default function BranchesPage() {
           payrollFrequency,
           payrollCustomDays:
             payrollFrequency === 'CUSTOM' ? Number(payrollCustomDays) : null,
+          timeFormat,
         }),
       });
 
@@ -236,6 +244,8 @@ export default function BranchesPage() {
       }
 
       toast.success(tCommon('success'));
+      // The time format shows on every screen of this branch.
+      void queryClient.invalidateQueries({ queryKey: ['settings', 'display'] });
 
       resetForm();
       fetchBranches();
@@ -676,6 +686,21 @@ export default function BranchesPage() {
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
                   />
+                </div>
+
+                {/* How this branch shows times: 5:00 PM or 17:00 */}
+                <div className="space-y-1.5">
+                  <label htmlFor="dashboard-branches-time-format" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {tBranches('timeFormat')}
+                  </label>
+                  <select id="dashboard-branches-time-format"
+                    value={timeFormat}
+                    onChange={(e) => setTimeFormat(e.target.value as '12h' | '24h')}
+                    className="w-full rounded-xl border border-border bg-muted/70 px-4 py-2.5 text-xs focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-300 text-foreground"
+                  >
+                    <option value="12h">{tBranches('timeFormat12')}</option>
+                    <option value="24h">{tBranches('timeFormat24')}</option>
+                  </select>
                 </div>
 
                 {/* Payroll Frequency (FR-FN-08) */}

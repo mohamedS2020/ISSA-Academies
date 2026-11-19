@@ -10,13 +10,14 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { formatBranchDateTime } from '@/lib/i18n/format';
+import { useTranslations } from 'next-intl';
+
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
 import { usePortalTrainee } from '../../portal-trainee-context';
 import { SkeletonTable } from '@/components/feedback/skeleton-loader';
 import { Calendar, Clock, Award } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface SessionRow {
   id: string;
@@ -28,8 +29,8 @@ interface SessionRow {
 
 export default function PortalSchedulePage() {
   const t = useTranslations('portal');
+  const fmt = useFormat();
   const tSchedule = useTranslations('schedule');
-  const locale = useLocale();
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
   const { toast } = useToast();
@@ -85,7 +86,7 @@ export default function PortalSchedulePage() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1.5 text-xs text-primary bg-primary/10 px-3 py-1.5 rounded-full">
                     <Clock size={12} />
-                    {formatBranchDateTime(s.scheduledAtLocal, locale)}
+                    {fmt.sessionDateTime(s.scheduledAtLocal)}
                   </span>
                   <span className="text-[10px] text-muted-foreground">
                     {tSchedule('minutes', { count: s.durationMinutes })}

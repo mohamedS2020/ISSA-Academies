@@ -27,6 +27,7 @@ import {
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useFormat } from '@/lib/format/use-format';
 
 // recharts loaded on-demand (kept out of the finance page's initial bundle).
 const AreaTrendChart = dynamic(
@@ -55,6 +56,7 @@ function todayIso(offsetDays = 0): string {
 
 function FinanceDashboardPageContent() {
   const t = useTranslations('finance');
+  const f = useFormat();
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
   const can = useAccess();
@@ -213,8 +215,8 @@ function FinanceDashboardPageContent() {
                     </span>
                     <Icon size={16} className={`${kpi.colorClass} shrink-0`} />
                   </div>
-                  <p className="text-lg sm:text-2xl font-extrabold text-foreground break-words rtl:text-right" dir="ltr">
-                    {kpi.value.toFixed(2)}
+                  <p className="text-lg sm:text-2xl font-extrabold text-foreground break-words">
+                    {f.money(kpi.value)}
                   </p>
                 </div>
               );
@@ -234,6 +236,9 @@ function FinanceDashboardPageContent() {
                 data={summary.series}
                 height={280}
                 fontSize={10}
+                formatX={(d) => f.date(d, { day: 'numeric', month: 'short' })}
+                formatValue={f.money}
+                formatAxis={f.count}
                 series={[
                   { dataKey: 'income', name: t('income') },
                   { dataKey: 'expenses', name: t('expenses') },

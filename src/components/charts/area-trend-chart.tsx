@@ -37,6 +37,12 @@ interface AreaTrendChartProps {
   xKey?: string;
   fontSize?: number;
   allowDecimals?: boolean;
+  /** The x labels (dates): "16 Nov", not "2026-11-16". */
+  formatX?: (value: string) => string;
+  /** The values on the y axis and in the tooltip: money, counts. */
+  formatValue?: (value: number) => string;
+  /** The y axis can use a shorter form (e.g. money without decimals). */
+  formatAxis?: (value: number) => string;
 }
 
 export default function AreaTrendChart({
@@ -46,6 +52,9 @@ export default function AreaTrendChart({
   xKey = 'date',
   fontSize = 10,
   allowDecimals = true,
+  formatX,
+  formatValue,
+  formatAxis,
 }: AreaTrendChartProps) {
   const chart = useChartTheme();
 
@@ -53,9 +62,17 @@ export default function AreaTrendChart({
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
-        <XAxis dataKey={xKey} stroke={chart.axis} fontSize={fontSize} />
-        <YAxis stroke={chart.axis} fontSize={fontSize} allowDecimals={allowDecimals} />
+        <XAxis dataKey={xKey} stroke={chart.axis} fontSize={fontSize} tickFormatter={formatX} />
+        <YAxis
+          stroke={chart.axis}
+          fontSize={fontSize}
+          allowDecimals={allowDecimals}
+          tickFormatter={formatAxis ?? formatValue}
+          width={formatAxis || formatValue ? 72 : 60}
+        />
         <Tooltip
+          labelFormatter={formatX ? (label) => formatX(String(label)) : undefined}
+          formatter={formatValue ? (value) => formatValue(Number(value)) : undefined}
           contentStyle={{
             background: chart.tooltipBg,
             border: `1px solid ${chart.tooltipBorder}`,

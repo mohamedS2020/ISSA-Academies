@@ -5,7 +5,7 @@
  * reads. Server-only (exceljs).
  */
 import ExcelJS from 'exceljs';
-import { IMPORT_LIMITS, SHEETS, headerLabel, sheetName, type SheetKey } from './template';
+import { IMPORT_LIMITS, SHEETS, headerLabel, headerNames, sheetName, type SheetKey } from './template';
 import type { ImportIssue } from './messages';
 import type { CellValue } from './parse';
 
@@ -61,7 +61,7 @@ export async function readWorkbook(buffer: Buffer | ArrayBuffer): Promise<{ shee
     const columnOf = new Map<string, number>();
     header.eachCell({ includeEmpty: false }, (cell, colNumber) => {
       const label = norm(String(cellValue(cell) ?? ''));
-      const c = def.columns.find((c) => [headerLabel(c), `${c.en} / ${c.ar}`, c.en, c.ar].map(norm).includes(label));
+      const c = def.columns.find((c) => headerNames(c).map(norm).includes(label));
       if (c && !columnOf.has(c.key)) columnOf.set(c.key, colNumber);
     });
     for (const c of def.columns) {

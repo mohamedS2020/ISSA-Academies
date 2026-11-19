@@ -21,17 +21,29 @@ import {
 } from '@react-pdf/renderer';
 import ExcelJS from 'exceljs';
 import { BRAND_COLORS } from '@/lib/config/brand-colors';
+import { formatCount, formatDate, formatMoney, formatPercent } from '@/lib/i18n/format';
+import { DEFAULT_CURRENCY, resolveCurrency, type CurrencyCode } from '@/lib/format/currency';
 
 // ─── Shared Types ───────────────────────────────────────────
+
+/**
+ * What a value is, so it prints as one (src/lib/i18n/format.ts): money in the
+ * academy's currency, a day-first date, a percentage. PDFs get the text;
+ * Excel keeps the number or date and gets a number format, so the cells can
+ * still be summed and sorted.
+ */
+export type ExportKind = 'money' | 'date' | 'percent' | 'count';
 
 export interface ExportColumn {
   key: string;
   label: string;
+  kind?: ExportKind;
 }
 
 export interface ExportSummaryItem {
   label: string;
   value: string | number;
+  kind?: ExportKind;
 }
 
 export interface ExportSection {
@@ -50,6 +62,25 @@ export interface ExportMeta {
   sections?: ExportSection[];
   columns: ExportColumn[];
   rows: Record<string, string | number>[];
+  /** The academy's currency, for money values. Exports are in English. */
+  currency?: CurrencyCode;
+}
+
+/** A value as text in its kind's format (PDF cells, summary boxes). */
+function printValue(value: unknown, kind: ExportKind | undefined, currency: CurrencyCode = DEFAULT_CURRENCY): string {
+  if (value == null || value === '') return '';
+  switch (kind) {
+    case 'money':
+      return formatMoney(Number(value), currency, 'en');
+    case 'date':
+      return formatDate(value as string, 'en');
+    case 'percent':
+      return formatPercent(Number(value), 'en');
+    case 'count':
+      return formatCount(Number(value), 'en');
+    default:
+      return String(value);
+  }
 }
 
 // ─── PDF Export ─────────────────────────────────────────────
@@ -103,7 +134,7 @@ function ReportDocument({ meta }: { meta: ExportMeta }) {
             {meta.summary.map((s) => (
               <View key={s.label} style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>{s.label}</Text>
-                <Text style={styles.summaryValue}>{String(s.value)}</Text>
+                <Text style={styles.summaryValue}>{printValue(s.value, s.kind, meta.currency)}</Text>
               </View>
             ))}
           </View>
@@ -120,7 +151,7 @@ function ReportDocument({ meta }: { meta: ExportMeta }) {
             {section.rows.map((row, i) => (
               <View key={i} style={styles.tableRow}>
                 {section.columns.map((c) => (
-                  <Text key={c.key} style={styles.tableCell}>{String(row[c.key] ?? '')}</Text>
+                  <Text key={c.key} style={styles.tableCell}>{printValue(row[c.key], c.kind, meta.currency)}</Text>
                 ))}
               </View>
             ))}
@@ -142,7 +173,7 @@ function ReportDocument({ meta }: { meta: ExportMeta }) {
           <View key={i} style={styles.tableRow}>
             {meta.columns.map((c) => (
               <Text key={c.key} style={styles.tableCell}>
-                {String(row[c.key] ?? '')}
+                {printValue(row[c.key], c.kind, meta.currency)}
               </Text>
             ))}
           </View>
@@ -215,11 +246,9 @@ const receiptStyles = StyleSheet.create({
   description: { marginTop: 16, fontSize: 9, color: MUTED },
 });
 
-function ReceiptDocument({ receipt }: { receipt: ReceiptPdfData }) {
-  const issuedAtStr =
-    receipt.issuedAt instanceof Date
-      ? receipt.issuedAt.toISOString().slice(0, 10)
-      : String(receipt.issuedAt).slice(0, 10);
+function ReceiptDocument({ receipt, currency }: { receipt: ReceiptPdfData; currency: CurrencyCode }) {
+  const issuedAtStr = formatDate(receipt.issuedAt, 'en');
+  const money = (v: number | string) => formatMoney(v, currency, 'en');
 
   return (
     <Document>
@@ -257,7 +286,7 @@ function ReceiptDocument({ receipt }: { receipt: ReceiptPdfData }) {
         <View style={receiptStyles.row}>
           <Text style={receiptStyles.rowLabel}>Total Paid / Due</Text>
           <Text style={receiptStyles.rowValue}>
-            {String(receipt.subscription.amountPaid)} / {String(receipt.subscription.amountDue)}
+            {money(receipt.subscription.amountPaid)} / {money(receipt.subscription.amountDue)}
           </Text>
         </View>
         {receipt.paymentMethod && (
@@ -271,7 +300,7 @@ function ReceiptDocument({ receipt }: { receipt: ReceiptPdfData }) {
 
         <View style={receiptStyles.amountBox}>
           <Text style={receiptStyles.amountLabel}>This Receipt</Text>
-          <Text style={receiptStyles.amountValue}>{String(receipt.amount)}</Text>
+          <Text style={receiptStyles.amountValue}>{money(receipt.amount)}</Text>
         </View>
 
         {receipt.description && (
@@ -282,8 +311,8 @@ function ReceiptDocument({ receipt }: { receipt: ReceiptPdfData }) {
   );
 }
 
-export async function exportReceiptToPdf(receipt: ReceiptPdfData): Promise<Buffer> {
-  return renderToBuffer(<ReceiptDocument receipt={receipt} />);
+export async function exportReceiptToPdf(receipt: ReceiptPdfData, currency: CurrencyCode = DEFAULT_CURRENCY): Promise<Buffer> {
+  return renderToBuffer(<ReceiptDocument receipt={receipt} currency={currency} />);
 }
 
 // ─── Excel Export ───────────────────────────────────────────
@@ -295,7 +324,47 @@ function sanitizeCell(value: string | number): string | number {
   return value;
 }
 
+/** Excel number formats per kind; the cell keeps the number (or date) itself. */
+function excelFormat(kind: ExportKind | undefined, currency: CurrencyCode): string | undefined {
+  const info = resolveCurrency(currency);
+  switch (kind) {
+    case 'money':
+      return `"${info.code}" #,##0.${'0'.repeat(info.decimals)}`;
+    case 'date':
+      return 'dd mmm yyyy';
+    case 'percent':
+      return '0.0"%"';
+    case 'count':
+      return '#,##0';
+    default:
+      return undefined;
+  }
+}
+
+function excelValue(value: string | number | undefined, kind: ExportKind | undefined): ExcelJS.CellValue {
+  if (value == null || value === '') return '';
+  if (kind === 'money' || kind === 'percent' || kind === 'count') {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : sanitizeCell(value);
+  }
+  if (kind === 'date') {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? sanitizeCell(value) : d;
+  }
+  return sanitizeCell(value);
+}
+
+function addTypedRow(sheet: ExcelJS.Worksheet, values: Array<[string | number | undefined, ExportKind | undefined]>, currency: CurrencyCode) {
+  const row = sheet.addRow(values.map(([v, k]) => excelValue(v, k)));
+  values.forEach(([, k], i) => {
+    const numFmt = excelFormat(k, currency);
+    if (numFmt) row.getCell(i + 1).numFmt = numFmt;
+  });
+  return row;
+}
+
 export async function exportReportToExcel(meta: ExportMeta): Promise<Buffer> {
+  const currency = meta.currency ?? DEFAULT_CURRENCY;
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(meta.title.slice(0, 31)); // Excel sheet names cap at 31 chars
 
@@ -307,7 +376,7 @@ export async function exportReportToExcel(meta: ExportMeta): Promise<Buffer> {
 
   if (meta.summary && meta.summary.length > 0) {
     for (const s of meta.summary) {
-      sheet.addRow([s.label, sanitizeCell(s.value)]);
+      addTypedRow(sheet, [[s.label, undefined], [s.value, s.kind]], currency);
     }
     sheet.addRow([]);
   }
@@ -319,7 +388,7 @@ export async function exportReportToExcel(meta: ExportMeta): Promise<Buffer> {
       const secHeader = sheet.addRow(section.columns.map((c) => c.label));
       secHeader.font = { bold: true };
       for (const row of section.rows) {
-        sheet.addRow(section.columns.map((c) => sanitizeCell(row[c.key] ?? '')));
+        addTypedRow(sheet, section.columns.map((c) => [row[c.key], c.kind]), currency);
       }
       sheet.addRow([]);
     }
@@ -329,7 +398,7 @@ export async function exportReportToExcel(meta: ExportMeta): Promise<Buffer> {
   headerRow.font = { bold: true };
 
   for (const row of meta.rows) {
-    sheet.addRow(meta.columns.map((c) => sanitizeCell(row[c.key] ?? '')));
+    addTypedRow(sheet, meta.columns.map((c) => [row[c.key], c.kind]), currency);
   }
 
   sheet.columns.forEach((col) => {

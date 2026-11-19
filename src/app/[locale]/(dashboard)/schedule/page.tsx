@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useId } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { branchDay, branchTime, formatBranchDate, formatDate } from '@/lib/i18n/format';
+import { branchDay, formatDate } from '@/lib/i18n/format';
+import { useFormat } from '@/lib/format/use-format';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -83,7 +84,7 @@ function SessionCard({
   /** The phone day list: full width, readable text. The week grid keeps it compact. */
   large?: boolean;
 }) {
-  const t = useTranslations('schedule');
+  const fmt = useFormat();
   const text = large ? 'text-xs' : 'text-[10px]';
   return (
     <button
@@ -100,8 +101,8 @@ function SessionCard({
       </div>
       <div className="flex items-center gap-1 text-muted-foreground">
         <Clock className="w-3 h-3 shrink-0" />
-        <span className={text} dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
-        <span className={`${text} text-muted-foreground ms-auto`}>{t('minutes', { count: session.durationMinutes })}</span>
+        <span className={text}>{fmt.sessionTime(session.scheduledAtLocal)}</span>
+        <span className={`${text} text-muted-foreground ms-auto`}>{fmt.duration(session.durationMinutes)}</span>
       </div>
       {session.group.captain?.user?.name && (
         <p className={`${text} text-muted-foreground truncate mt-0.5`}>
@@ -137,6 +138,7 @@ function SessionModal({
   onRescheduled: () => void;
 }) {
   const t = useTranslations('schedule');
+  const fmt = useFormat();
   const params = useParams();
   const locale = params.locale as string;
   const { authFetch } = useAuth();
@@ -213,9 +215,9 @@ function SessionModal({
           <div>
             <h2 className="text-lg font-bold text-foreground">{session.group.name}</h2>
             <p className="text-sm text-muted-foreground">
-              {formatBranchDate(session.scheduledAtLocal, locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {fmt.sessionDate(session.scheduledAtLocal, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               {' · '}
-              <span dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
+              {fmt.sessionTime(session.scheduledAtLocal)}
             </p>
           </div>
           <StatusBadge status={session.status} />
@@ -224,7 +226,7 @@ function SessionModal({
         <div className="space-y-2 mb-4 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t('duration')}</span>
-            <span className="text-foreground">{session.durationMinutes} min</span>
+            <span className="text-foreground">{fmt.duration(session.durationMinutes)}</span>
           </div>
           {session.group.captain?.user?.name && (
             <div className="flex justify-between">

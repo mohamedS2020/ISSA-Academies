@@ -20,6 +20,8 @@ import {
   Award,
 } from 'lucide-react';
 import { format } from 'date-fns';
+
+import { useFormat } from '@/lib/format/use-format';
 import { branchTime } from '@/lib/i18n/format';
 
 // ─── Types ───────────────────────────────────────────────────
@@ -131,7 +133,7 @@ function StatusToggle({
 
 function AttendancePageContent() {
   const t = useTranslations('attendance');
-  const tSchedule = useTranslations('schedule');
+  const fmt = useFormat();
   const { authFetch } = useAuth();
   const can = useAccess();
   // "View attendance" opens the sheet read-only; marking needs "Mark attendance".
@@ -243,8 +245,8 @@ function AttendancePageContent() {
   const alreadyDone = sheet?.session.status === 'COMPLETED' && submitSuccess;
 
   // ── Session filters (by captain + hour) ─────────────────
-  const sessionTime = (s: TodaySession) =>
-    branchTime(s.scheduledAtLocal);
+  // "17:00": the key the hour filter sorts and matches on; shown in the branch format.
+  const sessionTime = (s: TodaySession) => branchTime(s.scheduledAtLocal);
   const sessionCaptain = (s: TodaySession) => s.group.captain?.user?.name ?? '';
 
   const captainOptions = Array.from(
@@ -281,7 +283,6 @@ function AttendancePageContent() {
       return next;
     });
   }
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background p-4 md:p-6">
@@ -340,7 +341,7 @@ function AttendancePageContent() {
                     >
                       <option value="">{t('allHours')}</option>
                       {hourOptions.map((h) => (
-                        <option key={h} value={h} className="bg-muted">{h}</option>
+                        <option key={h} value={h} className="bg-muted">{fmt.clock(h)}</option>
                       ))}
                     </select>
                     <ChevronDown className="absolute end-3 top-3 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -361,7 +362,7 @@ function AttendancePageContent() {
                 {filteredSessions.map((s) => (
                   <option key={s.id} value={s.id} className="bg-muted">
                     {/* scheduledAtLocal is branch-local "DD/MM/YYYY, HH:MM" — take the time part */}
-                    {s.group.name} — {sessionTime(s)}
+                    {s.group.name} — {fmt.clock(sessionTime(s))}
                     {sessionCaptain(s) ? ` · ${sessionCaptain(s)}` : ''}
                     {s.status !== 'SCHEDULED' ? ` (${t(`status.${s.status}`)})` : ''}
                   </option>
@@ -391,7 +392,7 @@ function AttendancePageContent() {
                 <div>
                   <p className="text-sm font-bold text-foreground">{sheet.session.groupName}</p>
                   <p className="text-xs text-muted-foreground">
-                    <span dir="ltr">{branchTime(sheet.session.scheduledAtLocal)}</span> · {tSchedule('minutes', { count: sheet.session.durationMinutes })}
+                    {fmt.sessionTime(sheet.session.scheduledAtLocal)} · {fmt.duration(sheet.session.durationMinutes)}
                   </p>
                 </div>
                 <span

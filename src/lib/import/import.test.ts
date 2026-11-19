@@ -123,6 +123,15 @@ describe('the template', () => {
     expect(read.sheets.trainees).toHaveLength(4);
   });
 
+  it('still reads templates handed out before the currency left the headers', async () => {
+    const buf = await filledTemplate(SAMPLE, (wb) => {
+      wb.getWorksheet(sheetName(SHEETS[0]))!.getCell(1, 3).value = 'Price (EGP) / السعر (ج.م) *';
+    });
+    const read = await readWorkbook(buf);
+    expect(read.issues).toEqual([]);
+    expect(read.sheets.plans[0].cells.price).toBe(500);
+  });
+
   it('reports a missing tab or column instead of guessing', async () => {
     const buf = await filledTemplate(SAMPLE, (wb) => {
       wb.removeWorksheet(wb.getWorksheet(sheetName(SHEETS[1]))!.id);

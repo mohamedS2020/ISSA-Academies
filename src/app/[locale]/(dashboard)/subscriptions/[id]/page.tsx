@@ -25,6 +25,7 @@ import {
   CreditCard, Loader2, CheckCircle, ArrowLeft, ToggleLeft, ToggleRight,
   Users2, Layers, Lock,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ const inputClass =
 
 function EditSubscriptionPlanPageContent() {
   const t = useTranslations('subscriptions');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
   const { toast } = useToast();
@@ -255,9 +257,9 @@ function EditSubscriptionPlanPageContent() {
             </div>
             <div>
               <label htmlFor="dashboard-subscriptions-id-f3" className="block text-xs font-semibold text-foreground/80 mb-1.5">
-                {t('amount')} (EGP) <span className="text-danger">*</span>
+                {t('amount')} ({fmt.currencyLabel}) <span className="text-danger">*</span>
               </label>
-              <input id="dashboard-subscriptions-id-f3" type="number" min={0} step="0.01" value={form.amount} onChange={set('amount')} disabled={!isAdmin} className={inputClass} placeholder="500" />
+              <input id="dashboard-subscriptions-id-f3" type="number" min={0} step={fmt.moneyStep} value={form.amount} onChange={set('amount')} disabled={!isAdmin} className={inputClass} placeholder="500" />
               {errors.amount && <p className="text-xs text-danger mt-1">{errors.amount}</p>}
             </div>
           </div>

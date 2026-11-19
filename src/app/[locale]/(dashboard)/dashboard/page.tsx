@@ -23,7 +23,7 @@ import { SkeletonDashboard } from '@/components/feedback/skeleton-loader';
 import {
   Users,
   CreditCard,
-  DollarSign,
+  Wallet,
   AlertCircle,
   Calendar,
   Clock,
@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { branchTime, formatDate } from '@/lib/i18n/format';
+import { useFormat } from '@/lib/format/use-format';
 import dynamic from 'next/dynamic';
 
 // recharts is heavy — load it only when the chart renders (keeps it out of the
@@ -95,6 +95,7 @@ interface CaptainDashboard {
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const f = useFormat();
   const tCommon = useTranslations('common');
   const tSchedule = useTranslations('schedule');
   const { user, authFetch } = useAuth();
@@ -169,14 +170,14 @@ export default function DashboardPage() {
     const kpis = [
       {
         title: t('totalTrainees'),
-        value: data.totalTrainees,
+        value: f.count(data.totalTrainees),
         badge: `+${data.newTraineesThisMonth} ${t('newThisMonth')}`,
         icon: Users,
         colorClass: 'bg-primary',
       },
       {
         title: t('activeSubscriptions'),
-        value: data.activeSubscriptions,
+        value: f.count(data.activeSubscriptions),
         badge: `+${data.newSubscriptionsThisMonth} ${t('newThisMonth')}`,
         icon: CreditCard,
         colorClass: 'bg-accent',
@@ -185,9 +186,9 @@ export default function DashboardPage() {
         ? [
             {
               title: t('revenueThisMonth'),
-              value: data.revenueThisMonth.toFixed(2),
+              value: f.money(data.revenueThisMonth),
               badge: t('thisMonth'),
-              icon: DollarSign,
+              icon: Wallet,
               colorClass: 'bg-success',
             },
           ]
@@ -196,7 +197,7 @@ export default function DashboardPage() {
         ? [
             {
               title: t('outstandingBalances'),
-              value: data.outstandingBalances.toFixed(2),
+              value: f.money(data.outstandingBalances),
               badge: t('currentBalance'),
               icon: AlertCircle,
               colorClass: 'bg-warning',
@@ -222,7 +223,7 @@ export default function DashboardPage() {
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {kpi.title}
                     </p>
-                    <h3 className="text-xl sm:text-3xl font-extrabold text-foreground tracking-tight break-words">
+                    <h3 className="text-xl lg:text-2xl 2xl:text-3xl font-extrabold text-foreground tracking-tight break-words">
                       {kpi.value}
                     </h3>
                     <span className="text-[10px] font-bold text-muted-foreground font-medium">
@@ -259,6 +260,8 @@ export default function DashboardPage() {
                 height={180}
                 fontSize={9}
                 allowDecimals={false}
+                formatX={(d) => f.date(d, { day: 'numeric', month: 'short' })}
+                formatValue={f.count}
                 series={[
                   { dataKey: 'checkIns', name: t('checkIns') },
                   { dataKey: 'renewals', name: t('renewals') },
@@ -301,7 +304,7 @@ export default function DashboardPage() {
                         {s.group.name}
                       </span>
                       <span className="text-[10px] font-mono text-primary dark:text-primary bg-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
-                        <span dir="ltr">{branchTime(s.scheduledAtLocal)}</span>
+                        {f.sessionTime(s.scheduledAtLocal)}
                       </span>
                     </div>
                     <div className="text-[10px] text-muted-foreground font-medium">
@@ -340,7 +343,7 @@ export default function DashboardPage() {
                     <p className="text-sm font-semibold text-foreground break-words">{item.traineeName}</p>
                     <p className="text-xs text-muted-foreground break-words">{item.planName}</p>
                     <p className="mt-1 text-xs">
-                      <span className="text-warning font-medium font-mono">{formatDate(item.endDate, locale)}</span>
+                      <span className="text-warning font-medium font-mono">{f.date(item.endDate)}</span>
                       <span className="text-muted-foreground"> · </span>
                       <span className="text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</span>
                     </p>
@@ -368,7 +371,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="py-3.5 text-muted-foreground">{item.planName}</td>
                       <td className="py-3.5 text-warning font-medium font-mono">
-                        {formatDate(item.endDate, locale)}
+                        {f.date(item.endDate)}
                       </td>
                       <td className="py-3.5 text-muted-foreground font-mono" dir="ltr">{item.phoneNumber}</td>
                       <td className="py-3.5 text-end">
@@ -397,19 +400,19 @@ export default function DashboardPage() {
     const stats = [
       {
         title: t('myGroups'),
-        value: data.myGroupsCount,
+        value: f.count(data.myGroupsCount),
         desc: t('assignedGroups'),
         icon: Award,
       },
       {
         title: t('myTrainees'),
-        value: data.myTraineesCount,
+        value: f.count(data.myTraineesCount),
         desc: t('totalTraineesAcrossGroups'),
         icon: Users,
       },
       {
         title: t('todaySessions'),
-        value: data.todaySessions.length,
+        value: f.count(data.todaySessions.length),
         desc: t('scheduledForToday'),
         icon: Clock,
       },
@@ -478,7 +481,7 @@ export default function DashboardPage() {
                       </h4>
                       <div className="flex items-center gap-4 text-[10px] text-muted-foreground font-medium font-mono">
                         <span className="flex items-center gap-1">
-                          <Clock size={12} /> <span dir="ltr">{branchTime(session.scheduledAtLocal)}</span>
+                          <Clock size={12} /> {f.sessionTime(session.scheduledAtLocal)}
                         </span>
                       </div>
                     </div>

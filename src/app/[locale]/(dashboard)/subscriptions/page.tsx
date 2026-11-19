@@ -24,7 +24,8 @@ import {
   CreditCard, Plus, CheckCircle, XCircle,
   Calendar, Layers, Clock, ChevronRight,
 } from 'lucide-react';
-import { formatNumber } from '@/lib/i18n/format';
+
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -49,6 +50,7 @@ interface Pagination {
 
 function SubscriptionsPageContent() {
   const t = useTranslations('subscriptions');
+  const fmt = useFormat();
   const [ask, confirmDialog] = useConfirm();
   const tCommon = useTranslations('common');
   const tRenewal = useTranslations('renewal');
@@ -82,7 +84,6 @@ function SubscriptionsPageContent() {
   }, [authFetch, toast, tCommon]);
 
   useEffect(() => { fetchPlans(1); }, [fetchPlans]);
-
 
   // ─── Deactivate plan ──────────────────────────────────────
   const handleDeactivate = async (planId: string) => {
@@ -159,7 +160,7 @@ function SubscriptionsPageContent() {
       header: t('amount'),
       render: (row) => (
         <span className="font-semibold text-success">
-          {formatNumber(Number(row.amount), locale)} {tRenewal('currency')}
+          {fmt.money(row.amount)}
         </span>
       ),
     },

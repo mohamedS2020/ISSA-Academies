@@ -21,6 +21,7 @@ import {
 } from '@/lib/db/migration-runner';
 import { hashPassword, generateRandomPassword } from '@/lib/auth/password';
 import { syncLoginIndex, removeTenantFromLoginIndex } from './login-index';
+import { DEFAULT_CURRENCY } from '@/lib/format/currency';
 import type { CreateTenantInput, UpdateTenantInput } from '@/schemas/tenant.schema';
 import { isValidStatusTransition } from '@/schemas/tenant.schema';
 import { randomUUID } from 'crypto';
@@ -121,7 +122,7 @@ export async function createTenant(
         maxBranches: 10,
         config: {
           create: {
-            currency: 'EGP',
+            currency: input.currency ?? DEFAULT_CURRENCY,
             defaultTimezone: input.branchTimezone,
             themeKey: input.themeKey,
           },

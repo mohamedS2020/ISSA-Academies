@@ -14,6 +14,7 @@ import { usePortalTrainee } from '../../portal-trainee-context';
 import { DataTable, Column } from '@/components/tables/data-table';
 import { formatDate } from '@/lib/i18n/format';
 import { Receipt as ReceiptIcon, Download, Loader2 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface ReceiptRow {
   id: string;
@@ -32,6 +33,7 @@ interface Pagination {
 
 export default function PortalReceiptsPage() {
   const t = useTranslations('portal');
+  const fmt = useFormat();
   const tFinance = useTranslations('finance');
   const tCommon = useTranslations('common');
   const locale = useLocale();
@@ -111,7 +113,7 @@ export default function PortalReceiptsPage() {
     {
       key: 'amount',
       header: tFinance('amount'),
-      render: (row) => Number(row.amount).toFixed(2),
+      render: (row) => fmt.money(row.amount),
     },
     {
       key: 'issuedAt',

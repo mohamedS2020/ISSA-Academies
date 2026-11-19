@@ -47,8 +47,9 @@ import {
 } from 'lucide-react';
 import { FeedbackPanel } from '@/components/rating/feedback-panel';
 import { RenewDialog } from '@/components/subscriptions/renew-dialog';
-import { formatDate, formatNumber, intlLocale } from '@/lib/i18n/format';
+import { formatDate } from '@/lib/i18n/format';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -134,6 +135,7 @@ const inputClass =
 
 function TraineeDetailPageContent() {
   const t = useTranslations('trainees');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const tFeedback = useTranslations('feedback');
   const tRenewal = useTranslations('renewal');
@@ -505,8 +507,7 @@ function TraineeDetailPageContent() {
   const activeSubscription = trainee.subscriptions?.[0];
   const lastSubscription = trainee.lastSubscription;
   const upcoming = trainee.upcomingSubscription;
-  const formatDay = (iso: string) =>
-    new Date(iso).toLocaleDateString(intlLocale(locale), { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+  const formatDay = (iso: string) => fmt.date(iso);
 
   // Renewal banner: the current one is near its end, or there is none any more.
   const daysLeft = activeSubscription ? daysUntil(activeSubscription.endDate) : null;
@@ -671,11 +672,8 @@ function TraineeDetailPageContent() {
             <div className="flex items-center gap-4 flex-wrap text-sm">
               <div>
                 <p className="text-xs text-muted-foreground">{tRenewal('amountDue')}</p>
-                <p
-                  dir="ltr"
-                  className={`font-semibold rtl:text-right ${Number(upcoming.amountDue) > 0 ? 'text-warning' : 'text-success'}`}
-                >
-                  {Number(upcoming.amountDue).toFixed(2)}
+                <p className={`font-semibold ${Number(upcoming.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
+                  {fmt.money(upcoming.amountDue)}
                 </p>
               </div>
               {can('recordPayments') && Number(upcoming.amountDue) > 0 && (
@@ -745,8 +743,8 @@ function TraineeDetailPageContent() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{tRenewal('amountDue')}</p>
-                <p dir="ltr" className={`font-semibold rtl:text-right ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
-                  {Number(activeSubscription.amountDue).toFixed(2)}
+                <p className={`font-semibold ${Number(activeSubscription.amountDue) > 0 ? 'text-warning' : 'text-success'}`}>
+                  {fmt.money(activeSubscription.amountDue)}
                 </p>
               </div>
               {can('recordPayments') && Number(activeSubscription.amountDue) > 0 && (
@@ -794,7 +792,7 @@ function TraineeDetailPageContent() {
               <p className="text-xs text-muted-foreground mb-4">
                 {tp('outstandingBalance')}{' '}
                 <span className="text-warning font-semibold">
-                  {paymentTarget.amountDue.toFixed(2)}
+                  {fmt.money(paymentTarget.amountDue)}
                 </span>
               </p>
 
@@ -811,7 +809,7 @@ function TraineeDetailPageContent() {
                 </label>
                 <input id="dashboard-trainees-id-f1"
                   type="number"
-                  step="0.01"
+                  step={fmt.moneyStep}
                   min="0"
                   max={Number(activeSubscription.amountDue)}
                   autoFocus
@@ -1053,7 +1051,7 @@ function TraineeDetailPageContent() {
                       }}
                     >
                       <option value="">{tRenewal('selectPlan')}</option>
-                      {enrollPlans.map((p) => <option key={p.id} value={p.id}>{p.name} — {formatNumber(Number(p.amount), locale)} {tRenewal('currency')}</option>)}
+                      {enrollPlans.map((p) => <option key={p.id} value={p.id}>{p.name} — {fmt.money(p.amount)}</option>)}
                     </select>
                   </div>
 

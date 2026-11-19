@@ -10,11 +10,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/components/feedback/toast-provider';
-import { formatDateTime } from '@/lib/i18n/format';
+
 import { Send, Loader2 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 interface FeedbackEntry {
   id: string;
@@ -31,8 +32,8 @@ export function FeedbackPanel({
   canWrite?: boolean;
 }) {
   const t = useTranslations('feedback');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
-  const locale = useLocale();
   const { authFetch } = useAuth();
   const { toast } = useToast();
 
@@ -123,7 +124,7 @@ export function FeedbackPanel({
               </p>
               <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                 <span className="font-semibold">{f.captain.user.name}</span>
-                <span className="font-mono">{formatDateTime(f.createdAt, locale)}</span>
+                <span className="font-mono">{fmt.dateTime(f.createdAt)}</span>
               </div>
             </div>
           ))}

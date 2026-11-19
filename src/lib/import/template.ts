@@ -33,6 +33,8 @@ export interface ColumnDef {
   type: ColumnType;
   /** Excel column width, in characters. */
   width: number;
+  /** Earlier header names, still read: templates already handed out keep working. */
+  formerly?: Array<{ en: string; ar: string }>;
 }
 
 export interface SheetDef {
@@ -74,7 +76,7 @@ export const SHEETS: SheetDef[] = [
     columns: [
       col('name', 'Plan name', 'اسم الباقة', 'text', true, 26),
       col('sessions', 'Sessions per subscription', 'عدد الحصص في الاشتراك', 'int', true),
-      col('price', 'Price (EGP)', 'السعر (ج.م)', 'money', true, 16),
+      { ...col('price', 'Price', 'السعر', 'money', true, 16), formerly: [{ en: 'Price (EGP)', ar: 'السعر (ج.م)' }] },
       col('period', 'Period', 'مدة الاشتراك', 'period', true, 34),
       col('periodDays', 'Number of days', 'عدد الأيام', 'int', false, 16),
       col('absences', 'Allowed absences', 'الغيابات المسموحة', 'int', true),
@@ -128,7 +130,7 @@ export const SHEETS: SheetDef[] = [
       col('level', 'Level', 'المستوى', 'text', false, 18),
       col('startDate', 'Subscription start date', 'تاريخ بداية الاشتراك', 'date', false),
       col('sessionsLeft', 'Sessions left', 'الحصص المتبقية', 'int', false, 16),
-      col('amountPaid', 'Amount paid (EGP)', 'المبلغ المدفوع (ج.م)', 'money', false, 18),
+      { ...col('amountPaid', 'Amount paid', 'المبلغ المدفوع', 'money', false, 18), formerly: [{ en: 'Amount paid (EGP)', ar: 'المبلغ المدفوع (ج.م)' }] },
     ],
   },
 ];
@@ -140,6 +142,10 @@ export const sheetName = (s: { en: string; ar: string }) => `${s.en} - ${s.ar}`;
 
 /** A column's header cell. Required columns end with " *". */
 export const headerLabel = (c: ColumnDef) => `${c.en} / ${c.ar}${c.required ? ' *' : ''}`;
+
+/** Every header text the reader accepts for a column: either language, both, or a former name. */
+export const headerNames = (c: ColumnDef): string[] =>
+  [c, ...(c.formerly ?? [])].flatMap((n) => [`${n.en} / ${n.ar}`, n.en, n.ar]).concat(headerLabel(c));
 
 /** The subscription columns of a trainee row: all filled, or all empty. */
 export const SUBSCRIPTION_COLUMNS = ['group', 'level', 'startDate', 'sessionsLeft'] as const;

@@ -1,3 +1,4 @@
+import { getBranchTimeFormats, setBranchTimeFormat } from './display-settings.service';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { writeAuditLog, buildAuditDiff } from './audit.service';
 import { BadRequestError } from '@/lib/api/error-handler';
@@ -51,12 +52,14 @@ export async function createBranch(
  * List all branches in the tenant's schema.
  */
 export async function listBranches(tenantId: string, includeInactive = true) {
-  return withTenantContext(tenantId, async (tx) => {
+  const branches = await withTenantContext(tenantId, async (tx) => {
     return tx.branch.findMany({
       where: !includeInactive ? { isActive: true } : undefined,
       orderBy: { name: 'asc' },
     });
   });
+  const timeFormatOf = await getBranchTimeFormats(tenantId);
+  return branches.map((b) => ({ ...b, timeFormat: timeFormatOf(b.id) }));
 }
 
 /**
@@ -79,7 +82,7 @@ export async function updateBranch(
   input: UpdateBranchInput,
   executorId: string
 ) {
-  return withTenantContext(tenantId, async (tx) => {
+  const result = await withTenantContext(tenantId, async (tx) => {
     const oldBranch = await tx.branch.findUnique({
       where: { id: branchId },
     });
@@ -124,6 +127,9 @@ export async function updateBranch(
 
     return updated;
   });
+  // Kept in the platform config, not the branch row (display-settings.service).
+  if (input.timeFormat) await setBranchTimeFormat(tenantId, branchId, input.timeFormat);
+  return result;
 }
 
 /**

@@ -45,6 +45,8 @@ export const updateBranchSchema = z
     isActive: z.boolean().optional(),
     payrollFrequency: z.nativeEnum(PayrollFrequency).optional(),
     payrollCustomDays: z.coerce.number().int().min(1).max(365).optional().nullable(),
+    /** How this branch shows times of day (kept in the platform config, see display-settings.service). */
+    timeFormat: z.enum(['12h', '24h']).optional(),
   })
   .superRefine((data, ctx) => {
     // Only validate when payrollFrequency is explicitly being set to CUSTOM
