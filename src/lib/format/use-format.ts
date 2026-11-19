@@ -15,7 +15,7 @@
  * format (GET /api/settings/display, cached; refetched when the branch
  * changes). Until they load, and for the super admin, it uses EGP and 12-hour.
  */
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -33,11 +33,13 @@ import {
   formatPercent,
   branchTime,
 } from '@/lib/i18n/format';
+import { formatPhone, setPhoneCountryResolver, type PhoneCountry } from '@/lib/phone';
 import { DEFAULT_CURRENCY, DEFAULT_TIME_FORMAT, moneyStep, resolveCurrency, type CurrencyCode, type TimeFormat } from './currency';
 
 export interface DisplaySettings {
   currency: CurrencyCode;
   timeFormat: TimeFormat;
+  country: PhoneCountry;
 }
 
 export const displaySettingsKey = (branchId: string | undefined) => ['settings', 'display', branchId ?? ''] as const;
@@ -55,12 +57,18 @@ export function useDisplaySettings(): DisplaySettings {
       return (await res.json()).data;
     },
   });
-  return { currency: data?.currency ?? DEFAULT_CURRENCY, timeFormat: data?.timeFormat ?? DEFAULT_TIME_FORMAT };
+  const country = data?.country ?? 'EG';
+  // Phone fields in this browser read local numbers in the academy's country
+  // (src/lib/phone.ts), as the server does for the same academy.
+  useEffect(() => {
+    setPhoneCountryResolver(() => country);
+  }, [country]);
+  return { currency: data?.currency ?? DEFAULT_CURRENCY, timeFormat: data?.timeFormat ?? DEFAULT_TIME_FORMAT, country };
 }
 
 export function useFormat() {
   const locale = useLocale();
-  const { currency, timeFormat } = useDisplaySettings();
+  const { currency, timeFormat, country } = useDisplaySettings();
   return useMemo(
     () => ({
       locale,
@@ -84,8 +92,10 @@ export function useFormat() {
       sessionTime: (local: string | null | undefined) => formatClock(branchTime(local), locale, timeFormat),
       sessionDate: (local: string | null | undefined, options?: Intl.DateTimeFormatOptions) => formatBranchDate(local, locale, options),
       sessionDateTime: (local: string | null | undefined) => formatBranchDateTime(local, locale, timeFormat),
+      /** A stored phone the local way ("0100 900 0102"), or internationally if foreign. */
+      phone: (stored: string | null | undefined) => formatPhone(stored, country),
     }),
-    [locale, currency, timeFormat]
+    [locale, currency, timeFormat, country]
   );
 }
 

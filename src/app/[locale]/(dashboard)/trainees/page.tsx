@@ -26,6 +26,7 @@ import {
   XCircle,
   CreditCard,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ interface Pagination {
 
 function TraineesPageContent() {
   const t = useTranslations('trainees');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
   const can = useAccess();
@@ -130,7 +132,7 @@ function TraineesPageContent() {
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
           {/* Phone numbers read left to right, also in Arabic (it showed "…109+"). */}
-          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.user.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{fmt.phone(row.user.phoneNumber)}</p>
         </div>
       ),
     },

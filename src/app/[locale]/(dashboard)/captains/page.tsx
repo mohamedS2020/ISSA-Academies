@@ -29,6 +29,7 @@ import {
   Clock,
   Percent,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ const DAY_SHORT: Record<string, string> = {
 
 function CaptainsPageContent() {
   const t = useTranslations('captains');
+  const fmt = useFormat();
   const tCommon = useTranslations('common');
   const { authFetch } = useAuth();
   const can = useAccess();
@@ -123,7 +125,7 @@ function CaptainsPageContent() {
             <p className="font-semibold text-foreground">{row.user.name}</p>
             <RatingBadge average={row.rating.average} count={row.rating.count} />
           </div>
-          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.user.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{fmt.phone(row.user.phoneNumber)}</p>
           {row.specialization && (
             <p className="text-xs text-primary dark:text-primary mt-0.5">{row.specialization}</p>
           )}

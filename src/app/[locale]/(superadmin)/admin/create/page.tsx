@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/feedback/toast-provider';
 import { useAuth } from '@/lib/auth/auth-context';
 import { generateSlug } from '@/schemas/tenant.schema';
-import { isValidPhone } from '@/lib/phone';
+import { formatPhone, isValidPhone } from '@/lib/phone';
 import { CURRENCIES, CURRENCY_CODES, DEFAULT_CURRENCY, type CurrencyCode } from '@/lib/format/currency';
 import {
   SPORTS,
@@ -153,7 +153,7 @@ export default function CreateTenantPage() {
       if (!data.adminName.trim()) newErrors.adminName = 'Admin name is required';
       if (!data.adminPhone.trim()) newErrors.adminPhone = 'Admin phone is required';
       // The server's own rule (src/lib/phone.ts): Arabic digits and brackets are fine.
-      else if (!isValidPhone(data.adminPhone)) {
+      else if (!isValidPhone(data.adminPhone, CURRENCIES[data.currency].country)) {
         newErrors.adminPhone = 'Invalid phone number';
       }
     }
@@ -661,7 +661,7 @@ export default function CreateTenantPage() {
                     {t('adminPhone')}
                   </dt>
                   <dd className="font-mono text-foreground rtl:text-right" dir="ltr">
-                    {result.adminCredentials.phoneNumber}
+                    {formatPhone(result.adminCredentials.phoneNumber, CURRENCIES[data.currency].country)}
                   </dd>
                 </div>
                 <div>

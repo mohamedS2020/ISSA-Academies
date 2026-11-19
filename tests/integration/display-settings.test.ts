@@ -22,7 +22,7 @@ afterAll(async () => {
 
 describe('display settings', () => {
   test('a new academy counts in EGP and shows 12-hour times', async () => {
-    expect(await getDisplaySettings(academy!.tenantId, academy!.branchId)).toEqual({ currency: 'EGP', timeFormat: '12h' });
+    expect(await getDisplaySettings(academy!.tenantId, academy!.branchId)).toEqual({ currency: 'EGP', timeFormat: '12h', country: 'EG' });
   });
 
   test("the academy's currency is what it was created with", async () => {

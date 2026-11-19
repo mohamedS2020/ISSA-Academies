@@ -33,6 +33,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
+import { useFormat } from '@/lib/format/use-format';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -58,6 +59,7 @@ interface Pagination {
 
 export default function UsersPage() {
   const t = useTranslations('users');
+  const fmt = useFormat();
   const [ask, confirmDialog] = useConfirm();
   const tCommon = useTranslations('common');
   const { user, authFetch } = useAuth();
@@ -248,7 +250,7 @@ export default function UsersPage() {
       render: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.name}</p>
-          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{row.phoneNumber}</p>
+          <p className="text-xs text-muted-foreground rtl:text-right" dir="ltr">{fmt.phone(row.phoneNumber)}</p>
         </div>
       ),
     },

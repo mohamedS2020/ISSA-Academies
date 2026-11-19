@@ -183,7 +183,7 @@ function ReportsCenterPageContent() {
     ],
     expiringSoon: [
       { key: 'traineeName', header: t('col.trainee') },
-      { key: 'phone', header: t('col.phone'), render: (r) => <span dir="ltr">{r.phone}</span> },
+      { key: 'phone', header: t('col.phone'), render: (r) => <span dir="ltr">{fmt.phone(r.phone)}</span> },
       { key: 'planName', header: t('col.plan') },
       { key: 'levelName', header: t('col.level') },
       { key: 'groupName', header: t('col.group') },

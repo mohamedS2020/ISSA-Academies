@@ -15,6 +15,8 @@ import {
   buildPaginationMeta,
 } from '@/lib/api/response';
 import { createTenantSchema } from '@/schemas/tenant.schema';
+import { withPhoneCountry } from '@/lib/phone-context';
+import { resolveCurrency } from '@/lib/format/currency';
 import { createTenant, listTenants } from '@/services/tenant.service';
 
 // ─── GET — List Tenants ─────────────────────────────────────
@@ -42,7 +44,8 @@ export const GET = withErrorHandler(
 export const POST = withErrorHandler(
   withSuperAdminAuth(async (request) => {
     const body = await request.json();
-    const input = createTenantSchema.parse(body);
+    // The admin's phone is read in the new academy's country (from its currency).
+    const input = withPhoneCountry(resolveCurrency(body?.currency).country, () => createTenantSchema.parse(body));
 
     const result = await createTenant(input);
 

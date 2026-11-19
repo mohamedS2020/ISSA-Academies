@@ -25,6 +25,7 @@ import {
   type LeadsPage,
 } from '@/components/superadmin/leads-api';
 import { LeadNotesDialog } from '@/components/superadmin/lead-notes-dialog';
+import { formatPhone } from '@/lib/phone';
 
 const BRANCH_KEYS: Record<string, 'one' | 'twoToFive' | 'sixPlus'> = {
   '1': 'one',
@@ -135,7 +136,7 @@ export default function LeadsPage() {
       render: (lead) => (
         <div className="flex flex-col gap-0.5">
           <span dir="ltr" className="whitespace-nowrap text-sm">
-            {lead.phone}
+            {formatPhone(lead.phone, 'EG')}
           </span>
           <a
             href={`https://wa.me/${lead.phone.replace(/^\+/, '')}`}
