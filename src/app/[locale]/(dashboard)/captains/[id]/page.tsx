@@ -442,6 +442,12 @@ function CaptainDetailPageContent() {
                 )}
               </>
             )}
+            {/* Imported captains can arrive without pay (the academy sets it later). */}
+            {!(captain.payrollType === 'HOURS'
+              ? captain.hourlyRate != null
+              : captain.baseSalary != null && captain.percentage != null) && (
+              <p className="text-xs font-semibold text-warning bg-warning-soft rounded-lg px-2.5 py-1">{tc('payNotSet')}</p>
+            )}
           </div>
         )}
       </div>

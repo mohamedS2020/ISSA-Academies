@@ -72,6 +72,16 @@ export async function calculatePayrollPreview(
     });
     if (!captain) throw new NotFoundError('Captain not found in this branch');
 
+    // A captain imported without pay settings (src/services/import.service.ts)
+    // has none yet: say so rather than calculate a payroll of zero.
+    const paySet =
+      captain.payrollType === 'HOURS'
+        ? captain.hourlyRate != null
+        : captain.baseSalary != null && captain.percentage != null;
+    if (!paySet) {
+      throw new BadRequestError("This captain's pay isn't set yet. Set it on the captain's page, then calculate payroll.");
+    }
+
     const groupIds = captain.groups.map((g) => g.id);
     const { periodStartDate, periodEndDate } = toPeriodRange(periodStart, periodEnd);
 

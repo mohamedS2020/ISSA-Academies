@@ -22,6 +22,9 @@ export const BRAND_COLORS = {
   line: '#D6E2E3',
   slate: '#4F6268',
   'on-dark-muted': '#A9BFC4',
+  danger: '#B42318',
+  'danger-bg': '#FDECEA',
+  'warning-bg': '#FBF0DF',
 } as const;
 
 export type BrandColor = keyof typeof BRAND_COLORS;
@@ -31,4 +34,9 @@ export function brandRgba(color: BrandColor, alpha: number): string {
   const hex = BRAND_COLORS[color].slice(1);
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/** A brand colour as Excel's opaque ARGB ("FF005F73"), for exceljs fills and fonts. */
+export function brandArgb(color: BrandColor): string {
+  return `FF${BRAND_COLORS[color].slice(1).toUpperCase()}`;
 }
