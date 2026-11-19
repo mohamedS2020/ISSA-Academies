@@ -78,7 +78,12 @@ async function generateSystemCode(
   `;
   if (!row) throw new BadRequestError('Branch not found');
 
-  return `${branchCode.toUpperCase()}-${String(row.trainee_seq).padStart(6, '0')}`;
+  return formatSystemCode(branchCode, row.trainee_seq);
+}
+
+/** A trainee's code from its branch code and number: "BR01-000042". */
+export function formatSystemCode(branchCode: string, seq: number): string {
+  return `${branchCode.toUpperCase()}-${String(seq).padStart(6, '0')}`;
 }
 
 // ─── Guardian account ─────────────────────────────────────────

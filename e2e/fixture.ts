@@ -17,6 +17,8 @@ export interface E2EState {
   expiring: { traineeId: string; name: string; guardianPhone: string; guardianPassword: string };
   /** Subscription has ended: renewing starts today. */
   ended: { traineeId: string; name: string };
+  /** A platform super admin, removed by teardown (import.spec.ts). */
+  superAdmin: { id: string; phone: string; password: string };
 }
 
 export function readState(): E2EState {

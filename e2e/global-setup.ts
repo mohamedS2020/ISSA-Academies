@@ -15,6 +15,7 @@ import {
 import { enrollTrainee } from '@/services/subscription.service';
 import { withTenantContext } from '@/lib/db/tenant-client';
 import { hashPassword } from '@/lib/auth/password';
+import { platformPrisma } from '@/lib/db/platform-client';
 import { STATE_FILE, type E2EState } from './fixture';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -95,6 +96,15 @@ export default async function globalSetup(): Promise<void> {
     })
   );
 
+  // A super admin for the academy import (import.spec.ts). The phone is random
+  // so a stale one from an interrupted run can't collide.
+  const superAdminPassword = 'E2e-Super-Admin-1!';
+  const superAdminPhone = `+2010${String(Date.now()).slice(-8)}`;
+  const superAdmin = await platformPrisma.superAdmin.create({
+    data: { name: 'E2E Super Admin', phoneNumber: superAdminPhone, passwordHash: await hashPassword(superAdminPassword) },
+    select: { id: true },
+  });
+
   const state: E2EState = {
     tenantId: academy.tenantId,
     schemaName: academy.schemaName,
@@ -107,6 +117,7 @@ export default async function globalSetup(): Promise<void> {
       guardianPassword: 'Test-Password-123!',
     },
     ended: { traineeId: ended.trainee.id, name: 'Omar Ended' },
+    superAdmin: { id: superAdmin.id, phone: superAdminPhone, password: superAdminPassword },
   };
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 }

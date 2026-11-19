@@ -15,6 +15,7 @@ import { useToast } from '@/components/feedback/toast-provider';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { Skeleton } from '@/components/feedback/skeleton-loader';
 import { formatDate } from '@/lib/i18n/format';
+import { AcademyImport } from '@/components/superadmin/academy-import';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -434,6 +435,9 @@ export default function TenantDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Data import (an empty branch only) */}
+      {tenant.status === 'ACTIVE' && <AcademyImport tenantId={tenantId} academyName={tenant.name} />}
 
       {/* Danger Zone */}
       {tenant.status !== 'DELETED' && (

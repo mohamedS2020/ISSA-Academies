@@ -11,6 +11,7 @@ export default async function globalTeardown(): Promise<void> {
   if (!existsSync(STATE_FILE)) return;
   const state = readState();
   try {
+    if (state.superAdmin) await platformPrisma.superAdmin.deleteMany({ where: { id: state.superAdmin.id } });
     await destroyTestAcademy({
       tenantId: state.tenantId,
       schemaName: state.schemaName,
